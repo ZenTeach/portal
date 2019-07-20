@@ -1,0 +1,3 @@
+#!/bin/bash
+cd src/backend
+env FLASK_SERVER="flask-server.py" flask run
