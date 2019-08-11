@@ -6,7 +6,7 @@ import os
 import sqlalchemy as db 
 import zlib
 import base64
-import pandas as pd
+# import pandas as pd
 
 dirname = os.path.dirname(__file__)
 app = Flask(__name__)
@@ -27,10 +27,11 @@ def get_class():
 
 @app.route('/get_students')
 def get_students():
-    result = pd.read_sql_query("select * from zenteach.student", conn)
-    result = result.to_dict(orient='records')
-    print('result = ', result)
-    return (json.jsonify(result))
+        return {}
+#     result = pd.read_sql_query("select * from zenteach.student", conn)
+#     result = result.to_dict(orient='records')
+#     print('result = ', result)
+#     return (json.jsonify(result))
 
 @app.route('/get_quiz')
 def get_quiz():
