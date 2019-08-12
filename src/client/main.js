@@ -1,9 +1,9 @@
 import Vue from 'vue'
-import './plugins/vuetify'
-import App from './App.vue'
-import router from './router'
-import AuthPlugin from './plugins/auth'
-import store from './store'
+import '@/client/plugins/vuetify'
+import App from '@/client/App.vue'
+import router from '@/client/router'
+import AuthPlugin from '@/client/plugins/auth'
+import store from '@/client/store'
 import VueQrcodeReader from 'vue-qrcode-reader'
 
 Vue.config.productionTip = false
