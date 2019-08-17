@@ -4,6 +4,9 @@ Flask==1.1.1
 Flask-Cors==3.0.8
 Flask-RESTful==0.3.7
 Flask-SQLAlchemy==2.3.2
+Flask-Alembic
+Flask-Migrate
+Faker
 itsdangerous==1.1.0
 Jinja2==2.10.1
 MarkupSafe==1.1.1
