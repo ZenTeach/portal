@@ -21,8 +21,8 @@ services:
       - 5001:5000
     environment: 
       - FLASK_ENV=development
-      - DATABASE_URL=postgres://zenteach:zenteach@zenteach-db:5432/zenteach_dev
-      - DATABASE_TEST_URL=postgres://zenteach:zenteach@zenteach-db:5432/zenteach_test
+      - DATABASE_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach_dev
+      - DATABASE_TEST_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach_test
       - APP_SETTINGS=server.config.DevelopmentConfig
     depends_on: 
       - zenteach_db
