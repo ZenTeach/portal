@@ -1,6 +1,7 @@
 from server import db
+from server.models.base_model import BaseModelMixin
 
-class ClassQuiz(db.Model):
+class ClassQuiz(BaseModelMixin, db.Model):
     __tablename__ = 'class_quiz'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -17,3 +18,10 @@ class ClassQuiz(db.Model):
 
     def __repr__(self):
         return '<ClassQuiz %r>' % self.name
+
+    def to_json(self):
+        return {
+            'subject': self.subject,
+            'max_score': self.max_score,
+            'questions_list': self.questions_list
+        }

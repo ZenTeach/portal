@@ -1,7 +1,8 @@
 from server import db
+from server.models.base_model import BaseModelMixin
 from datetime import datetime
 
-class SchoolClass(db.Model):
+class SchoolClass(BaseModelMixin, db.Model):
     __tablename__ = 'school_class'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -16,3 +17,10 @@ class SchoolClass(db.Model):
     
     def __repr__(self):
         return '<SchoolClass %r>' % self.name
+
+    def to_json(self):
+        return {
+            'name': self.name,
+            'subject': self.subject,
+            'start_date': str(self.start_date)
+        }

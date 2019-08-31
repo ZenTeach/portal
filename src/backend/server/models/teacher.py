@@ -13,3 +13,6 @@ class Teacher(db.Model):
 
     def __repr__(self):
         return '<Teacher %r>' % self.name
+
+    def full_name(self):
+        return "{} {}".format(self.firstname, self.lastname)

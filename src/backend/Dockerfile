@@ -3,7 +3,8 @@ FROM python:3.7.2-alpine
 RUN apk update && \
     apk add --virtual build-deps gcc python-dev musl-dev && \
     apk add postgresql-dev && \
-    apk add netcat-openbsd
+    apk add netcat-openbsd && \
+    apk add libffi-dev
 
 RUN mkdir -p /home/flask/server
 WORKDIR /home/flask/server

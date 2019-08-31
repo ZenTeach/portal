@@ -7,6 +7,11 @@ Flask-SQLAlchemy==2.3.2
 Flask-Alembic
 Flask-Migrate
 Faker
+factory_boy
+Flask-Testing
+flask-login
+flask-bcrypt
+flask-jwt-extended
 itsdangerous==1.1.0
 Jinja2==2.10.1
 MarkupSafe==1.1.1

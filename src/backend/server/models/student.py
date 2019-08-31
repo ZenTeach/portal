@@ -15,4 +15,4 @@ class Student(db.Model):
         backref=db.backref('students', lazy=True))
 
     def __repr__(self):
-        return '<Student %r>' % self.name
+        return '<Student %r>' % self.id
