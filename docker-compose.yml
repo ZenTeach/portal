@@ -2,6 +2,7 @@ version: '3.7'
 
 services:
   zenteach_fe:
+    restart: always
     build:
       context: ./src/client
       dockerfile: Dockerfile
@@ -12,6 +13,7 @@ services:
     depends_on: 
       - zenteach_be
   zenteach_be:
+    restart: always
     build: 
       context: ./src/backend
       dockerfile: Dockerfile
