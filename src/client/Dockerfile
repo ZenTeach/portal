@@ -10,4 +10,4 @@ RUN yarn install
 COPY --chown=node:node . .
 
 EXPOSE 8080
-CMD ["yarn", "serve"]
+CMD ["npm", "serve"]
