@@ -36,7 +36,7 @@ class StudentFactory(BaseSQLAlchemyModelFactory):
     email = fake.safe_email()
     password = fake.password(length=12, special_chars=True, digits=True, upper_case=True, lower_case=True)
     date_of_birth = fake.date_of_birth()
-
+    role="Student"
     # classes = RelatedFactory('server.tests.factories.SchoolClassFactory')
 
     @post_generation
@@ -58,7 +58,8 @@ class TeacherFactory(BaseSQLAlchemyModelFactory):
     email = fake.safe_email()
     password = fake.password(length=12, special_chars=True, digits=True, upper_case=True, lower_case=True)
     date_of_birth = fake.date_of_birth()
-
+    role="Teacher"
+    
     @post_generation
     def classes(self, create, extracted, **kwargs):
         if not create:
