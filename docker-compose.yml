@@ -1,17 +1,17 @@
 version: '3.7'
 
 services:
-  zenteach_fe:
-    restart: always
-    build:
-      context: ./src/client
-      dockerfile: Dockerfile
-    volumes:
-      - './src/client:/home/node/app'
-    ports:
-      - 8080:8080
-    depends_on: 
-      - zenteach_be
+  # zenteach_fe:
+  #   restart: always
+  #   build:
+  #     context: ./src/client
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - './src/client:/home/node/app'
+  #   ports:
+  #     - 8080:8080
+  #   depends_on: 
+  #     - zenteach_be
   zenteach_be:
     restart: always
     build: 
