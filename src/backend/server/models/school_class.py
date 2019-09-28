@@ -21,3 +21,7 @@ class SchoolClass(BaseModelMixin, db.Model):
 
     def __repr__(self):
         return '<SchoolClass %r>' % self.name
+
+    @property
+    def filterable_columns(self):
+        return ["id"]

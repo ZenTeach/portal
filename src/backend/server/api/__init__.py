@@ -1,11 +1,13 @@
-from flask import Blueprint, current_app, url_for, jsonify
+from flask import Blueprint, current_app, jsonify, url_for
 
 root_api = Blueprint('root', __name__)
+
 
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
     arguments = rule.arguments if rule.arguments is not None else ()
     return len(defaults) >= len(arguments)
+
 
 @root_api.route("/")
 def site_map():

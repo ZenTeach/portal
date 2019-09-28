@@ -17,6 +17,8 @@ class BaseModelMixin(object):
         db.session.commit()
 
     def to_json(self):
+        filtered_columns = list(
+            filter(lambda x: x not in self.filterable_columns, self.__table__.columns))
         model_hash = {c.name: getattr(self, c.name)
-                      for c in self.__table__.columns}
+                      for c in filtered_columns}
         return json.loads(json.dumps(model_hash, default=myconverter))

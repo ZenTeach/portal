@@ -19,3 +19,7 @@ class Teacher(BaseModelMixin, db.Model):
 
     def full_name(self):
         return "{} {}".format(self.firstname, self.lastname)
+
+    @property
+    def filterable_columns(self):
+        return ["password"]

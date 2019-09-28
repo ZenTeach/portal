@@ -19,9 +19,12 @@ class ClassQuiz(BaseModelMixin, db.Model):
     def __repr__(self):
         return '<ClassQuiz %r>' % self.name
 
-    def to_json(self):
-        return {
-            'subject': self.subject,
-            'max_score': self.max_score,
-            'questions_list': self.questions_list
-        }
+    # def to_json(self):
+    #     return {
+    #         'subject': self.subject,
+    #         'max_score': self.max_score,
+    #         'questions_list': self.questions_list
+    #     }
+    @property
+    def filterable_columns(self):
+        return []
