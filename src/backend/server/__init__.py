@@ -36,12 +36,14 @@ def create_app(script_info=None):
     from server.api.class_quiz_api import class_quiz_blueprint
     from server.api.teacher_auth_api import teacher_auth_blueprint
     from server.api.student_auth_api import student_auth_blueprint
+    from server.api.questions_api import question_blueprint
     from server.api import root_api
 
     app.register_blueprint(school_class_blueprint, url_prefix='/api/v1')
     app.register_blueprint(class_quiz_blueprint, url_prefix='/api/v1')
     app.register_blueprint(teacher_auth_blueprint, url_prefix='/api/v1')
     app.register_blueprint(student_auth_blueprint, url_prefix='/api/v1')
+    app.register_blueprint(question_blueprint, url_prefix='/api/v1')
     app.register_blueprint(root_api)
 
     @app.shell_context_processor
