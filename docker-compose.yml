@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   zenteach_fe:
@@ -7,26 +7,27 @@ services:
       context: ./src/client
       dockerfile: Dockerfile
     volumes:
-      - './src/client:/home/node/app'
+      - "./src/client:/home/app"
+      - "/home/app/node_modules"
     ports:
       - 8080:8080
-    depends_on: 
+    depends_on:
       - zenteach_be
   zenteach_be:
     restart: always
-    build: 
+    build:
       context: ./src/backend
       dockerfile: Dockerfile
     volumes:
-      - './src/backend:/home/flask/server'
-    ports: 
+      - "./src/backend:/home/flask/server"
+    ports:
       - 5001:5000
-    environment: 
+    environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach_dev
       - DATABASE_TEST_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach_test
       - APP_SETTINGS=server.config.DevelopmentConfig
-    depends_on: 
+    depends_on:
       - zenteach_db
   zenteach_db:
     build:
@@ -34,6 +35,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - 5435:5432
-    environment: 
+    environment:
       - POSTGRES_USER=zenteach
       - POSTGRES_PASSWORD=zenteach
