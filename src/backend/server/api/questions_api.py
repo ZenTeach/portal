@@ -5,11 +5,12 @@ import json
 from flask_jwt_extended import jwt_required
 
 from server.decorators import with_required_roles
-from server.models import Questions, QuestionTypeEnum
+from server.models import Questions, QuestionTypeEnum, QuestionsSchema
 from server import db
 
 question_blueprint = Blueprint('question', __name__)
 api = Api(question_blueprint)
+dumper = QuestionsSchema()
 
 parser = reqparse.RequestParser()
 parser.add_argument('subject', required=True,
@@ -24,7 +25,7 @@ class QuestionList(Resource):
         question_list = Questions.query.filter_by(
             subject=args['subject']).all()
         return make_response({
-            "questions": [question.to_json() for question in question_list]
+            "questions": [dumper.dump(question) for question in question_list]
         }, 200)
 
     @with_required_roles(["Teacher", "Admin"])
@@ -79,7 +80,7 @@ class Question(Resource):
     def get(self, question_id):
         question = Questions.query.filter_by(id=question_id).first()
         return make_response({
-            "question": question.to_json()
+            "question": dumper.dump(question)
         }, 200)
 
     @with_required_roles(["Admin"])

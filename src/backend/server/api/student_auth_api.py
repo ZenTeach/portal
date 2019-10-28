@@ -2,16 +2,17 @@ from flask import Blueprint, jsonify, request, make_response, current_app
 from flask_restful import Resource, Api
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, set_access_cookies,
                                 set_refresh_cookies, unset_jwt_cookies, get_jwt_identity, get_raw_jwt, get_jwt_claims)
-from server.models import Student
+from server.models import Student, StudentSchema
 from server import db, bcrypt, jwt
 
 student_auth_blueprint = Blueprint('student_auth', __name__)
 api = Api(student_auth_blueprint)
+dumper = StudentSchema()
 
 
 @jwt.user_identity_loader
 def load_user(identity):
-    return {'identity': identity.to_json()}
+    return {'identity': dumper.dump(identity)}
 
 
 class StudentRegistration(Resource):

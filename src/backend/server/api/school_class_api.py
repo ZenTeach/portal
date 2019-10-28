@@ -41,7 +41,7 @@ class SchoolClassList(Resource):
         response_object = jsonify({
             'status': 'success',
             'data': {
-                'school_classes': [classroom.to_json() for classroom in SchoolClassModel.query.all()]
+                'school_classes': [schema_dumper.dump(classroom) for classroom in SchoolClassModel.query.all()]
             }
         })
         return make_response(response_object, 200)
@@ -122,7 +122,6 @@ class TeacherOwnedClass(Resource):
             else:
                 response_object = jsonify({
                     'status': 'success',
-                    # 'data': [classroom.to_json() for classroom in class_rooms]
                     'data': [schema_dumper.dump(classroom) for classroom in class_rooms]
                 })
                 return make_response(response_object, 200)

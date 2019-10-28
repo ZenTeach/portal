@@ -4,11 +4,12 @@ from flask_restful import Resource, Api
 import json
 
 from server.decorators import with_required_roles
-from server.models import ClassQuiz as ClassQuizModel
+from server.models import ClassQuiz as ClassQuizModel, ClassQuizSchema
 from server import db
 
 class_quiz_blueprint = Blueprint('class_quiz', __name__)
 api = Api(class_quiz_blueprint)
+dumper = ClassQuizSchema()
 
 
 class ClassQuiz(Resource):
@@ -25,7 +26,7 @@ class ClassQuiz(Resource):
             else:
                 response_message = {
                     'status': 'success',
-                    'data': class_quiz.to_json()
+                    'data': dumper.dump(class_quiz)
                 }
                 return make_response(response_message, 200)
         except ValueError:
@@ -38,7 +39,7 @@ class ClassQuizList(Resource):
         return make_response({
             'status': 'success',
             'data': {
-                'class_quizzes': [classquiz.to_json for classquiz in ClassQuizModel.query.all()]
+                'class_quizzes': [dumper.dump(classquiz) for classquiz in ClassQuizModel.query.all()]
             }
         }, 200)
 
