@@ -22,7 +22,3 @@ class Questions(BaseModelMixin, db.Model):
     tag = db.Column(db.String(128), nullable=False)
     choices = db.Column(JSON)
     question_weights = db.Column(db.Integer, nullable=False)
-
-    @property
-    def filterable_columns(self):
-        return ["question_weights"]

@@ -13,7 +13,9 @@ class Student(BaseModelMixin, db.Model):
     date_of_birth = db.Column(db.DateTime, nullable=False)
     role = db.Column(db.String(128), nullable=False)
 
-    classes = db.relationship('SchoolClass', backref='student', lazy=True)
+    classes = db.relationship('SchoolClass',
+                              secondary='student_attended_class', viewonly=True)
+
     quiz_grades = db.relationship('ClassQuiz', secondary=quizzes, lazy='subquery',
                                   backref=db.backref('students', lazy=True))
 
@@ -22,7 +24,3 @@ class Student(BaseModelMixin, db.Model):
 
     def full_name(self):
         return "{} {}".format(self.firstname, self.lastname)
-
-    @property
-    def filterable_columns(self):
-        return ["password"]

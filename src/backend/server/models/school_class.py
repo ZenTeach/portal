@@ -14,14 +14,16 @@ class SchoolClass(BaseModelMixin, db.Model):
 
     teacher_id = db.Column(db.Integer, db.ForeignKey(
         'teacher.id'), nullable=False)
-    student_id = db.Column(db.Integer, db.ForeignKey(
-        'student.id'), nullable=False)
+
+    students = db.relationship(
+        'Student', secondary="student_attended_class", viewonly=True)
 
     quizzes = db.relationship('ClassQuiz', backref='school_class', lazy=True)
 
     def __repr__(self):
         return '<SchoolClass %r>' % self.name
 
-    @property
-    def filterable_columns(self):
-        return ["id"]
+    def add_student(self, student):
+        from .student_school_class import StudentAttendedClass
+        self.student_attended_classes.append(
+            StudentAttendedClass(student=student, school_class=self))
