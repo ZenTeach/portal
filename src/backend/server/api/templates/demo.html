@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8" />
+    <title>{{ title }}</title>
+  </head>
+  <body>
+    <h2>{{ subject }} - Quiz</h2>
+    <div class="container">
+      {% for question in questions %}
+      <h4>{{ question["question"] }}</h4>
+      <ol>
+        <li>{{ question["choices"]["a"] }}</li>
+        <li>{{ question["choices"]["b"] }}</li>
+        <li>{{ question["choices"]["c"] }}</li>
+        <li>{{ question["choices"]["d"] }}</li>
+      </ol>
+      {% endfor %}
+    </div>
+  </body>
+</html>
