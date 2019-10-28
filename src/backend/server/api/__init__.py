@@ -1,3 +1,4 @@
+import logging
 from flask import Blueprint, current_app, jsonify, url_for, request, make_response
 from server.models import Questions
 from jinja2 import Environment, FileSystemLoader
@@ -5,6 +6,8 @@ from weasyprint import HTML, CSS
 from weasyprint.fonts import FontConfiguration
 
 root_api = Blueprint('root', __name__)
+
+api_logger = logging.getLogger(__name__)
 
 
 def has_no_empty_params(rule):
@@ -53,3 +56,14 @@ def demo_pdf():
     return make_response({
         'message': 'PDF generated'
     }, 200)
+
+# TODO: Use this to dynamically register api blueprint during app creation
+# def register_blueprints(app):
+#     """Automagically register all blueprint packages
+#     Just take a look in the blueprints directory.
+#     """
+#     for name in find_modules('blueprints', recursive=True):
+#         mod = import_string(name)
+#         if hasattr(mod, 'bp'):
+#             app.register_blueprint(mod.bp)
+#     return None
