@@ -1,7 +1,11 @@
 FROM python:3.7.2-alpine
 
+RUN echo "http://dl-8.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+
 RUN apk update && \
 	apk add --virtual build-deps gcc python-dev musl-dev && \
+	apk add gfortran py-pip build-base wget && \
+	apk add freetype-dev libpng-dev openblas-dev && \
 	apk add alpine-sdk && \
 	apk add postgresql-dev && \
 	apk add netcat-openbsd && \
@@ -14,6 +18,8 @@ RUN apk update && \
 	apk add gdk-pixbuf && \
 	apk add shared-mime-info jpeg-dev && \
 	apk add ttf-opensans
+
+RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
 
 RUN mkdir -p /home/flask/server
 WORKDIR /home/flask/server
