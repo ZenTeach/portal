@@ -1,7 +1,7 @@
 module.exports = {
-    configureWebpack: {
-        entry: {
-            app: './main.js'
-        }
+  configureWebpack: {
+    entry: {
+      app: './main.js'
     }
+  }
 }
