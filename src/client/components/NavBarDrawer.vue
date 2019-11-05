@@ -1,0 +1,100 @@
+<template>
+  <v-navigation-drawer
+    id="app-drawer"
+    v-model="drawer"
+    :mini-variant.sync="drawerMinified"
+    color="grey darken-1"
+    floating
+    dark
+    mobile-break-point="991"
+    persistent
+		absolute
+    width="220"
+    clipped
+    app
+  >
+    <v-list-item two-line>
+      <v-toolbar-title class="text-uppercase align-self-center">
+        <span class="font-weight-light">Zen</span>
+        <span>Teach</span>
+      </v-toolbar-title>
+    </v-list-item>
+
+    <v-divider class="mx-3 mb-3" />
+
+    <v-list nav>
+      <v-list-item
+        v-for="item in items"
+        :key="item.title"
+        link
+        :to="item.to"
+        active-class="primary white--text"
+      >
+        <v-list-item-icon>
+          <v-icon>{{ item.icon }}</v-icon>
+        </v-list-item-icon>
+
+        <v-list-item-content>
+          <v-list-item-title>{{ item.title }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-list>
+
+    <template v-slot:append>
+      <v-list nav>
+        <v-list-item>
+          <v-list-item-action>
+            <v-btn text @click="toggleMiniview()">
+              <v-icon>{{ drawerMinified ? "mdi-format-horizontal-align-right" : "mdi-format-horizontal-align-left" }}</v-icon>
+            </v-btn>
+          </v-list-item-action>
+
+          <v-list-item-title class="font-weight-light" v-if="!drawerMinified">Minimize</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </template>
+  </v-navigation-drawer>
+</template>
+
+<script>
+import { mapGetters, mapMutations, mapState } from "vuex";
+export default {
+  name: "NavBarDrawer",
+  computed: {
+    ...mapGetters({
+      drawer: "app/getDrawer",
+      drawerMinified: "app/getDrawerMinified"
+    })
+  },
+  data() {
+    return {
+      items: [
+        {
+          title: "Dashboard",
+          icon: "mdi-view-dashboard",
+          to: "/"
+        },
+        {
+          title: "Classrooms",
+          icon: "mdi-book-minus-multiple",
+          to: "/classrooms"
+        },
+        {
+          title: "Students",
+          icon: "mdi-account-group-outline",
+          to: "/students"
+        }
+      ]
+    };
+  },
+  methods: {
+    ...mapMutations(["TOGGLE_APP_DRAWER_MINIFIED"]),
+    toggleMiniview() {
+      this.$store.commit("app/TOGGLE_APP_DRAWER_MINIFIED");
+    }
+  }
+};
+</script>
+
+<style scoped>
+</style>
