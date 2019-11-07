@@ -1,14 +1,15 @@
-import sys
-import os
-import unittest
+import datetime
 import operator
+import os
+import sys
+import unittest
 
+import coverage
+import sqlalchemy as sa
 from flask import url_for
 from flask.cli import FlaskGroup
 from flask_migrate import MigrateCommand
-from server import create_app, db, bcrypt
-import coverage
-import datetime
+from server import bcrypt, create_app, db
 
 app = create_app()
 cli = FlaskGroup(create_app=create_app)
@@ -30,6 +31,11 @@ def recreate_db():
     db.drop_all()
     db.create_all()
     db.session.commit()
+
+
+@cli.command('db_conf')
+def db_conf():
+    sa.orm.configure_mappers()
 
 
 @cli.command()
