@@ -20,7 +20,7 @@ def seeds():
     # SchoolClass
     class_student = Student.query.first()
     class_teacher_id = Teacher.query.filter_by(role="Teacher").first().id
-    s = SchoolClass(name="Algebra", subject="Math", start_date=datetime.date.today(
+    s = SchoolClass(name="Atoms", subject="Chemistry", start_date=datetime.date.today(
     ), teacher_id=class_teacher_id)
 
     # interim = StudentAttendedClass()

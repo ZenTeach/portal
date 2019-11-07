@@ -21,6 +21,6 @@ def question_seeds():
                 subject="Chemistry",
                 topic=line["Topic"],
                 tag=line["TAG"],
-                choices=choices,
-                question_weights=0
+                knowledge_item=line["KnowledgeItem"],
+                choices=choices
             ).save()
