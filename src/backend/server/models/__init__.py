@@ -1,3 +1,5 @@
+from marshmallow_enum import EnumField
+
 from .class_quiz import ClassQuiz, ClassQuizStatus
 from .student_school_class import StudentAttendedClass
 from .school_class import SchoolClass
@@ -24,11 +26,15 @@ class ClassQuizScoreSchema(ma.ModelSchema):
 class QuestionsSchema(ma.ModelSchema):
     class Meta:
         model = Questions
+        fields = ('id', 'question', 'question_type',
+                  'subject', 'topic', 'knowledge_item', 'tag', 'choices')
+    question_type = EnumField(QuestionTypeEnum, by_value=True)
 
 
 class ClassQuizSchema(ma.ModelSchema):
     class Meta:
         model = ClassQuiz
+    status = EnumField(ClassQuizStatus)
 
 
 class StudentSchema(ma.ModelSchema):
@@ -43,7 +49,7 @@ class StudentSchema(ma.ModelSchema):
 class SchoolClassSchema(ma.ModelSchema):
     class Meta:
         model = SchoolClass
-        fields = ('name', 'subject', 'start_date', 'students', 'quizzes')
+        fields = ('id', 'name', 'subject', 'start_date', 'students', 'quizzes')
 
     quizzes = ma.Nested(ClassQuizSchema, many=True)
     students = ma.Nested(StudentSchema, many=True)
