@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
+from sqlalchemy_searchable import make_searchable
 from flask_cors import CORS
 
 
@@ -61,6 +62,8 @@ def create_app(script_info=None):
     migration_directory = os.path.join('server', 'models', 'migrations')
     migrate = Migrate(app, db, directory=migration_directory)
 
+    make_searchable(db.metadata)
+
     # Register bluprints
     from server.api.school_class_api import school_class_blueprint
     from server.api.class_quiz_api import class_quiz_blueprint
@@ -83,10 +86,6 @@ def create_app(script_info=None):
     # @app.errorhandler(500)
     # def internal_error(exception):
     #     app.logger.error(exception)
-
-    @app.before_request
-    def interceptor():
-        print(request.cookies)
 
     @app.shell_context_processor
     def ctx():
