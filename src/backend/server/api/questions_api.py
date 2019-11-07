@@ -4,9 +4,11 @@ from flask_restful import Resource, Api, reqparse
 import json
 from flask_jwt_extended import jwt_required
 
+from server import db
+from sqlalchemy_searchable import search
 from server.decorators import with_required_roles
 from server.models import Questions, QuestionTypeEnum, QuestionsSchema
-from server import db
+from server.api import api_logger
 
 question_blueprint = Blueprint('question', __name__)
 api = Api(question_blueprint)
@@ -115,6 +117,33 @@ class QuestionPing(Resource):
         }, 200)
 
 
+class QuestionSearch(Resource):
+    @jwt_required
+    def post(self):
+        query_params = request.get_json()
+        api_logger.debug(f"query_params: {query_params}")
+        try:
+            result_set = Questions.query.search(query_params['query']).filter_by(
+                subject=query_params['subject'],
+                topic=query_params['topic']
+            ).filter(Questions.knowledge_item.in_(query_params['knowledge_item'])).all()
+
+            api_logger.debug(f"Result set length: {len(result_set)}")
+            if len(result_set) != 0:
+                response = {
+                    "data": [dumper.dump(result) for result in result_set]
+                }
+                return make_response(jsonify(response), 200)
+            else:
+                response = {"message": "No result found"}
+                return make_response(jsonify(response), 200)
+        except Exception as e:
+            api_logger.debug(e)
+            error_object = {'message': 'Error processing request'}
+            return make_response(jsonify(error_object), 500)
+
+
 api.add_resource(QuestionPing, '/question/ping')
 api.add_resource(Question, '/question/<question_id>')
 api.add_resource(QuestionList, '/question')
+api.add_resource(QuestionSearch, '/question/search')
