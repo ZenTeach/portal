@@ -1,10 +1,10 @@
 module.exports = {
   configureWebpack: {
     entry: {
-      app: "./main.js"
+      app: './main.js'
     },
     resolve: {
-      alias: require("./aliases.config").webpack
+      alias: require('./aliases.config').webpack
     }
   }
-};
+}

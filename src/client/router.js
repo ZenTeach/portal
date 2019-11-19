@@ -1,70 +1,70 @@
-import Vue from "vue";
-import Router from "vue-router";
-import store from "./store";
-Vue.use(Router);
+import Vue from 'vue'
+import Router from 'vue-router'
+import store from './store'
+Vue.use(Router)
 
 const router = new Router({
-  mode: "history",
+  mode: 'history',
   base: process.env.BASE_URL,
   routes: [
     {
-      path: "/login",
-      name: "login",
-      component: () => import(/* webpackChunkName: "Login" */ "./views/Login")
+      path: '/login',
+      name: 'login',
+      component: () => import(/* webpackChunkName: "Login" */ './views/Login')
     },
     {
-      path: "/signup",
-      name: "signup",
-      component: () => import(/* webpackChunkName: "Signup" */ "./views/Signup")
+      path: '/signup',
+      name: 'signup',
+      component: () => import(/* webpackChunkName: "Signup" */ './views/Signup')
     },
     {
-      path: "/",
-      name: "Dashboard",
+      path: '/',
+      name: 'Dashboard',
       component: () =>
-        import(/* webpackChunkName: "Dashboard" */ "./views/Dashboard"),
+        import(/* webpackChunkName: "Dashboard" */ './views/Dashboard'),
       meta: {
         requiresAuth: true
       }
     },
     {
-      path: "/classroom/:id",
-      name: "Classroom",
+      path: '/classroom/:id',
+      name: 'Classroom',
       component: () =>
-        import(/* webpackChunkName: "Classroom" */ "./views/Classroom"),
+        import(/* webpackChunkName: "Classroom" */ './views/Classroom'),
       meta: {
         requiresAuth: true
       }
     },
     {
-      path: "/classrooms",
-      name: "Classrooms",
+      path: '/classrooms',
+      name: 'Classrooms',
       component: () =>
-        import(/* webpackChunkName: "Classrooms" */ "./views/Classrooms"),
+        import(/* webpackChunkName: "Classrooms" */ './views/Classrooms'),
       meta: {
         requiresAuth: true
       }
     },
     {
-      path: "/students",
-      name: "Student List",
+      path: '/students',
+      name: 'Student List',
       component: () =>
-        import(/* webpackChunkName: "Students" */ "./views/Students"),
+        import(/* webpackChunkName: "Students" */ './views/Students'),
       meta: {
         requiresAuth: true
       }
     }
   ]
-});
+})
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (store.state.app.loggedIn) {
-      next();
+      next()
     } else {
-      router.push("/login");
+      router.push('/login')
     }
   }
-  next();
-});
+  next()
+})
 
-export default router;
+export default router

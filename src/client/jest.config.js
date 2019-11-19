@@ -1,24 +1,24 @@
 module.exports = {
-  moduleFileExtensions: ["js", "jsx", "json", "vue"],
+  moduleFileExtensions: ['js', 'jsx', 'json', 'vue'],
   transform: {
-    ".*\\.(vue)$": "vue-jest",
-    ".+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$":
-      "jest-transform-stub",
-    "^.+\\.js$": "babel-jest"
+    '.*\\.(vue)$': 'vue-jest',
+    '.+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$':
+      'jest-transform-stub',
+    '^.+\\.js$': 'babel-jest'
   },
   globals: {
-    "vue-jest": {
+    'vue-jest': {
       babelConfig: {
-        plugins: ["babel-plugin-transform-object-rest-spread"],
-        presets: [["env", { modules: false }]],
+        plugins: ['babel-plugin-transform-object-rest-spread'],
+        presets: [['env', { modules: false }]],
         env: {
           test: {
             presets: [
               [
-                "env",
+                'env',
                 {
                   targets: {
-                    node: "current"
+                    node: 'current'
                   }
                 }
               ]
@@ -29,19 +29,19 @@ module.exports = {
     }
   },
   moduleNameMapper: {
-    "^@/(.*)$": "<rootDir>/$1"
+    '^@/(.*)$': '<rootDir>/$1'
   },
-  transformIgnorePatterns: ["/node_modules/(?!(vuetify)/)"],
+  transformIgnorePatterns: ['/node_modules/(?!(vuetify)/)'],
   collectCoverage: true,
-  collectCoverageFrom: ["**/*.{js,vue}", "!**/node_modules/**"],
-  coverageReporters: ["html", "text-summary"],
-  snapshotSerializers: ["jest-serializer-vue"],
+  collectCoverageFrom: ['**/*.{js,vue}', '!**/node_modules/**'],
+  coverageReporters: ['html', 'text-summary'],
+  snapshotSerializers: ['jest-serializer-vue'],
   testMatch: [
-    "**/tests/unit/**/*.spec.(js|jsx|ts|tsx)|**/__tests__/*.(js|jsx|ts|tsx)"
+    '**/tests/unit/**/*.spec.(js|jsx|ts|tsx)|**/__tests__/*.(js|jsx|ts|tsx)'
   ],
-  testURL: "http://localhost/",
+  testURL: 'http://localhost/',
   watchPlugins: [
-    "jest-watch-typeahead/filename",
-    "jest-watch-typeahead/testname"
+    'jest-watch-typeahead/filename',
+    'jest-watch-typeahead/testname'
   ]
-};
+}

@@ -1,22 +1,21 @@
-import { shallowMount, createLocalVue } from "@vue/test-utils";
-import App from "@/App.vue";
-import Vuetify from "vuetify";
-import Vuex from "vuex";
+import { shallowMount, createLocalVue } from '@vue/test-utils'
+import App from '@/App.vue'
+import Vuetify from 'vuetify'
+import Vuex from 'vuex'
 
-const localVue = createLocalVue();
+const localVue = createLocalVue()
 
-localVue.use(Vuex);
-localVue.use(Vuetify);
+localVue.use(Vuex)
+localVue.use(Vuetify)
 
-describe("App.vue", () => {
-  let actions;
-  let state;
-  let store;
+describe('App.vue', () => {
+  let actions
+  let store
 
   beforeEach(() => {
-    state = actions = {
+    actions = {
       FETCHCURRENTUSER: jest.fn()
-    };
+    }
 
     store = new Vuex.Store({
       modules: {
@@ -28,15 +27,16 @@ describe("App.vue", () => {
           actions
         }
       }
-    });
-  });
+    })
+  })
 
   it("has 'drawer' set to true", () => {
-    const wrapper = shallowMount(App, { store, localVue });
-    expect(wrapper.vm.drawer).toBeFalsy();
-  });
+    const wrapper = shallowMount(App, { store, localVue })
+    expect(wrapper.vm.drawer).toBeFalsy()
+  })
 
-  it.skip("dispatches 'FETCHCURRENTUSER' action with each update", () => {
-    const wrapper = shallowMount(App, { store, localVue });
-  });
-});
+  it("dispatches 'FETCHCURRENTUSER' action with each update", () => {
+    const wrapper = shallowMount(App, { store, localVue })
+    expect(wrapper.isVueInstance()).toBeTruthy()
+  })
+})
