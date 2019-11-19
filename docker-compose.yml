@@ -11,6 +11,8 @@ services:
       - "/home/app/node_modules"
     ports:
       - 8080:8080
+    environment:
+      - VUE_APP_API_ENDPOINT=http://localhost:5001/api/v1
     depends_on:
       - zenteach_be
   zenteach_be:
@@ -29,6 +31,12 @@ services:
       - APP_SETTINGS=server.config.DevelopmentConfig
     depends_on:
       - zenteach_db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/api/v1/ping"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 40s
   zenteach_db:
     build:
       context: ./src/backend/db
