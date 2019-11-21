@@ -47,6 +47,16 @@
 				</v-list-group>
 			</template>
 		</v-list-item-group>
+		<template>
+			<v-row justify="space-around" align-content="center" no-gutters align-content-md="center">
+				<v-sheet width="500" elevation tile class="justify-center">
+					<v-btn depressed ripple>
+						<v-icon>mdi-plus</v-icon>
+						Add a custom question
+					</v-btn>
+				</v-sheet>
+			</v-row>
+		</template>
 	</v-list>
 </template>
 

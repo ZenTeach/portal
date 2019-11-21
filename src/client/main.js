@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import { sync } from 'vuex-router-sync'
 import VueCookies from 'vue-cookies'
-import vuetify from './plugins/vuetify'
-import './plugins'
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import './assets/sass/colors.scss'
+import vuetify from '@/plugins/vuetify'
+import '@/plugins'
+import App from '@/App.vue'
+import router from './src/router'
+import store from '@/store'
+import '@/assets/sass/colors.scss'
 
 Vue.config.productionTip = true
 Vue.use(VueCookies)

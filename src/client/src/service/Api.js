@@ -1,4 +1,4 @@
-import service_config from "./service_config";
+import service_config from "@/service/service_config";
 import axios from "axios";
 
 const singleton = Symbol();

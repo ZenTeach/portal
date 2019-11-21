@@ -83,8 +83,8 @@
 </template>
 
 <script>
-import QuestionSearch from '../components/QuestionSearch';
-import QuestionSearchResult from '../components/QuestionSearchResult';
+import QuestionSearch from '@/components/QuestionSearch';
+import QuestionSearchResult from '@/components/QuestionSearchResult';
 
 import { createNamespacedHelpers } from 'vuex';
 const { mapState } = createNamespacedHelpers('app');

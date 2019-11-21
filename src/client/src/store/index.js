@@ -1,9 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import VuexPersistence from "vuex-persist";
-import app from "./modules/app";
-import user from "./modules/user";
-import classrooms from "./modules/classrooms";
+import app from "@/store/modules/app";
+import user from "@/store/modules/user";
+import classrooms from "@/store/modules/classrooms";
 
 Vue.use(Vuex);
 

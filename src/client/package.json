@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+		"build": "vue-cli-service build",
+		"inspect": "vue-cli-service inspect",
     "lint": "vue-cli-service lint",
     "format": "prettier --write \"**/*.{js,md,scss}\"",
     "test:unit": "vue-cli-service test:unit",

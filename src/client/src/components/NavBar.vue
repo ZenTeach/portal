@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app color="transparent" flat height="88" clipped-right id="core-bar-app">
+  <v-app-bar app flat height="88" clipped-right id="core-bar-app">
     <v-toolbar-title class="tertiary--text font-weight-light align-self-center">
       <v-btn v-if="responsive" dark icon>
         <v-icon>mdi-view-list</v-icon>
@@ -33,7 +33,9 @@ export default {
   computed: {},
   methods: {
     logout() {
-      this.$store.dispatch("user/SIGNOUT_USER", {}, { root: true });
+			this.$store.dispatch("user/SIGNOUT_USER", {}, { root: true });
+			// TODO: delete access cookies from the client
+			// this.$cookies.remo
       this.$router.push("/login");
     },
     onResponsiveInverted() {

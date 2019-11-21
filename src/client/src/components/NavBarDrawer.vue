@@ -8,9 +8,7 @@
     dark
     mobile-break-point="991"
     persistent
-		absolute
-    width="220"
-    clipped
+		fixed
     app
   >
     <v-list-item two-line>

@@ -32,10 +32,16 @@
 </template>
 
 <script>
+import HelperOffset from "@/components/Offset";
+
 export default {
   name: "MaterialCard",
 
-  inheritAttrs: false,
+	inheritAttrs: false,
+
+	components: {
+		HelperOffset
+	},
 
   props: {
     color: {

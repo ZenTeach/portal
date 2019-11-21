@@ -64,11 +64,11 @@
 </template>
 
 <script>
-import MaterialChartCard from '../components/ChartCard';
-import StudentList from '../components/StudentList';
-import QuizCreator from '../components/QuizCreator';
+import MaterialChartCard from '@/components/ChartCard';
+import StudentList from '@/components/StudentList';
+import QuizCreator from '@/components/QuizCreator';
 import { createNamespacedHelpers } from 'vuex';
-import { fetchQuizPDF } from '../service/classrooms';
+import { fetchQuizPDF } from '@/service/classrooms';
 const { mapState } = createNamespacedHelpers("classrooms");
 
 export default {

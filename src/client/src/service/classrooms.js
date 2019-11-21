@@ -1,4 +1,4 @@
-import Api from "./Api"
+import Api from "@/service/Api"
 
 export async function fetchClasses() {
 	const api_url = "/school_class/owned";

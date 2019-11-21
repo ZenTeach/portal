@@ -3,11 +3,10 @@
 		<v-text-field
             label="SearchInput"
             placeholder="Question.."
-			@click:append-outer="searchEventListener"
+			@click:append="searchEventListener"
 			v-model="searchInput"
-			append-outer-icon="search"
+			append-icon="search"
             solo
-			clearable
         ></v-text-field>
 	</div>
 </template>

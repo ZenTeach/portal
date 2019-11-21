@@ -1,4 +1,4 @@
-import Api from "./Api"
+import Api from "@/service/Api"
 
 export async function loginUser(payload) {
   const result = await Api.post(

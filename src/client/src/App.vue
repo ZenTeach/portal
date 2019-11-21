@@ -4,17 +4,19 @@
     <nav-bar-drawer v-if="isLoggedIn" />
     <v-content class="grey lighten-3">
       <div id="core-view">
-        <v-fade-transition mode="out-in">
-          <router-view />
-        </v-fade-transition>
+				<v-container fluid>
+					<v-fade-transition mode="out-in">
+						<router-view />
+					</v-fade-transition>
+				</v-container>
       </div>
     </v-content>
   </v-app>
 </template>
 
 <script>
-import NavBar from "./components/NavBar";
-import NavBarDrawer from "./components/NavBarDrawer";
+import NavBar from "@/components/NavBar";
+import NavBarDrawer from "@/components/NavBarDrawer";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapGetters, mapState } = createNamespacedHelpers("app");
