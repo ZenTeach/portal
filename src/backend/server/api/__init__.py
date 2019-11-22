@@ -28,34 +28,9 @@ def site_map():
     # links is now a list of url, endpoint tuples
     return(jsonify(links))
 
-
-@root_api.route("/demo_pdf")
-def demo_pdf():
-    all_chemistry_questions = Questions.query.filter_by(
-        subject='Chemistry').all()
-    env = Environment(loader=FileSystemLoader(
-        '/home/flask/server/server/api/templates'))
-    # import pdb
-    # pdb.set_trace()
-    template = env.get_template("demo.html")
-    template_vars = {
-        "title": "Demo chemistry quiz",
-        "subject": "Chemistry",
-        "questions": all_chemistry_questions
-    }
-    html_out = template.render(template_vars)
-    font_config = FontConfiguration()
-    css = CSS(string='''
-        @font-face {
-            font-family: 'Open Sans', Helvetica;
-            src: url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
-        }
-    h1 { font-family: 'Open Sans', Helvetica, sans-serif }''', font_config=font_config)
-    HTML(string=html_out).write_pdf("/home/flask/server/server/api/tmp/quiz.pdf", stylesheets=[css],
-                                    font_config=font_config)
-    return make_response({
-        'message': 'PDF generated'
-    }, 200)
+@root_api.route("/ping")
+def ping():
+    return "pong", 200
 
 # TODO: Use this to dynamically register api blueprint during app creation
 # def register_blueprints(app):
