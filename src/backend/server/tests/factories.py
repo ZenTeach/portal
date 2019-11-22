@@ -1,11 +1,11 @@
-from factory import Factory, SubFactory, Iterator, post_generation, RelatedFactory, PostGenerationMethodCall
+from factory import Factory, SubFactory, Iterator, post_generation, RelatedFactory, PostGenerationMethodCall, RelatedFactoryList
 from factory.alchemy import SQLAlchemyModelFactory
-from server.models import Teacher, Student, SchoolClass, ClassQuiz
+from server.models import Teacher, Student, SchoolClass, ClassQuiz, ClassQuizStatus
 from server import db
 
 from faker import Faker
 from faker.providers import person, internet, date_time, lorem, misc
-from random import randrange
+from random import randrange, choice, randint
 
 from flask_jwt_extended import create_access_token
 
@@ -21,7 +21,7 @@ class BaseSQLAlchemyModelFactory(SQLAlchemyModelFactory):
     """Base Test factory abstract class"""
 
     class Meta:
-        abstract = True 
+        abstract = True
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = 'commit'
 
@@ -48,7 +48,7 @@ class StudentFactory(BaseSQLAlchemyModelFactory):
                 self.quiz_grades.add(quiz)
 
 
-    
+
 class TeacherFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         model = Teacher
@@ -59,7 +59,7 @@ class TeacherFactory(BaseSQLAlchemyModelFactory):
     password = fake.password(length=12, special_chars=True, digits=True, upper_case=True, lower_case=True)
     date_of_birth = fake.date_of_birth()
     role="Teacher"
-    
+
     @post_generation
     def classes(self, create, extracted, **kwargs):
         if not create:
@@ -77,11 +77,13 @@ class SchoolClassFactory(BaseSQLAlchemyModelFactory):
     start_date = fake.date_time_between(start_date="-1y", end_date="now", tzinfo=None)
 
     teacher_id = RelatedFactory('server.tests.factories.TeacherFactory')
-    student_id = RelatedFactory('server.tests.factories.StudentFactory')
+    #student_id = RelatedFactory('server.tests.factories.StudentFactory')
 
     # @post_generation
     # def post(self, create, extracted, **kwargs):
     #     self.quizzes.append(ClassQuizFactory.create(post=self.id))
+    students = RelatedFactoryList(StudentFactory, size=lambda: randint(5, 10))
+    #quizzes = RelatedFactoryList(ClassQuizFactory, size=lambda: randint(1,4))
 
 
 class ClassQuizFactory(BaseSQLAlchemyModelFactory):
@@ -90,28 +92,55 @@ class ClassQuizFactory(BaseSQLAlchemyModelFactory):
 
     subject = fake.sentence(nb_words=4)
     max_score = randrange(5,9)
-    question_weights = randrange(1,3)
-    questions_list = [randrange(1, 9) for i in range(1, 10)]
+    variants = randrange(1,4)
+    status = ClassQuizStatus.created
     # @post_generation
-    # def post(self, create, extracted, **kwargs):
-    #     print("POST data", extracted)
-    #     self.class_id = extracted
-
-
-# class LoggedInTeacherFactory(BaseSQLAlchemyModelFactory):
-#     class Meta:
-#         abstract = True
-#     @classmethod
-#     def _get_loggedin_teacher(self):
-#         teacher = TeacherFactory.create(classes=[])
-#         return create_access_token(teacher.email)
+    # # def post(self, create, extracted, **kwargs):
+    # #     print("POST data", extracted)
+    # #     self.class_id = extracted
+    questions = [
+       {
+            "question_id": 2,
+            "is_edited": False,
+            "edited_question": "",
+            "question_choices": [
+                {
+                    "choice_id": 2,
+                    "is_edited": False,
+                    "edited_choice": "",
+                    "choice_weight": 0,
+                    "feedback": ""
+                },
+                {
+                    "choice_id": 3,
+                    "is_edited": False,
+                    "edited_choice": "",
+                    "choice_weight": 1,
+                    "feedback": ""
+                },
+                {
+                    "choice_id": 5,
+                    "is_edited": False,
+                    "edited_choice": "",
+                    "choice_weight": 0,
+                    "feedback": ""
+                },
+                {
+                    "choice_id": 7,
+                    "is_edited": False,
+                    "edited_choice": "",
+                    "choice_weight": 0,
+                    "feedback": ""
+                }]
+        }
+    ]
 
 class ClassQuizScoreFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         inline_args = ('student_id', 'quiz_id', 'scores', 'wrong_question_list')
-    
+
     scores = randrange(1, 9)
     wrong_question_list = ', '.join([str(randrange(1, 9)) for i in range(7)])
     student_id = RelatedFactory(StudentFactory, 'id')
     quiz_id = RelatedFactory(ClassQuizFactory, 'id')
-    
+

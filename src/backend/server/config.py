@@ -28,8 +28,12 @@ class TestingConfig(BaseConfig):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_TEST_URL')
     JWT_SECRET_KEY = token_urlsafe()
+    JWT_TOKEN_LOCATION = ['cookies']
+    JWT_BLACKLIST_ENABLED = False
 
 
 class ProductionConfig(BaseConfig):
+    SECRET_KEY = token_urlsafe()
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     JWT_COOKIE_SECURE = True
+    JWT_COOKIE_CSRF_PROTECT = True

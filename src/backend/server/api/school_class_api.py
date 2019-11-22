@@ -5,7 +5,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Api, Resource
 from server import db
 from server.decorators import with_required_roles
-from server.models import SchoolClassSchema, SchoolClass as SchoolClassModel
+from server.models import SchoolClassSchema, SchoolClass as SchoolClassModel, Student
 from sqlalchemy import exc
 
 school_class_blueprint = Blueprint('school_class', __name__)
@@ -60,14 +60,13 @@ class SchoolClassList(Resource):
         name = post_data.get('name')
         subject = post_data.get('subject')
         start_date = post_data.get('start_date')
-        student_id = post_data.get('student_id')
         teacher_id = teacher["id"]
         try:
             school_class = SchoolClassModel.query.filter_by(name=name).first()
             if not school_class:
-                db.session.add(SchoolClassModel(name=name, subject=subject,
-                                                start_date=start_date, student_id=student_id, teacher_id=teacher_id))
-                db.session.commit()
+                school_class = SchoolClassModel(name=name, subject=subject,
+                                                 start_date=start_date, teacher_id=teacher_id)
+                school_class.save()
                 response_object = jsonify({
                     'status': 'success',
                     'message': '{} was added!'.format(name)

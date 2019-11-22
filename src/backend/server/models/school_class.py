@@ -13,7 +13,7 @@ class SchoolClass(BaseModelMixin, db.Model):
                            default=datetime.utcnow)
 
     teacher_id = db.Column(db.Integer, db.ForeignKey(
-        'teacher.id'), nullable=False)
+        'teacher.id'), nullable=True)
 
     students = db.relationship(
         'Student', secondary="student_attended_class", viewonly=True)

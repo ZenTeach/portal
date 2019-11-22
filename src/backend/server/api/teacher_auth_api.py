@@ -102,10 +102,12 @@ class CurrentUser(Resource):
         t = Teacher.query.filter_by(email=teacher["email"]).first()
         try:
             identity = jsonify({
-                'user': teacher_schema.dump(t)
+                'user': dumper.dump(t)
             })
             return make_response(identity, 200)
-        except:
+        except Exception as e:
+            from server.api import api_logger
+            api_logger.debug(e)
             return make_response("User not logged in", 400)
 
 

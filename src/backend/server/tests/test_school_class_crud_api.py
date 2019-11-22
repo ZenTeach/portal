@@ -1,71 +1,65 @@
 import json
-import unittest
-
-from server.tests.base import BaseTestCase
-# , LoggedInTeacherFactory
+import pytest
+from pytest_factoryboy import LazyFixture
 from server.tests.factories import SchoolClassFactory, TeacherFactory, StudentFactory, ClassQuizFactory
+from server.models import SchoolClassSchema
 from server.tests.utils import LoggedInUserMixin
 
+def test_school_class_ping(client):
+    response = client.get(
+        '/api/v1/school_class/ping'
+    )
 
-class TestSchoolClassCRUDAPI(BaseTestCase):
-    @unittest.skip("Temporarily skipped")
-    def test_school_class_ping(self):
-        with self.client:
-            response = self.client.get(
-                '/api/v1/school_class/ping'
-            )
+    data = json.loads(response.data.decode())
+    assert response.status_code, 200
+    assert data == {
+        "status": "success",
+        "message": "Pinged school class"
+    }
 
-            data = json.loads(response.data.decode())
-            self.assert200(response)
-            self.assertEqual(data, {
-                "status": "success",
-                "message": "Pinged school class"
-            })
+# @pytest.mark.skip
+# @pytest.mark.parameterized("teacher__password", ["Asdfgh12!"])
+#@pytest.mark.parameterized("school_class__teacher_id", [LazyFixture(lambda teacher: teacher.id)])
+# @pytest.mark.parameterized("class_quiz__class_id", [school_class.id])
+def test_get_school_class_with_id(client, teacher, student, school_class, mocker):
+    school_class.add_student(student)
+    school_class.save()
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    response = client.get('/api/v1/school_class/{}'.format(school_class.id))
+    assert response.status_code == 200
+    data = json.loads(response.data.decode())["data"]
+    assert data["id"] == school_class.id
+    assert data["students"][0]["id"] == student.id
 
-    def test_get_school_class_with_id(self):
-        teacher = TeacherFactory.create()
-        student = StudentFactory.create()
-        school_class = SchoolClassFactory.build()
-        class_quiz = ClassQuizFactory.build()
-        class_quiz.class_id = school_class.id
-        school_class.quizzes.append(class_quiz)
-        school_class.teacher_id = teacher.id
-        school_class.student_id = student.id
-        school_class.save()
-        class_quiz.save()
-        with self.client:
-            # self.login_with_user(teacher.email, teacher.password, teacher.role)
-            # TODO: Fix this test to use logged in user
-            with LoggedInUserMixin(teacher.email, teacher.password, teacher.role):
-                response = self.client.get(
-                    f'/api/v1/school_class/{school_class.id}'
-                )
-                data = json.loads(response.data)
-                self.assert200(response)
-                self.assertEqual(data['data']['school_classes'][0], {
-                    'name': school_class.name,
-                    'subject': school_class.subject,
-                    'start_date': str(school_class.start_date)
-                })
+@pytest.mark.skip("Broken mock")
+def test_add_school_class(client, mocker, teacher, student):
+    new_class = SchoolClassFactory.build()
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    response = client.post(
+        '/api/v1/school_class',
+        json=json.dumps({
+            "name": new_class.name,
+            "subject": new_class.subject,
+            "start_date": str(new_class.start_date),
+            "student_id": student.id
+        })
+    )
 
-    @unittest.skip("Temporarily skipped")
-    def test_add_school_class(self):
-        new_class = SchoolClassFactory.build()
-        with self.client:
-            response = self.client.post(
-                '/api/v1/school_class',
-                json=new_class.to_json()
-            )
-            print(response.data)
-            self.assertStatus(response, 201)
+    print(f"test_add_school_class: {response.data}")
+    assert response.status_code == 201
+    data = json.loads(response.data.decode())["data"]
+    assert data == {
+        "status": "success",
+        "message": "{} was added!".format(new_class.name)
+    }
 
-    @unittest.skip("Temporarily skipped")
-    def test_fetch_school_class_list(self):
-        SchoolClassFactory.create_batch(5)
-        with self.client:
-            response = self.client.get(
-                '/api/v1/school_class'
-            )
-            self.assert200(response)
-            data = json.loads(response.data)
-            self.assertEqual(len(data['data']['school_classes']), 5)
+
+@pytest.mark.skip("Temporarily skipped")
+def test_fetch_school_class_list(client):
+    SchoolClassFactory.create_batch(5)
+    response = client.get(
+        '/api/v1/school_class'
+    )
+    assert response.status, 200
+    data = json.loads(response.data)
+    assert len(data['data']['school_classes']) == 5

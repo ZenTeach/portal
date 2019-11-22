@@ -1,18 +1,18 @@
 from server import create_app, db
 import pytest
-from pytest_factoryboy import register
+from pytest_factoryboy import register, LazyFixture
 from server.tests.factories import StudentFactory, TeacherFactory, SchoolClassFactory, ClassQuizFactory, ClassQuizScoreFactory
 
 register(StudentFactory, "student")
 register(TeacherFactory, "teacher")
-register(SchoolClassFactory, "school_class",
-         _postgen_dependencies=["teacher__id"])
-register(ClassQuizFactory, "class_quiz",
-         _postgen_dependencies=["school_class__id"])
+register(SchoolClassFactory, "school_class")
+         #_postgen_dependencies=["teacher__id"])
+register(ClassQuizFactory, "class_quiz")
+         #_postgen_dependencies=["school_class__id"])
 # register(ClassQuizScoreFactory)
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def app():
     app = create_app()
     app.config.from_object('server.config.TestingConfig')
