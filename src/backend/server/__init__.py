@@ -10,7 +10,8 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from sqlalchemy_searchable import make_searchable
 from flask_cors import CORS
-
+from flask_mail import Mail
+from celery import Celery
 
 def configure_logging():
     logging.basicConfig(level=logging.DEBUG)
@@ -40,6 +41,8 @@ bcrypt = Bcrypt()
 jwt = JWTManager()
 cors = CORS(supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
 ma = Marshmallow()
+celery=Celery('zenteach_tasks')
+mail = Mail()
 
 
 def create_app(script_info=None):
@@ -54,6 +57,8 @@ def create_app(script_info=None):
     jwt.init_app(app)
     cors.init_app(app)
     ma.init_app(app)
+    celery.conf.update(app.config)
+    mail.init_app(app)
 
     configure_logging()
 
@@ -61,8 +66,10 @@ def create_app(script_info=None):
     from flask_migrate import Migrate, MigrateCommand
     migration_directory = os.path.join('server', 'models', 'migrations')
     migrate = Migrate(app, db, directory=migration_directory)
-
     make_searchable(db.metadata)
+
+    # import background tasks after initializing celery
+    # import server.tasks
 
     # Register bluprints
     from server.api.school_class_api import school_class_blueprint

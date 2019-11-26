@@ -22,7 +22,15 @@ class DevelopmentConfig(BaseConfig):
     JWT_CSRF_IN_COOKIES = False
     JWT_COOKIE_CSRF_PROTECT = False
     FLASK_DEBUG = 1
-
+    # Mailgun config
+    MAIL_DEFAULT_SENDER='no-reply@zenteach.co.uk'
+    MAIL_SERVER=os.environ.get('MAIL_SERVER')
+    MAIL_PORT=os.environ.get('MAIL_PORT')
+    MAIL_USERNAME=os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
+    MAIL_USE_TLS=True
+    CELERY_BROKER_URL=os.environ.get('CELERY_BROKER_URL')
+    CELERY_RESULT_BACKEND=os.environ.get('CELERY_RESULT_BACKEND')
 
 class TestingConfig(BaseConfig):
     TESTING = True

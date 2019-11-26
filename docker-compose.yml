@@ -11,8 +11,8 @@ services:
       - "/home/app/node_modules"
     ports:
       - 8080:8080
-    environment:
-      - VUE_APP_API_ENDPOINT=http://localhost:5001/api/v1
+    env_file:
+      - './src/client/.env'
     depends_on:
       - zenteach_be
   zenteach_be:
@@ -20,6 +20,8 @@ services:
     build:
       context: ./src/backend
       dockerfile: Dockerfile
+    env_file:
+      - './src/backend/.env'
     volumes:
       - "./src/backend:/home/flask/server"
     ports:
@@ -29,8 +31,11 @@ services:
       - DATABASE_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach_dev
       - DATABASE_TEST_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach_test
       - APP_SETTINGS=server.config.DevelopmentConfig
+      - CELERY_BROKER_URL=redis://redis_store:6379
+      - CELERY_RESULT_BACKEND=redis://redis_store:6379
     depends_on:
       - zenteach_db
+      - redis_store
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/api/v1/ping"]
       interval: 1m
@@ -46,3 +51,8 @@ services:
     environment:
       - POSTGRES_USER=zenteach
       - POSTGRES_PASSWORD=zenteach
+  redis_store:
+    image: redis:5.0.7-alpine
+    ports:
+      - "6379:6379"
+
