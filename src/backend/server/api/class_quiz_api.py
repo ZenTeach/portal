@@ -11,8 +11,8 @@ from weasyprint.fonts import FontConfiguration
 
 from server.decorators import with_required_roles
 from server.models import ClassQuiz as ClassQuizModel, ClassQuizSchema
-from server import db
-from server.lib import QuizGenerator
+from server import db, mail
+from server.tasks import generate_pdf
 from server.api import api_logger
 
 class_quiz_blueprint = Blueprint('class_quiz', __name__)
@@ -52,6 +52,7 @@ class ClassQuizList(Resource):
             }
         }, 200)
 
+    @jwt_required
     def post(self):
         post_data = request.get_json()
         error_object = {
@@ -99,19 +100,15 @@ class ClassQuizPDFView(Resource):
         if not quiz:
             return make_response(error_object, 400)
 
-        generator = QuizGenerator("/home/flask/server/server/api/templates",
-                                  "demo.html",
-                                  "/home/flask/server/server/api/tmp",
-                                  title=quiz.subject + " quiz",
-                                  )
+        generated_file_name = None
         try:
-            generator.generate(quiz)
+            generated_file_name = generate_pdf(quiz)
         except Exception as e:
             api_logger.exception(e)
             error_object["message"] = "Error generating quiz pdf"
             return make_response(error_object, 500)
 
-        return generator.quiz_file_name, 200
+        return generated_file_name, 200
 
 
 @api.representation("application/pdf")
@@ -119,6 +116,40 @@ def output_pdf(data, code, headers=None):
     return send_file(data, as_attachment=True)
 
 
+class ClassQuizGenerator(Resource):
+    @jwt_required
+    def post(self, class_quiz_id):
+        """
+            Args:
+                :type - generated document form
+        """
+        error_object = {
+            'status': 'Failed',
+            'message': 'Failed to generate quiz'
+        }
+        quiz = ClassQuizModel.query.filter_by(id=class_quiz_id).first()
+        if not quiz:
+            return make_response(jsonify({
+                'status': 'Failed',
+                'message': 'Quiz not found!'
+            }), 404)
+
+        req_data = response.get_json()
+        if req_data["type"] == "pdf":
+            generated_file_name = None
+            try:
+                generated_file_name = generate_pdf(quiz)
+            except Exception as e:
+                api_logger.exception(e)
+                error_object["message"] = "Error generating quiz pdf"
+                return make_response(error_object, 500)
+            return generated_file_name, 200
+        elif req_data["type"] == "gform":
+            pass
+        else:
+            return make_response(jsonify(error_object), 400)
+
 api.add_resource(ClassQuizPing, '/class_quiz/ping')
-api.add_resource(ClassQuiz, '/class_quiz/<class_quiz_id>')
+api.add_resource(ClassQuiz, '/class_quiz/<int:class_quiz_id>')
+api.add_resource(ClassQuizGenerator, '/class_quiz/<int:class_quiz_id>/generate')
 api.add_resource(ClassQuizList, '/class_quiz')
