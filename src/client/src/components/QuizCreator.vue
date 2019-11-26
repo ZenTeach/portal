@@ -85,6 +85,7 @@
 <script>
 import QuestionSearch from '@/components/QuestionSearch';
 import QuestionSearchResult from '@/components/QuestionSearchResult';
+import Api from "@/service/Api";
 
 import { createNamespacedHelpers } from 'vuex';
 const { mapState } = createNamespacedHelpers('app');
@@ -138,8 +139,7 @@ export default {
 				variants: this.variantsSelected,
 				questions: this.questionList
 			}
-			const _api = window._vm.$http;
-			await _api.post(
+			await Api.post(
 				"http://localhost:5001/api/v1/class_quiz",
 				payload
 			);
