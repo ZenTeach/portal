@@ -4,6 +4,12 @@ from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_r
                                 set_refresh_cookies, unset_jwt_cookies, get_jwt_identity, get_raw_jwt)
 from server.models import Teacher, TeacherSchema
 from server import db, bcrypt, jwt
+from pathlib import Path
+import pickle
+import requests
+import os.path as path
+import os
+import json
 
 teacher_auth_blueprint = Blueprint('teacher_auth', __name__)
 api = Api(teacher_auth_blueprint)
@@ -111,9 +117,42 @@ class CurrentUser(Resource):
             return make_response("User not logged in", 400)
 
 
+class GAuth(Resource):
+    def post(self):
+        credentials_dir = path.join(os.getcwd(), "server", "lib/interfaces/client_id.json")
+        print(credentials_dir)
+        creds = None
+        with open(credentials_dir, 'rb') as f:
+            # creds = pickle.load(f)
+            creds = json.load(f)
+        request_data = request.get_json()
+        print(creds)
+        try:
+            data = {
+                'client_id': creds['web']['client_id'],
+                'client_secret': creds['web']['client_secret'],
+                'redirect_uri': 'postmessage',
+                'grant_type': 'authorization_code',
+                'code': request_data['authCode']
+            }
+            response = requests.post(creds['web']['token_uri'], data=data)
+            response_data = response.json()
+            print("GAuth response", response_data)
+            keys = {
+                'access_token':response_data['access_token'],
+                'id_token': response_data['id_token']
+            }
+            output = path.join(os.getcwd(), "server", "lib/interfaces/token.pickle")
+            with open(output, 'wb') as token:
+                pickle.dump(keys, token)
+        except Exception as e:
+            pass
+
+
 api.add_resource(TeacherRegistration, '/teacher/registration')
 api.add_resource(TeacherLogin, '/teacher/login')
 api.add_resource(TeacherLogout, '/teacher/logout')
 api.add_resource(TokenRefresh, '/teacher/token/refresh')
 api.add_resource(AllTeachers, '/teachers')
 api.add_resource(CurrentUser, '/teacher/current')
+api.add_resource(GAuth, '/teacher/auth/google')
