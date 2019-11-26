@@ -85,27 +85,37 @@ def main():
 
 
 class GoogleFormsGenerator(object):
-    def __init__(self, auth_scopes, quiz_name, js_tmpl, credentials, output_file, manifest={}):
+    def __init__(self, auth_scopes, quiz_name, js_tmpl, credentials, output_file, manifest_file):
         """
             Args:
                 auth_scopes: list of authorization scopes
                 js_tmpl: Javascript template file
                 credentials: A credentials json file
                 output_file: Pickle serialized output file location
-                manifest: a dictionary of manifest files
+                manifest_file: The manifest file directory
         """
         self.auth_scopes = auth_scopes
         self.js_tmpl = js_tmpl
         self.quiz_name = quiz_name
         self.credentials = credentials
         self.output_file = output_file
-        self.manifest = manifest
+        self.manifest = self.load_from_file(manifest_file)
+
+    @classmethod
+    def load_from_file(self, file):
+        absolute_manifest_file = os.path.join(os.path.realpath(__file__), file)
+        if not os.path.exists(absolute_manifest_file):
+            raise FileNotFoundError("Manifest file doesn't exist")
+
+        return pickle.load(open(absolute_manifest_file, "rb").read())
+
 
     @classmethod
     def load_from_tmpl(self):
         pass
 
-    def generate(self):
+    @classmethod
+    def check_authorization(self):
         creds = None
         # The file token.pickle stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
@@ -124,6 +134,7 @@ class GoogleFormsGenerator(object):
             with open(self.output_file, 'wb') as token:
                 pickle.dump(creds, token)
 
+    def generate(self):
         service = build('script', 'v1', credentials=creds)
 
         try:
@@ -140,7 +151,7 @@ class GoogleFormsGenerator(object):
                 }, {
                     'name': 'appsscript',
                     'type': 'JSON',
-                    'source': self.manifest
+                    'source': self.manifest_file
                 }]
             }
             response = service.projects().updateContent(
