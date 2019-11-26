@@ -43,7 +43,16 @@ const router = new Router({
       meta: {
         requiresAuth: true
       }
-    },
+		},
+		{
+			path:'/quiz/:id',
+			name: 'Quiz',
+			component: () =>
+				import(/* webpackChunkName: "Quiz" */ './views/Quiz'),
+			meta: {
+				requiresAuth: true
+			}
+		},
     {
       path: '/students',
       name: 'Student List',

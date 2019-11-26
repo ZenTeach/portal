@@ -38,7 +38,7 @@
           class="elevation-1"
           hide-default-footer >
           <template v-slot:item.name="props">
-            <a @click.native.stop.prevent="openQuiz(props.item.id)">Quiz {{ props.item.name }}</a>
+            <a :href="'/quiz/' +  props.item.id">Quiz {{ props.item.name }}</a>
           </template>
           <template v-slot:item.status="{ item }">
             <v-chip :color="statusToColor[item.status]">{{ item.status }}</v-chip>
@@ -77,6 +77,9 @@ export default {
 		MaterialChartCard,
 		StudentList,
 		QuizCreator
+	},
+	updated() {
+		this.$store.dispatch("classrooms/GETCURRENTCLASS", this.$route.params.id, { root: true });
 	},
 	mounted(){
 		this.$store.dispatch("classrooms/GETCURRENTCLASS", this.$route.params.id, { root: true });
@@ -150,19 +153,19 @@ export default {
 			this.$store.commit("app/RESET_QUESTION_SEARCH", {}, {root: true});
 		},
 
-		openQuiz(quiz_id) {
-			fetchQuizPDF(quiz_id).then(response => {
-				var fileURL = window.URL.createObjectURL(new Blob([response.data]));
-				var fileLink = document.createElement('a');
+		// openQuiz(quiz_id) {
+		// 	fetchQuizPDF(quiz_id).then(response => {
+		// 		var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+		// 		var fileLink = document.createElement('a');
 
-				fileLink.href = fileURL;
-				fileLink.setAttribute('download', 'file.pdf');
-				document.body.appendChild(fileLink);
+		// 		fileLink.href = fileURL;
+		// 		fileLink.setAttribute('download', 'file.pdf');
+		// 		document.body.appendChild(fileLink);
 
-				fileLink.click();
-				fileLink.remove();
-			})
-		}
+		// 		fileLink.click();
+		// 		fileLink.remove();
+		// 	})
+		// }
 	}
 };
 </script>
