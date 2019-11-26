@@ -298,3 +298,5 @@ yarn-error.log
 .vscode/
 
 Dockerfile-prod
+
+token.pickle
