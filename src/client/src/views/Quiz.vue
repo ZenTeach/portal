@@ -1,5 +1,5 @@
 <template>
-	<v-container>
+	<v-container id="quiz_details_view">
 		<v-layout row column wrap justify-center>
 			<v-row>
 				<v-col cols="12" lg="5">
@@ -20,7 +20,7 @@
 						prepend-icon="mdi-export"
           				:items="exportableLinks"
         				label="Export to:"
-          				target="#dropdown-example">
+						target="quiz_details_view">
 					</v-overflow-btn>
 				</v-col>
 			</v-row>
@@ -37,12 +37,12 @@ export default {
 			gFormExportLoading: false,
 			exportableLinks: [
 				{
-					'text':'Google Form',
-					'value': handleGFormExport
+					text:'Google Form',
+					callback: () => handleGFormExport()
 				},
 				{
-					'text': 'PDF',
-					'value': handlePDFGeneration
+					text: 'PDF',
+					callback: () => handlePDFGeneration()
 				}
 			]
 		}
@@ -50,17 +50,17 @@ export default {
 	},
 	methods: {
 		handleGFormExport() {
-			this.$gAuth.getAuthCode()
-				.then(authCode => {
-					console.log(authCode)
-					return Api.post('/teacher/auth/google', {authCode: authCode})
-					// 4/tgHXbgZivoyy_a6ezHCYkqZB-6y5Y2D1lxhYdY_ypp95MSAH9TLdUn6i1cIkbW3Zv8JVDwKEzJgJRzEVaRC2YLA
-  					// on success
-  					// return this.$http.post('http://your-backend-server.com/auth/google', { code: authCode, redirect_uri: 'postmessage' })
-			})
+			// this.$gAuth.getAuthCode()
+			// 	.then(authCode => {
+			// 		console.log(authCode)
+			// 		return Api.post('/teacher/auth/google', {authCode: authCode})
+			// 		// 4/tgHXbgZivoyy_a6ezHCYkqZB-6y5Y2D1lxhYdY_ypp95MSAH9TLdUn6i1cIkbW3Zv8JVDwKEzJgJRzEVaRC2YLA
+  			// 		// on success
+  			// 		// return this.$http.post('http://your-backend-server.com/auth/google', { code: authCode, redirect_uri: 'postmessage' })
+			// })
 		},
 		handlePDFGeneration() {
-
+			console.log("Generating PDF!")
 		}
 	}
 }

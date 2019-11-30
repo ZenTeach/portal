@@ -41,8 +41,8 @@ bcrypt = Bcrypt()
 jwt = JWTManager()
 cors = CORS(supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
 ma = Marshmallow()
-celery=Celery('zenteach_tasks')
 mail = Mail()
+celery=Celery('zenteach_tasks')
 
 
 def create_app(script_info=None):
@@ -57,8 +57,15 @@ def create_app(script_info=None):
     jwt.init_app(app)
     cors.init_app(app)
     ma.init_app(app)
-    celery.conf.update(app.config)
     mail.init_app(app)
+
+    celery.conf.update(app.config)
+    TaskBase = celery.Task
+    class ContextTask(TaskBase):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return TaskBase.__call__(self, *args, **kwargs)
+    celery.Task = ContextTask
 
     configure_logging()
 

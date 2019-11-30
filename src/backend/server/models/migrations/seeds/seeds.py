@@ -7,10 +7,10 @@ import datetime
 def seeds():
     # Teacher seed
     password = bcrypt.generate_password_hash('Asdfgh12!')
-    Teacher(firstname="john", lastname="doe", email="john.doe@example.com", date_of_birth="01-01-1970",
+    Teacher(firstname="john", lastname="doe", email="connect@ngetahun.me", date_of_birth="01-01-1970",
             password=password.decode('utf-8'), role="Teacher").save()
     # Admin Teacher seed
-    Teacher(firstname="john", lastname="doe", email="john.doe+2@example.com", date_of_birth="04-04-1975",
+    Teacher(firstname="jane", lastname="doe", email="john.doe+2@example.com", date_of_birth="04-04-1975",
             password=password.decode('utf-8'), role="Admin").save()
 
     # Student

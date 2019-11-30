@@ -31,11 +31,12 @@ services:
       - DATABASE_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach_dev
       - DATABASE_TEST_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach_test
       - APP_SETTINGS=server.config.DevelopmentConfig
-      - CELERY_BROKER_URL=redis://redis_store:6379
-      - CELERY_RESULT_BACKEND=redis://redis_store:6379
+      - CELERY_BROKER_URL=amqp://zenteach:zenteach_broker@rabbitmq_broker:5672/jobs
+      - CELERY_RESULT_BACKEND=redis://redis_store:6379/0
     depends_on:
       - zenteach_db
       - redis_store
+      - rabbitmq_broker
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/api/v1/ping"]
       interval: 1m
@@ -55,4 +56,12 @@ services:
     image: redis:5.0.7-alpine
     ports:
       - "6379:6379"
-
+  rabbitmq_broker:
+    image: rabbitmq:3.7.22-management-alpine
+    ports:
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=zenteach
+      - RABBITMQ_ERLANG_COOKIE=va21ef9BSZz4WUVgcGcacmsIQ09qlh7VAKWOgfznaCg
+      - RABBITMQ_DEFAULT_PASS=zenteach_broker
+      - RABBITMQ_DEFAULT_VHOST=jobs

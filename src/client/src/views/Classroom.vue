@@ -78,9 +78,9 @@ export default {
 		StudentList,
 		QuizCreator
 	},
-	updated() {
-		this.$store.dispatch("classrooms/GETCURRENTCLASS", this.$route.params.id, { root: true });
-	},
+	// updated() {
+	// 	this.$store.dispatch("classrooms/GETCURRENTCLASS", this.$route.params.id, { root: true });
+	// },
 	mounted(){
 		this.$store.dispatch("classrooms/GETCURRENTCLASS", this.$route.params.id, { root: true });
 	},
@@ -151,6 +151,7 @@ export default {
 		closeQuizCreatorDialog() {
 			this.dialog = false;
 			this.$store.commit("app/RESET_QUESTION_SEARCH", {}, {root: true});
+			this.$store.dispatch("classrooms/GETCURRENTCLASS", this.$route.params.id, { root: true });
 		},
 
 		// openQuiz(quiz_id) {

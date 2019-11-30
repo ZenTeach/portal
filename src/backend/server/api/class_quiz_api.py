@@ -12,7 +12,7 @@ from weasyprint.fonts import FontConfiguration
 from server.decorators import with_required_roles
 from server.models import ClassQuiz as ClassQuizModel, ClassQuizSchema
 from server import db, mail
-from server.tasks import generate_pdf
+from server.tasks import generate_pdf, send_quiz_pdf
 from server.api import api_logger
 
 class_quiz_blueprint = Blueprint('class_quiz', __name__)
@@ -102,7 +102,7 @@ class ClassQuizPDFView(Resource):
 
         generated_file_name = None
         try:
-            generated_file_name = generate_pdf(quiz)
+            generated_file_name = generate_pdf.delay(quiz)
         except Exception as e:
             api_logger.exception(e)
             error_object["message"] = "Error generating quiz pdf"
@@ -127,23 +127,28 @@ class ClassQuizGenerator(Resource):
             'status': 'Failed',
             'message': 'Failed to generate quiz'
         }
-        quiz = ClassQuizModel.query.filter_by(id=class_quiz_id).first()
-        if not quiz:
-            return make_response(jsonify({
-                'status': 'Failed',
-                'message': 'Quiz not found!'
-            }), 404)
+        teacher = get_jwt_identity()['identity']
+        # quiz = ClassQuizModel.query.filter_by(id=class_quiz_id).first()
+        # if not quiz:
+        #     return make_response(jsonify({
+        #         'status': 'Failed',
+        #         'message': 'Quiz not found!'
+        #     }), 404)
 
-        req_data = response.get_json()
+        req_data = request.get_json()
         if req_data["type"] == "pdf":
+            print("DEBUG: request", req_data["type"])
             generated_file_name = None
             try:
-                generated_file_name = generate_pdf(quiz)
+                generated_file_name = generate_pdf.delay(class_quiz_id)
+                #send_quiz_pdf.async_apply(args=[teacher['email'], generated_file_name])
             except Exception as e:
                 api_logger.exception(e)
                 error_object["message"] = "Error generating quiz pdf"
                 return make_response(error_object, 500)
-            return generated_file_name, 200
+            print("Generated file name backend: {}".format(generated_file_name.get()))
+            return 'Success', 200
+            # return generated_file_name, 200
         elif req_data["type"] == "gform":
             pass
         else:

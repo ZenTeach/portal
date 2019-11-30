@@ -30,6 +30,8 @@ class DevelopmentConfig(BaseConfig):
     MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
     MAIL_USE_TLS=True
     CELERY_BROKER_URL=os.environ.get('CELERY_BROKER_URL')
+    CELERYD_TASK_LOG_FORMAT= '[%(asctime)s: %(levelname)s/%(processName)s] %(task_name)s[%(task_id)s]: %(message)s'
+    CELERY_TRACK_STARTED=True
     CELERY_RESULT_BACKEND=os.environ.get('CELERY_RESULT_BACKEND')
 
 class TestingConfig(BaseConfig):
