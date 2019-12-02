@@ -60,15 +60,16 @@ def create_app(script_info=None):
     mail.init_app(app)
 
     celery.conf.update(app.config)
+
     TaskBase = celery.Task
     class ContextTask(TaskBase):
         def __call__(self, *args, **kwargs):
             with app.app_context():
                 return TaskBase.__call__(self, *args, **kwargs)
     celery.Task = ContextTask
+    import server.tasks
 
     configure_logging()
-
     from . import models
     from flask_migrate import Migrate, MigrateCommand
     migration_directory = os.path.join('server', 'models', 'migrations')

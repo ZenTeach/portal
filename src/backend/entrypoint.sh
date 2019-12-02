@@ -17,7 +17,7 @@ python manage.py db_conf
 python manage.py seed
 
 # celery -A server.celery worker
-sudo celery multi start worker1 \
-    -A server.celery
+celery multi start worker1 \
+    -A celery_worker.celery -l info
 
 python manage.py run -h 0.0.0.0
