@@ -21,6 +21,7 @@ dumper = ClassQuizSchema()
 
 
 class ClassQuiz(Resource):
+    @jwt_required
     @with_required_roles(["Teacher", "Admin"])
     def get(self, class_quiz_id):
         error_response = {
@@ -123,32 +124,28 @@ class ClassQuizGenerator(Resource):
             Args:
                 :type - generated document form
         """
+
         error_object = {
             'status': 'Failed',
             'message': 'Failed to generate quiz'
         }
-        teacher = get_jwt_identity()['identity']
-        # quiz = ClassQuizModel.query.filter_by(id=class_quiz_id).first()
-        # if not quiz:
-        #     return make_response(jsonify({
-        #         'status': 'Failed',
-        #         'message': 'Quiz not found!'
-        #     }), 404)
 
+        teacher = get_jwt_identity()['identity']
         req_data = request.get_json()
         if req_data["type"] == "pdf":
-            print("DEBUG: request", req_data["type"])
             generated_file_name = None
             try:
-                generated_file_name = generate_pdf.delay(class_quiz_id)
-                #send_quiz_pdf.async_apply(args=[teacher['email'], generated_file_name])
+                generated = generate_pdf.delay(class_quiz_id)
+                generated_file_name = generated.get()
+                send_quiz_pdf.apply_async(args=[teacher['email'], generated_file_name])
             except Exception as e:
                 api_logger.exception(e)
                 error_object["message"] = "Error generating quiz pdf"
                 return make_response(error_object, 500)
-            print("Generated file name backend: {}".format(generated_file_name.get()))
-            return 'Success', 200
-            # return generated_file_name, 200
+            return make_response(jsonify({
+                'status': 'Succeeded',
+                'message': 'Failed to generate quiz'
+            }), 200)
         elif req_data["type"] == "gform":
             pass
         else:
