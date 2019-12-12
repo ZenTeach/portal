@@ -1,25 +1,19 @@
-FROM python:3.7.2-alpine
+FROM python:3.7.5-slim-stretch
 
-RUN echo "http://dl-8.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list
+RUN echo "deb http://deb.debian.org/debian stretch-backports main" >> /etc/apt/sources.list.d/sources.list
 
-RUN apk update && \
-	apk add --virtual build-deps gcc python-dev musl-dev && \
-	apk add gfortran py-pip build-base wget && \
-	apk add freetype-dev libpng-dev openblas-dev && \
-	apk add alpine-sdk && \
-	apk add postgresql-dev && \
-	apk add netcat-openbsd && \
-	apk add libffi-dev && \
-	apk add openssl-dev && \
-	apk add zlib zlib-dev && \
-	apk add py3-cffi && \
-	apk add cairo-dev && \
-	apk add pango-dev && \
-	apk add gdk-pixbuf && \
-	apk add shared-mime-info jpeg-dev && \
-	apk add ttf-opensans
+RUN apt-get update && \
+	apt-get install -y build-essential python3-dev python3-pip python3-setuptools python3-wheel python3-cffi && \
+	apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 && \
+	apt-get install -y libgdk-pixbuf2.0-0 libffi-dev shared-mime-info && \
+	apt-get install -y gfortran wget zlib1g zlib1g-dev && \
+	apt-get install -y libfreetype6 libfreetype6-dev libpng-dev libopenblas-dev && \
+	apt-get install -y netcat-openbsd libssl-dev python3-scipy && \
+	apt-get install -y shared-mime-info libjpeg-dev fonts-open-sans
 
-RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    apt-get update && apt-get install -y libpq-dev
 
 RUN mkdir -p /home/flask/server
 WORKDIR /home/flask/server
