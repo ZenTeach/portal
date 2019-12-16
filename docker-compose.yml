@@ -33,6 +33,7 @@ services:
       - APP_SETTINGS=server.config.DevelopmentConfig
       - CELERY_BROKER_URL=amqp://zenteach:zenteach_broker@rabbitmq_broker:5672/jobs
       - CELERY_RESULT_BACKEND=redis://redis_store:6379/0
+      - REDIS_URL=redis://redis_store:6379/app
     depends_on:
       - zenteach_db
       - redis_store
@@ -54,8 +55,8 @@ services:
       - POSTGRES_PASSWORD=zenteach
   redis_store:
     image: redis:5.0.7-alpine
-    ports:
-      - "6379:6379"
+    # ports:
+    #   - "6379:6379"
   rabbitmq_broker:
     image: rabbitmq:3.7.22-management-alpine
     ports:

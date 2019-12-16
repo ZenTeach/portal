@@ -11,6 +11,7 @@ from flask_jwt_extended import JWTManager
 from sqlalchemy_searchable import make_searchable
 from flask_cors import CORS
 from flask_mail import Mail
+from flask_redis import FlaskRedis
 from celery import Celery
 
 def configure_logging():
@@ -43,10 +44,10 @@ cors = CORS(supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
 ma = Marshmallow()
 mail = Mail()
 celery=Celery('zenteach_tasks')
-
+redis_store = FlaskRedis()
 
 def create_app(script_info=None):
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder='templates')
 
     app_settings = os.getenv('APP_SETTINGS')
     app.config.from_object(app_settings)
@@ -58,6 +59,7 @@ def create_app(script_info=None):
     cors.init_app(app)
     ma.init_app(app)
     mail.init_app(app)
+    redis_store.init_app(app)
 
     celery.conf.update(app.config)
 

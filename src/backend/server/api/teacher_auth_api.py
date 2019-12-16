@@ -1,9 +1,9 @@
-from flask import Blueprint, jsonify, request, make_response, current_app
+from flask import Blueprint, jsonify, request, make_response, current_app, url_for, redirect
 from flask_restful import Resource, Api
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, set_access_cookies,
                                 set_refresh_cookies, unset_jwt_cookies, get_jwt_identity, get_raw_jwt)
 from server.models import Teacher, TeacherSchema
-from server import db, bcrypt, jwt
+from server import db, bcrypt, jwt, redis_store
 from pathlib import Path
 import pickle
 import requests
@@ -15,11 +15,9 @@ teacher_auth_blueprint = Blueprint('teacher_auth', __name__)
 api = Api(teacher_auth_blueprint)
 dumper = TeacherSchema()
 
-
 @jwt.user_identity_loader
 def load_user(identity):
     return {'identity': dumper.dump(identity)}
-
 
 class TeacherRegistration(Resource):
     def post(self):
@@ -118,35 +116,24 @@ class CurrentUser(Resource):
 
 
 class GAuth(Resource):
+    @jwt_required
     def post(self):
-        credentials_dir = path.join(os.getcwd(), "server", "lib/interfaces/client_id.json")
-        print(credentials_dir)
-        creds = None
-        with open(credentials_dir, 'rb') as f:
-            # creds = pickle.load(f)
-            creds = json.load(f)
+        teacher = get_jwt_identity()['identity']
+        t = Teacher.query.filter_by(email=teacher["email"]).first()
+
         request_data = request.get_json()
-        print(creds)
         try:
-            data = {
-                'client_id': creds['web']['client_id'],
-                'client_secret': creds['web']['client_secret'],
-                'redirect_uri': 'postmessage',
-                'grant_type': 'authorization_code',
-                'code': request_data['authCode']
-            }
-            response = requests.post(creds['web']['token_uri'], data=data)
-            response_data = response.json()
-            print("GAuth response", response_data)
-            keys = {
-                'access_token':response_data['access_token'],
-                'id_token': response_data['id_token']
-            }
-            output = path.join(os.getcwd(), "server", "lib/interfaces/token.pickle")
-            with open(output, 'wb') as token:
-                pickle.dump(keys, token)
+            auth_key = "gauth-code_{}".format(t.uuid)
+            m = redis_store.set(auth_key, request_data['authCode'])
+
+            return make_response(jsonify({
+                "message": "Successfully generated Google form",
+                "status": "Success"}), 200)
+
         except Exception as e:
-            pass
+            return make_response(jsonify({
+                "message": "Encountered error",
+                "status": "Failed"}), 400)
 
 
 api.add_resource(TeacherRegistration, '/teacher/registration')
@@ -155,4 +142,4 @@ api.add_resource(TeacherLogout, '/teacher/logout')
 api.add_resource(TokenRefresh, '/teacher/token/refresh')
 api.add_resource(AllTeachers, '/teachers')
 api.add_resource(CurrentUser, '/teacher/current')
-api.add_resource(GAuth, '/teacher/auth/google')
+api.add_resource(GAuth, '/teacher/auth/google/authorize')

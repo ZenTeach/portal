@@ -14,7 +14,7 @@ class BaseConfig:
     # JWT_REFRESH_COOKIE_PATH='/api/v1/teacher/token/refresh'
     JWT_ACCESS_CSRF_HEADER_NAME = 'X-CSRF-ACCESS-TOKEN'
     JWT_REFRESH_CSRF_HEADER_NAME = 'X-CSRF-REFRESH-TOKEN'
-
+    REDIS_URL = os.environ.get('REDIS_URL')
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
@@ -28,6 +28,7 @@ class DevelopmentConfig(BaseConfig):
     MAIL_PORT=os.environ.get('MAIL_PORT')
     MAIL_USERNAME=os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
     MAIL_USE_TLS=True
     CELERY_BROKER_URL=os.environ.get('CELERY_BROKER_URL')
     CELERYD_TASK_LOG_FORMAT= '[%(asctime)s: %(levelname)s/%(processName)s] %(task_name)s[%(task_id)s]: %(message)s'
