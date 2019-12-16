@@ -1,5 +1,5 @@
 from sqlalchemy import exc
-from flask import Blueprint, request, make_response, send_file
+from flask import Blueprint, request, make_response, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, Api
 import json
@@ -10,9 +10,9 @@ from weasyprint import HTML, CSS
 from weasyprint.fonts import FontConfiguration
 
 from server.decorators import with_required_roles
-from server.models import ClassQuiz as ClassQuizModel, ClassQuizSchema
+from server.models import ClassQuiz as ClassQuizModel, ClassQuizSchema, Teacher
 from server import db, mail
-from server.tasks import generate_pdf, send_quiz_pdf
+from server.tasks import generate_pdf, send_quiz_pdf, generate_gform_quiz, send_google_form_email, execute_app_script
 from server.api import api_logger
 
 class_quiz_blueprint = Blueprint('class_quiz', __name__)
@@ -144,10 +144,26 @@ class ClassQuizGenerator(Resource):
                 return make_response(error_object, 500)
             return make_response(jsonify({
                 'status': 'Succeeded',
-                'message': 'Failed to generate quiz'
+                'message': 'Generated quiz!'
             }), 200)
         elif req_data["type"] == "gform":
-            pass
+            t = Teacher.query.filter_by(email=teacher["email"]).first()
+            teacher_uid = str(t.uuid)
+            try:
+                gform_job = generate_gform_quiz.apply_async(args=[class_quiz_id, teacher_uid])
+                script_id = gform_job.get()
+                script_execution_job = execute_app_script.apply_async(args=[script_id, teacher_uid])
+                published_url = script_execution_job.get()
+                print("Publised URL: {}", published_url)
+                # send_google_form_email.apply_async(args=[teacher["email"], published_url])
+            except Exception as e:
+                api_logger.exception(e)
+                error_object["message"] = "Error generating Google Form"
+                return make_response(error_object, 500)
+            return make_response(jsonify({
+                'status': 'Succeeded',
+                'message': 'Generated quiz!'
+            }), 200)
         else:
             return make_response(jsonify(error_object), 400)
 

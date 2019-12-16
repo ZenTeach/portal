@@ -1,0 +1,15 @@
+function createQuiz() {
+	var form = FormApp.create("{{ subject }} - Quiz");
+	{% for question in questions %}
+	form.addMultipleChoiceItem()
+	.setTitle("{{ question["question"] }}")
+	.setChoiceValues(["{{question["choices"]["a"]}}",
+					"{{question["choices"]["b"]}}",
+					"{{question["choices"]["c"]}}",
+					"{{question["choices"]["d"]}}"]);
+	{% endfor %}
+
+	Logger.log('Published URL: ' + form.getPublishedUrl());
+	Logger.log('Editor URL: ' + form.getEditUrl());
+	return form.getPublishedUrl();
+  }
