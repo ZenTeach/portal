@@ -1,10 +1,12 @@
 from server import db
 from server.models.base_model import BaseModelMixin
-
+from uuid import uuid4
+from sqlalchemy.dialects.postgresql import UUID
 
 class Teacher(BaseModelMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=True)
     firstname = db.Column(db.String(256), nullable=False)
     lastname = db.Column(db.String(256), nullable=False)
     email = db.Column(db.String(128), nullable=False)

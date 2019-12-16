@@ -1,12 +1,14 @@
 from server import db
 from server.models.base_model import BaseModelMixin
 from datetime import datetime
-
+from uuid import uuid4
+from sqlalchemy.dialects.postgresql import UUID
 
 class SchoolClass(BaseModelMixin, db.Model):
     __tablename__ = 'school_class'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=True)
     name = db.Column(db.String(256), nullable=False)
     subject = db.Column(db.String(256), nullable=False)
     start_date = db.Column(db.DateTime, nullable=False,

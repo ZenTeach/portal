@@ -1,6 +1,7 @@
+import os
 import csv
 from server.models import Questions, QuestionTypeEnum
-import os
+from uuid import uuid4
 
 filename = "Questions.csv"
 filepath = os.path.join(os.path.dirname(__file__), filename)
@@ -22,5 +23,6 @@ def question_seeds():
                 topic=line["Topic"],
                 tag=line["TAG"],
                 knowledge_item=line["KnowledgeItem"],
-                choices=choices
+                choices=choices,
+                uuid=uuid4()
             ).save()

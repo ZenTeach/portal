@@ -5,6 +5,7 @@ from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_searchable import SearchQueryMixin
 from flask_sqlalchemy import BaseQuery
 import enum
+from sqlalchemy.dialects.postgresql import UUID
 
 class QuestionsQuery(BaseQuery, SearchQueryMixin):
     pass
@@ -20,6 +21,7 @@ class Questions(BaseModelMixin, db.Model):
     query_class = QuestionsQuery
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=False)
     question = db.Column(db.Text, nullable=False)
     question_type = db.Column(
         db.Enum(QuestionTypeEnum), nullable=False, default=QuestionTypeEnum.multiple_choice)
