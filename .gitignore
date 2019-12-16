@@ -300,3 +300,5 @@ yarn-error.log
 Dockerfile-prod
 
 token.pickle
+
+src/backend/server/lib/interfaces/client_id.json

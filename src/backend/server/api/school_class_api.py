@@ -73,7 +73,7 @@ class SchoolClassList(Resource):
                 })
                 return make_response(response_object, 201)
             else:
-                error_object['message'] = 'Sorry. That school class already exists.'
+                error_object.message = 'Sorry. That school class already exists.'
                 return make_response(error_object, 400)
         except exc.IntegrityError as err:
             db.session.rollback()
