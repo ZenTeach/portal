@@ -17,17 +17,19 @@ pipeline {
 
       }
       steps {
-        dir(path: '/home/build/zenteach/src/client')
-        echo 'Installing Packages'
-        sh 'yarn install'
-        echo 'Running Unit tests'
-        sh 'yarn run test:unit'
-        echo 'Building project'
-        sh 'yarn run build'
-        sh 'tar -czf dist.tar.gz ./dist'
-        echo 'Compressing dist files'
-        sh 'tar -czf dist.tar.gz ./dist'
-        archiveArtifacts(artifacts: 'dist.tar.gz', fingerprint: true)
+        dir(path: '/home/build/zenteach/src/client') {
+          echo 'Installing Packages'
+          sh 'yarn install'
+          echo 'Running Unit tests'
+          sh 'yarn run test:unit'
+          echo 'Building project'
+          sh 'yarn run build'
+          echo 'Compressing dist files'
+          sh 'tar -czf dist_${BUILD_NUMBER}.tar.gz ./dist'
+          archiveArtifacts(artifacts: 'dist_${BUILD_NUMBER}.tar.gz', fingerprint: true)
+          echo 'Copying artifacts to S3'
+        }
+
       }
     }
 
