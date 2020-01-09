@@ -1,9 +1,10 @@
 import service_config from "@/service/service_config";
 import axios from "axios";
-
+import createAuthRefreshInterceptor from 'axios-auth-refresh';
 const singleton = Symbol();
 const singletonEnforcer = Symbol();
-
+import store from '../store';
+import router from '../router';
 class ApiService {
 
     constructor(enforcer) {
@@ -11,14 +12,28 @@ class ApiService {
             throw new Error('Cannot construct singleton');
         }
 
-		this.session = axios.create(service_config);
+		this.session = axios(service_config);
 
-		this.session.interceptors.response.use((response) => { return response },
-			(response) => {
-				// TODO: perform silent refresh
-				// if (response.status == 401) {
-				// }
-			})
+		const authRefresher = (failedRequest) => {
+			let current_user_role = store.modules['user'].state.current_user["role"]
+			if (current_user_role == "Teacher") {
+				this.session.post("/teacher/token/refresh").then(response => {
+					if(response.status == 200) console.log("Session Refreshed!")
+					else router.push("login")
+				})
+			}
+			else {
+				this.session.post("/teacher/student/refresh").then(response => {
+					console.log("Session Refreshed!")
+				})
+			}
+			return Promise.resolve();
+		}
+		createAuthRefreshInterceptor(this.session, authRefresher)
+
+		this.session.interceptors.response.use((response) => {
+			if(response.status == 422) return router.push("login")
+		})
     }
 
     static get instance() {

@@ -1,5 +1,6 @@
 import os
 from secrets import token_urlsafe
+from datetime import timedelta
 
 
 class BaseConfig:
@@ -11,6 +12,8 @@ class BaseConfig:
     JWT_COOKIE_CSRF_PROTECT = True
     JWT_CSRF_IN_COOKIES = True
     JWT_ACCESS_COOKIE_PATH = '/api/v1/'
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=1)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     # JWT_REFRESH_COOKIE_PATH='/api/v1/teacher/token/refresh'
     JWT_ACCESS_CSRF_HEADER_NAME = 'X-CSRF-ACCESS-TOKEN'
     JWT_REFRESH_CSRF_HEADER_NAME = 'X-CSRF-REFRESH-TOKEN'
@@ -46,5 +49,7 @@ class TestingConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     SECRET_KEY = token_urlsafe()
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    JWT_BLACKLIST_ENABLED = True
+    JWT_BLACKLIST_TOKEN_CHECKS = ('access', 'refresh')
     JWT_COOKIE_SECURE = True
     JWT_COOKIE_CSRF_PROTECT = True

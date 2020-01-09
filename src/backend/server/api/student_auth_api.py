@@ -1,14 +1,16 @@
 from flask import Blueprint, jsonify, request, make_response, current_app
 from flask_restful import Resource, Api
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, set_access_cookies,
-                                set_refresh_cookies, unset_jwt_cookies, get_jwt_identity, get_raw_jwt, get_jwt_claims)
+                                set_refresh_cookies, unset_jwt_cookies, get_jwt_identity, get_raw_jwt, get_jwt_claims, get_jti)
 from server.models import Student, StudentSchema
-from server import db, bcrypt, jwt
+from server import db, bcrypt, jwt, redis_store
+from datetime import timedelta
 
 student_auth_blueprint = Blueprint('student_auth', __name__)
 api = Api(student_auth_blueprint)
 dumper = StudentSchema()
-
+ACCESS_EXPIRES = timedelta(days=1)
+REFRESH_EXPIRES = timedelta(days=30)
 
 @jwt.user_identity_loader
 def load_user(identity):
@@ -41,6 +43,12 @@ class StudentRegistration(Resource):
             })
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)
+
+            access_jti = get_jti(encoded_token=access_token)
+            refresh_jti = get_jti(encoded_token=refresh_token)
+            redis_store.set(access_jti, 'false', ACCESS_EXPIRES * 1.2)
+            redis_store.set(refresh_jti, 'false', REFRESH_EXPIRES * 1.2)
+
             return make_response(response, 200)
         except Exception as e:
             current_app.logger.error(e)
@@ -63,6 +71,11 @@ class StudentLogin(Resource):
             })
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)
+            access_jti = get_jti(encoded_token=access_token)
+            refresh_jti = get_jti(encoded_token=refresh_token)
+            redis_store.set(access_jti, 'false', ACCESS_EXPIRES * 1.2)
+            redis_store.set(refresh_jti, 'false', REFRESH_EXPIRES * 1.2)
+
             return make_response(response, 200)
         else:
             return make_response({'message': 'Wrong credentials'}, 400)
@@ -71,9 +84,9 @@ class StudentLogin(Resource):
 class StudentLogout(Resource):
     @jwt_required
     def post(self):
-        resp = jsonify({'logout': True})
-        unset_jwt_cookies(resp)
-        return make_response(resp, 200)
+        jti = get_raw_jwt()['jti']
+        redis_store.set(jti, 'true', ACCESS_EXPIRES * 1.2)
+        return jsonify({"msg": "Access token revoked"}), 200
 
 
 class TokenRefresh(Resource):
@@ -81,6 +94,8 @@ class TokenRefresh(Resource):
     def post(self):
         current_user = get_jwt_claims()
         access_token = create_access_token(identity=current_user)
+        access_jti = get_jti(encoded_token=access_token)
+        redis_store.set(access_jti, 'false', ACCESS_EXPIRES * 1.2)
 
         response = jsonify({
             'refresh': True
@@ -109,6 +124,14 @@ class CurrentUser(Resource):
         except:
             return make_response("User not logged in", 400)
 
+
+@api.resource('/student/auth/refresh_revoke')
+class StudentAuthRefreshRevoke(Resource):
+    @jwt_refresh_token_required
+    def delete():
+        jti = get_raw_jwt()['jti']
+        redis_store.set(jti, 'true', REFRESH_EXPIRES * 1.2)
+        return jsonify({"msg": "Refresh token revoked"}), 200
 
 api.add_resource(StudentRegistration, '/student/registration')
 api.add_resource(StudentLogin, '/student/login')

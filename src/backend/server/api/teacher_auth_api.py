@@ -1,11 +1,12 @@
 from flask import Blueprint, jsonify, request, make_response, current_app, url_for, redirect
 from flask_restful import Resource, Api
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, set_access_cookies,
-                                set_refresh_cookies, unset_jwt_cookies, get_jwt_identity, get_raw_jwt)
+                                set_refresh_cookies, unset_jwt_cookies, get_jwt_identity, get_raw_jwt, get_jti)
 from server.models import Teacher, TeacherSchema
 from server import db, bcrypt, jwt, redis_store
 from pathlib import Path
 import pickle
+from datetime import timedelta
 import requests
 import os.path as path
 import os
@@ -14,6 +15,8 @@ import json
 teacher_auth_blueprint = Blueprint('teacher_auth', __name__)
 api = Api(teacher_auth_blueprint)
 dumper = TeacherSchema()
+ACCESS_EXPIRES = timedelta(days=1)
+REFRESH_EXPIRES = timedelta(days=30)
 
 @jwt.user_identity_loader
 def load_user(identity):
@@ -44,6 +47,12 @@ class TeacherRegistration(Resource):
             })
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)
+
+            access_jti = get_jti(encoded_token=access_token)
+            refresh_jti = get_jti(encoded_token=refresh_token)
+            redis_store.set(access_jti, 'false', ACCESS_EXPIRES * 1.2)
+            redis_store.set(refresh_jti, 'false', REFRESH_EXPIRES * 1.2)
+
             return make_response(response, 200)
         except Exception as e:
             current_app.logger.error(e)
@@ -65,6 +74,12 @@ class TeacherLogin(Resource):
             })
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)
+            access_jti = get_jti(encoded_token=access_token)
+            refresh_jti = get_jti(encoded_token=refresh_token)
+            redis_store.set(access_jti, 'false', ACCESS_EXPIRES * 1.2)
+            redis_store.set(refresh_jti, 'false', REFRESH_EXPIRES * 1.2)
+
+
             return make_response(response, 200)
         else:
             return make_response({'message': 'Wrong credentials'}, 400)
@@ -73,9 +88,10 @@ class TeacherLogin(Resource):
 class TeacherLogout(Resource):
     @jwt_required
     def post(self):
-        resp = jsonify({'logout': True})
-        unset_jwt_cookies(resp)
-        return make_response(resp, 200)
+        jti = get_raw_jwt()['jti']
+        redis_store.set(jti, 'true', ACCESS_EXPIRES * 1.2)
+        return make_response(jsonify({"msg": "Access token revoked"}), 200)
+
 
 
 class TokenRefresh(Resource):
@@ -84,11 +100,14 @@ class TokenRefresh(Resource):
         current_user = get_jwt_identity()
         access_token = create_access_token(identity=current_user)
 
+        access_jti = get_jti(encoded_token=access_token)
+        redis_store.set(access_jti, 'false', ACCESS_EXPIRES * 1.2)
+
         response = jsonify({
             'refresh': True
         })
         set_access_cookies(resp, access_token)
-        return response, 200
+        return make_response(response, 200)
 
 
 class AllTeachers(Resource):
@@ -114,6 +133,13 @@ class CurrentUser(Resource):
             api_logger.debug(e)
             return make_response("User not logged in", 400)
 
+@api.resource('/student/auth/refresh_revoke')
+class StudentAuthRefreshRevoke(Resource):
+    @jwt_refresh_token_required
+    def delete():
+        jti = get_raw_jwt()['jti']
+        redis_store.set(jti, 'true', REFRESH_EXPIRES * 1.2)
+        return jsonify({"msg": "Refresh token revoked"}), 200
 
 class GAuth(Resource):
     @jwt_required
@@ -142,4 +168,4 @@ api.add_resource(TeacherLogout, '/teacher/logout')
 api.add_resource(TokenRefresh, '/teacher/token/refresh')
 api.add_resource(AllTeachers, '/teachers')
 api.add_resource(CurrentUser, '/teacher/current')
-api.add_resource(GAuth, '/teacher/auth/google/authorize')
+api.add_resource(GAuth, '/teacher/auth/google')
