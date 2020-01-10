@@ -32,6 +32,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
     held_on = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow)
+    script_id = db.Column(db.String(128), nullable=True, default=None)
     gform_id = db.Column(db.String(128), nullable=True)
     questions = db.Column(JSON)
 
