@@ -1,0 +1,5 @@
+rootProject.name = 'zenteach'
+include 'backend'
+project(':backend').projectDir = file('src/backend')
+include 'client'
+project(':client').projectDir = file('src/client')

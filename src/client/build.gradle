@@ -1,0 +1,156 @@
+import com.bmuschko.gradle.docker.tasks.image.*
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.network.*
+import com.github.mgk.gradle.S3Upload
+
+buildscript {
+    repositories {
+        gradlePluginPortal()
+		maven {
+     		url "https://plugins.gradle.org/m2/"
+    	}
+    }
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:6.1.1'
+		classpath "gradle.plugin.com.github.mgk.gradle:s3:1.5.1"
+    }
+}
+
+apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+apply plugin: "com.github.mgk.gradle.s3"
+
+s3 {
+	bucket = "${getBucketName("AWS_S3_BUCKET")}.zenteach.co.uk"
+}
+
+def timestamp = { new Date().format('yyyyMMddHHmmssSSS') }
+def buildTimestamp = timestamp()
+def outputDir = "dist_$buildTimestamp"
+
+String getConfigurationProperty(String envVar, String sysProp) {
+    System.getenv(envVar) ?: project.findProperty(sysProp)
+}
+
+task buildImage(type: DockerBuildImage) {
+    inputDir = file("../client")
+    dockerFile = file("Dockerfile-CI")
+    images.add('zenteach/client_v1:latest')
+    remove = true
+	noCache = true
+
+    onComplete {
+        println "Completed building the Image"
+    }
+}
+
+task createAppContainer(type: DockerCreateContainer) {
+    dependsOn buildImage
+    targetImageId buildImage.getImageId()
+	hostConfig.autoRemove = true
+
+    hostConfig.binds = ['/sys/fs/cgroup': '/sys/fs/cgroup']
+    tty = true
+
+    onError {exception ->
+        throw exception
+    }
+    onComplete {
+        println "Running container..."
+    }
+}
+
+task startAppContainer(type: DockerStartContainer) {
+    dependsOn createAppContainer
+    targetContainerId createAppContainer.getContainerId()
+}
+
+task runUnitTest(type: DockerExecContainer) {
+	dependsOn startAppContainer
+	targetContainerId createAppContainer.getContainerId()
+	attachStdout = true
+	withCommand(['yarn', 'run', 'test:ci'])
+	user = 'ci_user:ci'
+	successOnExitCodes = [0]
+	onError {exception ->
+		throw exception
+	}
+
+	doLast {
+    	logger.quiet "FOUND EXEC-IDS: " + execIds.get()
+    }
+
+	onComplete {
+		println "Finished testing"
+	}
+}
+
+task buildDistro(type: DockerExecContainer) {
+	dependsOn runUnitTest
+	targetContainerId createAppContainer.getContainerId()
+	attachStdout = true
+	withCommand(['yarn', 'run', 'build', '--dest dist'])
+	user = 'ci_user:ci'
+	successOnExitCodes = [0]
+	onError {exception ->
+		throw exception
+	}
+
+	doLast {
+    	logger.quiet "FOUND EXEC-IDS: " + execIds.get()
+    }
+
+	onComplete {
+		println "Finished testing"
+	}
+}
+
+task copyBuildArtifactToS3(type: DockerCopyFileFromContainer) {
+	dependsOn buildDistro
+	targetContainerId createAppContainer.getContainerId()
+	remotePath = "/home/app/dist"
+	hostPath = "$buildDir/$outputDir"
+}
+
+String getBucketName(String envVar) {
+	System.getenv(envVar) ?: "stage.portal"
+}
+
+task uploadToS3() {
+	dependsOn copyBuildArtifactToS3
+
+	doFirst {
+        def dir = file("$buildDir/$outputDir")
+        fileTree(dir: dir).each { f ->
+            def path = dir.toPath().relativize(f.toPath())
+			def fileName = path.getFileName().toString()
+            def t = task "upload-${fileName}" (type: S3Upload) {
+                file = f
+                key = "dist/${path}"
+            }
+            t.task()
+        }
+    }
+
+	finalizedBy "deleteImage"
+	doLast {
+		println "completed upload!"
+	}
+}
+
+task stopContainer(type: DockerStopContainer) {
+	waitTime = 10
+	targetContainerId createAppContainer.getContainerId()
+}
+
+task deleteContainer(type: DockerRemoveContainer) {
+	dependsOn stopContainer
+	targetContainerId createAppContainer.getContainerId()
+	removeVolumes = true
+	force = true
+}
+
+task deleteImage(type: DockerRemoveImage) {
+	dependsOn deleteContainer
+	targetImageId buildImage.getImageId()
+	force = true
+}
