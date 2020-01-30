@@ -8,7 +8,7 @@ import classrooms from "@/store/modules/classrooms";
 Vue.use(Vuex);
 
 const vuexLocalStore = new VuexPersistence({
-  storage: window.localStorage
+  storage: window.sessionStorage
 });
 
 const store = new Vuex.Store({

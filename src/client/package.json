@@ -9,10 +9,12 @@
     "lint": "vue-cli-service lint",
     "format": "prettier --write \"**/*.{js,md,scss}\"",
     "test:unit": "vue-cli-service test:unit",
+    "test:ci": "CI=true vue-cli-service test:unit",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
   },
   "dependencies": {
     "axios": "^0.19.0",
+    "axios-auth-refresh": "^2.2.0",
     "bootstrap": "^4.3.1",
     "css-base": "^1.0.0",
     "css-loader": "^3.2.0",

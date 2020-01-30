@@ -12,29 +12,36 @@ class ApiService {
             throw new Error('Cannot construct singleton');
         }
 
-		this.session = axios(service_config);
+		this.session = axios.create(service_config);
 
-		const authRefresher = (failedRequest) => {
-			let current_user_role = store.modules['user'].state.current_user["role"]
-			if (current_user_role == "Teacher") {
+		const silentRefreshLogic = failedRequest => {
+			console.log("In Auth-Refresher")
+			console.log("Encountered an error", failedRequest.config.url)
+			console.log(failedRequest.config.url)
+			// if (failedRequest.status === 422) {
+			// 	store.dispatch("user/SIGNOUT_USER", {}, { root: true })
+			// 	router.push({ name: "login"})
+			// }
+			return new Promise((resolve, _reject) => {
+				console.log("Refreshing...")
 				this.session.post("/teacher/token/refresh").then(response => {
-					if(response.status == 200) console.log("Session Refreshed!")
-					else router.push("login")
-				})
-			}
-			else {
-				this.session.post("/teacher/student/refresh").then(response => {
-					console.log("Session Refreshed!")
-				})
-			}
-			return Promise.resolve();
-		}
-		createAuthRefreshInterceptor(this.session, authRefresher)
+					console.log(response)
+					if(response.status == 200) {
+						console.log("Session Refreshed!")
+						resolve(response)
+					}
+					else {
+							store.dispatch("user/SIGNOUT_USER", {}, { root: true })
+							router.push({ name: "login"})
+					}
 
-		this.session.interceptors.response.use((response) => {
-			if(response.status == 422) return router.push("login")
+				})
+			})
+		}
+		createAuthRefreshInterceptor(this.session, silentRefreshLogic, {
+			statusCodes: [401, 422, 403]
 		})
-    }
+	}
 
     static get instance() {
         if (!this[singleton]) {
@@ -49,23 +56,24 @@ class ApiService {
         return this[singleton];
     }
 
-    get(...params) {
-		return this.session.get(...params);
+    async get(...params) {
+		return Promise.resolve(this.session.get(...params))
 	}
 
-	post(...params) {
-		return this.session.post(...params);
+	async post(...params) {
+		return Promise.resolve(this.session.post(...params))
 	}
 
-	put(...params) {
-		return this.session.put(...params);
+	async put(...params) {
+		return Promise.resolve(this.session.put(...params))
 	}
 
-	patch(...params) {
-		return this.session.patch(...params);
+	async patch(...params) {
+		return Promise.resolve(this.session.patch(...params))
 	}
-    remove(...params) {
-		return this.session.delete(...params);
+
+	async remove(...params) {
+		return Promise.resolve(this.session.delete(...params))
 	}
 }
 export default ApiService.instance;

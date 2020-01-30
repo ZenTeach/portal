@@ -4,7 +4,8 @@ export async function loginUser(payload) {
   const result = await Api.post(
     "/teacher/login",
     payload
-  );
+	);
+	// console.log("loginUser data", result)
   if (result.status === 200) {
     return result.data;
   }
@@ -13,7 +14,7 @@ export async function loginUser(payload) {
 
 export async function logoutUser() {
   const result = await Api.post("/teacher/logout");
-
+	// console.log("logoutUser data", result)
   return result;
 }
 
@@ -22,7 +23,7 @@ export async function registerUser(payload) {
     "/teacher/registration",
     payload
   );
-
+	console.log("registerUser data", result)
   if (result.status === 200) {
     return result.data;
   }
@@ -36,6 +37,6 @@ export async function getCurrentUser() {
   // if (result.status === 200) {
   //   return result.data;
   // }
-
+	// console.log("getCurrentUser data", result)
   return result;
 }
