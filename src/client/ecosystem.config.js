@@ -24,8 +24,19 @@ module.exports = {
 			"ref"  : "origin/master",
 			"repo" : "git@github.com:ngetahun/zenteach.git",
 			"ssh_options": "StrictHostKeyChecking=no",
-			"path" : "/var/www/stage.portal.zenteach.co.uk",
+			"path" : "/var/www/portal.zenteach.co.uk",
 			"post-deploy" : "yarn install; yarn build; yarn serve; pm2 startOrRestart ecosystem.json --env production"
+		},
+		"stage": {
+			"user" : "root",
+			"key"  : "/Users/natnaelgetahun/.ssh/id_rsa.pub",
+			"host" : ["67.207.76.204"],
+			"ref"  : "origin/master",
+			"repo" : "git@github.com:ngetahun/zenteach.git",
+			"ssh_options": ["StrictHostKeyChecking=no", "ForwardAgent=yes"],
+			"path" : "/var/www/stage.portal.zenteach.co.uk",
+			"post-deploy" : "yarn install; yarn build; yarn serve; pm2 startOrRestart ecosystem.json --env stage"
+
 		 }
-  }
+	},
 };
