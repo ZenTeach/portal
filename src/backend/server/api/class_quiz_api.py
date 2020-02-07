@@ -21,8 +21,6 @@ dumper = ClassQuizSchema()
 
 
 class ClassQuiz(Resource):
-    @jwt_required
-    @with_required_roles(["Teacher", "Admin"])
     def get(self, class_quiz_id):
         error_response = {
             'message': 'No Class Quiz found.'

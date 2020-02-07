@@ -60,7 +60,13 @@ const router = new Router({
       meta: {
         requiresAuth: true
       }
-    }
+		},
+		{
+			path:'/quiz_view/:id',
+			name: 'Quiz View',
+			component: () =>
+				import(/* webpackChunkName: "QuizView" */ './views/QuizView')
+		}
   ]
 });
 

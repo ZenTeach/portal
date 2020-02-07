@@ -4,6 +4,7 @@ import VuexPersistence from "vuex-persist";
 import app from "@/store/modules/app";
 import user from "@/store/modules/user";
 import classrooms from "@/store/modules/classrooms";
+import quiz from "@/store/modules/quiz";
 
 Vue.use(Vuex);
 
@@ -15,7 +16,8 @@ const store = new Vuex.Store({
   modules: {
     app: app,
     user: user,
-    classrooms: classrooms
+		classrooms: classrooms,
+		quiz: quiz
   },
   state: {
     // global state
