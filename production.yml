@@ -1,0 +1,98 @@
+version: "3.7"
+
+services:
+  zenteach_fe:
+    restart: always
+    build:
+      context: ./src/client
+      dockerfile: Dockerfile
+    volumes:
+      - "./src/client:/home/app"
+      - "/home/app/node_modules"
+    ports:
+      - 80:8080
+    env_file:
+      - './src/client/.env'
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - zenteach_be
+  zenteach_be:
+    restart: always
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile.prod
+    env_file:
+      - './src/backend/.env.production'
+    volumes:
+      - "./src/backend:/home/flask/server"
+    ports:
+      - 5001:5000
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach
+      - APP_SETTINGS=server.config.ProductionConfig
+      - CELERY_BROKER_URL=amqp://zenteach:zenteach_broker@rabbitmq_broker:5672/jobs
+      - CELERY_RESULT_BACKEND=redis://redis_store:6379/0
+      - REDIS_URL=redis://redis_store:6379/app
+    depends_on:
+      - zenteach_db
+      - redis_store
+      - rabbitmq_broker
+    deploy:
+      replicas: 3
+      mode: replicated
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 300M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/api/v1/ping"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 5m
+  zenteach_db:
+    image: postgres:11.2-alpine
+    restart: always
+    ports:
+      - 5435:5432
+    environment:
+      - POSTGRES_DB=zenteach
+      - POSTGRES_USER=zenteach
+      - POSTGRES_PASSWORD=zenteach
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+  redis_store:
+    image: redis:5.0.7-alpine
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 50M
+  rabbitmq_broker:
+    image: rabbitmq:3.7.22-management-alpine
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 100M
+    ports:
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=zenteach
+      - RABBITMQ_ERLANG_COOKIE=va21ef9BSZz4WUVgcGcacmsIQ09qlh7VAKWOgfznaCg
+      - RABBITMQ_DEFAULT_PASS=zenteach_broker
+      - RABBITMQ_DEFAULT_VHOST=jobs

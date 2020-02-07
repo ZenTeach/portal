@@ -9,7 +9,7 @@ RUN apt-get update && \
 	apt-get install -y libgdk-pixbuf2.0-0 libffi-dev shared-mime-info && \
 	apt-get install -y gfortran wget zlib1g zlib1g-dev && \
 	apt-get install -y libfreetype6 libfreetype6-dev libpng-dev libopenblas-dev && \
-	apt-get install -y netcat-openbsd libssl-dev python3-scipy && \
+	apt-get install -y netcat-openbsd libssl-dev python3-scipy libcurl4-openssl-dev python-pycurl && \
 	apt-get install -y shared-mime-info libjpeg-dev fonts-open-sans
 
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \

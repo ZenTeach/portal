@@ -1,4 +1,5 @@
 from server import celery
+from server.models import ClassQuiz
 from server.lib import QuizGenerator, GoogleFormsGenerator
 from server.lib.interfaces.GAppScript import AppScriptInterface
 from flask_mail import Message
@@ -42,6 +43,9 @@ async def process_appscript(qid, t_uuid):
 @celery.task
 def generate_gform_quiz(quiz_id, teacher_uuid):
     script_id = asyncio.run(process_appscript(quiz_id, teacher_uuid))
+    quiz = ClassQuiz.query.filter_by(id=quiz_id).first()
+    quiz.script_id = script_id
+    quiz.save()
     return script_id
 
 async def async_execute_app_script(scriptId, teacher_uuid):

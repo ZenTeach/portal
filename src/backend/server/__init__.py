@@ -55,6 +55,7 @@ def create_app(script_info=None):
     db.init_app(app)
     login_manager.init_app(app)
     bcrypt.init_app(app)
+    # TODO: Move JWT sessions to redis
     jwt.init_app(app)
     cors.init_app(app)
     ma.init_app(app)
@@ -80,6 +81,13 @@ def create_app(script_info=None):
 
     # import background tasks after initializing celery
     # import server.tasks
+    @jwt.token_in_blacklist_loader
+    def check_if_token_is_revoked(decrypted_token):
+        jti = decrypted_token['jti']
+        entry = redis_store.get(jti)
+        if entry is None:
+            return True
+        return entry == 'true'
 
     # Register bluprints
     from server.api.school_class_api import school_class_blueprint
@@ -88,6 +96,7 @@ def create_app(script_info=None):
     from server.api.student_auth_api import student_auth_blueprint
     from server.api.questions_api import question_blueprint
     from server.api.stats_api import statistics_view_blueprint
+    from server.api.quiz_grader_api import quiz_grader_blueprint
     from server.api import root_api
 
     app.register_blueprint(school_class_blueprint, url_prefix='/api/v1')
@@ -96,6 +105,7 @@ def create_app(script_info=None):
     app.register_blueprint(student_auth_blueprint, url_prefix='/api/v1')
     app.register_blueprint(question_blueprint, url_prefix='/api/v1')
     app.register_blueprint(statistics_view_blueprint, url_prefix='/api/v1')
+    app.register_blueprint(quiz_grader_blueprint, url_prefix='/api/v1')
     app.register_blueprint(root_api)
 
     default_handler.setFormatter(formatter)

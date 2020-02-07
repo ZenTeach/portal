@@ -1,5 +1,5 @@
 import {shallowMount, createLocalVue} from '@vue/test-utils'
-import Quiz from '@/views/Quiz.vue'
+// import Quiz from '@/views/Quiz.vue'
 import VueRouter from 'vue-router'
 import Vuex from 'vuex'
 import { jestPreset } from 'ts-jest'
@@ -18,11 +18,11 @@ describe('Quiz.vue', () => {
 		store = new Vuex.Store({})
 	})
 	it.skip('has renders the view correctly', () => {
-		jest.mock('@/services/Api', () => {
-			return {
-				post: () => {authCode: 'asjksdko'}
-			}
-		})
+		// jest.mock('@/services/Api', () => {
+		// 	return {
+		// 		post: () => {authCode: 'asjksdko'}
+		// 	}
+		// })
 		// mockApi.post.mockImplementation(async () => {})
 		const wrapper = shallowMount(Quiz, {store, localVue, router})
 		expect(wrapper.isVueInstance()).toBe(true)

@@ -31,7 +31,7 @@ export default {
 			isLoggedIn: state => state.loggedIn
     })
 	},
-	updated: function() {
+	mounted: function() {
 		if (this.isLoggedIn) {
 			this.$store.dispatch("user/FETCHCURRENTUSER", {}, {root: true});
 		}

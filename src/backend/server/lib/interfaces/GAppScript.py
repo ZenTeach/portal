@@ -15,14 +15,22 @@ from google_auth_oauthlib.flow import InstalledAppFlow, Flow
 from google.auth.credentials import Credentials
 from google.auth.transport.requests import Request
 from asyncio import sleep
+from oauth2client import client
+import httplib2
 
 DEFAULT_SCOPE = [
     "https://www.googleapis.com/auth/script.projects",
     "https://www.googleapis.com/auth/script.projects.readonly",
     "https://www.googleapis.com/auth/script.deployments",
     "https://www.googleapis.com/auth/script.deployments.readonly",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "openid",
     "https://www.googleapis.com/auth/forms",
-    "https://www.googleapis.com/auth/forms.currentonly"
+    "https://www.googleapis.com/auth/forms.currentonly",
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/drive.scripts",
+    "https://www.googleapis.com/auth/script.external_request"
     ]
 
 DEFAULT_MANIFEST = '''
@@ -37,7 +45,10 @@ DEFAULT_MANIFEST = '''
         "https://www.googleapis.com/auth/userinfo.email",
         "openid",
         "https://www.googleapis.com/auth/forms",
-        "https://www.googleapis.com/auth/forms.currentonly"
+        "https://www.googleapis.com/auth/forms.currentonly",
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/drive.scripts",
+        "https://www.googleapis.com/auth/script.external_request"
     ],
     "dependencies": {
     },
@@ -71,30 +82,35 @@ class AppScriptInterface():
         if cred_blob is None:
             credentials_dir = path.join(os.getcwd(), "server", "lib/interfaces/client_id.json")
             print("auth code", auth_code)
-            flow = Flow.from_client_secrets_file(
-                        credentials_dir,
-                        scopes=[
-                            "https://www.googleapis.com/auth/script.projects",
-                            "https://www.googleapis.com/auth/script.projects.readonly",
-                            "https://www.googleapis.com/auth/script.deployments",
-                            "https://www.googleapis.com/auth/script.deployments.readonly",
-                            "https://www.googleapis.com/auth/userinfo.profile",
-                            "https://www.googleapis.com/auth/userinfo.email",
-                            "openid",
-                            "https://www.googleapis.com/auth/forms",
-                            "https://www.googleapis.com/auth/forms.currentonly"
-                        ])
-            flow.redirect_uri = 'postmessage'
-            flow.fetch_token(code=auth_code)
-            self.credentials = flow.credentials
+            # flow = Flow.from_client_secrets_file(
+            #             credentials_dir,
+            #             scopes=[
+            #                 "https://www.googleapis.com/auth/script.projects",
+            #                 "https://www.googleapis.com/auth/script.projects.readonly",
+            #                 "https://www.googleapis.com/auth/script.deployments",
+            #                 "https://www.googleapis.com/auth/script.deployments.readonly",
+            #                 "https://www.googleapis.com/auth/userinfo.profile",
+            #                 "https://www.googleapis.com/auth/userinfo.email",
+            #                 "openid",
+            #                 "https://www.googleapis.com/auth/forms",
+            #                 "https://www.googleapis.com/auth/forms.currentonly"
+            #                 "https://www.googleapis.com/auth/drive",
+            #                 "https://www.googleapis.com/auth/drive.scripts",
+            #                 "https://www.googleapis.com/auth/script.external_request"
+            #             ])
+            # flow.redirect_uri = 'postmessage'
+            # flow.fetch_token(code=auth_code)
+            self.credentials = client.credentials_from_clientsecrets_and_code(
+                        credentials_dir, self.api_scope, auth_code)
             cred_blob = pickle.dumps(self.credentials)
             redis_store.set(auth_cred_key, cred_blob)
         else:
             self.credentials = pickle.loads(cred_blob)
 
-        if not self.credentials.valid:
-            self.credentials.refresh(Request())
-            await sleep(1)
+        # if not self.credentials.access_token_expired:
+        #     self.credentials.refresh(httplib2.Http())
+        #     await sleep(1)
+        http_auth = self.credentials.authorize(httplib2.Http())
 
         print("credentials: {}", self.credentials)
         # await sleep(1)
@@ -103,7 +119,7 @@ class AppScriptInterface():
     @classmethod
     async def build_service(self, creds):
         await sleep(1)
-        return build('script', 'v1', credentials=creds)
+        return build('script', 'v1', http=creds)
 
     def version(self):
         pass

@@ -36,11 +36,11 @@
                         <v-container>
                           <v-row>
                             <v-col cols="10" lg="12" sm="9" md="12">
-															<ValidationProvider rules="required" name="classname" v-slot="{errors, valid}">
+															<ValidationProvider rules="required" name="classname">
                               <v-text-field label="Class name" v-model="classname" outlined grow></v-text-field>
 															</ValidationProvider>
 
-															<ValidationProvider rules="required" name="subject" v-slot="{errors, valid}">
+															<ValidationProvider rules="required" name="subject">
                               <v-select :items="subjects" label="Subject" v-model="subject" outlined></v-select>
 															</ValidationProvider>
 
@@ -54,7 +54,7 @@
                                 min-width="290px"
                               >
                                 <template v-slot:activator="{ on }">
-																	<ValidationProvider rules="required" name="Start date" v-slot="{ errors, valid }">
+																	<ValidationProvider rules="required" name="Start date" v-slot="{ errors }">
                                   <v-text-field
                                     v-model="start_date"
                                     label="Start date"

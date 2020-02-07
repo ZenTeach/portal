@@ -36,7 +36,8 @@ export default {
 			this.$store.dispatch("user/SIGNOUT_USER", {}, { root: true });
 			// TODO: delete access cookies from the client
 			// this.$cookies.remo
-      this.$router.push("/login");
+			this.$router.push("/login");
+			// this.$cookies.remove('access_cookie_')
     },
     onResponsiveInverted() {
       if (window.innerWidth < 991) {

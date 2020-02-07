@@ -19,6 +19,7 @@
     "css-base": "^1.0.0",
     "css-loader": "^3.2.0",
     "jquery": "^3.4.1",
+    "pm2": "^4.2.1",
     "request": "^2.88.0",
     "vee-validate": "^3.0.0",
     "vue": "^2.6.6",
@@ -67,7 +68,8 @@
     "vue-cli-plugin-vuetify": "^0.6.3",
     "vue-jest": "^3.0.5",
     "vue-template-compiler": "^2.5.21",
-    "vuetify-loader": "^1.2.2"
+    "vuetify-loader": "^1.2.2",
+    "vuex-mock-store": "^0.0.8"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

@@ -8,5 +8,6 @@ class_quiz_score = db.Table('class_quiz_scores',
                             db.Column('quiz_id', db.Integer, db.ForeignKey(
                                 'class_quiz.id'), primary_key=True),
                             db.Column('score', db.Integer),
-                            db.Column('grade_breakdown', JSON)
+                            db.Column('grade_breakdown', JSON),
+                            db.Column('responses', JSON)
                             )

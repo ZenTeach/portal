@@ -106,7 +106,7 @@ class TokenRefresh(Resource):
         response = jsonify({
             'refresh': True
         })
-        set_access_cookies(resp, access_token)
+        set_access_cookies(response, access_token)
         return make_response(response, 200)
 
 

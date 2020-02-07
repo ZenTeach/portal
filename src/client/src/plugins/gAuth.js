@@ -6,7 +6,7 @@ const GAUTH_CLIENT_ID = process.env.VUE_APP_GAUTH_CLIENT_ID
 
 const gauthOption = {
 	clientId: GAUTH_CLIENT_ID,
-	scope: "https://www.googleapis.com/auth/script.projects https://www.googleapis.com/auth/script.projects.readonly https://www.googleapis.com/auth/script.deployments https://www.googleapis.com/auth/script.deployments.readonly https://www.googleapis.com/auth/forms https://www.googleapis.com/auth/forms.currentonly",
+	scope: "https://www.googleapis.com/auth/script.projects https://www.googleapis.com/auth/script.projects.readonly https://www.googleapis.com/auth/script.deployments https://www.googleapis.com/auth/script.deployments.readonly https://www.googleapis.com/auth/forms https://www.googleapis.com/auth/forms.currentonly https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.scripts https://www.googleapis.com/auth/script.external_request",
 	prompt: 'consent',
 	fetch_basic_profile: false
 }

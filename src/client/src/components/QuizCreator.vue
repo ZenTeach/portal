@@ -140,7 +140,7 @@ export default {
 				questions: this.questionList
 			}
 			await Api.post(
-				"http://localhost:5001/api/v1/class_quiz",
+				"/class_quiz",
 				payload
 			);
 

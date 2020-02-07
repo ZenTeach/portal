@@ -21,3 +21,13 @@ class Teacher(BaseModelMixin, db.Model):
 
     def full_name(self):
         return "{} {}".format(self.firstname, self.lastname)
+
+    def owns_class(self, class_id):
+        """
+            Checks if the teacher owns the class
+        """
+
+        if class_id is None:
+            return False
+
+        return class_id in self.classes

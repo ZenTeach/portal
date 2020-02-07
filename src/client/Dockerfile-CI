@@ -1,0 +1,16 @@
+FROM node:10.16-alpine
+# RUN addgroup ci
+RUN addgroup -S ci && adduser -S -G ci ci_user
+# RUN adduser -ms /bin/bash -G ci ci_user
+
+RUN mkdir -p /home/app
+WORKDIR /home/app
+
+COPY --chown=ci_user:ci package.json yarn.lock ./
+RUN yarn install
+
+COPY --chown=ci_user:ci . .
+RUN chown -R ci_user:ci /home/app
+USER ci_user
+EXPOSE 8080
+CMD ["yarn", "serve"]
