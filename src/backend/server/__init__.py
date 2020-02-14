@@ -46,11 +46,14 @@ mail = Mail()
 celery=Celery('zenteach_tasks')
 redis_store = FlaskRedis()
 
-def create_app(script_info=None):
+def create_app(with_prod_config=True):
     app = Flask(__name__, template_folder='templates')
 
-    app_settings = os.getenv('APP_SETTINGS')
-    app.config.from_object(app_settings)
+    if with_prod_config:
+        app.config.from_pyfile("/var/www/zenteach_be/application.cfg")
+    else:
+        app_settings = os.getenv('APP_SETTINGS')
+        app.config.from_object(app_settings)
 
     db.init_app(app)
     login_manager.init_app(app)
