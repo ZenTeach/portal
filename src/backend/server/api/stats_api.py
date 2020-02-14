@@ -10,7 +10,7 @@ from sqlalchemy import exc
 statistics_view_blueprint = Blueprint('stats', __name__)
 api = Api(statistics_view_blueprint)
 
-def correct_response_distribution_sql(student_id)
+def correct_response_distribution_sql(student_id):
     return '''
         SELECT * FROM class_quiz_scores WHERE student_id
     '''
