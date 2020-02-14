@@ -1,0 +1,23 @@
+# include manage.py
+include manage.py
+
+# include app.py entrypoint for gunicorn
+include app.py
+
+# include celery_worker.py
+include celery_worker.py
+
+# entrypoint
+include entrypoint_prod.sh
+
+# requirements.txt
+include requirements.txt
+
+# recursively include server files
+recursive-include server *
+
+recursive-exclude server *.pyc *.pyo
+recursive-exclude __pycache__ *
+
+# exclude scripts from source distributions
+recursive-exclude scripts *

@@ -1,5 +1,5 @@
-from server import create_app
+from zenteach.server import create_app
+app = create_app(True)
 
 if __name__ == '__main__':
-    app = create_app()
     app.run()
