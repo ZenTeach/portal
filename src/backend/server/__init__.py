@@ -46,10 +46,10 @@ mail = Mail()
 celery=Celery('zenteach_tasks')
 redis_store = FlaskRedis()
 
-def create_app(with_prod_config=True):
+def create_app():
     app = Flask(__name__, template_folder='templates')
 
-    if with_prod_config:
+    if os.environ.get("FLASK_ENV") == 'production':
         app.config.from_pyfile("/var/www/zenteach_be/application.cfg")
     else:
         app_settings = os.getenv('APP_SETTINGS')
