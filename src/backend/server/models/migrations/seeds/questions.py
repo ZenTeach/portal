@@ -2,6 +2,7 @@ import os
 import csv
 from server.models import Questions, QuestionTypeEnum
 from uuid import uuid4
+from random import choices
 
 filename = "Questions.csv"
 filepath = os.path.join(os.path.dirname(__file__), filename)

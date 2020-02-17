@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import JSON
 from server.models.base_model import BaseModelMixin
 from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_searchable import SearchQueryMixin
+from random import choices
 from flask_sqlalchemy import BaseQuery
 import enum
 from sqlalchemy.dialects.postgresql import UUID
@@ -36,6 +37,7 @@ class Questions(BaseModelMixin, db.Model):
     subject = db.Column(db.String(256), nullable=False)
     topic = db.Column(db.String(256), nullable=True)
     tag = db.Column(db.String(128), nullable=False)
+    correct_choice = db.Column(db.String(1), nullable=True, default=choices(['a', 'b', 'c', 'd']))
     choices = db.Column(JSON)
     knowledge_item = db.Column(db.String(256), nullable=False)
     search_vector = db.Column(TSVectorType('question'))
