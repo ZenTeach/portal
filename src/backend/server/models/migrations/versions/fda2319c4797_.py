@@ -1,7 +1,7 @@
 """Add correct choice field on questions database
 
 Revision ID: fda2319c4797
-Revises: 092c8101da79
+Revises: 397ed1089dc8
 Create Date: 2020-02-17 01:43:21.538392
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'fda2319c4797'
-down_revision = '092c8101da79'
+down_revision = '397ed1089dc8'
 branch_labels = None
 depends_on = None
 
