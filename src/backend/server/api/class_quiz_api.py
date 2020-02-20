@@ -39,6 +39,26 @@ class ClassQuiz(Resource):
         except ValueError:
             return make_response(error_response, 404)
 
+    @with_required_roles(["Teacher", "Admin"])
+    @jwt_required
+    def delete(self, class_quiz_id):
+        error_response = {
+            'message': 'No Class Quiz found.'
+        }
+        try:
+            class_quiz = ClassQuizModel.query.filter_by(id=class_quiz_id).first()
+            if not class_quiz:
+                return make_response(error_response, 404)
+            else:
+                db.session.delete(class_quiz)
+                db.session.commit()
+                response_message = {
+                    'status': 'success',
+                    'message': "Deleted Quiz"
+                }
+                return make_response(response_message, 200)
+        except expression as e:
+            return make_response(error_response, 404)
 
 class ClassQuizList(Resource):
     @with_required_roles(["Teacher", "Admin"])
