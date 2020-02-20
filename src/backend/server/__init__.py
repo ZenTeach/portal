@@ -136,7 +136,7 @@ def create_app():
     from server.api.student_auth_api import student_auth_blueprint
     from server.api.questions_api import question_blueprint
     from server.api.stats_api import statistics_view_blueprint
-    from server.api.quiz_grader_api import quiz_grader_blueprint
+    from server.api.quiz_submit_api import quiz_submit_blueprint
     from server.api import root_api
 
     app.register_blueprint(school_class_blueprint, url_prefix='/api/v1')
@@ -145,7 +145,7 @@ def create_app():
     app.register_blueprint(student_auth_blueprint, url_prefix='/api/v1')
     app.register_blueprint(question_blueprint, url_prefix='/api/v1')
     app.register_blueprint(statistics_view_blueprint, url_prefix='/api/v1')
-    app.register_blueprint(quiz_grader_blueprint, url_prefix='/api/v1')
+    app.register_blueprint(quiz_submit_blueprint, url_prefix='/api/v1')
     app.register_blueprint(root_api)
 
     default_handler.setFormatter(formatter)

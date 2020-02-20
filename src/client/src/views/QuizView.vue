@@ -2,8 +2,9 @@
 	<v-container fluid>
 			<v-row class="ma-4 pa-3" :justify="center" :align="start">
 				<!-- Title -->
+				<input type="hidden" />
 				<v-col class="ma-2">
-					<h1>{{ quiz["name"]}} </h1>
+					<h1>{{ quizTitle }} </h1>
 				</v-col>
 			</v-row>
 			<v-row class="mx-10 pa-3" :align="center" :justify="space-between">
@@ -11,7 +12,7 @@
 				<v-col :align="center">
 				<template v-for="(question, idx) in quiz['questions']" >
 					<v-card :key="idx" class="ma-2" ref="">
-						<v-card-text>
+						<v-card-text ref="question_">
 								<h3> {{ question.question }} </h3>
 								<!-- Question choices -->
 								<v-radio-group ref="question_choice" @change="selectChoices()">
@@ -28,6 +29,17 @@
 					</v-card>
 				</template>
 				</v-col>
+				<v-dialog v-model="dialog" max-width="1000px" persistent>
+					<p> Please enter your email to finish submitting your quiz: </p>
+					<v-text-field
+						placeholder="email"
+						label="email"
+						value=""
+						single-line
+						:model="studentEmail"
+					></v-text-field>
+					<v-btn color="success">Proceed</v-btn>
+		</v-dialog>
 			</v-row>
 
 			<!-- Call to Action -->
@@ -47,7 +59,7 @@ import {
   ValidationProvider
 } from "vee-validate";
 import { createNamespacedHelpers } from 'vuex';
-const { mapActions } = createNamespacedHelpers("quiz");
+const { mapActions, mapState } = createNamespacedHelpers("quiz");
 
 export default {
 	name: "QuizView",
@@ -57,7 +69,10 @@ export default {
 	},
 	data() {
 		return {
+			dialog: false,
+			studentEmail: "",
 			quiz: {
+				// uid:
 				name: "Chemistry Quiz",
 				max_score: "3",
 				questions: [
@@ -109,9 +124,12 @@ export default {
 		}
 	},
 	mounted: function() {
+		mapActions()
 	},
 	computed: {
-
+		quizTitle() {
+			return this.quiz.name || ""
+		}
 	},
 	methods: {
 		// ...mapActions(["SUBMBIT_QUIZ"]),
@@ -120,6 +138,28 @@ export default {
 		},
 		submit() {
 
+			// Step 1: Ask student to enter their email address
+			this.dialog = this.dialog ^ True
+
+			// Step 2: check if valid
+			// Step 3: Create payload
+			let payload = this._collect_submission()
+			// Step 4: Send payload to server
+		},
+		_collect_submission() {
+			// Submitting quiz
+			// Quiz structure:
+			// -> QuizID
+			// StudentEmail
+			// -> Data
+				// For-Each Question
+				// -> QuestionID
+				// -> Choice Answer
+			return {
+				'QuizID': this.quiz.uid,
+				'StudentEmail': this.studentEmail,
+				'data': this.$refs['question_']
+			}
 		}
 	}
 }
