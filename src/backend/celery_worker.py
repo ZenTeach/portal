@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 import os
 from server import celery, create_app
+from server.tasks import grader_administered_quizzes
+from celery.schedules import crontab
+
+@celery.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(crontab(minute='*/15'), grader_administered_quizzes.s(), name='grade quizzes')
 
 sentry_dsn_key = os.environ.get('SENTRY_DSN')
 if sentry_dsn_key:
