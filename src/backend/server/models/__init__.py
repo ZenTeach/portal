@@ -7,13 +7,14 @@ from .student import Student
 from .teacher import Teacher
 from .admin import Admin
 from .quiz_grade import class_quiz_score
+from .quiz_session import QuizSession
 from .questions import Questions, QuestionTypeEnum
 from .migrations.seeds import run_seed
 
 __all__ = ['ClassQuiz', 'ClassQuizStatus', 'ClassQuizSchema', 'Teacher', 'TeacherSchema',
            'StudentAttendedClass', 'Student', 'StudentSchema',
-           'SchoolClass', 'SchoolClassSchema', 'ClassQuizScore', 'Admin',
-           'Questions', 'QuestionTypeEnum', 'QuestionsSchema', 'run_seed']
+           'SchoolClass', 'SchoolClassSchema', 'ClassQuizScore', 'Admin', 
+           'QuizSession', 'Questions', 'QuestionTypeEnum', 'QuestionsSchema', 'run_seed']
 
 # serializers
 from server import ma

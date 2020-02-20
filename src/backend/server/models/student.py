@@ -17,8 +17,10 @@ class Student(BaseModelMixin, db.Model):
     classes = db.relationship('SchoolClass',
                               secondary='student_attended_class', viewonly=True)
 
-    quiz_grades = db.relationship('ClassQuiz', secondary=quizzes, lazy='subquery',
-                                  backref=db.backref('students', lazy=True))
+    quiz_sessions = db.relationship('ClassQuiz', secondary='QuizSession')
+
+    # quiz_grades = db.relationship('ClassQuiz', secondary=quizzes, lazy='subquery',
+    #                               backref=db.backref('students', lazy=True))
 
     def __repr__(self):
         return '<Student %s>' % (self.firstname + " " + self.lastname)
