@@ -2,7 +2,7 @@
 
 VENVDIR=/var/www/zenteach_be/env
 # reset PYTHONPATH
-PYTHONPATH = $(which python)
+PYTHONPATH=$(which python)
 FLASKDIR=/var/www/zenteach_be/
 FLASK_REAL_LINK=$(readlink -f /var/www/zenteach_be/zenteach)
 cd $VENVDIR

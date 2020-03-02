@@ -1,7 +1,7 @@
 import os
 import logging
 
-from flask import Flask, has_request_context, request
+from flask import Flask, has_request_context, request, make_response, jsonify
 from flask.logging import default_handler
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -13,6 +13,17 @@ from flask_cors import CORS
 from flask_mail import Mail
 from flask_redis import FlaskRedis
 from celery import Celery
+
+sentry_dsn_key = os.environ.get('SENTRY_DSN')
+if sentry_dsn_key:
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+
+    sentry_sdk.init(
+        dsn=sentry_dsn_key,
+        integrations=[FlaskIntegration(), SqlalchemyIntegration()]
+    )
 
 def configure_logging():
     logging.basicConfig(level=logging.DEBUG)
@@ -51,6 +62,10 @@ def create_app():
 
     if os.environ.get("FLASK_ENV") == 'production':
         app.config.from_pyfile("/var/www/zenteach_be/application.cfg")
+        # app_settings = os.getenv('APP_SETTINGS')
+        import pprint
+        with open('output.txt', 'wt') as out:
+            pprint.pprint(dict(app.config), stream=out)
     else:
         app_settings = os.getenv('APP_SETTINGS')
         app.config.from_object(app_settings)
@@ -91,6 +106,13 @@ def create_app():
         if entry is None:
             return True
         return entry == 'true'
+
+    @jwt.invalid_token_loader
+    def respond_to_invalid_token(description):
+        return make_response(jsonify({
+            "status": "error",
+            "message": "Session expired"
+        }), 401)
 
     # Register bluprints
     from server.api.school_class_api import school_class_blueprint

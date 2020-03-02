@@ -52,4 +52,3 @@ class ProductionConfig(BaseConfig):
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ('access', 'refresh')
     JWT_COOKIE_SECURE = True
-    JWT_COOKIE_CSRF_PROTECT = True
