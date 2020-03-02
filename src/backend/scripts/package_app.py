@@ -212,6 +212,8 @@ def _read_tree(included_glob, included_files, excluded_glob, excluded_files):
 
 def _zip_files(file_paths):
     output_filename = 'zenteach-build-' + str(datetime.timestamp(datetime.now())) + '.zip'
+    pathlib.Path(OUTPUT_DIR).mkdir(exist_ok=True)
+
     with cd(SOURCE_DIRECTORY):
         with ZipFile(OUTPUT_DIR + '/' + output_filename,'w') as zip:
             for _file in file_paths:
