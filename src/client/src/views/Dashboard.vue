@@ -12,12 +12,12 @@
 
 <script>
 export default {
-  name: "Dashboard",
+  name: 'Dashboard',
   methods: {},
-  data() {
-    return {};
+  data () {
+    return {}
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

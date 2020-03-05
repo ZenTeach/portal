@@ -107,45 +107,45 @@
 import {
   ValidationObserver,
   ValidationProvider
-} from "vee-validate";
+} from 'vee-validate'
 
 export default {
-	name: "Signup",
-	components: {
+  name: 'Signup',
+  components: {
     ValidationProvider,
     ValidationObserver
   },
-  data() {
+  data () {
     return {
       valid: true,
-      email: "",
-      firstname: "",
-      lastname: "",
+      email: '',
+      firstname: '',
+      lastname: '',
       dob: null,
-      password: "",
-      passwordConfirmation: "",
+      password: '',
+      passwordConfirmation: '',
       checkbox: false,
       lazy: false
-    };
+    }
   },
   methods: {
-		checkValidity() {
-			return this.$refs.observer.validate();
-		},
-    processSignup() {
-			if(this.checkValidity) {
-				this.$store.dispatch("user/REGISTER_USER",{
-					firstname: this.firstname,
-					lastname: this.lastname,
-					email: this.email,
-					password: this.password,
-					date_of_birth: this.dob,
-					role: "Teacher"
-				}, {root: true});
+    checkValidity () {
+      return this.$refs.observer.validate()
+    },
+    processSignup () {
+      if (this.checkValidity) {
+        this.$store.dispatch('user/REGISTER_USER', {
+          firstname: this.firstname,
+          lastname: this.lastname,
+          email: this.email,
+          password: this.password,
+          date_of_birth: this.dob,
+          role: 'Teacher'
+        }, { root: true })
 
-				this.$router.push("/");
-			}
-		}
+        this.$router.push('/')
+      }
+    }
   }
-};
+}
 </script>

@@ -16,5 +16,8 @@ export default {
   },
   getQuestionList(state) {
     return state.questionList;
+  },
+  getError(state) {
+    return state.error;
   }
 };

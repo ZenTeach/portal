@@ -1,10 +1,7 @@
-import Api from "@/service/Api"
+import Api from "@/service/Api";
 
 export async function fetchQuestions(searchPayload) {
-  const result = await Api.post(
-    "/question/search",
-    searchPayload
-  );
+  const result = await Api.post("/question/search", searchPayload);
 
   return result;
 }

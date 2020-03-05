@@ -8,10 +8,10 @@
 <script>
 
 export default {
-	name: 'Students',
-	components: {
-		StudentList
-	}
+  name: 'Students',
+  components: {
+    StudentList
+  }
 }
 
 </script>

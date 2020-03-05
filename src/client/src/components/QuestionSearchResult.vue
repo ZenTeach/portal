@@ -62,42 +62,42 @@
 
 <script>
 export default {
-	name: "QuestionSearchResult",
-	props: {
-		resultSet: Array
-	},
-	computed: {},
-	data() {
-		return {
-			selectedQuestions: [],
-			isChoiceDisplayed: false,
-			max200chars: v => v.length <= 200 || 'Input too long!'
-		}
-	},
-	methods: {
-		questionTypeMapping(type) {
-			let types = {
-				1: "Multiple Choice",
-				2: "Short Answer",
-				3: "Long Answer"
-			}
-			return types[type]
-		},
-		debug(item) {
-			console.log(item)
-		},
-		save () {
-			// TODO: Add onsave hook for edit dialog
-			console.log('Data saved')
+  name: 'QuestionSearchResult',
+  props: {
+    resultSet: Array
+  },
+  computed: {},
+  data () {
+    return {
+      selectedQuestions: [],
+      isChoiceDisplayed: false,
+      max200chars: v => v.length <= 200 || 'Input too long!'
+    }
+  },
+  methods: {
+    questionTypeMapping (type) {
+      const types = {
+        1: 'Multiple Choice',
+        2: 'Short Answer',
+        3: 'Long Answer'
+      }
+      return types[type]
+    },
+    debug (item) {
+      console.log(item)
+    },
+    save () {
+      // TODO: Add onsave hook for edit dialog
+      console.log('Data saved')
       	},
-		addToSelectedQuestions(item, cb) {
-			this.$store.commit("app/ADD_SELECTED_QUESTIONS", item, {root: true});
-			cb()
-		},
-		removeFromSelectedQuestions(item, cb) {
-			this.$store.commit("app/REMOVE_SELECTED_QUESTIONS", item, {root: true});
-			cb()
-		},
-	}
+    addToSelectedQuestions (item, cb) {
+      this.$store.commit('app/ADD_SELECTED_QUESTIONS', item, { root: true })
+      cb()
+    },
+    removeFromSelectedQuestions (item, cb) {
+      this.$store.commit('app/REMOVE_SELECTED_QUESTIONS', item, { root: true })
+      cb()
+    }
+  }
 }
 </script>

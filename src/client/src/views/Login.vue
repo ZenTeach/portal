@@ -56,39 +56,38 @@
 
 <script>
 export default {
-  name: "Login",
+  name: 'Login',
   data: () => ({
     valid: true,
-    email: "",
+    email: '',
     emailRules: [
-      v => !!v || "E-mail is required",
-      v => /.+@.+\..+/.test(v) || "E-mail must be valid"
+      v => !!v || 'E-mail is required',
+      v => /.+@.+\..+/.test(v) || 'E-mail must be valid'
     ],
-    password: "",
+    password: '',
     checkbox: false,
     lazy: false
   }),
   computed: {},
   methods: {
-    validate() {
+    validate () {
       if (this.$refs.form.validate()) {
-        return true;
+        return true
       }
-      return false;
+      return false
     },
-    login_user() {
+    login_user () {
       if (this.validate) {
         this.$store.dispatch(
-          "user/LOGIN_USER",
+          'user/LOGIN_USER',
           {
             email: this.email,
             password: this.password
           },
           { root: true }
-        );
-      	this.$router.push("/");
+        )
       }
     }
   }
-};
+}
 </script>

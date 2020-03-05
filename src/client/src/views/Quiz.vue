@@ -74,71 +74,69 @@
 </template>
 
 <script>
-import Api from "@/service/Api"
+import Api from '@/service/Api'
 export default {
-	name: "Quiz",
-	data() {
-		return {
-			gFormExportLoading: false,
-			exportableLinks: [
-				{
-					title:'Google Form',
-					action: () => this.handleGFormExport()
-				},
-				{
-					title: 'PDF',
-					action: () => this.handlePDFGeneration()
-				}
-			],
-			script_id: null,
-			script_url: null,
-			dialog: false
-		}
+  name: 'Quiz',
+  data () {
+    return {
+      gFormExportLoading: false,
+      exportableLinks: [
+        {
+          title: 'Google Form',
+          action: () => this.handleGFormExport()
+        },
+        {
+          title: 'PDF',
+          action: () => this.handlePDFGeneration()
+        }
+      ],
+      script_id: null,
+      script_url: null,
+      dialog: false
+    }
+  },
+  computed: {
+    quiz_id () {
+      return this.$route.params.id
+    }
+  },
 
-	},
-	computed: {
-		quiz_id (){
-			return this.$route.params.id
-		}
-	},
-
-	methods: {
-		handleGFormExport() {
-			console.log(this.$gAuth)
-			this.$gAuth.getAuthCode()
-			.then(authCode => {
-				console.log(authCode)
-				return Api.post('/teacher/auth/google', {authCode: authCode})
-				// on success
-				}).then(response => {
-				Api.post(`/class_quiz/${this.quiz_id}/generate`, {
-					"type": "gform"
-				}).then(response => {
-					console.log(response)
-					// TODO: Set app to loading state
-					if (response.status == 200) {
-						this.dialog = true
-						this.script_id = response.data["ScriptId"]
-						this.script_url = `https://script.google.com/d/${this.script_id}/edit`
-					}
-				})
-			})
-
-		},
-		executeGAppsScript() {
-			Api.get(`/class_quiz/${this.quiz_id}/${this.script_id}/generate/execute`)
-			.then((response) => {
-				console.log(response)
-			})
-		},
-		handlePDFGeneration() {
-			Api.post(`/class_quiz/${this.quiz_id}/generate`, {
-				"type": "pdf"
-			}).then((response) => {
-				// TODO: show success/error message
-				console.log(response)
-			})
-		}
-	}
+  methods: {
+    handleGFormExport () {
+      console.log(this.$gAuth)
+      this.$gAuth.getAuthCode()
+        .then(authCode => {
+          console.log(authCode)
+          return Api.post('/teacher/auth/google', { authCode: authCode })
+          // on success
+        }).then(response => {
+          Api.post(`/class_quiz/${this.quiz_id}/generate`, {
+            type: 'gform'
+          }).then(response => {
+            console.log(response)
+            // TODO: Set app to loading state
+            if (response.status == 200) {
+              this.dialog = true
+              this.script_id = response.data.ScriptId
+              this.script_url = `https://script.google.com/d/${this.script_id}/edit`
+            }
+          })
+        })
+    },
+    executeGAppsScript () {
+      Api.get(`/class_quiz/${this.quiz_id}/${this.script_id}/generate/execute`)
+        .then((response) => {
+          console.log(response)
+        })
+    },
+    handlePDFGeneration () {
+      Api.post(`/class_quiz/${this.quiz_id}/generate`, {
+        type: 'pdf'
+      }).then((response) => {
+        // TODO: show success/error message
+        console.log(response)
+      })
+    }
+  }
 }
 </script>

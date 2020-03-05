@@ -8,5 +8,9 @@ export default {
       } = result;
       commit("UPDATE_QUESTION_SEARCH", questions);
     });
+  },
+
+  TOGGLE_ERROR({ commit }, payload = {}) {
+    commit("TOGGLE_ERROR", payload);
   }
 };

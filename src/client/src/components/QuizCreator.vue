@@ -83,76 +83,76 @@
 </template>
 
 <script>
-import QuestionSearch from '@/components/QuestionSearch';
-import QuestionSearchResult from '@/components/QuestionSearchResult';
-import Api from "@/service/Api";
+import QuestionSearch from '@/components/QuestionSearch'
+import QuestionSearchResult from '@/components/QuestionSearchResult'
+import Api from '@/service/Api'
 
-import { createNamespacedHelpers } from 'vuex';
-const { mapState } = createNamespacedHelpers('app');
+import { createNamespacedHelpers } from 'vuex'
+const { mapState } = createNamespacedHelpers('app')
 
 export default {
-	name: "QuizCreator",
-	components: {
-		QuestionSearch,
-		QuestionSearchResult
-	},
-	computed: {
-		...mapState(['questionSearch', 'questionList']),
-		subject () {
-			let classData = this.$store.getters["classrooms/CLASSLIST"];
-			let filtered = classData.find( x => {
-				let class_id = parseInt(this.$route.params.id)
-				return x.id === class_id
-			});
-			return filtered.subject;
-		},
-		filteredKnowledgeItems() {
-			const filterKey = this.topicSelected;
-			return this.questionKnowledgeItems[filterKey] || {};
-		}
-	},
-	data() {
-		return this.initial();
-	},
-	methods: {
-		initial() {
-			return {
-				curator: 1,
-				quizMaxScore: 0,
-				questionSearchResult: [],
-				hasSearchResult: false,
-				questionTopics: ["Atomic Structure", "Chemical Bonds"],
-				topicSelected: "",
-				questionKnowledgeItems: {
-					"Atomic Structure": ["DEFINITION ATOM", "ELECTRON MASS AND CHARGE", "DEFINITION ELEMENT"],
-					"Chemical Bonds": ["DEFINITION MIXTURE", "DEFINITION COMPOUND"]
-				},
-				selectedKnowledgeItems: [],
-				variantsSelected: 1
-			}
-		},
-		async createQuiz() {
-			let payload = {
-				subject: 'Chemistry',
-				max_score: this.quizMaxScore,
-				class_id: this.$route.params.id,
-				variants: this.variantsSelected,
-				questions: this.questionList
-			}
-			await Api.post(
-				"/class_quiz",
-				payload
-			);
+  name: 'QuizCreator',
+  components: {
+    QuestionSearch,
+    QuestionSearchResult
+  },
+  computed: {
+    ...mapState(['questionSearch', 'questionList']),
+    subject () {
+      const classData = this.$store.getters['classrooms/CLASSLIST']
+      const filtered = classData.find(x => {
+        const class_id = parseInt(this.$route.params.id)
+        return x.id === class_id
+      })
+      return filtered.subject
+    },
+    filteredKnowledgeItems () {
+      const filterKey = this.topicSelected
+      return this.questionKnowledgeItems[filterKey] || {}
+    }
+  },
+  data () {
+    return this.initial()
+  },
+  methods: {
+    initial () {
+      return {
+        curator: 1,
+        quizMaxScore: 0,
+        questionSearchResult: [],
+        hasSearchResult: false,
+        questionTopics: ['Atomic Structure', 'Chemical Bonds'],
+        topicSelected: '',
+        questionKnowledgeItems: {
+          'Atomic Structure': ['DEFINITION ATOM', 'ELECTRON MASS AND CHARGE', 'DEFINITION ELEMENT'],
+          'Chemical Bonds': ['DEFINITION MIXTURE', 'DEFINITION COMPOUND']
+        },
+        selectedKnowledgeItems: [],
+        variantsSelected: 1
+      }
+    },
+    async createQuiz () {
+      const payload = {
+        subject: 'Chemistry',
+        max_score: this.quizMaxScore,
+        class_id: this.$route.params.id,
+        variants: this.variantsSelected,
+        questions: this.questionList
+      }
+      await Api.post(
+        '/class_quiz',
+        payload
+      )
 
-			this.closeDialog();
-		},
-		closeDialog() {
-			this.$emit("update:quizCreatorDialog", false);
-			Object.assign(this.$data, this.initial());
-		},
-		populateSearchResult(e) {
-			this.hasSearchResult = e;
-		},
-	}
+      this.closeDialog()
+    },
+    closeDialog () {
+      this.$emit('update:quizCreatorDialog', false)
+      Object.assign(this.$data, this.initial())
+    },
+    populateSearchResult (e) {
+      this.hasSearchResult = e
+    }
+  }
 }
 </script>

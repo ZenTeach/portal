@@ -20,10 +20,10 @@
 <script>
 
 export default {
-	name: 'StudentList',
-	props: {
-		students: Array
-	},
+  name: 'StudentList',
+  props: {
+    students: Array
+  },
   data: () => ({
     expand: false,
     headers: [

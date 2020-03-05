@@ -55,43 +55,43 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from 'vuex'
 export default {
-  name: "NavBarDrawer",
+  name: 'NavBarDrawer',
   computed: {
     ...mapGetters({
-      drawer: "app/getDrawer",
-      drawerMinified: "app/getDrawerMinified"
+      drawer: 'app/getDrawer',
+      drawerMinified: 'app/getDrawerMinified'
     })
   },
-  data() {
+  data () {
     return {
       items: [
         {
-          title: "Dashboard",
-          icon: "mdi-view-dashboard",
-          to: "/"
+          title: 'Dashboard',
+          icon: 'mdi-view-dashboard',
+          to: '/'
         },
         {
-          title: "Classrooms",
-          icon: "mdi-book-minus-multiple",
-          to: "/classrooms"
+          title: 'Classrooms',
+          icon: 'mdi-book-minus-multiple',
+          to: '/classrooms'
         },
         {
-          title: "Students",
-          icon: "mdi-account-group-outline",
-          to: "/students"
+          title: 'Students',
+          icon: 'mdi-account-group-outline',
+          to: '/students'
         }
       ]
-    };
+    }
   },
   methods: {
-    ...mapMutations(["TOGGLE_APP_DRAWER_MINIFIED"]),
-    toggleMiniview() {
-      this.$store.commit("app/TOGGLE_APP_DRAWER_MINIFIED");
+    ...mapMutations(['TOGGLE_APP_DRAWER_MINIFIED']),
+    toggleMiniview () {
+      this.$store.commit('app/TOGGLE_APP_DRAWER_MINIFIED')
     }
   }
-};
+}
 </script>
 
 <style scoped>

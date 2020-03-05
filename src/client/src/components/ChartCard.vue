@@ -19,9 +19,9 @@
 </template>
 
 <script>
-import Card from "@/components/Card";
+import Card from '@/components/Card'
 export default {
-  name: "MaterialChartCard",
+  name: 'MaterialChartCard',
 
   inheritAttrs: false,
   components: {
@@ -51,10 +51,10 @@ export default {
     type: {
       type: String,
       required: true,
-      validator: v => ["Bar", "Line", "Pie"].includes(v)
+      validator: v => ['Bar', 'Line', 'Pie'].includes(v)
     }
   }
-};
+}
 </script>
 
 <style lang="scss">

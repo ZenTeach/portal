@@ -64,109 +64,109 @@
 </template>
 
 <script>
-import MaterialChartCard from '@/components/ChartCard';
-import StudentList from '@/components/StudentList';
-import QuizCreator from '@/components/QuizCreator';
-import { createNamespacedHelpers } from 'vuex';
-import { fetchQuizPDF } from '@/service/classrooms';
-const { mapState } = createNamespacedHelpers("classrooms");
+import MaterialChartCard from '@/components/ChartCard'
+import StudentList from '@/components/StudentList'
+import QuizCreator from '@/components/QuizCreator'
+import { createNamespacedHelpers } from 'vuex'
+import { fetchQuizPDF } from '@/service/classrooms'
+const { mapState } = createNamespacedHelpers('classrooms')
 
 export default {
-	name: "Classroom",
-	components: {
-		MaterialChartCard,
-		StudentList,
-		QuizCreator
-	},
-	// updated() {
-	// 	this.$store.dispatch("classrooms/GETCURRENTCLASS", this.$route.params.id, { root: true });
-	// },
-	mounted(){
-		this.$store.dispatch("classrooms/GETCURRENTCLASS", this.$route.params.id, { root: true });
-	},
-	computed: {
-		...mapState(["current_class"])
-	},
-  data() {
+  name: 'Classroom',
+  components: {
+    MaterialChartCard,
+    StudentList,
+    QuizCreator
+  },
+  // updated() {
+  // 	this.$store.dispatch("classrooms/GETCURRENTCLASS", this.$route.params.id, { root: true });
+  // },
+  mounted () {
+    this.$store.dispatch('classrooms/GETCURRENTCLASS', this.$route.params.id, { root: true })
+  },
+  computed: {
+    ...mapState(['current_class'])
+  },
+  data () {
     return {
       headers: [
         {
-          text: "Quiz",
-          align: "left",
+          text: 'Quiz',
+          align: 'left',
           sortable: false,
-          value: "name"
+          value: 'name'
         },
         {
-          text: "Status",
+          text: 'Status',
           sortable: false,
-          value: "status"
+          value: 'status'
         },
         {
-          text: "Proctored at",
-          value: "held_on"
+          text: 'Proctored at',
+          value: 'held_on'
         }
       ],
       quizzes: [],
-			dialog: false,
+      dialog: false,
       statusToColor: {
-        created: "yellow",
-        administered: "green",
-        cancelled: "red"
+        created: 'yellow',
+        administered: 'green',
+        cancelled: 'red'
       },
-			emailsSubscriptionChart: {
-				data: {
-					labels: ['Quiz 1', 'Quiz 2', 'Quiz 3' ],
-					series: [
-						[6.4, 8.3, 6.7]
+      emailsSubscriptionChart: {
+        data: {
+          labels: ['Quiz 1', 'Quiz 2', 'Quiz 3'],
+          series: [
+            [6.4, 8.3, 6.7]
 
-					]
-				},
-				options: {
-					axisX: {
-						showGrid: false
-					},
-					low: 0,
-					high: 10,
-					chartPadding: {
-						top: 0,
-						right: 5,
-						bottom: 0,
-						left: 0
-					}
-				},
-				responsiveOptions: [
-					['screen and (max-width: 640px)', {
-						seriesBarDistance: 5,
-						axisX: {
-							labelInterpolationFnc: function (value) {
-								return value[0]
-							}
-						}
-					}]
-				]
-			},
-		};
-	},
+          ]
+        },
+        options: {
+          axisX: {
+            showGrid: false
+          },
+          low: 0,
+          high: 10,
+          chartPadding: {
+            top: 0,
+            right: 5,
+            bottom: 0,
+            left: 0
+          }
+        },
+        responsiveOptions: [
+          ['screen and (max-width: 640px)', {
+            seriesBarDistance: 5,
+            axisX: {
+              labelInterpolationFnc: function (value) {
+                return value[0]
+              }
+            }
+          }]
+        ]
+      }
+    }
+  },
   methods: {
-		closeQuizCreatorDialog() {
-			this.dialog = false;
-			this.$store.commit("app/RESET_QUESTION_SEARCH", {}, {root: true});
-			this.$store.dispatch("classrooms/GETCURRENTCLASS", this.$route.params.id, { root: true });
-		},
+    closeQuizCreatorDialog () {
+      this.dialog = false
+      this.$store.commit('app/RESET_QUESTION_SEARCH', {}, { root: true })
+      this.$store.dispatch('classrooms/GETCURRENTCLASS', this.$route.params.id, { root: true })
+    }
 
-		// openQuiz(quiz_id) {
-		// 	fetchQuizPDF(quiz_id).then(response => {
-		// 		var fileURL = window.URL.createObjectURL(new Blob([response.data]));
-		// 		var fileLink = document.createElement('a');
+    // openQuiz(quiz_id) {
+    // 	fetchQuizPDF(quiz_id).then(response => {
+    // 		var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+    // 		var fileLink = document.createElement('a');
 
-		// 		fileLink.href = fileURL;
-		// 		fileLink.setAttribute('download', 'file.pdf');
-		// 		document.body.appendChild(fileLink);
+    // 		fileLink.href = fileURL;
+    // 		fileLink.setAttribute('download', 'file.pdf');
+    // 		document.body.appendChild(fileLink);
 
-		// 		fileLink.click();
-		// 		fileLink.remove();
-		// 	})
-		// }
-	}
-};
+    // 		fileLink.click();
+    // 		fileLink.remove();
+    // 	})
+    // }
+  }
+}
 </script>

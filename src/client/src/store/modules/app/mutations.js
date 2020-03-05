@@ -28,6 +28,12 @@ export default {
       state.questionList.push(payload);
     }
   },
+  TOGGLE_ERROR(state, payload) {
+    state.error = payload || {};
+  },
+  // REMOVE_ERROR(state, _payload) {
+  // 	state.error =
+  // },
   REMOVE_SELECTED_QUESTIONS(state, payload) {
     if (state.questionList.length == 0) return;
     const deleteIdx = state.questionList.findIndex(x => x.id == payload.id);

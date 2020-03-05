@@ -100,65 +100,65 @@
 </template>
 
 <script>
-import {createNamespacedHelpers} from 'vuex';
+import { createNamespacedHelpers } from 'vuex'
 import {
   ValidationObserver,
   ValidationProvider
-} from "vee-validate";
+} from 'vee-validate'
 
-const { mapGetters } = createNamespacedHelpers('classrooms');
+const { mapGetters } = createNamespacedHelpers('classrooms')
 export default {
-	name: "Classrooms",
-	components: {
-		ValidationObserver,
-		ValidationProvider
-	},
-  data() {
+  name: 'Classrooms',
+  components: {
+    ValidationObserver,
+    ValidationProvider
+  },
+  data () {
     return {
       headers: [
         {
-          text: "Class",
-          align: "left",
+          text: 'Class',
+          align: 'left',
           sortable: false,
-          value: "name"
+          value: 'name'
         },
-        { text: "Subject", sortable: true, value: "subject" },
-        { text: "Starts", sortable: false, value: "start_date" },
+        { text: 'Subject', sortable: true, value: 'subject' },
+        { text: 'Starts', sortable: false, value: 'start_date' }
       ],
-      subjects: ["Physics", "Chemistry", "Biology"],
+      subjects: ['Physics', 'Chemistry', 'Biology'],
       dialog: false,
       start_date: new Date().toISOString().substr(0, 10),
-			menu: false,
-			classname: "",
-			subject: "",
-    };
+      menu: false,
+      classname: '',
+      subject: ''
+    }
   },
-  mounted: function() {
-    this.$store.dispatch("classrooms/GETCLASSES", {}, { root: true });
-	},
-	computed: {
-		...mapGetters({
-			classList: "CLASSLIST"
-		})
-	},
+  mounted: function () {
+    this.$store.dispatch('classrooms/GETCLASSES', {}, { root: true })
+  },
+  computed: {
+    ...mapGetters({
+      classList: 'CLASSLIST'
+    })
+  },
   methods: {
-    close() {
-      this.dialog = false;
+    close () {
+      this.dialog = false
       setTimeout(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      }, 300);
-		},
-		addClass() {
-			let payload = {
-				'name': this.classname,
-				'subject': this.subject,
-				'start_data': this.start_date
-			}
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      }, 300)
+    },
+    addClass () {
+      const payload = {
+        name: this.classname,
+        subject: this.subject,
+        start_data: this.start_date
+      }
 
-			this.$store.dispatch("classrooms/CREATECLASS", payload);
-			this.close()
-		}
+      this.$store.dispatch('classrooms/CREATECLASS', payload)
+      this.close()
+    }
   }
-};
+}
 </script>

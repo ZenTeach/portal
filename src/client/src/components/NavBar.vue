@@ -26,47 +26,47 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapMutations } from 'vuex'
 
 export default {
-  name: "NavBar",
+  name: 'NavBar',
   computed: {},
   methods: {
-    logout() {
-			this.$store.dispatch("user/SIGNOUT_USER", {}, { root: true });
-			// TODO: delete access cookies from the client
-			// this.$cookies.remo
-			this.$router.push("/login");
-			// this.$cookies.remove('access_cookie_')
+    logout () {
+      this.$store.dispatch('user/SIGNOUT_USER', {}, { root: true })
+      // TODO: delete access cookies from the client
+      // this.$cookies.remo
+      this.$router.push('/login')
+      // this.$cookies.remove('access_cookie_')
     },
-    onResponsiveInverted() {
+    onResponsiveInverted () {
       if (window.innerWidth < 991) {
-        this.responsive = true;
+        this.responsive = true
       } else {
-        this.responsive = false;
+        this.responsive = false
       }
     }
   },
-  mounted() {
-    this.onResponsiveInverted();
-    window.addEventListener("resize", this.onResponsiveInverted);
+  mounted () {
+    this.onResponsiveInverted()
+    window.addEventListener('resize', this.onResponsiveInverted)
   },
-  beforeDestroy() {
-    window.removeEventListener("resize", this.onResponsiveInverted);
+  beforeDestroy () {
+    window.removeEventListener('resize', this.onResponsiveInverted)
   },
   watch: {
-    $route(val) {
-      this.title = val.name;
+    $route (val) {
+      this.title = val.name
     }
   },
-  data() {
+  data () {
     return {
       profile: {},
       responsive: false,
       title: null
-    };
+    }
   }
-};
+}
 </script>
 
 <style scoped>

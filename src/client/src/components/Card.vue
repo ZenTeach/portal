@@ -32,21 +32,21 @@
 </template>
 
 <script>
-import HelperOffset from "@/components/Offset";
+import HelperOffset from '@/components/Offset'
 
 export default {
-  name: "MaterialCard",
+  name: 'MaterialCard',
 
-	inheritAttrs: false,
+  inheritAttrs: false,
 
-	components: {
-		HelperOffset
-	},
+  components: {
+    HelperOffset
+  },
 
   props: {
     color: {
       type: String,
-      default: "secondary"
+      default: 'secondary'
     },
     elevation: {
       type: [Number, String],
@@ -75,19 +75,19 @@ export default {
   },
 
   computed: {
-    hasOffset() {
+    hasOffset () {
       return (
         this.$slots.header || this.$slots.offset || this.title || this.text
-      );
+      )
     },
-    styles() {
-      if (!this.hasOffset) return null;
+    styles () {
+      if (!this.hasOffset) return null
 
       return {
         marginBottom: `${this.offset}px`,
         marginTop: `${this.offset * 2}px`
-      };
+      }
     }
   }
-};
+}
 </script>
