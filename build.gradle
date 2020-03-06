@@ -9,3 +9,7 @@ allprojects {
 // project(':backend') {
 // 	apply from: 'build.gradle'
 // }
+
+project(':client') {
+	apply from: 'build.gradle'
+}
