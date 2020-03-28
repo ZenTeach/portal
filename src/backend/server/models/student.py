@@ -21,7 +21,7 @@ class Student(BaseModelMixin, db.Model):
                                   backref=db.backref('students', lazy=True))
 
     def __repr__(self):
-        return '<Student %r>' % self.id
+        return '<Student %s>' % (self.firstname + " " + self.lastname)
 
     def full_name(self):
         return "{} {}".format(self.firstname, self.lastname)
