@@ -1,6 +1,6 @@
 from .questions import question_seeds
 from server import bcrypt
-from server.models import Teacher, SchoolClass, Student, StudentAttendedClass
+from server.models import Teacher, SchoolClass, Student, StudentAttendedClass, Admin
 import datetime
 from uuid import uuid4
 
@@ -10,7 +10,7 @@ def seeds():
     Teacher(firstname="john", lastname="doe", email="connect@ngetahun.me", date_of_birth="01-01-1970",
             password=password.decode('utf-8'), role="Teacher", uuid=uuid4()).save()
     # Admin Teacher seed
-    Teacher(firstname="jane", lastname="doe", email="john.doe+2@example.com", date_of_birth="04-04-1975",
+    Admin(firstname="jane", lastname="doe", email="john.doe+2@example.com", date_of_birth="04-04-1975",
             password=password.decode('utf-8'), role="Admin", uuid=uuid4()).save()
 
     # Student
