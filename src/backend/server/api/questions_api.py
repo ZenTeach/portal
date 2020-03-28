@@ -58,8 +58,7 @@ class QuestionList(Resource):
                         subject=subject,
                         topic=topic,
                         tag=tag,
-                        choices=choices,
-                        question_weights=0
+                        choices=choices
                     )
                 )
                 db.session.commit()
