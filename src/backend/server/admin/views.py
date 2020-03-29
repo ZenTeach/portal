@@ -27,7 +27,6 @@ def json_formatter(view, context, model, name):
     json_value = json.dumps(value, ensure_ascii=False, indent=2)
     return Markup('<pre>{}</pre>'.format(json_value))
 
-# TODO: Add unique key constraints on teacher, student, questions
 def date_format(view, context, model, name):
     value = getattr(model, name)
     return value.strftime('%Y-%m-%d')
