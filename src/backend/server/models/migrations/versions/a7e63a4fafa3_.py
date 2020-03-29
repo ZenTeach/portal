@@ -1,4 +1,4 @@
-"""empty message
+"""Create admin model
 
 Revision ID: a7e63a4fafa3
 Revises: 397ed1089dc8
