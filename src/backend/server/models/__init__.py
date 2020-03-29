@@ -46,6 +46,12 @@ class StudentSchema(ma.ModelSchema):
     classes = ma.List(ma.HyperlinkRelated(
         "school_class.schoolclass", url_key="school_class_id"))
 
+class AdminSchema(ma.ModelSchema):
+    class Meta:
+        model = Admin
+        fields = ('id', 'firstname', 'lastname', 'email',
+                  'date_of_birth', 'role', 'classes')
+
 
 class SchoolClassSchema(ma.ModelSchema):
     class Meta:
