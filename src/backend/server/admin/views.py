@@ -113,6 +113,7 @@ class StudentView(BaseView):
         'date_of_birth': date_format
     }
 
+# TODO: remove password field from edit form
 class TeacherView(BaseView):
     column_exclude_list = ['password', 'role', 'uuid']
     form_excluded_columns = ['uuid', 'student_attended_classes', 'role']
