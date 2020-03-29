@@ -1,0 +1,53 @@
+{% extends 'admin/master.html' %}
+
+{% block access_control %}
+{% if current_user.is_authenticated %}
+<div class="btn-group pull-right border-0">
+	<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+		<i class="icon-user">
+			<svg class="bi bi-person-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="red" xmlns="http://www.w3.org/2000/svg">
+				<path fill-rule="evenodd" d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+			</svg>
+		</i>
+		{{ current_user.login }} <span class="caret"></span>
+	</a>
+	<ul class="dropdown-menu">
+		<li><a href="{{ url_for('admin.logout_view') }}">Log out</a></li>
+	</ul>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block body %}
+{{ super() }}
+<div class="row-fluid">
+
+    <div class="col-md-8">
+		{% if current_user.is_authenticated %}
+			<div
+			<p class="lead">
+				Welcome!
+			</p>
+		{% else %}
+        <form method="POST" action="">
+            {{ form.hidden_tag() if form.hidden_tag }}
+            {% for f in form if f.type != 'CSRFTokenField' %}
+            <div class="form-group">
+            {{ f.label }}
+            {{ f }}
+            {% if f.errors %}
+            <ul>
+                {% for e in f.errors %}
+                <li>{{ e }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            </div>
+            {% endfor %}
+            <button class="btn btn-primary" type="submit">Submit</button>
+        </form>
+        {{ link | safe }}
+        {% endif %}
+    </div>
+</div>
+{% endblock body %}

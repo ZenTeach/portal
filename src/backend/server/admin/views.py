@@ -2,12 +2,16 @@ import json
 from datetime import datetime
 
 from flask_admin.contrib.sqla import ModelView
+import flask_admin as admin
+from flask import redirect, url_for, request
 from flask_admin.model import typefmt
+from flask_login import current_user, login_user, logout_user
 from jinja2 import Markup
-from wtforms import SelectField
+from wtforms import SelectField, form, fields, validators
+from werkzeug.security import generate_password_hash, check_password_hash
 
-from server.models import QuestionTypeEnum
-
+from server.models import QuestionTypeEnum, Admin
+from server import db as sdb
 
 class BaseView(ModelView):
     can_export = True
@@ -15,6 +19,8 @@ class BaseView(ModelView):
     create_template = 'admin/create.html'
     edit_template = 'admin/edit.html'
 
+    def is_accessible(self):
+        return current_user.is_authenticated
 
 def json_formatter(view, context, model, name):
     value = getattr(model, name)
@@ -22,10 +28,57 @@ def json_formatter(view, context, model, name):
     return Markup('<pre>{}</pre>'.format(json_value))
 
 # TODO: Add unique key constraints on teacher, student, questions
-# TODO: Add date formatting for teacher and student dob
-# def date_formatter(view, context, model, name):
-#     value = getattr(model, name)
-#     return datetime.fromisoformat(value).
+def date_format(view, context, model, name):
+    value = getattr(model, name)
+    return value.strftime('%Y-%m-%d')
+
+class LoginForm(form.Form):
+    email = fields.StringField(validators=[validators.required()])
+    password = fields.PasswordField(validators=[validators.required()])
+
+    def validate_login(self, field):
+        user = self.get_user()
+
+        if user is None:
+            raise validators.ValidationError('Invalid user')
+
+        # we're comparing the plaintext pw with the the hash from the sdb
+        if not check_password_hash(user.password, self.password.data):
+        # to compare plain text passwords use
+        # if user.password != self.password.data:
+            raise validators.ValidationError('Invalid password')
+
+    def get_user(self):
+        return sdb.session.query(Admin).filter_by(email=self.email.data).first()
+
+
+class ZenteachAdminIndexView(admin.AdminIndexView):
+    @admin.expose('/')
+    def index(self):
+        if not current_user.is_authenticated:
+            return redirect(url_for('.login_view'))
+        return super(ZenteachAdminIndexView, self).index()
+
+    @admin.expose('/login/', methods=('GET', 'POST'))
+    def login_view(self):
+        # handle user login
+        form = LoginForm(request.form)
+        if admin.helpers.validate_form_on_submit(form):
+            user = form.get_user()
+            login_user(user)
+
+        if current_user.is_authenticated:
+            return redirect(url_for('.index'))
+        link = '<p>Don\'t have an account? <a href="">Click here to register.</a></p>'
+        self._template_args['form'] = form
+        #self._template_args['link'] = link
+        return super(ZenteachAdminIndexView, self).index()
+
+    @admin.expose('/logout/')
+    def logout_view(self):
+        logout_user()
+        return redirect(url_for('.index'))
+
 
 class QuestionView(BaseView):
     column_exclude_list = ['search_vector', 'uuid']
@@ -57,11 +110,16 @@ class SchoolClassView(BaseView):
 class StudentView(BaseView):
     column_exclude_list = ['password', 'role', 'uuid']
     form_excluded_columns = ['uuid', 'student_attended_classes', 'role']
+    column_formatters = {
+        'date_of_birth': date_format
+    }
 
 class TeacherView(BaseView):
     column_exclude_list = ['password', 'role', 'uuid']
     form_excluded_columns = ['uuid', 'student_attended_classes', 'role']
-
+    column_formatters = {
+        'date_of_birth': date_format
+    }
 
 class ClassQuizView(BaseView):
     column_exclude_list = ['uuid', 'questions', 'script_id', 'gform_id']
