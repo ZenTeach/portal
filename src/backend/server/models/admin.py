@@ -17,6 +17,25 @@ class Admin(BaseModelMixin, db.Model):
     date_of_birth = db.Column(db.DateTime, nullable=False)
     role = db.Column(db.String(128), nullable=False)
 
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.id
+
+    # Required for administrative interface
+    def __unicode__(self):
+        return self.firstname
+
     def __repr__(self):
         return '<Admin %r>' % self.id
 
