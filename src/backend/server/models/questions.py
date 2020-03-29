@@ -40,12 +40,19 @@ class Questions(BaseModelMixin, db.Model):
     knowledge_item = db.Column(db.String(256), nullable=False)
     search_vector = db.Column(TSVectorType('question'))
 
-    def __init__(question, question_type, subject, topic, tag, knowledge_item, choices={}):
+    def __init__(self, question, question_type, subject, topic, tag, knowledge_item, uuid, choices={}):
         if question_type == QuestionTypeEnum.multiple_choice:
             try:
-                MultipleChoiceSchema.validate(choices)
+                MultipleChoiceSchema().validate(data=choices)
             except ValidationError as err:
                 print(err)
-            finally:
-                # super().__init__()
-                pass
+                raise
+
+        self.question = question
+        self.question_type = question_type
+        self.subject = subject
+        self.topic = topic
+        self.tag = tag
+        self.knowledge_item = knowledge_item
+        self.uuid = uuid
+        self.choices = choices
