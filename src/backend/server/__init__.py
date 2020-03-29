@@ -72,7 +72,6 @@ def create_app():
         app.config.from_object(app_settings)
 
     db.init_app(app)
-    login_manager.init_app(app)
     bcrypt.init_app(app)
     # TODO: Move JWT sessions to redis
     jwt.init_app(app)
@@ -80,10 +79,15 @@ def create_app():
     ma.init_app(app)
     mail.init_app(app)
     redis_store.init_app(app)
-    admin = Admin(app, name="Zenteach Admin Portal", template_mode='bootstrap3')
+
+    login_manager.init_app(app)
+
+    from server.models import Admin as AdminModel
+    @login_manager.user_loader
+    def load_user(admin_id):
+        return db.session.query(AdminModel).get(admin_id)
 
     celery.conf.update(app.config)
-
     TaskBase = celery.Task
     class ContextTask(TaskBase):
         def __call__(self, *args, **kwargs):
@@ -100,7 +104,8 @@ def create_app():
     make_searchable(db.metadata)
 
     from flask_admin.contrib.sqla import ModelView
-    from server.admin import QuestionView, SchoolClassView, StudentView, TeacherView, ClassQuizView
+    from server.admin import QuestionView, SchoolClassView, StudentView, TeacherView, ClassQuizView, ZenteachAdminIndexView
+    admin = Admin(app, name="Zenteach Admin Portal", template_mode='bootstrap3', index_view=ZenteachAdminIndexView())
     admin.add_view(ClassQuizView(models.ClassQuiz, db.session, endpoint="admin.quiz"))
     admin.add_view(TeacherView(models.Teacher, db.session, endpoint="admin.teacher"))
     admin.add_view(StudentView(models.Student, db.session, endpoint="admin.student"))
