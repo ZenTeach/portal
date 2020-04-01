@@ -105,7 +105,7 @@ def create_app():
 
     from flask_admin.contrib.sqla import ModelView
     from server.admin import QuestionView, SchoolClassView, StudentView, TeacherView, ClassQuizView, ZenteachAdminIndexView
-    admin = Admin(app, name="Zenteach Admin Portal", template_mode='bootstrap3', index_view=ZenteachAdminIndexView())
+    admin = Admin(app, name="Zenteach Admin Portal", template_mode='bootstrap3', base_template='admin_layout.html', index_view=ZenteachAdminIndexView())
     admin.add_view(ClassQuizView(models.ClassQuiz, db.session, endpoint="admin.quiz"))
     admin.add_view(TeacherView(models.Teacher, db.session, endpoint="admin.teacher"))
     admin.add_view(StudentView(models.Student, db.session, endpoint="admin.student"))

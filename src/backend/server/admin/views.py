@@ -13,11 +13,30 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from server.models import QuestionTypeEnum, Admin
 from server import db as sdb
 
+from wtforms.csrf.session import SessionCSRF
+from wtforms.meta import DefaultMeta
+from flask import session
+from datetime import timedelta
+from flask_admin.form import BaseForm
+from secrets import token_urlsafe
+
+class SecureForm(BaseForm):
+    class Meta(DefaultMeta):
+        csrf = True
+        csrf_class = SessionCSRF
+        csrf_secret = token_urlsafe()
+        csrf_time_limit = timedelta(minutes=20)
+
+        @property
+        def csrf_context(self):
+            return session
+
 class BaseView(ModelView):
     can_export = True
     list_template = 'admin/list.html'
     create_template = 'admin/create.html'
     edit_template = 'admin/edit.html'
+    form_base_class = SecureForm
 
     def is_accessible(self):
         return current_user.is_authenticated
@@ -32,8 +51,8 @@ def date_format(view, context, model, name):
     return value.strftime('%Y-%m-%d')
 
 class LoginForm(form.Form):
-    email = fields.StringField(validators=[validators.required()])
-    password = fields.PasswordField(validators=[validators.required()])
+    email = fields.StringField(validators=[validators.required()], render_kw={"placeholder": "email"})
+    password = fields.PasswordField(validators=[validators.required()], render_kw={"placeholder": "password"})
 
     def validate_login(self, field):
         user = self.get_user()
@@ -86,6 +105,7 @@ class QuestionView(BaseView):
         'choices': json_formatter,
     }
     form_excluded_columns = ['uuid']
+    detail_modal = True
 
     def scaffold_form(self):
         form = super().scaffold_form()
