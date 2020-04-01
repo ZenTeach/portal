@@ -18,13 +18,14 @@ from wtforms.meta import DefaultMeta
 from flask import session
 from datetime import timedelta
 from flask_admin.form import BaseForm
-from secrets import token_urlsafe
+from secrets import token_urlsafe, token_bytes
+import array
 
 class SecureForm(BaseForm):
     class Meta(DefaultMeta):
         csrf = True
         csrf_class = SessionCSRF
-        csrf_secret = token_urlsafe()
+        csrf_secret = token_bytes()
         csrf_time_limit = timedelta(minutes=20)
 
         @property
