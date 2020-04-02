@@ -1,5 +1,7 @@
 from marshmallow_enum import EnumField
 
+from .quiz_session import QuizSession, QuizSessionStatus
+from .quiz_grade import QuizGrade
 from .class_quiz import ClassQuiz, ClassQuizStatus
 from .student_school_class import StudentAttendedClass
 from .school_class import SchoolClass
@@ -12,7 +14,8 @@ from .questions import Questions, QuestionTypeEnum
 from .migrations.seeds import run_seed
 
 __all__ = ['ClassQuiz', 'ClassQuizStatus', 'ClassQuizSchema', 'Teacher', 'TeacherSchema',
-           'StudentAttendedClass', 'Student', 'StudentSchema',
+           'QuizSession', 'QuizSessionStatus', 'QuizGrade', 'StudentAttendedClass',
+           'Student', 'StudentSchema',
            'SchoolClass', 'SchoolClassSchema', 'ClassQuizScore', 'Admin', 
            'QuizSession', 'Questions', 'QuestionTypeEnum', 'QuestionsSchema', 'run_seed']
 
@@ -20,9 +23,9 @@ __all__ = ['ClassQuiz', 'ClassQuizStatus', 'ClassQuizSchema', 'Teacher', 'Teache
 from server import ma
 
 
-class ClassQuizScoreSchema(ma.ModelSchema):
-    class Meta:
-        table = 'class_quiz_scores'
+# class ClassQuizScoreSchema(ma.ModelSchema):
+#     class Meta:
+#         table = 'QuizGrade'
 
 
 class QuestionsSchema(ma.ModelSchema):

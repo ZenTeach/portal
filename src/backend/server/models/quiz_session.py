@@ -12,11 +12,7 @@ class QuizSessionStatus (enum.Enum):
 class QuizSession(BaseModelMixin, db.Model):
     __tablename__ = 'quiz_session'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=True, default=uuid4())
-
-    quiz_uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=True)
-    student_email = db.Column(db.String(128), nullable=False)
+    uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=False, default=uuid4())
 
     student_id = db.Column(db.Integer, db.ForeignKey(
         'student.id'), primary_key=True)
@@ -39,9 +35,12 @@ class QuizSession(BaseModelMixin, db.Model):
         db.Enum(QuizSessionStatus), nullable=False, default=QuizSessionStatus.created)
 
     def __init__(self, student=None, class_quiz=None):
-        self.id = uuid4().hex
         self.student = student
         self.class_quiz = class_quiz
 
     def __repr__(self):
         return '<QuizSession {}>'.format(self.class_quiz.subject+" "+self.student.full_name())
+
+    def update_status(self, new_status):
+        self.status = new_status
+        self.save()

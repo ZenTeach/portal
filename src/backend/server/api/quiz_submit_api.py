@@ -1,7 +1,12 @@
 from flask import make_response, jsonify, Blueprint, request, abort
 from flask_restful import Resource, Api, reqparse
 import json
-from server.models import class_quiz_score, ClassQuiz as ClassQuizModel, Student, ClassQuizStatus
+from server.models import (
+                    ClassQuiz as ClassQuizModel, ClassQuizStatus,
+                    QuizGrade,
+                    Student,
+                    QuizSession, QuizSessionStatus)
+from server.tasks import grader_administered_quizzes
 from server import db
 from sqlalchemy import exc
 
@@ -23,21 +28,31 @@ class SubmitQuiz(Resource):
         """
         # Find student with ID
         args = parser.parse_args()
+
         student = Student.query.filter_by(email=args['email']).first()
         if not student:
             abort(404, "Student email doesn't exist")
 
         # add session to class_quiz
-        class_quiz = ClassQuizModel.query.filter_by(uuid=args['quiz'])
-
+        class_quiz = ClassQuizModel.query.filter_by(uuid=args['quiz']).first()
         if not class_quiz:
             abort(404, "Class Quiz doesn't exist")
 
-        class_quiz.add_student_session(student)
-        return make_response(jsonify({
-            'message': 'Created a new session!',
-            'status': 'success'
-        }))
+        try:
+            class_quiz.add_student_session(student)
+            class_quiz.save()
+        except exc.DatabaseError as e:
+            # TODO: Add sentry error reporting
+            print(e)
+            return make_response(jsonify({
+                'message': 'Encountered Server error',
+                'status': 'error'
+            }), 500)
+        else:
+            return make_response(jsonify({
+                'message': 'Created a new session!',
+                'status': 'success'
+            }), 200)
 
     def post(self):
         post_data = request.get_json()
@@ -50,18 +65,22 @@ class SubmitQuiz(Resource):
         if class_quiz is None:
             abort(404, "Class Quiz doesn't exist")
 
+        quiz_session = QuizSession.query.filter(QuizSession.student==student).first()
+        if not quiz_session:
+            abort(404, "Quiz not started")
         try:
             # Step 2: Store
-            insert_statement = class_quiz_score.insert().values(student_id = student.id,
-                                            quiz_id=class_quiz.id,
-                                            responses=post_data.get('data'))
-            # db.session.add()
-            db.session.execute(insert_statement)
+            student.add_quiz_score(class_quiz, post_data.get('data'))
+            student.save()
             # TODO: Fix! This logic is somehow flawed as the first submission
             # triggers a model update.
             # Proposal: Add a background job to be executed only when all the
             # quizzes have been submitted.
             class_quiz.update_status(ClassQuizStatus.administered)
+            # 1. End Quiz Session
+            quiz_session.update_status(QuizSessionStatus.ended)
+            # 2. Trigger background job
+            grader_administered_quizzes.apply_async(args=[quiz_session.uuid])
             db.session.commit()
             response_object = {
                 'status': 'success',

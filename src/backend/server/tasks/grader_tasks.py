@@ -9,16 +9,17 @@ from .commons import send_mail, send_mail_with_html
 
 logger = get_task_logger(__name__)
 
-@celery.task
-async def grader_administered_quizzes(quiz_session_id):
+@celery.task(bind=True)
+def grader_administered_quizzes(self, quiz_session_id):
     try:
-        Grader.from_quiz_session()
+        Grader.from_quiz_session(quiz_session_id)
         # grader.start_grading()
     except Exception as e:
         print(e)
+        self.retry()
 
 @celery.task
-async def check_all_quizzes_submitted():
+def check_all_quizzes_submitted():
     """
         Periodically check if all the students submitted their quiz
         by checking ig no. of submissions == no. of students

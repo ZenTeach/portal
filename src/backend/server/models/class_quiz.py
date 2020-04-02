@@ -37,8 +37,15 @@ class ClassQuiz(BaseModelMixin, db.Model):
     script_id = db.Column(db.String(128), nullable=True, default=None)
     gform_id = db.Column(db.String(128), nullable=True)
     questions = db.Column(JSON)
+
     student_quiz_sessions = db.relationship(
-        'Student', secondary="QuizSession")
+        'Student', secondary="quiz_session", viewonly=True)
+
+    student_quiz_grades = db.relationship('Student',
+            secondary="quiz_grade",
+            viewonly=True,
+            # primaryjoin="Student.id == QuizGrade.student_id"
+            )
 
     def __repr__(self):
         return '<ClassQuiz %r>' % self.id
