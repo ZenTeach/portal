@@ -8,6 +8,8 @@ from faker.providers import person, internet, date_time, lorem, misc
 from random import randrange, choice, randint
 from uuid import uuid4
 from flask_jwt_extended import create_access_token
+from uuid import uuid4
+from datetime import datetime
 
 fake = Faker()
 fake.add_provider(person)
@@ -90,14 +92,19 @@ class ClassQuizFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         model = ClassQuiz
 
+	id = 1
     subject = fake.sentence(nb_words=4)
     max_score = randrange(5,9)
     variants = randrange(1,4)
     status = ClassQuizStatus.created
+    uuid = uuid4()
     script_id = None
-	id = 1
-	school_class = 1
-	uuid = uuid4()
+    class_id = RelatedFactory('server.tests.factories.SchoolClassFactory')
+    created_at = datetime()
+    held_on = None
+    school_class = 1
+    uuid = uuid4()
+    gform_id = None
     # @post_generation
     # # def post(self, create, extracted, **kwargs):
     # #     print("POST data", extracted)
