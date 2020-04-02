@@ -1,24 +1,6 @@
 {% extends 'admin/model/list.html' %}
 {% import 'admin/model/layout.html' as model_layout with context %}
 
-{% block access_control %}
-{% if current_user.is_authenticated %}
-<div class="btn-group pull-right border-0">
-	<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-		<i class="icon-user">
-			<svg class="bi bi-person-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="red" xmlns="http://www.w3.org/2000/svg">
-				<path fill-rule="evenodd" d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-			</svg>
-		</i>
-		{{ current_user.login }} <span class="caret"></span>
-	</a>
-	<ul class="dropdown-menu">
-		<li><a href="{{ url_for('admin.logout_view') }}">Log out</a></li>
-	</ul>
-</div>
-{% endif %}
-{% endblock %}
-
 {% block model_menu_bar %}
 <h2 id="brand">{{ admin_view.name|capitalize }} list</h2>
     {% if admin_view.can_create %}
