@@ -32,7 +32,15 @@ def recreate_db():
     db.create_all()
     db.session.commit()
 
-
+@cli.command('truncate_tables')
+def truncate_tables():
+    def clear_data(session):
+        meta = db.metadata
+        for table in reversed(meta.sorted_tables):
+            print(f'Clear table {table}')
+            session.execute(table.delete())
+        session.commit()
+    clear_data(db.session)
 @cli.command('db_conf')
 def db_conf():
     sa.orm.configure_mappers()

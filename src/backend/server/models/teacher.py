@@ -17,7 +17,7 @@ class Teacher(BaseModelMixin, db.Model):
     classes = db.relationship('SchoolClass', backref='teacher', lazy=True)
 
     def __repr__(self):
-        return '<Teacher %r>' % self.id
+        return '%s %s' % (self.firstname, self.lastname)
 
     def full_name(self):
         return "{} {}".format(self.firstname, self.lastname)

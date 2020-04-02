@@ -23,6 +23,6 @@ def question_seeds():
                 topic=line["Topic"],
                 tag=line["TAG"],
                 knowledge_item=line["KnowledgeItem"],
-                choices=choices,
-                uuid=uuid4()
+                uuid=uuid4(),
+                choices=choices
             ).save()

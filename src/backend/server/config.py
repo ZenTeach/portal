@@ -18,6 +18,7 @@ class BaseConfig:
     JWT_ACCESS_CSRF_HEADER_NAME = 'X-CSRF-ACCESS-TOKEN'
     JWT_REFRESH_CSRF_HEADER_NAME = 'X-CSRF-REFRESH-TOKEN'
     REDIS_URL = os.environ.get('REDIS_URL')
+    FLASK_ADMIN_SWATCH='journal'
     CELERY_BROKER_URL=os.environ.get('CELERY_BROKER_URL')
     CELERYD_TASK_LOG_FORMAT= '[%(asctime)s: %(levelname)s/%(processName)s] %(task_name)s[%(task_id)s]: %(message)s'
     CELERY_TRACK_STARTED=True

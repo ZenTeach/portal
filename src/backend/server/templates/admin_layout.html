@@ -1,0 +1,63 @@
+{% import 'admin/layout.html' as layout with context -%}
+{% extends 'admin/base.html' %}
+
+{% block head_tail %}
+  {{ super() }}
+  <link href="{{ url_for('static', filename='layout.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block page_body %}
+<div class="container-fluid">
+	{% if current_user.is_authenticated %}
+	<div class="row-fluid">
+		<nav class="navbar navbar-nav">
+			<ul class="nav nav-pills">
+				{{ layout.menu() }}
+				{{ layout.menu_links() }}
+				{% block access_control %}
+					<li class="clearfix float-right">
+						<a  href="{{ url_for('admin.logout_view') }}">Log out</a>
+					</li>
+					{% endblock %}
+				</ul>
+			</nav>
+		</div>
+		{% endif %}
+  <div class="row-fluid">
+		<div class="col-lg-11 col-md-10 col-sm-8 col-xs-6 fill">
+			{% if current_user.is_authenticated %}
+				<div id="content" class="row">
+			{% else %}
+					<div id="content-unauthorized" class="row">
+			{% endif %}
+				{{ layout.messages() }}
+
+				{% set render_ctx = h.resolve_ctx() %}
+
+				{% block body %}{% endblock %}
+			</div>
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% macro export_options(btn_class='dropdown-toggle') %}
+    {% if admin_view.export_types|length > 1 %}
+    <li class="dropdown">
+        <a class="{{ btn_class }}" data-toggle="dropdown" href="javascript:void(0)">
+            {{ _gettext('Export') }}<b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu field-filters">
+            {% for export_type in admin_view.export_types %}
+            <li>
+                <a href="{{ get_url('.export', export_type=export_type, **request.args) }}" title="{{ _gettext('Export') }}">{{ _gettext('Export') + ' ' + export_type|upper }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% else %}
+	<a class="btn btn-title" href="{{ get_url('.export', export_type=admin_view.export_types[0], **request.args) }}" title="{{ _gettext('Export') }}">{{ _gettext('Export') }}</a>
+    {% endif %}
+{% endmacro %}

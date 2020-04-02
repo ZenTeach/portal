@@ -1,18 +1,19 @@
-import os
 import logging
+import os
 
-from flask import Flask, has_request_context, request, make_response, jsonify
-from flask.logging import default_handler
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from flask_marshmallow import Marshmallow
-from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager
-from sqlalchemy_searchable import make_searchable
-from flask_cors import CORS
-from flask_mail import Mail
-from flask_redis import FlaskRedis
 from celery import Celery
+from flask import Flask, has_request_context, jsonify, make_response, request
+from flask.logging import default_handler
+from flask_admin import Admin
+from flask_bcrypt import Bcrypt
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from flask_login import LoginManager
+from flask_mail import Mail
+from flask_marshmallow import Marshmallow
+from flask_redis import FlaskRedis
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_searchable import make_searchable
 
 sentry_dsn_key = os.environ.get('SENTRY_DSN')
 if sentry_dsn_key:
@@ -71,7 +72,6 @@ def create_app():
         app.config.from_object(app_settings)
 
     db.init_app(app)
-    login_manager.init_app(app)
     bcrypt.init_app(app)
     # TODO: Move JWT sessions to redis
     jwt.init_app(app)
@@ -80,8 +80,14 @@ def create_app():
     mail.init_app(app)
     redis_store.init_app(app)
 
-    celery.conf.update(app.config)
+    login_manager.init_app(app)
 
+    from server.models import Admin as AdminModel
+    @login_manager.user_loader
+    def load_user(admin_id):
+        return db.session.query(AdminModel).get(admin_id)
+
+    celery.conf.update(app.config)
     TaskBase = celery.Task
     class ContextTask(TaskBase):
         def __call__(self, *args, **kwargs):
@@ -96,6 +102,15 @@ def create_app():
     migration_directory = os.path.join('server', 'models', 'migrations')
     migrate = Migrate(app, db, directory=migration_directory)
     make_searchable(db.metadata)
+
+    from flask_admin.contrib.sqla import ModelView
+    from server.admin import QuestionView, SchoolClassView, StudentView, TeacherView, ClassQuizView, ZenteachAdminIndexView
+    admin = Admin(app, name="Zenteach Admin Portal", template_mode='bootstrap3', base_template='admin_layout.html', index_view=ZenteachAdminIndexView())
+    admin.add_view(ClassQuizView(models.ClassQuiz, db.session, endpoint="admin.quiz"))
+    admin.add_view(TeacherView(models.Teacher, db.session, endpoint="admin.teacher"))
+    admin.add_view(StudentView(models.Student, db.session, endpoint="admin.student"))
+    admin.add_view(SchoolClassView(models.SchoolClass, db.session, endpoint="admin.class"))
+    admin.add_view(QuestionView(models.Questions, db.session, endpoint="admin.question"))
 
     # import background tasks after initializing celery
     # import server.tasks
