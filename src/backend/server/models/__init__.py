@@ -8,7 +8,7 @@ from .school_class import SchoolClass
 from .student import Student
 from .teacher import Teacher
 from .admin import Admin
-from .quiz_grade import class_quiz_score
+from .quiz_grade import QuizGrade
 from .quiz_session import QuizSession
 from .questions import Questions, QuestionTypeEnum
 from .migrations.seeds import run_seed
@@ -16,7 +16,7 @@ from .migrations.seeds import run_seed
 __all__ = ['ClassQuiz', 'ClassQuizStatus', 'ClassQuizSchema', 'Teacher', 'TeacherSchema',
            'QuizSession', 'QuizSessionStatus', 'QuizGrade', 'StudentAttendedClass',
            'Student', 'StudentSchema',
-           'SchoolClass', 'SchoolClassSchema', 'ClassQuizScore', 'Admin', 
+           'SchoolClass', 'SchoolClassSchema', 'ClassQuizScore', 'Admin',
            'QuizSession', 'Questions', 'QuestionTypeEnum', 'QuestionsSchema', 'run_seed']
 
 # serializers
