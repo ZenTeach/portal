@@ -3,7 +3,7 @@ from datetime import datetime
 
 from flask_admin.contrib.sqla import ModelView
 import flask_admin as admin
-from flask import redirect, url_for, request
+from flask import redirect, url_for, request, flash
 from flask_admin.model import typefmt
 from flask_login import current_user, login_user, logout_user
 from jinja2 import Markup
@@ -19,7 +19,8 @@ from flask import session
 from datetime import timedelta
 from flask_admin.form import BaseForm
 from secrets import token_urlsafe, token_bytes
-import array
+from flask_admin.actions import action
+from server.models import Questions
 
 class SecureForm(BaseForm):
     class Meta(DefaultMeta):
@@ -122,6 +123,18 @@ class QuestionView(BaseView):
         ])
         return form
 
+    @action('create_quiz', 'Create Quiz', 'Are you sure you want to create a quiz with the questions?')
+    def action_approve(self, ids):
+        try:
+            # Given ids of questions,
+            # Create quiz
+            print(ids)
+
+            flash("Success")
+        except Exception as ex:
+            if not self.handle_view_exception(ex):
+                raise
+            flash("Failed to create quiz.")
 
 class SchoolClassView(BaseView):
     column_exclude_list = ['uuid']
