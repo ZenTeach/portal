@@ -1,6 +1,6 @@
-from factory import Factory, SubFactory, Iterator, post_generation, RelatedFactory, PostGenerationMethodCall, RelatedFactoryList
+from factory import Factory, SubFactory, Iterator, post_generation, RelatedFactory, PostGenerationMethodCall, RelatedFactoryList, debug
 from factory.alchemy import SQLAlchemyModelFactory
-from server.models import Teacher, Student, SchoolClass, ClassQuiz, ClassQuizStatus
+from server.models import Teacher, Student, SchoolClass, ClassQuiz, ClassQuizStatus, QuizSession, QuizGrade, QuizSessionStatus
 from server import db
 
 from faker import Faker
@@ -9,7 +9,12 @@ from random import randrange, choice, randint
 from uuid import uuid4
 from flask_jwt_extended import create_access_token
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timedelta
+
+import logging
+logger = logging.getLogger('factory')
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.DEBUG)
 
 fake = Faker()
 fake.add_provider(person)
@@ -27,6 +32,32 @@ class BaseSQLAlchemyModelFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = 'commit'
 
+
+class QuizSessionFactory(BaseSQLAlchemyModelFactory):
+    class Meta:
+        model = QuizSession
+
+    uuid = uuid4()
+    student_id = RelatedFactory('server.tests.factories.StudentFactory')
+    class_quiz_id = RelatedFactory('server.tests.factories.ClassQuizFactory')
+    student = SubFactory('server.tests.factories.StudentFactory')
+    class_quiz = SubFactory('server.tests.factories.ClassQuizFactory')
+    start_time = datetime.utcnow()
+    end_time = timedelta(hours=1)
+    status = QuizSessionStatus.ended
+
+class QuizGradeFactory(BaseSQLAlchemyModelFactory):
+    class Meta:
+        model = QuizGrade
+
+    uuid = uuid4()
+    student_id = RelatedFactory('server.tests.factories.StudentFactory')
+    class_quiz_id = RelatedFactory('server.tests.factories.ClassQuizFactory')
+    student = SubFactory('server.tests.factories.StudentFactory')
+    class_quiz = SubFactory('server.tests.factories.ClassQuizFactory')
+    score = randrange(5,9)
+    grade_breakdown = {}
+    responses = {}
 
 # StudentFactory.create(add_quiz_grades_to_student=ClassQuizScoreFactory.create_batch())
 class StudentFactory(BaseSQLAlchemyModelFactory):
@@ -70,45 +101,30 @@ class TeacherFactory(BaseSQLAlchemyModelFactory):
             for __class in extracted:
                 self.classes.add(__class)
 
-class SchoolClassFactory(BaseSQLAlchemyModelFactory):
-    class Meta:
-        model = SchoolClass
-
-    name = fake.sentence(nb_words=3, variable_nb_words=True, ext_word_list=None)
-    subject = ''
-    start_date = fake.date_time_between(start_date="-1y", end_date="now", tzinfo=None)
-
-    teacher_id = RelatedFactory('server.tests.factories.TeacherFactory')
-    #student_id = RelatedFactory('server.tests.factories.StudentFactory')
-
-    # @post_generation
-    # def post(self, create, extracted, **kwargs):
-    #     self.quizzes.append(ClassQuizFactory.create(post=self.id))
-    students = RelatedFactoryList(StudentFactory, size=lambda: randint(5, 10))
-    #quizzes = RelatedFactoryList(ClassQuizFactory, size=lambda: randint(1,4))
-
-
 class ClassQuizFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         model = ClassQuiz
-
-	id = 1
-    subject = fake.sentence(nb_words=4)
+    # TODO: Fix error here
+	# id = 1
+    subject = choice(["Chemistry", "Biology", "Physics"])
     max_score = randrange(5,9)
     variants = randrange(1,4)
     status = ClassQuizStatus.created
     uuid = uuid4()
     script_id = None
     class_id = RelatedFactory('server.tests.factories.SchoolClassFactory')
-    created_at = datetime()
+    created_at = datetime.utcnow()
     held_on = None
-    school_class = 1
-    uuid = uuid4()
     gform_id = None
     # @post_generation
-    # # def post(self, create, extracted, **kwargs):
-    # #     print("POST data", extracted)
-    # #     self.class_id = extracted
+    # def post(obj, create, extracted, **kwargs):
+    #     if not create:
+    #         return
+    #     print("POST data", extracted)
+    #     obj.class_id = extracted
+    # student_quiz_sessions = RelatedFactoryList(QuizSessionFactory, 'student_quiz_sessions', size=4)
+    # student_quiz_grades = RelatedFactoryList(QuizGradeFactory, 'student_quiz_sessions', size=4)
+
     questions = [{
 		'choices': {
 			'a': 'The smallest piece of an element that can exist.',
@@ -153,6 +169,25 @@ class ClassQuizFactory(BaseSQLAlchemyModelFactory):
 		'topic': 'Atomic Structure'
 	}]
 
+class SchoolClassFactory(BaseSQLAlchemyModelFactory):
+    class Meta:
+        model = SchoolClass
+
+    name = fake.sentence(nb_words=3, variable_nb_words=True, ext_word_list=None)
+    subject = ''
+    start_date = fake.date_time_between(start_date="-1y", end_date="now", tzinfo=None)
+
+    teacher_id = RelatedFactory('server.tests.factories.TeacherFactory')
+    #student_id = RelatedFactory('server.tests.factories.StudentFactory')
+
+    # @post_generation
+    # def post(self, create, extracted, **kwargs):
+    #     self.quizzes.append(ClassQuizFactory.create(post=self.id))
+    students = RelatedFactoryList(StudentFactory, size=lambda: randint(5, 10))
+    quizzes = RelatedFactoryList(ClassQuizFactory, size=lambda: randint(1,4))
+    # quizzes = RelatedFactory(ClassQuizFactory)
+
+
 class ClassQuizScoreFactory(BaseSQLAlchemyModelFactory):
     class Meta:
         inline_args = ('student_id', 'quiz_id', 'scores', '')
@@ -160,7 +195,7 @@ class ClassQuizScoreFactory(BaseSQLAlchemyModelFactory):
     score = randrange(1, 9)
     # wrong_question_list = ', '.join([str(randrange(1, 9)) for i in range(7)])
     student_id = RelatedFactory(StudentFactory, 'id')
-    quiz_id = RelatedFactory(ClassQuizFactory, 'id')
+    class_quiz_id = RelatedFactory(ClassQuizFactory, 'id')
     responses = {
 
     }
@@ -169,3 +204,5 @@ class ClassQuizScoreFactory(BaseSQLAlchemyModelFactory):
 
     # }
 
+with debug():
+  obj = ClassQuizFactory()
