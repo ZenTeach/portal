@@ -12,7 +12,7 @@ echo "PostgreSQL started"
 # Run migrations before booting up the app
 if [[ "$1" == "init" ]] ;then
     echo "Deleting database schema"
-    python manage.py delete_db
+    python manage.py truncate_tables
 fi
 
 python manage.py db upgrade
