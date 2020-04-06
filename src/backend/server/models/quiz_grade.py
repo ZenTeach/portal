@@ -26,6 +26,7 @@ class QuizGrade(BaseModelMixin, db.Model):
         "ClassQuiz", backref=db.backref("student_quiz_grade"))
 
     score = db.Column(db.Integer, nullable=True)
+    graded = db.Column(db.Boolean, nullable=False, default=False)
     grade_breakdown = db.Column(JSON)
     responses = db.Column(JSON)
 
@@ -39,3 +40,7 @@ class QuizGrade(BaseModelMixin, db.Model):
 
     def update_score(self, new_score):
         self.score = new_score
+
+    def is_graded(self):
+        self.graded = True
+        self.save()

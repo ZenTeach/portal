@@ -16,7 +16,7 @@ def grader_administered_quizzes(self, quiz_session_id):
         # grader.start_grading()
     except Exception as e:
         print(e)
-        self.retry()
+        self.retry(exc=e, countdown=2 ** self.request.retries)
 
 @celery.task
 def check_all_quizzes_submitted():

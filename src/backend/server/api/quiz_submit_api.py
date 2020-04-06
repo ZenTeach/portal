@@ -69,6 +69,10 @@ class SubmitQuiz(Resource):
         if not quiz_session:
             abort(404, "Quiz not started")
         try:
+            # check if session ended
+            if quiz_session.has_session_ended():
+                abort(400, "Session has ended!")
+
             # Step 2: Store
             student.add_quiz_score(class_quiz, post_data.get('data'))
             student.save()

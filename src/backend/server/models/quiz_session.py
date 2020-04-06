@@ -44,3 +44,6 @@ class QuizSession(BaseModelMixin, db.Model):
     def update_status(self, new_status):
         self.status = new_status
         self.save()
+
+    def has_session_ended(self):
+        return self.status == QuizSessionStatus.ended
