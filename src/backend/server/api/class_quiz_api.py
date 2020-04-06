@@ -7,8 +7,7 @@ from jinja2 import Environment, FileSystemLoader
 from server import db, mail
 from server.api import api_logger
 from server.decorators import with_required_roles
-from server.models import ClassQuiz as ClassQuizModel
-from server.models import ClassQuizSchema, Teacher
+from server.models import ClassQuiz as ClassQuizModel, ClassQuizSchema, Teacher, Questions
 from server.tasks import (execute_app_script, generate_gform_quiz,
                           generate_pdf, send_google_form_email, send_quiz_pdf)
 from sqlalchemy import exc
@@ -85,6 +84,7 @@ class ClassQuizList(Resource):
         max_score = post_data.get('max_score')
         class_id = post_data.get('class_id')
         variants = post_data.get('variants')
+        # TODO: Validate if questions exist in db
         questions = post_data.get('questions')
         try:
             db.session.add(ClassQuizModel(subject=subject, max_score=max_score,
