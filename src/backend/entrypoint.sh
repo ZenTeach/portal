@@ -9,15 +9,15 @@ done
 
 echo "PostgreSQL started"
 
+python manage.py db upgrade
+
+python manage.py db_conf
+
 # Run migrations before booting up the app
 if [[ "$1" == "init" ]] ;then
     echo "Deleting database schema"
     python manage.py truncate_tables
 fi
-
-python manage.py db upgrade
-
-python manage.py db_conf
 
 python manage.py seed
 

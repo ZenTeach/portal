@@ -41,9 +41,10 @@ def truncate_tables():
             session.execute(table.delete())
         session.commit()
     clear_data(db.session)
+
 @cli.command('db_conf')
 def db_conf():
-    sa.orm.configure_mappers()
+    db.configure_mappers()
 
 
 @cli.command()

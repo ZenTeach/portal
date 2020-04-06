@@ -79,6 +79,7 @@ def create_app():
     ma.init_app(app)
     mail.init_app(app)
     redis_store.init_app(app)
+    make_searchable(db.metadata)
 
     login_manager.init_app(app)
 
@@ -101,7 +102,6 @@ def create_app():
     from flask_migrate import Migrate, MigrateCommand
     migration_directory = os.path.join('server', 'models', 'migrations')
     migrate = Migrate(app, db, directory=migration_directory)
-    make_searchable(db.metadata)
 
     from flask_admin.contrib.sqla import ModelView
     from server.admin import QuestionView, SchoolClassView, StudentView, TeacherView, ClassQuizView, ZenteachAdminIndexView
