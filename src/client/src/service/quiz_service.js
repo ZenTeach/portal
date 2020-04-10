@@ -1,21 +1,25 @@
-import Api from "@/service/Api"
+import Api from '@/service/Api'
+import { handleResponse } from '@/service/service_utils'
 
-export async function fetchQuiz(quiz_id) {
-	const result = await Api.get("/class_quiz/" + quiz_id)
-	if (result.status == 200) {
-		return result.data;
-	}
-	else {
-		return {};
-	}
+export function fetchQuiz (quizId) {
+  return Api.get('/class_quiz/' + quizId)
+    .then(handleResponse)
+    .then(data => data)
 }
 
-export async function submitQuiz(payload) {
-	const result = await Api.post("/submit_quiz")
-	if (result.status == 200) {
-		return result;
-	}
-	else {
-		return {};
-	}
+export function startQuiz (studentEmail, quizUUID) {
+  return Api.get('/submit_quiz', {
+    params: {
+      email: studentEmail,
+      quiz: quizUUID
+    }
+  })
+    .then(handleResponse)
+    .then(data => data)
+}
+
+export function submitQuiz (payload) {
+  return Api.post('/submit_quiz', payload)
+    .then(handleResponse)
+    .then(data => data)
 }

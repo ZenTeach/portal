@@ -1,25 +1,26 @@
-import Api from "@/service/Api";
+import Api from '@/service/Api'
+import { handleResponse } from '@/service/service_utils'
 
-export async function fetchClasses() {
-  const api_url = "/school_class/owned";
-  const result = await Api.get(api_url);
-  return result;
+export function fetchClasses () {
+  return Api.get('/school_class/owned')
+    .then(handleResponse)
+    .then(data => data)
 }
 
-export async function addNewClass(payload) {
-  const api_url = "/school_class";
-  const result = await Api.post(api_url, payload);
-  return result;
+export function addNewClass (payload) {
+  return Api.post('/school_class', payload)
+    .then(handleResponse)
+    .then(data => data)
 }
 
-export async function fetchCurrentClass(class_id) {
-  const api_url = `/school_class/${class_id}`;
-  const result = await Api.get(api_url);
-  return result;
+export function fetchCurrentClass (classId) {
+  return Api.get(`/school_class/${classId}`)
+    .then(handleResponse)
+    .then(data => data)
 }
 
-export async function fetchQuizPDF(quiz_id) {
-  const api_url = `/class_quiz/pdf_view/${quiz_id}`;
-  const result = await Api.get(api_url, { responseType: "blob" });
-  return result;
+export function fetchQuizPDF (quizId) {
+  return Api.get(`/class_quiz/pdf_view/${quizId}`, { responseType: 'blob' })
+    .then(handleResponse)
+    .then(data => data)
 }

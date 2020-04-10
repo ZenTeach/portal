@@ -1,47 +1,26 @@
-import Api from "@/service/Api";
+import Api from '@/service/Api'
+import { handleResponse } from '@/service/service_utils'
 
-export async function loginUser(payload) {
-  return Api.post("/teacher/login", payload)
+export function loginUser (payload) {
+  return Api.post('/teacher/login', payload)
     .then(handleResponse)
-    .then(data => data);
+    .then(data => data)
 }
 
-export async function logoutUser() {
-  const result = await Api.post("/teacher/logout");
-  // console.log("logoutUser data", result)
-  return result;
+export function logoutUser () {
+  return Api.post('/teacher/logout')
+    .then(handleResponse)
+    .then(data => data)
 }
 
-export async function registerUser(payload) {
-  const result = await Api.post("/teacher/registration", payload);
-  console.log("registerUser data", result);
-  if (result.status === 200) {
-    return result.data;
-  }
-
-  return result;
+export function registerUser (payload) {
+  return Api.post('/teacher/registration', payload)
+    .then(handleResponse)
+    .then(data => data)
 }
 
-export async function getCurrentUser() {
-  const result = await Api.get("/teacher/current");
-
-  // if (result.status === 200) {
-  //   return result.data;
-  // }
-  // console.log("getCurrentUser data", result)
-  return result;
-}
-
-function handleResponse(response) {
-  const data = response.data;
-  if (!check_if_response_is_ok(response.status)) {
-    const error = (data && data.message) || response.statusText;
-    return Promise.reject(error);
-  }
-
-  return Promise.resolve(data);
-}
-
-function check_if_response_is_ok(status) {
-  return status > 199 && status < 300;
+export function getCurrentUser () {
+  return Api.get('/teacher/current')
+    .then(handleResponse)
+    .then(data => data)
 }

@@ -1,166 +1,292 @@
 <template>
-	<v-container fluid>
-			<v-row class="ma-4 pa-3" :justify="center" :align="start">
-				<!-- Title -->
-				<input type="hidden" />
-				<v-col class="ma-2">
-					<h1>{{ quizTitle }} </h1>
-				</v-col>
-			</v-row>
-			<v-row class="mx-10 pa-3" :align="center" :justify="space-between">
-				<!-- Questions -->
-				<v-col :align="center">
-				<template v-for="(question, idx) in quiz['questions']" >
-					<v-card :key="idx" class="ma-2" ref="">
-						<v-card-text ref="question_">
-								<h3> {{ question.question }} </h3>
-								<!-- Question choices -->
-								<v-radio-group ref="question_choice" @change="selectChoices()">
-									<v-radio
-										v-for="(choice, idx) in question.choices"
-										:key="idx"
-										:label="choice"
-										:value="'choice_'+idx"
-										readonly
-										>
-									</v-radio>
-								</v-radio-group>
-						</v-card-text>
-					</v-card>
-				</template>
-				</v-col>
-				<v-dialog v-model="dialog" max-width="1000px" persistent>
-					<p> Please enter your email to finish submitting your quiz: </p>
-					<v-text-field
-						placeholder="email"
-						label="email"
-						value=""
-						single-line
-						:model="studentEmail"
-					></v-text-field>
-					<v-btn color="success">Proceed</v-btn>
-		</v-dialog>
-			</v-row>
+  <v-container fluid>
+    <v-dialog v-model="dialog" max-width="1000px" persistent>
+      <v-card class="mx-auto px-auto" outlined>
+        <v-card-title class="font-weight-light"> Quiz Procotor </v-card-title>
+        <v-card-text class="headline font-weight-bold">
+          <p> Please enter your email to start your quiz: </p>
+          <v-text-field
+            single-line
+            prepend-icon="email"
+            outline
+            required
+            :error-messages="errors"
+            v-model="studentEmail"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary lighten-2" outlined class="mr-4" @click="startQuizSession">Proceed</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-row class="ma-4 pa-3">
+      <input type="hidden" />
+      <v-col class="ma-2">
+        <h1>{{ quizTitle }} Quiz</h1>
+      </v-col>
+    </v-row>
+    <v-row class="mx-10 pa-3">
+      <v-col>
+      <template v-for="(question, q_idx) in quiz_questions" >
+        <v-card :key="q_idx" class="ma-2" ref="">
+          <input type="hidden" :value="question['id']"  ref="question_id"/>
+          <v-card-text ref="question_">
+              <h3> {{ question.question }} </h3>
+              <v-radio-group>
+                <template v-for="(choice, idx) in question.choices">
+                  <div :id="'div'+idx" :key="'div'+idx">
+                    <input type="radio"
+                      :key="idx"
+                      :name="question.question"
+                      :value="question.id + '-choice_'+idx"
+                      @input.self="appendToSelection"/>
+                    <v-label :for="choice" key="'label'+idx">{{choice}}</v-label >
+                  </div>
+                </template>
+              </v-radio-group>
+          </v-card-text>
+        </v-card>
+      </template>
+      </v-col>
+    </v-row>
 
-			<!-- Call to Action -->
-			<v-row class="mx-10 pa-5" :align="end" :justify="end">
-				<v-btn color="success" @click="submit()">
-					Submit Quiz
-				</v-btn>
-			</v-row>
-	</v-container>
+    <v-row class="mx-10 pa-5">
+      <v-btn color="success" @click="submit()">
+        Submit Quiz
+      </v-btn>
+    </v-row>
+
+    <v-dialog v-model="hasSubmitted" max-width="100vw" max- persistent>
+      <v-row class="ma-1 pa-2 white">
+        <v-col>
+          <div class="mx-auto img-container">
+            <v-img src="../assets/completed.png" class="" />
+          </div>
+        </v-col>
+        <v-col justify="center" class="d-flex align-center">
+          <p class="text-align display-1 text--lighten-4">
+          Congrats! Your quiz has been submitted!
+          <br />
+          <router-link to="/">Close page</router-link>
+          </p>
+        </v-col>
+      </v-row>
+    </v-dialog>
+  </v-container>
 </template>
 
 <script>
-import Api from "@/service/Api"
-
-import {
-  ValidationObserver,
-  ValidationProvider
-} from "vee-validate";
-import { createNamespacedHelpers } from 'vuex';
-const { mapActions, mapState } = createNamespacedHelpers("quiz");
-
+import { createNamespacedHelpers } from 'vuex'
+const { mapGetters } = createNamespacedHelpers('quiz')
 export default {
-	name: "QuizView",
-	components: {
-		ValidationObserver,
-		ValidationProvider
-	},
-	data() {
-		return {
-			dialog: false,
-			studentEmail: "",
-			quiz: {
-				// uid:
-				name: "Chemistry Quiz",
-				max_score: "3",
-				questions: [
-					{
-					"choices": {
-						"a": "The smallest piece of an element that can exist.",
-						"b": "A particle that cannot be broken down any further.",
-						"c": "Multiple compounds chemically bonded to each other.",
-						"d": "A particle that has no mass."
-					},
-					"id": 10,
-					"knowledge_item": "DEFINITION ATOM",
-					"question": "What is an atom?",
-					"question_type": 1,
-					"subject": "Chemistry",
-					"tag": "6",
-					"topic": "Atomic Structure"
-					}, {
-					"choices": {
-						"a": "Matter made of at least two types of atoms.",
-						"b": "",
-						"c": "Matter that is only made of one type of atom.",
-						"d": ""
-					},
-					"id": 11,
-					"knowledge_item": "DEFINITION ELEMENT",
-					"question": "What is an element?",
-					"question_type": 1,
-					"subject": "Chemistry",
-					"tag": "7",
-					"topic": "Atomic Structure"
-					}, {
-					"choices": {
-						"a": "Electrons have a mass of 1 and a negative charge.",
-						"b": "Electrons have a mass of 0 and a negative charge.",
-						"c": "Electrons have a mass of 0 and a positive charge.",
-						"d": "Electrons have a mass of 0 and a neutral charge."
-					},
-					"id": 6,
-					"knowledge_item": "ELECTRON MASS AND CHARGE",
-					"question": "Which statements about electrons are correct?",
-					"question_type": 1,
-					"subject": "Chemistry",
-					"tag": "3",
-					"topic": "Atomic Structure"
-				}]
-			},
-			selectedChoices: []
-		}
-	},
-	mounted: function() {
-		mapActions()
-	},
-	computed: {
-		quizTitle() {
-			return this.quiz.name || ""
-		}
-	},
-	methods: {
-		// ...mapActions(["SUBMBIT_QUIZ"]),
-		selectChoices(val) {
-			console.log(val)
-		},
-		submit() {
+  name: 'QuizView',
+  data () {
+    return {
+      dialog: true,
+      studentEmail: '',
+      selectedChoices: {},
+      completedModal: false
+    }
+  },
+  computed: {
+    ...mapGetters({
+      quizUUID: 'uuid',
+      quiz_questions: 'quizQuestions',
+      quizTitle: 'subject',
+      hasSubmitted: 'hasSubmitted'
+    })
+  },
+  methods: {
+    appendToSelection (event) {
+      var splits = event.target.value.split('-')
+      this.selectedChoices[splits[0]] = splits[1]
+    },
+    submit () {
+      const payload = this._collect_submission()
+      this.$store.dispatch('quiz/SUBMIT_QUIZ', payload, { root: true })
 
-			// Step 1: Ask student to enter their email address
-			this.dialog = this.dialog ^ True
+      if (this.hasSubmitted) {
+        this.completedModal = true // show modal
+      }
+    },
+    _collect_submission () {
+      const data = []
+      for (const [k, v] of Object.entries(this.selectedChoices)) {
+        data.push(
+          {
+            questionID: k,
+            Choice_answer: v.split('_')[1]
+          }
+        )
+      }
 
-			// Step 2: check if valid
-			// Step 3: Create payload
-			let payload = this._collect_submission()
-			// Step 4: Send payload to server
-		},
-		_collect_submission() {
-			// Submitting quiz
-			// Quiz structure:
-			// -> QuizID
-			// StudentEmail
-			// -> Data
-				// For-Each Question
-				// -> QuestionID
-				// -> Choice Answer
-			return {
-				'QuizID': this.quiz.uid,
-				'StudentEmail': this.studentEmail,
-				'data': this.$refs['question_']
-			}
-		}
-	}
+      return {
+        QuizId: this.quizUUID,
+        StudentEmail: this.studentEmail,
+        data: data
+      }
+    },
+    startQuizSession () {
+      this.$store.dispatch('quiz/START_QUIZ', {
+        studentEmail: this.studentEmail,
+        quizUUID: this.quizUUID
+      }, { root: true })
+
+      this.dialog = this.dialog ^ true
+    }
+  },
+  beforeDestroy: function () {
+    this.$store.commit('quiz/UNSET_QUIZ_SUBMISSION', {}, { root: true })
+  }
 }
 </script>
+
+<style lang="scss" scoped>
+@supports(-webkit-appearance: none) or (-moz-appearance: none) {
+  div > input[type='radio'] {
+    display: inline-block;
+    padding: 0.3rem;
+  }
+  input[type='checkbox'],
+  input[type='radio'] {
+    --active: #275EFE;
+    --active-inner: #fff;
+    --focus: 2px rgba(39, 94, 254, .3);
+    --border: #BBC1E1;
+    --border-hover: #275EFE;
+    --background: #fff;
+    --disabled: #F6F8FF;
+    --disabled-inner: #E1E6F9;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    height: 21px;
+    outline: none;
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    margin: 0;
+    cursor: pointer;
+    border: 1px solid var(--bc, var(--border));
+    background: var(--b, var(--background));
+    transition: background .3s, border-color .3s, box-shadow .2s;
+    &:after {
+      content: '';
+      display: block;
+      left: 0;
+      top: 0;
+      position: absolute;
+      transition: transform var(--d-t, .3s) var(--d-t-e, ease), opacity var(--d-o, .2s);
+    }
+    &:checked {
+      --b: var(--active);
+      --bc: var(--active);
+      --d-o: .3s;
+      --d-t: .6s;
+      --d-t-e: cubic-bezier(.2, .85, .32, 1.2);
+    }
+    &:disabled {
+      --b: var(--disabled);
+      cursor: not-allowed;
+      opacity: .9;
+      &:checked {
+        --b: var(--disabled-inner);
+        --bc: var(--border);
+      }
+      & + label {
+        cursor: not-allowed;
+      }
+    }
+    &:hover {
+      &:not(:checked) {
+        &:not(:disabled) {
+          --bc: var(--border-hover);
+        }
+      }
+    }
+    &:focus {
+      box-shadow: 0 0 0 var(--focus);
+    }
+    &:not(.switch) {
+      width: 21px;
+      &:after {
+        opacity: var(--o, 0);
+      }
+      &:checked {
+        --o: 1;
+      }
+    }
+    & + label {
+      font-size: 1rem;
+      line-height: 1.5rem;
+      display: inline-block;
+      vertical-align: top;
+      cursor: pointer;
+      margin-left: 4px;
+    }
+  }
+  input[type='checkbox'] {
+    &:not(.switch) {
+      border-radius: 7px;
+      &:after {
+        width: 5px;
+        height: 9px;
+        border: 2px solid var(--active-inner);
+        border-top: 0;
+        border-left: 0;
+        left: 7px;
+        top: 4px;
+        transform: rotate(var(--r, 20deg));
+      }
+      &:checked {
+        --r: 43deg;
+      }
+    }
+    &.switch {
+      width: 38px;
+      border-radius: 11px;
+      &:after {
+        left: 2px;
+        top: 2px;
+        border-radius: 50%;
+        width: 15px;
+        height: 15px;
+        background: var(--ab, var(--border));
+        transform: translateX(var(--x, 0));
+      }
+      &:checked {
+        --ab: var(--active-inner);
+        --x: 17px;
+      }
+      &:disabled {
+        &:not(:checked) {
+          &:after {
+            opacity: .6;
+          }
+        }
+      }
+    }
+  }
+  input[type='radio'] {
+    border-radius: 50%;
+    &:after {
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: var(--active-inner);
+      opacity: 0;
+      transform: scale(var(--s, .7));
+    }
+    &:checked {
+      --s: .5;
+    }
+  }
+}
+.img-container {
+  width: 300px;
+  height: 300px;
+  background-color: #fff;
+  & > img {
+    object-fit: fill;
+  }
+}
+</style>

@@ -3,7 +3,7 @@
 		<v-layout row column wrap justify-center>
 			<v-row>
 				<v-col cols="12" lg="5">
-					<a :href="'../quiz_view/' +  quiz_id">
+					<a :href="'../quiz_view/' +  uuid">
 						Open Quiz in Browser
 					</a>
 				</v-col>
@@ -78,6 +78,8 @@
 
 <script>
 import Api from '@/service/Api'
+import { mapState, mapGetters } from 'vuex'
+
 export default {
   name: 'Quiz',
   data () {
@@ -95,13 +97,23 @@ export default {
       ],
       script_id: null,
       script_url: null,
-      dialog: false
+	  dialog: false
     }
   },
+  mounted: function () {
+	  // TODO: Finalize loading and rendering the quiz
+	  // then move to making the session get request.
+	  this.$store.dispatch('quiz/LOAD_QUIZ', this.$route.params.id)
+  },
   computed: {
-    quiz_id () {
-      return this.$route.params.id
-    }
+    // quiz_id () {
+    //   return this.$route.params.id
+    // }
+    ...mapGetters({
+      subject: 'quiz/subject',
+      uuid: 'quiz/uuid',
+      quizQuestions: 'quiz/quizQuestions'
+    })
   },
 
   methods: {
