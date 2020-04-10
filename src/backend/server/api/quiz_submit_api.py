@@ -45,7 +45,7 @@ class SubmitQuiz(Resource):
             # TODO: Add sentry error reporting
             print(e)
             return make_response(jsonify({
-                'message': 'Encountered Server error',
+                'message': 'Encountered Server error. Couldn\'t create a new session for email address.',
                 'status': 'error'
             }), 500)
         else:
