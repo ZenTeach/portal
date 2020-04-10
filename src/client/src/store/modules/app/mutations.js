@@ -1,6 +1,6 @@
 const existsInList = (iterable, id) => {
-  if (iterable.length == 0) return false
-  return iterable.find(x => x.id == id) || false
+  if (iterable.length === 0) return false
+  return iterable.find(x => x.id === id) || false
 }
 
 export default {
@@ -32,8 +32,8 @@ export default {
     state.error = payload || {}
   },
   REMOVE_SELECTED_QUESTIONS (state, payload) {
-    if (state.questionList.length == 0) return
-    const deleteIdx = state.questionList.findIndex(x => x.id == payload.id)
+    if (state.questionList.length === 0) return
+    const deleteIdx = state.questionList.findIndex(x => x.id === payload.id)
     state.questionList.splice(deleteIdx, 1)
   }
 }

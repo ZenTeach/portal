@@ -3,7 +3,7 @@
     <v-container fluid fill-height>
       <v-layout align-center justify-center>
         <v-flex xs12 sm10 md6>
-					<ValidationObserver ref="observer" v-slot="{ invalid, validated }">
+          <ValidationObserver ref="observer" v-slot="{ invalid, validated }">
           <v-card class="elevation-3">
             <v-toolbar color="grey lighten-3" flat>
               <v-toolbar-title>Signup</v-toolbar-title>
@@ -11,61 +11,61 @@
             </v-toolbar>
             <v-card-text>
               <v-form>
-								<ValidationProvider rules="required" name="firstname" v-slot="{ errors, valid }">
+                <ValidationProvider rules="required" name="firstname" v-slot="{ errors, valid }">
                 <v-text-field
                   v-model="firstname"
                   label="Firstname"
-									:error-messages="errors"
+                  :error-messages="errors"
                   placeholder
-                  prepend-icon="person"
-                  outline
-									required
-                ></v-text-field>
-								</ValidationProvider>
-
-								<ValidationProvider rules="required" name="lastname" v-slot="{errors, valid}">
-                <v-text-field
-                  v-model="lastname"
-                  label="Lastname"
-                  placeholder
-									:error-messages="errors"
                   prepend-icon="person"
                   outline
                   required
                 ></v-text-field>
-								</ValidationProvider>
+                </ValidationProvider>
 
-								<ValidationProvider rules="required|email" name="email" v-slot="{errors, valid}">
-								<v-text-field
+                <ValidationProvider rules="required" name="lastname" v-slot="{errors, valid}">
+                <v-text-field
+                  v-model="lastname"
+                  label="Lastname"
+                  placeholder
+                  :error-messages="errors"
+                  prepend-icon="person"
+                  outline
+                  required
+                ></v-text-field>
+                </ValidationProvider>
+
+                <ValidationProvider rules="required|email" name="email" v-slot="{errors, valid}">
+                <v-text-field
                   v-model="email"
-									:error-messages="errors"
+                  :error-messages="errors"
                   label="Email"
                   placeholder
                   prepend-icon="email"
                   outline
                   required
                 ></v-text-field>
-								</ValidationProvider>
+                </ValidationProvider>
 
-								<ValidationProvider rules="required" name="dob" v-slot="{errors, valid}">
+                <ValidationProvider rules="required" name="dob" v-slot="{errors, valid}">
                 <v-text-field
                   v-model="dob"
                   label="Date of Birth"
                   placeholder
-									:error-messages="errors"
+                  :error-messages="errors"
                   type="date"
                   prepend-icon="calendar"
                   outline
                   required
                 ></v-text-field>
-								</ValidationProvider>
+                </ValidationProvider>
 
-								<ValidationProvider rules="required|min:12" name="password" v-slot="{errors, valid}" vid="password">
+                <ValidationProvider rules="required|min:12" name="password" v-slot="{errors, valid}" vid="password">
                 <v-text-field
                   id="password"
                   v-model="password"
-									ref="password"
-									:error-messages="errors"
+                  ref="password"
+                  :error-messages="errors"
                   label="Password"
                   name="password"
                   prepend-icon="lock"
@@ -73,13 +73,13 @@
                   required
                   type="password"
                 ></v-text-field>
-								</ValidationProvider>
+                </ValidationProvider>
 
-								<ValidationProvider rules="required|confirmed:password" name="passwordConfirmation" v-slot="{errors, valid}">
+                <ValidationProvider rules="required|confirmed:password" name="passwordConfirmation" v-slot="{errors, valid}">
                 <v-text-field
                   id="password-confirmation"
                   v-model="passwordConfirmation"
-									:error-messages="errors"
+                  :error-messages="errors"
                   label="Confirm Password"
                   name="password_confirmation"
                   prepend-icon="lock"
@@ -87,7 +87,7 @@
                   required
                   type="password"
                 ></v-text-field>
-								</ValidationProvider>
+                </ValidationProvider>
               </v-form>
             </v-card-text>
             <v-card-actions>
@@ -96,7 +96,7 @@
             </v-card-actions>
             <v-spacer></v-spacer>
           </v-card>
-					</ValidationObserver>
+          </ValidationObserver>
         </v-flex>
       </v-layout>
     </v-container>

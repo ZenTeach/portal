@@ -42,8 +42,8 @@ const FETCHCURRENTUSER = ({ commit }) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
 
   getCurrentUser().then(result => {
-    console.log('Result fetched in FETCHCURRENTUSER', result)
-    commit('TOGGLECURRENTUSER', result.data.user.identity)
+    const { user } = result
+    commit('TOGGLECURRENTUSER', user)
   })
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
 }

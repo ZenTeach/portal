@@ -7,8 +7,8 @@ import {
 const GETCLASSES = ({ commit }) => {
   fetchClasses()
     .then(response => {
-      if (response.status === 200) {
-        commit('CLASSLIST_UPDATED', response.data.data)
+      if (response.status === 'success') {
+        commit('CLASSLIST_UPDATED', response.data)
       }
     })
     .catch(error => {
@@ -19,7 +19,7 @@ const GETCLASSES = ({ commit }) => {
 const CREATECLASS = ({ commit }, payload) => {
   addNewClass(payload)
     .then(response => {
-      if (response.status === 200) {
+      if (response.status === 'success') {
         commit('CLASSLIST_ADDED', payload)
       }
     })
@@ -31,8 +31,8 @@ const CREATECLASS = ({ commit }, payload) => {
 const GETCURRENTCLASS = ({ commit }, payload) => {
   fetchCurrentClass(payload)
     .then(response => {
-      if (response.status === 200) {
-        commit('UPDATE_CURRENT_CLASS', response.data.data)
+      if (response.status === 'success') {
+        commit('UPDATE_CURRENT_CLASS', response.data)
       }
     })
     .catch(error => {

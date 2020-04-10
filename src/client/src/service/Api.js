@@ -1,9 +1,12 @@
+// eslint-disable-next-line camelcase
 import service_config from '@/service/service_config'
 import axios from 'axios'
 import createAuthRefreshInterceptor from 'axios-auth-refresh'
 import store from '../store'
 import router from '../router'
+// eslint-disable-next-line symbol-description
 const singleton = Symbol()
+// eslint-disable-next-line symbol-description
 const singletonEnforcer = Symbol()
 class ApiService {
   constructor (enforcer) {

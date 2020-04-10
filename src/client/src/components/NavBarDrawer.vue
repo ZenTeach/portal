@@ -8,7 +8,7 @@
     dark
     mobile-break-point="991"
     persistent
-		fixed
+    fixed
     app
   >
     <v-list-item two-line>
@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 export default {
   name: 'NavBarDrawer',
   computed: {
