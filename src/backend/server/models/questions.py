@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import JSON
 from server.models.base_model import BaseModelMixin
 from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_searchable import SearchQueryMixin
+from random import choice
 from flask_sqlalchemy import BaseQuery
 import enum
 from sqlalchemy.dialects.postgresql import UUID
@@ -36,11 +37,12 @@ class Questions(BaseModelMixin, db.Model):
     subject = db.Column(db.String(256), nullable=False)
     topic = db.Column(db.String(256), nullable=True)
     tag = db.Column(db.String(128), nullable=False)
+    correct_choice = db.Column(db.String(1), nullable=True)
     choices = db.Column(JSON)
     knowledge_item = db.Column(db.String(256), nullable=False)
     search_vector = db.Column(TSVectorType('question'))
 
-    def __init__(self, question, question_type, subject, topic, tag, knowledge_item, uuid, choices={}):
+    def __init__(self, question, question_type, subject, topic, tag, knowledge_item, uuid, correct_choice, choices={}):
         if question_type == QuestionTypeEnum.multiple_choice:
             try:
                 MultipleChoiceSchema().validate(data=choices)
@@ -55,4 +57,5 @@ class Questions(BaseModelMixin, db.Model):
         self.tag = tag
         self.knowledge_item = knowledge_item
         self.uuid = uuid
+        self.correct_choice = correct_choice
         self.choices = choices

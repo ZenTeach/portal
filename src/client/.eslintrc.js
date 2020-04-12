@@ -4,17 +4,17 @@ module.exports = {
     es6: true,
     jest: true
   },
-  extends: "standard",
+  extends: 'standard',
   globals: {
-    Atomics: "readonly",
-    SharedArrayBuffer: "readonly"
+    Atomics: 'readonly',
+    SharedArrayBuffer: 'readonly'
   },
-  parser: "vue-eslint-parser",
+  parser: 'vue-eslint-parser',
   parserOptions: {
-    parser: "babel-eslint",
+    parser: 'babel-eslint',
     ecmaVersion: 2018,
-    sourceType: "module"
+    sourceType: 'module'
   },
-  plugins: ["vue"],
+  plugins: ['vue'],
   rules: {}
-};
+}

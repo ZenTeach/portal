@@ -22,8 +22,8 @@ def test_school_class_ping(client):
 #@pytest.mark.parameterized("school_class__teacher_id", [LazyFixture(lambda teacher: teacher.id)])
 # @pytest.mark.parameterized("class_quiz__class_id", [school_class.id])
 def test_get_school_class_with_id(client, teacher, student, school_class, mocker):
-    school_class.add_student(student)
-    school_class.save()
+    # school_class.add_student(student)
+    # school_class.save()
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     response = client.get('/api/v1/school_class/{}'.format(school_class.id))
     assert response.status_code == 200

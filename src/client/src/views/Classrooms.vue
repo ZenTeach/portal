@@ -26,7 +26,7 @@
                       </v-btn>
                     </template>
 
-										<ValidationObserver ref="observer" v-slot="{ invalid, validated, passes }">
+                    <ValidationObserver ref="observer" v-slot="{ invalid, validated, passes }">
                     <v-card>
                       <v-card-title>
                         <span class="headline">Add a new class</span>
@@ -36,15 +36,15 @@
                         <v-container>
                           <v-row>
                             <v-col cols="10" lg="12" sm="9" md="12">
-															<ValidationProvider rules="required" name="classname">
+                              <ValidationProvider rules="required" name="classname">
                               <v-text-field label="Class name" v-model="classname" outlined grow></v-text-field>
-															</ValidationProvider>
+                              </ValidationProvider>
 
-															<ValidationProvider rules="required" name="subject">
+                              <ValidationProvider rules="required" name="subject">
                               <v-select :items="subjects" label="Subject" v-model="subject" outlined></v-select>
-															</ValidationProvider>
+                              </ValidationProvider>
 
-															<v-menu
+                              <v-menu
                                 ref="menu"
                                 v-model="menu"
                                 :close-on-content-click="false"
@@ -54,17 +54,17 @@
                                 min-width="290px"
                               >
                                 <template v-slot:activator="{ on }">
-																	<ValidationProvider rules="required" name="Start date" v-slot="{ errors }">
+                                  <ValidationProvider rules="required" name="Start date" v-slot="{ errors }">
                                   <v-text-field
                                     v-model="start_date"
                                     label="Start date"
-																		:error-messages="errors"
+                                    :error-messages="errors"
                                     prepend-icon="event"
                                     readonly
                                     v-on="on"
                                     outlined
                                   ></v-text-field>
-																	</ValidationProvider>
+                                  </ValidationProvider>
                                 </template>
                                 <v-date-picker v-model="start_date" no-title scrollable>
                                   <div class="flex-grow-1"></div>
@@ -87,8 +87,8 @@
                         <v-btn color="blue darken-1" text outlined :disabled="invalid || !validated" @click="passes(addClass)">Save</v-btn>
                       </v-card-actions>
                     </v-card>
-										</ValidationObserver>
-									</v-dialog>
+                    </ValidationObserver>
+                  </v-dialog>
                 </template>
               </v-data-table>
             </div>

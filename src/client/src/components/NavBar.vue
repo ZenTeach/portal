@@ -26,7 +26,6 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
 
 export default {
   name: 'NavBar',
@@ -34,10 +33,7 @@ export default {
   methods: {
     logout () {
       this.$store.dispatch('user/SIGNOUT_USER', {}, { root: true })
-      // TODO: delete access cookies from the client
-      // this.$cookies.remo
       this.$router.push('/login')
-      // this.$cookies.remove('access_cookie_')
     },
     onResponsiveInverted () {
       if (window.innerWidth < 991) {

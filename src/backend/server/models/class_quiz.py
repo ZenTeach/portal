@@ -13,15 +13,17 @@ __all__ = ['ClassQuizStatus', 'ClassQuiz', 'ClassQuizSchema']
 
 class ClassQuizStatus (enum.Enum):
     created = 1
-    administered = 2
-    cancelled = 3
+    in_progress=2
+    administered = 3
+    graded = 4
+    cancelled = 5
 
 
 class ClassQuiz(BaseModelMixin, db.Model):
     __tablename__ = 'class_quiz'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=True)
+    uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=True, default=uuid4())
     subject = db.Column(db.String(256), nullable=False)
     max_score = db.Column(db.Integer, nullable=False)
     variants = db.Column(db.Integer, nullable=True, default=1)
@@ -36,8 +38,21 @@ class ClassQuiz(BaseModelMixin, db.Model):
     gform_id = db.Column(db.String(128), nullable=True)
     questions = db.Column(JSON)
 
+    student_quiz_sessions = db.relationship(
+        'Student', secondary="quiz_session", viewonly=True)
+
+    student_quiz_grades = db.relationship('Student',
+            secondary="quiz_grade",
+            viewonly=True,
+            # primaryjoin="Student.id == QuizGrade.student_id"
+            )
+
     def __repr__(self):
         return '<ClassQuiz %r>' % self.id
+
+    def update_status(self, new_status):
+        self.status = new_status
+        self.save()
 
     def update_gform_id(self, project_id, deployment_id, version_number):
         d = {
@@ -49,3 +64,9 @@ class ClassQuiz(BaseModelMixin, db.Model):
         self.gform_id = json.dumps(d)
 
         self.save()
+
+    def add_student_session(self, student):
+        from .quiz_session import QuizSession
+        self.student_quiz_sessions.append(
+            QuizSession(student=student, class_quiz=self)
+        )

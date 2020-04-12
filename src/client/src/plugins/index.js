@@ -1,4 +1,4 @@
 // import "./axios";
-import "./chartist";
-import "./vee-validate";
-import "./gAuth";
+import './chartist'
+import './vee-validate'
+import './gAuth'

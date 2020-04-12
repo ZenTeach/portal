@@ -1,8 +1,8 @@
 from server import db
-from .quiz_grade import class_quiz_score as quizzes
 from server.models.base_model import BaseModelMixin
 from uuid import uuid4
 from sqlalchemy.dialects.postgresql import UUID
+
 class Student(BaseModelMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -17,11 +17,21 @@ class Student(BaseModelMixin, db.Model):
     classes = db.relationship('SchoolClass',
                               secondary='student_attended_class', viewonly=True)
 
-    quiz_grades = db.relationship('ClassQuiz', secondary=quizzes, lazy='subquery',
-                                  backref=db.backref('students', lazy=True))
+    quiz_sessions = db.relationship('ClassQuiz', secondary='quiz_session', viewonly=True)
+
+    # TODO: Fix this relationship, keeps throwing sqlalchemy.exc.NoForeignKeysError
+    quiz_grades = db.relationship('ClassQuiz', secondary='quiz_grade', viewonly=True)
+    # primaryjoin="Student.id == foreign(QuizGrade.student_id)",
+    # foreign_keys='QuizGrade.student_id'
 
     def __repr__(self):
         return '<Student %s>' % (self.firstname + " " + self.lastname)
 
     def full_name(self):
         return "{} {}".format(self.firstname, self.lastname)
+
+    def add_quiz_score(self, quiz, response):
+        from .quiz_grade import QuizGrade
+        self.quiz_grade.append(
+            QuizGrade(student=self, class_quiz=quiz, responses=response)
+        )

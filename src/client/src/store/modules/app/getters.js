@@ -1,23 +1,23 @@
 export default {
-  loggedIn(state) {
-    return state.loggedIn;
+  loggedIn (state) {
+    return state.loggedIn
   },
-  loading(state) {
-    return state.loading;
+  loading (state) {
+    return state.loading
   },
-  getDrawer(state) {
-    return state.drawer;
+  getDrawer (state) {
+    return state.drawer
   },
-  getDrawerMinified(state) {
-    return state.drawerMinified;
+  getDrawerMinified (state) {
+    return state.drawerMinified
   },
-  getQuestionResult(state) {
-    return state.questionSearch;
+  getQuestionResult (state) {
+    return state.questionSearch
   },
-  getQuestionList(state) {
-    return state.questionList;
+  getQuestionList (state) {
+    return state.questionList
   },
-  getError(state) {
-    return state.error;
+  getError (state) {
+    return state.error
   }
-};
+}

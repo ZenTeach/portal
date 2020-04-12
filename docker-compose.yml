@@ -33,7 +33,7 @@ services:
       - APP_SETTINGS=server.config.DevelopmentConfig
       - CELERY_BROKER_URL=amqp://zenteach:zenteach_broker@rabbitmq_broker:5672/jobs
       - CELERY_RESULT_BACKEND=redis://redis_store:6379/0
-      - REDIS_URL=redis://redis_store:6379/app
+      - REDIS_URL=redis://redis_store:6379/1
     depends_on:
       - zenteach_db
       - redis_store

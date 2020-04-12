@@ -1,14 +1,14 @@
 <template>
-	<div>
-		<v-text-field
-            label="SearchInput"
-            placeholder="Question.."
-			@click:append="searchEventListener"
-			v-model="searchInput"
-			append-icon="search"
-            solo
-        ></v-text-field>
-	</div>
+  <div>
+    <v-text-field
+      label="SearchInput"
+      placeholder="Question.."
+      @click:append="searchEventListener"
+      v-model="searchInput"
+      append-icon="search"
+      solo
+    ></v-text-field>
+  </div>
 </template>
 <script>
 

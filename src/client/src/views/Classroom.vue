@@ -2,8 +2,8 @@
   <v-container>
     <v-layout row column wrap justify-center>
       <v-flex sm-8 md-5 lg-3 class="ma-6">
-				<v-col cols="12" lg="4">
-				<material-chart-card
+        <v-col cols="12" lg="4">
+        <material-chart-card
           :data="emailsSubscriptionChart.data"
           :options="emailsSubscriptionChart.options"
           :responsive-options="emailsSubscriptionChart.responsiveOptions"
@@ -27,8 +27,8 @@
             <span class="caption grey--text font-weight-light">updated 10 minutes ago</span>
           </template>
         </material-chart-card>
-				</v-col>
-			</v-flex>
+        </v-col>
+      </v-flex>
 
       <v-flex sm-8 md-10 lg-10 class="ma-6">
         <v-data-table
@@ -50,15 +50,15 @@
                   <v-icon dark>mdi-plus</v-icon>
                 </v-btn>
               </template>
-							<quiz-creator v-on:update:quizCreatorDialog="closeQuizCreatorDialog"/>
+              <quiz-creator v-on:update:quizCreatorDialog="closeQuizCreatorDialog"/>
             </v-dialog>
           </template>
         </v-data-table>
       </v-flex>
 
-			<v-flex sm-8 md-10 lg-10 class="ma-6">
-				<student-list v-bind:students="current_class.students" />
-			</v-flex>
+      <v-flex sm-8 md-10 lg-10 class="ma-6">
+        <student-list v-bind:students="current_class.students" />
+      </v-flex>
     </v-layout>
   </v-container>
 </template>
@@ -68,7 +68,6 @@ import MaterialChartCard from '@/components/ChartCard'
 import StudentList from '@/components/StudentList'
 import QuizCreator from '@/components/QuizCreator'
 import { createNamespacedHelpers } from 'vuex'
-import { fetchQuizPDF } from '@/service/classrooms'
 const { mapState } = createNamespacedHelpers('classrooms')
 
 export default {
@@ -78,9 +77,6 @@ export default {
     StudentList,
     QuizCreator
   },
-  // updated() {
-  // 	this.$store.dispatch("classrooms/GETCURRENTCLASS", this.$route.params.id, { root: true });
-  // },
   mounted () {
     this.$store.dispatch('classrooms/GETCURRENTCLASS', this.$route.params.id, { root: true })
   },
@@ -153,20 +149,6 @@ export default {
       this.$store.commit('app/RESET_QUESTION_SEARCH', {}, { root: true })
       this.$store.dispatch('classrooms/GETCURRENTCLASS', this.$route.params.id, { root: true })
     }
-
-    // openQuiz(quiz_id) {
-    // 	fetchQuizPDF(quiz_id).then(response => {
-    // 		var fileURL = window.URL.createObjectURL(new Blob([response.data]));
-    // 		var fileLink = document.createElement('a');
-
-    // 		fileLink.href = fileURL;
-    // 		fileLink.setAttribute('download', 'file.pdf');
-    // 		document.body.appendChild(fileLink);
-
-    // 		fileLink.click();
-    // 		fileLink.remove();
-    // 	})
-    // }
   }
 }
 </script>

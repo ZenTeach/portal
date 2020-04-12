@@ -1,6 +1,6 @@
-import actions from "./actions";
-import getters from "./getters";
-import mutations from "./mutations";
+import actions from './actions'
+import getters from './getters'
+import mutations from './mutations'
 
 const state = {
   loggedIn: false,
@@ -10,7 +10,7 @@ const state = {
   error: {},
   questionSearch: [],
   questionList: []
-};
+}
 
 export default {
   namespaced: true,
@@ -18,4 +18,4 @@ export default {
   actions,
   getters,
   mutations
-};
+}

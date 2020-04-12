@@ -2,6 +2,7 @@ import os
 import csv
 from server.models import Questions, QuestionTypeEnum
 from uuid import uuid4
+from random import choice
 
 filename = "Questions.csv"
 filepath = os.path.join(os.path.dirname(__file__), filename)
@@ -24,5 +25,6 @@ def question_seeds():
                 tag=line["TAG"],
                 knowledge_item=line["KnowledgeItem"],
                 uuid=uuid4(),
-                choices=choices
+                choices=choices,
+                correct_choice=choice([ x for x in choices.keys()])
             ).save()

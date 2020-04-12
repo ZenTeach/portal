@@ -1,16 +1,20 @@
-import { fetchQuestions } from "../../../service/questions";
+import { fetchQuestions } from '../../../service/questions'
 
 export default {
-  QUERY_QUESTIONS({ commit }, payload) {
-    fetchQuestions(payload).then(result => {
-      const {
-        data: { data: questions }
-      } = result;
-      commit("UPDATE_QUESTION_SEARCH", questions);
-    });
+  QUERY_QUESTIONS ({ commit }, payload) {
+    fetchQuestions(payload)
+      .then(result => {
+        const {
+          data: questions
+        } = result
+        commit('UPDATE_QUESTION_SEARCH', questions)
+      })
+      .catch(error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      })
   },
 
-  TOGGLE_ERROR({ commit }, payload = {}) {
-    commit("TOGGLE_ERROR", payload);
+  TOGGLE_ERROR ({ commit }, payload = {}) {
+    commit('TOGGLE_ERROR', payload)
   }
-};
+}

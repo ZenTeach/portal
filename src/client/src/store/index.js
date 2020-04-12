@@ -1,21 +1,23 @@
-import Vue from "vue";
-import Vuex from "vuex";
-import VuexPersistence from "vuex-persist";
-import app from "@/store/modules/app";
-import user from "@/store/modules/user";
-import classrooms from "@/store/modules/classrooms";
+import Vue from 'vue'
+import Vuex from 'vuex'
+import VuexPersistence from 'vuex-persist'
+import app from '@/store/modules/app'
+import user from '@/store/modules/user'
+import classrooms from '@/store/modules/classrooms'
+import quiz from '@/store/modules/quiz'
 
-Vue.use(Vuex);
+Vue.use(Vuex)
 
 const vuexLocalStore = new VuexPersistence({
   storage: window.sessionStorage
-});
+})
 
 const store = new Vuex.Store({
   modules: {
     app: app,
     user: user,
-    classrooms: classrooms
+    classrooms: classrooms,
+    quiz: quiz
   },
   state: {
     // global state
@@ -24,6 +26,6 @@ const store = new Vuex.Store({
   actions: {},
   getters: {},
   plugins: [vuexLocalStore.plugin]
-});
+})
 
-export default store;
+export default store

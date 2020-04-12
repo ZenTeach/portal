@@ -1,6 +1,6 @@
 from .questions import question_seeds
 from server import bcrypt
-from server.models import Teacher, SchoolClass, Student, StudentAttendedClass, Admin
+from server.models import Teacher, SchoolClass, Student, StudentAttendedClass, Admin, ClassQuiz
 import datetime
 from uuid import uuid4
 
@@ -26,6 +26,15 @@ def seeds():
     # interim = StudentAttendedClass()
     # interim.school_class_association = s
     # interim.student_association = class_student
+
+    # Add Quiz
+    # _class = SchoolClass.query.first()
+
+    # ClassQuizModel(subject=_class.subject,
+    #                 max_score=3,
+    #                 class_id=_class.id,
+    #                 variants=3,
+    #                 questions=)
     s.add_student(class_student)
     s.save()
 
