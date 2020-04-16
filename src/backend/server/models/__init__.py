@@ -11,13 +11,14 @@ from .admin import Admin
 from .quiz_grade import QuizGrade
 from .quiz_session import QuizSession
 from .questions import Questions, QuestionTypeEnum
+from .question_choice import QuestionChoice
 from .migrations.seeds import run_seed
 
 __all__ = ['ClassQuiz', 'ClassQuizStatus', 'ClassQuizSchema', 'Teacher', 'TeacherSchema',
            'QuizSession', 'QuizSessionStatus', 'QuizGrade', 'StudentAttendedClass',
            'Student', 'StudentSchema',
            'SchoolClass', 'SchoolClassSchema', 'ClassQuizScore', 'Admin',
-           'QuizSession', 'Questions', 'QuestionTypeEnum', 'QuestionsSchema', 'run_seed']
+           'QuizSession', 'Questions', 'QuestionTypeEnum', 'QuestionChoice', 'QuestionsSchema', 'run_seed']
 
 # serializers
 from server import ma
@@ -28,12 +29,18 @@ from server import ma
 #         table = 'QuizGrade'
 
 
+class QuestionChoicesSchema(ma.ModelSchema):
+    class Meta:
+        model = QuestionChoice
+        fields = ('value', 'weight')
+
 class QuestionsSchema(ma.ModelSchema):
     class Meta:
         model = Questions
         fields = ('id', 'question', 'question_type',
                   'subject', 'topic', 'knowledge_item', 'tag', 'choices')
     question_type = EnumField(QuestionTypeEnum, by_value=True)
+    choices = ma.Nested(QuestionChoicesSchema, many=True)
 
 
 class ClassQuizSchema(ma.ModelSchema):

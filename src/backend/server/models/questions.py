@@ -38,7 +38,7 @@ class Questions(BaseModelMixin, db.Model):
     topic = db.Column(db.String(256), nullable=True)
     tag = db.Column(db.String(128), nullable=False)
     correct_choice = db.Column(db.String(1), nullable=True)
-    choices = db.Column(JSON)
+    choices = db.relationship('QuestionChoice')
     knowledge_item = db.Column(db.String(256), nullable=False)
     search_vector = db.Column(TSVectorType('question'))
 
