@@ -66,6 +66,12 @@ const router = new Router({
       name: 'Quiz View',
       component: () =>
         import(/* webpackChunkName: "QuizView" */ './views/QuizView')
+    },
+    {
+      path: '/report_card/:uuid',
+      name: 'Student Report Card',
+      component: () =>
+        import(/* webpackChunkName: "QuizView" */ './views/ReportCard')
     }
   ]
 })
