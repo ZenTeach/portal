@@ -12,13 +12,14 @@ from .quiz_grade import QuizGrade
 from .quiz_session import QuizSession
 from .questions import Questions, QuestionTypeEnum
 from .question_choice import QuestionChoice
+from .feedback import ChoiceFeedback
 from .migrations.seeds import run_seed
 
 __all__ = ['ClassQuiz', 'ClassQuizStatus', 'ClassQuizSchema', 'Teacher', 'TeacherSchema',
            'QuizSession', 'QuizSessionStatus', 'QuizGrade', 'StudentAttendedClass',
            'Student', 'StudentSchema',
            'SchoolClass', 'SchoolClassSchema', 'ClassQuizScore', 'Admin',
-           'QuizSession', 'Questions', 'QuestionTypeEnum', 'QuestionChoice', 'QuestionsSchema', 'run_seed']
+           'QuizSession', 'Questions', 'QuestionTypeEnum', 'QuestionChoice', 'QuestionsSchema', 'ChoiceFeedback', 'run_seed']
 
 # serializers
 from server import ma

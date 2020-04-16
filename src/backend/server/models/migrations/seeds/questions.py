@@ -1,6 +1,6 @@
 import os
 import csv
-from server.models import Questions, QuestionTypeEnum, QuestionChoice
+from server.models import Questions, QuestionTypeEnum, QuestionChoice, ChoiceFeedback
 from uuid import uuid4
 from random import choice
 
@@ -13,10 +13,11 @@ def question_seeds():
         reader = csv.DictReader(fp, delimiter=',', quotechar='|')
         for line in reader:
             choices=[]
-            choices.append(QuestionChoice(line["a"], 0, uuid4()))
-            choices.append(QuestionChoice(line["b"], 0, uuid4()))
-            choices.append(QuestionChoice(line["c"], 1, uuid4()))
-            choices.append(QuestionChoice(line["d"], 0, uuid4()))
+            choices.append(QuestionChoice(line["a"], ChoiceFeedback("Look at these images."), 0, uuid4()))
+            choices.append(QuestionChoice(line["b"], ChoiceFeedback("Revise theses lesson slides."), 0, uuid4()))
+            choices.append(QuestionChoice(line["c"], ChoiceFeedback("Look at these images."), 1, uuid4()))
+            choices.append(QuestionChoice(line["d"], ChoiceFeedback("Revise theses lesson slides."), 0, uuid4()))
+
             Questions(
                 question=line["Question"],
                 question_type=QuestionTypeEnum.multiple_choice,

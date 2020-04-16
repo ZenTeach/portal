@@ -9,9 +9,11 @@ class QuestionChoice(db.Model, BaseModelMixin):
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
     value = db.Column(db.String(256), nullable=False)
     weight = db.Column(db.Integer, nullable=False, default=0)
+    feedback = db.relationship('ChoiceFeedback', uselist=False, back_populates='choice')
     uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=False)
 
-    def __init__(self, value, weight=0, uuid=uuid4()):
+    def __init__(self, value, feedback, weight=0, uuid=uuid4()):
         self.value = value
         self.weight = weight
         self.uuid = uuid
+        self.feedback = feedback
