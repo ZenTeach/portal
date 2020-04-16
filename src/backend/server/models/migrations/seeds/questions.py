@@ -12,16 +12,11 @@ def question_seeds():
     with open(filepath, newline='') as fp:
         reader = csv.DictReader(fp, delimiter=',', quotechar='|')
         for line in reader:
-            # choices = {'a': line["a"],
-            #            'b': line["b"],
-            #            'c': line["c"],
-            #            'd': line["d"]
-            #            }
             choices=[]
-            choices.append(QuestionChoice(line["a"], 0))
-            choices.append(QuestionChoice(line["b"], 0))
-            choices.append(QuestionChoice(line["c"], 1))
-            choices.append(QuestionChoice(line["d"], 0))
+            choices.append(QuestionChoice(line["a"], 0, uuid4()))
+            choices.append(QuestionChoice(line["b"], 0, uuid4()))
+            choices.append(QuestionChoice(line["c"], 1, uuid4()))
+            choices.append(QuestionChoice(line["d"], 0, uuid4()))
             Questions(
                 question=line["Question"],
                 question_type=QuestionTypeEnum.multiple_choice,

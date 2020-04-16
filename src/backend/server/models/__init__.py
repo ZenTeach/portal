@@ -32,7 +32,7 @@ from server import ma
 class QuestionChoicesSchema(ma.ModelSchema):
     class Meta:
         model = QuestionChoice
-        fields = ('value', 'weight')
+        fields = ('value', 'uuid')
 
 class QuestionsSchema(ma.ModelSchema):
     class Meta:
