@@ -40,6 +40,7 @@ class QuizGrade(BaseModelMixin, db.Model):
 
     def update_score(self, new_score):
         self.score = new_score
+        self.save()
 
     def is_graded(self):
         self.graded = True
