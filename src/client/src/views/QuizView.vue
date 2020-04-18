@@ -37,10 +37,10 @@
                   <div :id="'div'+idx" :key="'div'+idx">
                     <input type="radio"
                       :key="idx"
-                      :name="question.question"
-                      :value="question.id + '-choice_'+idx"
+                      :name="question.id"
+                      :value="choice.uuid"
                       @input.self="appendToSelection"/>
-                    <v-label :for="choice" key="'label'+idx">{{choice}}</v-label >
+                    <v-label :for="choice" key="'label'+idx">{{choice.value}}</v-label >
                   </div>
                 </template>
               </v-radio-group>
@@ -98,8 +98,7 @@ export default {
   },
   methods: {
     appendToSelection (event) {
-      var splits = event.target.value.split('-')
-      this.selectedChoices[splits[0]] = splits[1]
+      this.selectedChoices[event.target.name] = event.target.value
     },
     submit () {
       const payload = this._collect_submission()
@@ -115,7 +114,7 @@ export default {
         data.push(
           {
             questionID: k,
-            Choice_answer: v.split('_')[1]
+            Choice_answer: v
           }
         )
       }

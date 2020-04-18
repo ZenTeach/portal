@@ -1,7 +1,7 @@
 """Update ClassQuizStatus enum
 
 Revision ID: 1cab4acb0223
-Revises: cec78c2eeafb
+Revises: 36e109d3994e
 Create Date: 2020-04-03 19:42:11.377727
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '1cab4acb0223'
-down_revision = 'cec78c2eeafb'
+down_revision = '36e109d3994e'
 branch_labels = None
 depends_on = None
 

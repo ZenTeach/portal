@@ -4,6 +4,7 @@ from server.models import ClassQuiz, QuizGrade, ClassQuizStatus, Questions, Scho
 from server import db
 from sqlalchemy.orm import load_only
 from sqlalchemy import update, and_
+from uuid import UUID
 
 class Grader(object):
     # Takes a batch of administered quizzes and grades them
@@ -52,7 +53,6 @@ class Grader(object):
             score = self._calculate_score(correct_choices_list, data)
             submission.update_score(score)
             submission.is_graded()
-            submission.save()
         # TODO: Step 2 get grade breakdown
 
     def _get_from_tuple_from_list(self, lst, val):
@@ -64,8 +64,7 @@ class Grader(object):
             correct_choice = self._get_from_tuple_from_list(
                             correct_responses,
                             response['questionID'])
-
-            if correct_choice == response['Choice_answer']:
+            if UUID(str(correct_choice)) == UUID(response['Choice_answer']):
                 cum_sum += 1
 
         return cum_sum

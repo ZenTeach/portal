@@ -30,6 +30,7 @@ class ApiService {
         } else {
           console.log('Refreshing...')
           this.session.post('/teacher/token/refresh').then(response => {
+            // TODO: handle error here
             console.log(response)
             if (response.status === 200) {
               console.log('Session Refreshed!')
