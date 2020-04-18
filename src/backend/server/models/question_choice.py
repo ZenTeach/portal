@@ -17,3 +17,6 @@ class QuestionChoice(db.Model, BaseModelMixin):
         self.weight = weight
         self.uuid = uuid
         self.feedback = feedback
+
+    def __repr__(self):
+        return 'Choice: {}'.format(self.value)
