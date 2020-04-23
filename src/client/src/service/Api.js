@@ -30,18 +30,16 @@ class ApiService {
         } else {
           console.log('Refreshing...')
           this.session.post('/teacher/token/refresh').then(response => {
-            // TODO: handle error here
-            console.log(response)
             if (response.status === 200) {
               console.log('Session Refreshed!')
               resolve(response)
-            } else {
-              const { message } = response.data
-              store.dispatch('app/TOGGLE_ERROR', message, { root: true })
-              store.dispatch('user/SIGNOUT_USER', {}, { root: true })
-              router.push({ name: 'login' })
             }
           })
+            .catch(error => {
+              store.dispatch('app/TOGGLE_ERROR', error.response.data, { root: true })
+              store.dispatch('user/SIGNOUT_USER', {}, { root: true })
+              router.push({ name: 'login' })
+            })
         }
       })
     }
