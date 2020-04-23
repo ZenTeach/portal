@@ -9,6 +9,7 @@ const state = {
   drawerMinified: false,
   error: {},
   questionSearch: [],
+  knowledgeItems: [],
   questionList: []
 }
 

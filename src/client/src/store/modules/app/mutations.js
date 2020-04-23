@@ -35,5 +35,13 @@ export default {
     if (state.questionList.length === 0) return
     const deleteIdx = state.questionList.findIndex(x => x.id === payload.id)
     state.questionList.splice(deleteIdx, 1)
+  },
+  UPDATE_KIS (state, kis) {
+    state.knowledgeItems = []
+    kis.forEach(ki => {
+      if (!existsInList(state.knowledgeItems, ki) && ki !== '') {
+        state.knowledgeItems.push(ki)
+      }
+    })
   }
 }
