@@ -1,6 +1,6 @@
 import actions from '@/store/modules/user'
 import { Store } from 'vuex-mock-store'
-import Vuex from 'vuex'
+// import Vuex from 'vuex'
 // eslint-disable-next-line import/no-webpack-loader-syntax
 const actionsInjector = require('inject-loader!./actions')
 // eslint-disable-next-line no-unused-vars
@@ -16,7 +16,7 @@ const _actions = actionsInjector({
     }
   }
 })
-const { LOGIN_USER, SIGNOUT_USER, REGISTER_USER, FETCHCURRENTUSER } = actions
+const { LOGIN_USER } = actions
 
 const mockStore = new Store({
   state: {

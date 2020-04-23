@@ -21,8 +21,14 @@ describe('App.vue', () => {
       modules: {
         user: {
           state: {
-            loggedIn: true,
-            drawer: true
+            loggedIn: false,
+            loading: false,
+            drawer: true,
+            drawerMinified: false,
+            error: {},
+            questionSearch: [],
+            knowledgeItems: [],
+            questionList: []
           },
           actions
         }

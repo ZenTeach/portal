@@ -1,5 +1,4 @@
-// eslint-disable-next-line camelcase
-import service_config from '@/service/service_config'
+import serviceConfig from '@/service/serviceConfig'
 import axios from 'axios'
 import createAuthRefreshInterceptor from 'axios-auth-refresh'
 import store from '../store'
@@ -14,7 +13,7 @@ class ApiService {
       throw new Error('Cannot construct singleton')
     }
 
-    this.session = axios.create(service_config)
+    this.session = axios.create(serviceConfig)
 
     const silentRefreshLogic = failedRequest => {
       console.log('In Auth-Refresher')
@@ -29,14 +28,18 @@ class ApiService {
           resolve()
         } else {
           console.log('Refreshing...')
-          this.session.post('/teacher/token/refresh').then(response => {
-            if (response.status === 200) {
-              console.log('Session Refreshed!')
-              resolve(response)
-            }
-          })
+          this.session
+            .post('/teacher/token/refresh')
+            .then(response => {
+              if (response.status === 200) {
+                console.log('Session Refreshed!')
+                resolve(response)
+              }
+            })
             .catch(error => {
-              store.dispatch('app/TOGGLE_ERROR', error.response.data, { root: true })
+              store.dispatch('app/TOGGLE_ERROR', error.response.data, {
+                root: true
+              })
               store.dispatch('user/SIGNOUT_USER', {}, { root: true })
               router.push({ name: 'login' })
             })
