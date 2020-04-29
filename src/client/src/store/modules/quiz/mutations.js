@@ -31,13 +31,24 @@ export default {
   SET_QUIZ_SUBJECT (state, payload) {
     state.subject = payload
   },
+
   SET_QUIZ_UUID (state, payload) {
     state.uuid = payload
   },
+
   UNSET_QUIZ_SUBJECT (state) {
     state.subject = ''
   },
+
   UNSET_QUIZ_UUID (state) {
     state.uuid = ''
+  },
+
+  SET_REPORTCARD (state, payload) {
+    state.report_card = payload
+  },
+
+  UNSET_REPORTCARD (state) {
+    state.report_card = []
   }
 }
