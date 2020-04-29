@@ -1,13 +1,13 @@
 import json
 
-from flask import Blueprint, jsonify, make_response, request
+from flask import Blueprint, jsonify, make_response, request, abort
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Api, Resource
 from jinja2 import Environment, FileSystemLoader
 from server import db, mail
 from server.api import api_logger
 from server.decorators import with_required_roles
-from server.models import ClassQuiz as ClassQuizModel, ClassQuizSchema, Teacher, Questions
+from server.models import ClassQuiz as ClassQuizModel, ClassQuizSchema, Teacher, Questions, QuizGrade, QuestionChoice
 from server.tasks import (execute_app_script, generate_gform_quiz,
                           generate_pdf, send_google_form_email, send_quiz_pdf)
 from sqlalchemy import exc
@@ -219,8 +219,18 @@ class ClassQuizGenerator(Resource):
         else:
             return make_response(jsonify(error_object), 400)
 
+class QuizReportCard(Resource):
+    @jwt_required
+    def get(self, uuid):
+        grade = QuizGrade.query.filter_by(uuid=uuid).first()
+        if not grade:
+            abort(404, "Student or quiz don't exist.")
+
+        return make_response(jsonify(grade.grade_breakdown), 200)
+
 api.add_resource(ClassQuizPing, '/class_quiz/ping')
 api.add_resource(ClassQuiz, '/class_quiz/<int:class_quiz_id>')
 api.add_resource(ClassQuizGenerator, '/class_quiz/<int:class_quiz_id>/generate')
 api.add_resource(ClassQuizGeneratorExecutor, '/class_quiz/<int:class_quiz_id>/<script_id>/generate/execute')
 api.add_resource(ClassQuizList, '/class_quiz')
+api.add_resource(QuizReportCard, '/class_quiz/report_card/<string:uuid>')
