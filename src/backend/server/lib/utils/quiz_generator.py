@@ -13,7 +13,7 @@ class QuizGenerator():
         self.output_file = ""
 
     @classmethod
-    def check_directories(self, directory):
+    def check_directories(cls, directory):
         return Path(directory).exists()
 
     def generate(self, quiz_id):

@@ -23,7 +23,7 @@
                 right="true"
                 top="true"
           >
-            {{ error.message }}
+            {{ errorMessage }}
             <v-btn dark text @click="closeErrorBar">
             Close
           </v-btn>
@@ -56,6 +56,9 @@ export default {
           state.error.constructor === Object
       }
     }),
+    errorMessage () {
+      return this.error.message || ''
+    },
     isQuizView: function () {
       const quizViewRegEx = new RegExp('(/)(quiz_view)')
       return quizViewRegEx.test(this.$route.path) || false

@@ -1,4 +1,4 @@
-import { submitQuiz, startQuiz, fetchQuiz } from '@/service/quiz_service'
+import { submitQuiz, startQuiz, fetchQuiz, fetchReportCard } from '@/service/quiz_service'
 
 export default {
   START_QUIZ ({ commit }, payload) {
@@ -20,6 +20,20 @@ export default {
         commit('SET_QUIZ_SUBJECT', subject)
         commit('SET_QUIZ_UUID', uuid)
         commit('TOGGLE_QUIZ_QUESTIONS', questions)
+      },
+      error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      }
+    )
+  },
+  FETCH_REPORTCARD ({ commit }, gradeId) {
+    fetchReportCard(gradeId).then(
+      data => {
+        console.log(data)
+        commit('UNSET_REPORTCARD')
+        commit('app/TOGGLE_APP_LOADING', true, { root: true })
+        commit('SET_REPORTCARD', data)
+        commit('app/TOGGLE_APP_LOADING', false, { root: true })
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })

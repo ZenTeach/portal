@@ -1,5 +1,5 @@
 from sqlalchemy import exc
-from flask import Blueprint, request, make_response, jsonify
+from flask import Blueprint, request, make_response, jsonify, abort
 from flask_restful import Resource, Api, reqparse
 import json
 from flask_jwt_extended import jwt_required
@@ -141,8 +141,19 @@ class QuestionSearch(Resource):
             error_object = {'message': 'Error processing request'}
             return make_response(jsonify(error_object), 500)
 
+class QuestionKIFilter(Resource):
+    @jwt_required
+    def get(self, topic):
+        if len(topic) == 0:
+            abort(404, "Topic is not given.")
+        kis = Questions.query\
+            .with_entities(Questions.knowledge_item)\
+            .filter_by(topic=topic).all()
+        response = [x[0] for x in kis]
+        return make_response(jsonify(response), 200)
 
 api.add_resource(QuestionPing, '/question/ping')
 api.add_resource(Question, '/question/<question_id>')
 api.add_resource(QuestionList, '/question')
 api.add_resource(QuestionSearch, '/question/search')
+api.add_resource(QuestionKIFilter, '/question/filter/ki/<string:topic>')

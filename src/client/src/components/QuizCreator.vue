@@ -26,6 +26,7 @@
             <v-select
               :items="questionTopics"
               required
+              @change="fetch_KIs()"
               label="Topic: "
               v-model="topicSelected"
               :rules="[() => topicSelected.length > 0 || 'You must choose at least one']"
@@ -38,7 +39,7 @@
               multiple
               chips
               required
-              :items="filteredKnowledgeItems"
+              :items="knowledgeItems"
               :rules="[() => selectedKnowledgeItems.length > 0 || 'You must choose at least one']"
               v-model="selectedKnowledgeItems"
             ></v-select>
@@ -97,7 +98,7 @@ export default {
     QuestionSearchResult
   },
   computed: {
-    ...mapState(['questionSearch', 'questionList']),
+    ...mapState(['questionSearch', 'questionList', 'knowledgeItems']),
     subject () {
       const classData = this.$store.getters['classrooms/CLASSLIST']
       const filtered = classData.find(x => {
@@ -105,11 +106,10 @@ export default {
         return x.id === classId
       })
       return filtered.subject
-    },
-    filteredKnowledgeItems () {
-      const filterKey = this.topicSelected
-      return this.questionKnowledgeItems[filterKey] || {}
     }
+    // async filteredKnowledgeItems () {
+    //   const filterKey = this.topicSelected
+    // }
   },
   data () {
     return this.initial()
@@ -152,6 +152,9 @@ export default {
     },
     populateSearchResult (e) {
       this.hasSearchResult = e
+    },
+    fetch_KIs () {
+      this.$store.dispatch('app/FETCH_KIS', this.topicSelected, { root: true })
     }
   }
 }

@@ -13,5 +13,8 @@ export default {
 
   hasSubmitted (state) {
     return state.has_submitted
+  },
+  reportCard (state) {
+    return state.report_card
   }
 }

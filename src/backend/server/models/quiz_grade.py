@@ -42,6 +42,10 @@ class QuizGrade(BaseModelMixin, db.Model):
         self.score = new_score
         self.save()
 
+    def update_grade_breakdown(self, grade_breakdown):
+        self.grade_breakdown = grade_breakdown
+        self.save()
+
     def is_graded(self):
         self.graded = True
         self.save()

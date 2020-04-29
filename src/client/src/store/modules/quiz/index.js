@@ -7,7 +7,8 @@ const state = {
   subject: '',
   uuid: '',
   has_started: false,
-  has_submitted: false
+  has_submitted: false,
+  report_card: []
 }
 
 export default {

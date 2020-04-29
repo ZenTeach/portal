@@ -19,5 +19,8 @@ export default {
   },
   getError (state) {
     return state.error
+  },
+  getKis (state) {
+    return state.knowledgeItems
   }
 }

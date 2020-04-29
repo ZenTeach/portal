@@ -65,13 +65,13 @@ class SubmitQuiz(Resource):
         if class_quiz is None:
             abort(404, "Class Quiz doesn't exist")
 
-        quiz_session = QuizSession.query.filter(QuizSession.student==student).first()
+        quiz_session = QuizSession.query.filter_by(student_id=student.id, class_quiz_id=class_quiz.id).first()
         if not quiz_session:
             abort(404, "Quiz not started")
         try:
             # check if session ended
             if quiz_session.has_session_ended():
-                abort(400, "Session has ended!")
+                abort(404, "Session has ended!")
 
             # Step 2: Store
             student.add_quiz_score(class_quiz, post_data.get('data'))

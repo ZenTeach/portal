@@ -1,12 +1,10 @@
-import { fetchQuestions } from '../../../service/questions'
+import { fetchQuestions, fetchKis } from '../../../service/questions'
 
 export default {
   QUERY_QUESTIONS ({ commit }, payload) {
     fetchQuestions(payload)
       .then(result => {
-        const {
-          data: questions
-        } = result
+        const { data: questions } = result
         commit('UPDATE_QUESTION_SEARCH', questions)
       })
       .catch(error => {
@@ -14,6 +12,15 @@ export default {
       })
   },
 
+  FETCH_KIS ({ commit }, topic) {
+    fetchKis(topic)
+      .then(result => {
+        commit('app/UPDATE_KIS', result, { root: true })
+      })
+      .catch(error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      })
+  },
   TOGGLE_ERROR ({ commit }, payload = {}) {
     commit('TOGGLE_ERROR', payload)
   }

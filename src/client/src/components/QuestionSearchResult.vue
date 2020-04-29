@@ -5,17 +5,16 @@
         <v-list-group
           sub-group
           value="false"
-          :key="item.question">
+          :key="item.question.uuid">
           <template v-slot:activator>
             <v-list-item>
               <template v-slot:default="{active, toggle}">
                 <v-list-item-action>
                   <v-checkbox
                       :ripple="false"
-                      v-model="active"
                       color="primary"
                       class="ma-2"
-                      @click.native.stop="active ? removeFromSelectedQuestions(item, toggle) : addToSelectedQuestions(item, toggle)"
+                      @click.stop="active ? removeFromSelectedQuestions(item, toggle) : addToSelectedQuestions(item, toggle)"
                     ></v-checkbox>
                 </v-list-item-action>
 
@@ -42,7 +41,7 @@
             </v-list-item>
           </template>
           <v-list-item v-for="(choice, index) in item.choices" :key="index + 1">
-            <v-list-item-content v-text="choice"></v-list-item-content>
+            <v-list-item-content v-text="choice.value"></v-list-item-content>
           </v-list-item>
         </v-list-group>
       </template>
