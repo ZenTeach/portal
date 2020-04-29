@@ -13,14 +13,12 @@
      </thead>
   <tbody>
     <template v-for="report in reports">
-      <template v-for="knowledge_item, idx in report.knowledge_items">
-        <tr :key="knowledge_item">
-          <td class="tg-cly1" :class="tg-cly1" :rowspan="report.knowledge_items.length" v-if="idx === 0">{{ report.topic }}</td>
+        <tr v-for="(knowledge_item, idx) in report.knowledge_item" :key="knowledge_item">
+          <td class="tg-cly1" :rowspan="report.knowledge_item.length" v-if="idx === 0">{{ report.topic }}</td>
           <td class="tg-0lax">{{ knowledge_item}}</td>
-          <td class="tg-0lax">{{ report.progress[idx] }}</td>
-          <td class="tg-0lax">{{ report.resources[idx]}}</td>
+          <td :class="highlightProgress(report.progress[idx])">{{ report.progress[idx] }}</td>
+          <td class="tg-0lax">{{ report.feedback[idx]}}</td>
         </tr>
-      </template>
     </template>
   </tbody>
   </template>
@@ -30,11 +28,22 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex'
+const { mapGetters } = createNamespacedHelpers('quiz')
 export default {
   name: 'ReportCard',
+  computed: {
+    ...mapGetters({ reports: 'reportCard' }),
+    uniqueId () {
+      return this.$route.params.uuid
+    }
+  },
+  mounted: async function () {
+    await this.$store.dispatch('quiz/FETCH_REPORTCARD', this.uniqueId, { root: true })
+  },
   data: () => {
     return {
-      reports: [{
+      reportsx: [{
         topic: 'Atoms and elements',
         knowledge_items: [
           'Atoms are made up of protons, neutrons and electrons',
@@ -50,7 +59,7 @@ export default {
           '1/1',
           '1/1'
         ],
-        resources: [
+        feedback: [
           'Look at this image of an atom.',
           'Look at this image of an atom.',
           'Look at this image of an atom.',
@@ -70,43 +79,65 @@ export default {
           '0/1',
           '0/1'
         ],
-        resources: [
+        feedback: [
           'This video explains electron shells quite nicely.',
           'Revise theses lesson slides.',
           'This video explains electron shells quite nicely.'
         ]
       }]
     }
+  },
+  methods: {
+    highlightProgress (progress) {
+      const parsed = progress.split('/').map(element => parseInt(element))
+      const [nom, ...denom] = parsed
+
+      if (nom === denom) {
+        return 'green'
+      } else if (nom === 0) {
+        return 'red'
+      } else {
+        return 'yellow'
+      }
+    }
   }
 }
 </script>
 
 <style scoped>
+table, caption, tbody, tfoot, thead, tr, th, td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
 table  {
-	border-collapse:collapse;
-	border-spacing:0;
+  border-collapse:collapse;
+  border-spacing:0;
 }
 table td {
-	font-family:Arial, sans-serif;
-	font-size:14px;
-	padding:10px 5px;
-	border-style:solid;
-	border-width:1px;
-	overflow:hidden;
-	word-break:normal;
-	border-color:black;
-	}
+  font-family:Arial, sans-serif;
+  font-size:14px;
+  padding:10px 5px;
+  border-style:solid;
+  border-width:1px;
+  overflow:hidden;
+  word-break:normal;
+  border-color:black;
+}
 
 table th {
-	font-family:Arial, sans-serif;
-	font-size:14px;
-	font-weight:normal;
-	padding:10px 5px;
-	border-style:solid;
-	border-width:1px;
-	overflow:hidden;
-	word-break:normal;
-	border-color:black;
+  font-family:Arial, sans-serif;
+  font-size:14px;
+  font-weight:normal;
+  padding:10px 5px;
+  border-style:solid;
+  border-width:1px;
+  overflow:hidden;
+  word-break:normal;
+  border-color:black;
 }
 .tg .tg-cly1{text-align:left;vertical-align:middle}
 </style>
