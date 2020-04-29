@@ -43,7 +43,7 @@ class Questions(BaseModelMixin, db.Model):
     knowledge_item = db.Column(db.String(256), nullable=False)
     search_vector = db.Column(TSVectorType('question'))
 
-    def __init__(self, question, question_type, subject, topic, tag, knowledge_item, uuid, correct_choice=uuid4(), choices={}):
+    def __init__(self, question, question_type, subject, topic, tag, knowledge_item, uuid=uuid4(), correct_choice=uuid4(), choices={}):
         if question_type == QuestionTypeEnum.multiple_choice:
             try:
                 MultipleChoiceSchema().validate(data=choices)

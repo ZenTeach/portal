@@ -8,7 +8,7 @@ Create Date: 2020-02-20 12:42:05.986924
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
-
+from uuid import uuid4
 # revision identifiers, used by Alembic.
 revision = '3aa9f95a57a9'
 down_revision = 'fda2319c4797'
@@ -34,6 +34,14 @@ def upgrade():
     sa.PrimaryKeyConstraint('id', 'student_id', 'class_quiz_id'),
     sa.UniqueConstraint('quiz_uuid'),
     sa.UniqueConstraint('uuid')
+    )
+    questions_table = sa.Table('questions', sa.MetaData(bind=op.get_bind()), autoload=True)
+    # Update existing models
+
+    op.execute(
+        questions_table.update()\
+            .where(sa.text('uuid is null'))
+            .values(uuid=sa.func.uuid_generate_v4())
     )
     op.alter_column('questions', 'uuid',
                existing_type=postgresql.UUID(),
