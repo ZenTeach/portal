@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, make_response, request, current_app
+from flask import Blueprint, jsonify, make_response, request, current_app, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Api, Resource
 from server import db
@@ -138,9 +138,32 @@ class SchoolClassPing(Resource):
             'message': 'Pinged school class'
         }))
 
+class SchoolClassInviteStudent(Resource):
+    @jwt_required
+    def post(self, class_id):
+        school_class = SchoolClassModel.query.filter_by(id=class_id).first()
+        if not school_class:
+            abort(404, 'School class room doesn\'t exist')
+
+        data = request.get_json()
+        try:
+            new_student = Student(**data)
+            new_student.save()
+            school_class.add_student(new_student)
+            school_class.save()
+        except exc.IntegrityError as e:
+            abort(400, 'Student missing required data.')
+        except exc.DatabaseError as e:
+            abort(500, 'Server got an error.')
+        else:
+            return make_response(jsonify({
+                'message': 'An invite to the student was sent',
+                'status': 'success'
+            }), 201)
 
 api.add_resource(SchoolClassPing, '/school_class/ping')
 api.add_resource(SchoolClass, '/school_class/<school_class_id>')
 api.add_resource(SchoolClassOwned, '/school_class/owned/<teacher_id>')
 api.add_resource(TeacherOwnedClass, '/school_class/owned')
 api.add_resource(SchoolClassList, '/school_class')
+api.add_resource(SchoolClassInviteStudent, '/school_class/<int:class_id>/student/invite')

@@ -2,8 +2,14 @@ from uuid import uuid4
 
 from sqlalchemy.dialects.postgresql import UUID
 
-from server import db
+from server import db, bcrypt
 from server.models.base_model import BaseModelMixin
+import string
+import random
+
+def randomString(stringLength=8):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
 
 
 class Student(BaseModelMixin, db.Model):
@@ -27,12 +33,12 @@ class Student(BaseModelMixin, db.Model):
     # primaryjoin="Student.id == foreign(QuizGrade.student_id)",
     # foreign_keys='QuizGrade.student_id'
 
-    def __init__(self, firstname, lastname, email, password, date_of_birth, classes, role="Student"):
+    def __init__(self, firstname, lastname, email, date_of_birth, classes=[], password=None, role="Student"):
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
-        self.password = password
-        self.date_of_birth = self.data_of_birth
+        self.password = password or bcrypt.generate_password_hash(randomString())
+        self.date_of_birth = date_of_birth
         self.role = role
 
     def __repr__(self):
