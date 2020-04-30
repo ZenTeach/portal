@@ -24,3 +24,10 @@ export function fetchQuizPDF (quizId) {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function inviteStudent (classId, payload) {
+  console.log('inviteStudent', classId, payload)
+  return Api.post(`/school_class/${classId}/student/invite`, payload)
+    .then(handleResponse)
+    .then(data => data)
+}

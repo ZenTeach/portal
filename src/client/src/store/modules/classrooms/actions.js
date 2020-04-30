@@ -1,7 +1,8 @@
 import {
   fetchClasses,
   addNewClass,
-  fetchCurrentClass
+  fetchCurrentClass,
+  inviteStudent
 } from '../../../service/classrooms'
 
 const GETCLASSES = ({ commit }) => {
@@ -16,6 +17,18 @@ const GETCLASSES = ({ commit }) => {
     })
 }
 
+const INVITE_STUDENT = ({ commit }, payload) => {
+  console.log(payload)
+  const { classId, ...studentData } = payload
+  console.log(classId, studentData)
+  inviteStudent(classId, studentData)
+    .then(data => {
+      console.log(data)
+    },
+    error => {
+      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+    })
+}
 const CREATECLASS = ({ commit }, payload) => {
   addNewClass(payload)
     .then(response => {
@@ -43,5 +56,6 @@ const GETCURRENTCLASS = ({ commit }, payload) => {
 export default {
   GETCLASSES,
   CREATECLASS,
-  GETCURRENTCLASS
+  GETCURRENTCLASS,
+  INVITE_STUDENT
 }
