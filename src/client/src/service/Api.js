@@ -42,12 +42,13 @@ class ApiService {
               })
               store.dispatch('user/SIGNOUT_USER', {}, { root: true })
               router.push({ name: 'login' })
+              reject(error)
             })
         }
       })
     }
     createAuthRefreshInterceptor(this.session, silentRefreshLogic, {
-      statusCodes: [400, 401]
+      statusCodes: [401]
     })
   }
 
