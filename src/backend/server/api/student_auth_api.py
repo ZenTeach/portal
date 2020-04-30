@@ -100,17 +100,8 @@ class TokenRefresh(Resource):
         response = jsonify({
             'refresh': True
         })
-        set_access_cookies(resp, access_token)
+        set_access_cookies(response, access_token)
         return make_response(response, 200)
-
-
-class AllStudents(Resource):
-    def get(self):
-        return {'message': 'List of Teachers'}
-
-    def delete(self):
-        return {'message': 'Delete all Teachers'}
-
 
 class CurrentUser(Resource):
     @jwt_required
@@ -128,7 +119,7 @@ class CurrentUser(Resource):
 @api.resource('/student/auth/refresh_revoke')
 class StudentAuthRefreshRevoke(Resource):
     @jwt_refresh_token_required
-    def delete():
+    def delete(self):
         jti = get_raw_jwt()['jti']
         redis_store.set(jti, 'true', REFRESH_EXPIRES * 1.2)
         return jsonify({"msg": "Refresh token revoked"}), 200
@@ -137,5 +128,4 @@ api.add_resource(StudentRegistration, '/student/registration')
 api.add_resource(StudentLogin, '/student/login')
 api.add_resource(StudentLogout, '/student/logout')
 api.add_resource(TokenRefresh, '/student/token/refresh')
-api.add_resource(AllStudents, '/students')
 api.add_resource(CurrentUser, '/student/current')
