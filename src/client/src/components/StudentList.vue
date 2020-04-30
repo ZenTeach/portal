@@ -14,16 +14,40 @@
             <td><router-link to="/report_card/1">Report card</router-link></td>
           </tr>
         </template>
+        <template v-slot:footer>
+          <v-btn color="primary" right fab dark class="ma-2 pa-2" @click="dialog = true">
+            <v-icon>mdi-plus</v-icon>
+          </v-btn>
+          <student-invite :dialogController="dialog" :classId="classId"/>
+        </template>
       </v-data-table>
   </div>
 </template>
 
 <script>
+import StudentInvite from '@/components/StudentInvite'
+import Vue from 'vue'
 
 export default {
   name: 'StudentList',
+  components: {
+    StudentInvite
+  },
   props: {
     students: Array
+  },
+  provide () {
+    return {
+      eventBus: this.eventBus
+    }
+  },
+  mounted: function () {
+    this.eventBus.$on('toggle-invite-dialog', this.toggleInviteDialog)
+  },
+  computed: {
+    classId () {
+      return parseInt(this.$route.params.id)
+    }
   },
   data: () => ({
     expand: false,
@@ -33,12 +57,16 @@ export default {
       { text: 'Email', align: 'left', value: 'email', width: 30 },
       { text: 'Report card', align: 'right', value: '', width: 30 }
     ],
-    students: []
+    dialog: false,
+    eventBus: new Vue()
   }),
-  methods: {}
+  methods: {
+    toggleInviteDialog (data) {
+      this.dialog = data
+    }
+  }
 }
 </script>
 
 <style>
-
 </style>
