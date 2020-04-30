@@ -3,8 +3,9 @@ import json
 from datetime import datetime
 from uuid import uuid4
 
-from server import db
 from sqlalchemy.dialects.postgresql import JSON, UUID
+
+from server import db
 
 from .base_model import BaseModelMixin
 

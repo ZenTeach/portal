@@ -1,11 +1,13 @@
+import enum
+from datetime import datetime
+from uuid import uuid4
+
+from sqlalchemy.dialects.postgresql import JSON, UUID
+
 from server import db
-from sqlalchemy.dialects.postgresql import JSON
 
 from .base_model import BaseModelMixin
-from datetime import datetime
-import enum
-from sqlalchemy.dialects.postgresql import JSON, UUID
-from uuid import uuid4
+
 
 # A many-to-many relationship between a Student and ClassQuiz model
 class QuizGrade(BaseModelMixin, db.Model):

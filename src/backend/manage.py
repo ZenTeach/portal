@@ -2,13 +2,14 @@ import datetime
 import operator
 import os
 import sys
-import pytest
 
 import coverage
+import pytest
 import sqlalchemy as sa
 from flask import url_for
 from flask.cli import FlaskGroup
 from flask_migrate import MigrateCommand
+
 from server import bcrypt, create_app, db
 
 app = create_app()

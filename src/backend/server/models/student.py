@@ -1,7 +1,10 @@
+from uuid import uuid4
+
+from sqlalchemy.dialects.postgresql import UUID
+
 from server import db
 from server.models.base_model import BaseModelMixin
-from uuid import uuid4
-from sqlalchemy.dialects.postgresql import UUID
+
 
 class Student(BaseModelMixin, db.Model):
 
@@ -23,6 +26,14 @@ class Student(BaseModelMixin, db.Model):
     quiz_grades = db.relationship('ClassQuiz', secondary='quiz_grade', viewonly=True)
     # primaryjoin="Student.id == foreign(QuizGrade.student_id)",
     # foreign_keys='QuizGrade.student_id'
+
+    def __init__(self, firstname, lastname, email, password, date_of_birth, classes, role="Student"):
+        self.firstname = firstname
+        self.lastname = lastname
+        self.email = email
+        self.password = password
+        self.date_of_birth = self.data_of_birth
+        self.role = role
 
     def __repr__(self):
         return '<Student %s>' % (self.firstname + " " + self.lastname)

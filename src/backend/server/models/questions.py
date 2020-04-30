@@ -1,14 +1,17 @@
-from server import db
-from sqlalchemy.dialects.postgresql import JSON
-from server.models.base_model import BaseModelMixin
-from sqlalchemy_utils.types import TSVectorType
-from sqlalchemy_searchable import SearchQueryMixin
-from random import choice
-from flask_sqlalchemy import BaseQuery
-from uuid import uuid4
 import enum
-from sqlalchemy.dialects.postgresql import UUID
-from marshmallow import Schema, fields, INCLUDE, ValidationError
+from random import choice
+from uuid import uuid4
+
+from flask_sqlalchemy import BaseQuery
+from marshmallow import INCLUDE, Schema, ValidationError, fields
+from sqlalchemy.dialects.postgresql import JSON, UUID
+from sqlalchemy_searchable import SearchQueryMixin
+from sqlalchemy_utils.types import TSVectorType
+
+from server import db
+from server.models.base_model import BaseModelMixin
+
+
 class QuestionsQuery(BaseQuery, SearchQueryMixin):
     pass
 

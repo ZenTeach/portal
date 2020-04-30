@@ -1,14 +1,16 @@
 
-import os
-from server.models import ClassQuiz,\
-     QuizGrade, ClassQuizStatus, Questions, \
-     SchoolClass, QuizSession, QuestionChoice
-from server import db
-from sqlalchemy.orm import load_only
-from sqlalchemy import update, and_
-from uuid import UUID
-from collections import namedtuple
 import json
+import os
+from collections import namedtuple
+from uuid import UUID
+
+from sqlalchemy import and_, update
+from sqlalchemy.orm import load_only
+
+from server import db
+from server.models import (ClassQuiz, ClassQuizStatus, QuestionChoice,
+                           Questions, QuizGrade, QuizSession, SchoolClass)
+
 CorrectChoice = namedtuple('CorrectChoice', ['id', 'correct_choice'])
 
 class Feedback(object):
