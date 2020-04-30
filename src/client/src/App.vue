@@ -20,13 +20,14 @@
           <v-snackbar
             v-model="this.hasError"
                 :color="errorColor"
-                right="true"
-                top="true"
+                :right="true"
+                :top="true"
+                :timeout="0"
           >
             {{ errorMessage }}
             <v-btn dark text @click="closeErrorBar">
-            Close
-          </v-btn>
+              Close
+            </v-btn>
           </v-snackbar>
         </v-container>
       </div>
