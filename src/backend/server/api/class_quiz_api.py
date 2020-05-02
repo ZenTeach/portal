@@ -1,13 +1,13 @@
 import json
 
-from flask import Blueprint, jsonify, make_response, request, abort
+from flask import Blueprint, jsonify, make_response, request, abort, send_file
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Api, Resource
 from jinja2 import Environment, FileSystemLoader
 from server import db, mail
 from server.api import api_logger
 from server.decorators import with_required_roles
-from server.models import ClassQuiz as ClassQuizModel, ClassQuizSchema, Teacher, Questions, QuizGrade, QuestionChoice
+from server.models import ClassQuiz as ClassQuizModel, ClassQuizStatus, ClassQuizSchema, Teacher, Questions, QuizGrade, QuestionChoice, StudentSchema
 from server.tasks import (execute_app_script, generate_gform_quiz,
                           generate_pdf, send_google_form_email, send_quiz_pdf)
 from sqlalchemy import exc
@@ -17,7 +17,7 @@ from weasyprint.fonts import FontConfiguration
 class_quiz_blueprint = Blueprint('class_quiz', __name__)
 api = Api(class_quiz_blueprint)
 dumper = ClassQuizSchema()
-
+students_dumper = StudentSchema(many=True)
 
 class ClassQuiz(Resource):
     @jwt_required
@@ -57,7 +57,7 @@ class ClassQuiz(Resource):
                     'message': "Deleted Quiz"
                 }
                 return make_response(response_message, 200)
-        except expression as e:
+        except exc.DatabaseError as e:
             return make_response(error_response, 404)
 
 class ClassQuizList(Resource):
@@ -99,7 +99,6 @@ class ClassQuizList(Resource):
             db.session.rollback()
             return make_response(response_object, 400)
 
-
 class ClassQuizPing(Resource):
     def get(self):
         return make_response({
@@ -130,11 +129,9 @@ class ClassQuizPDFView(Resource):
 
         return generated_file_name, 200
 
-
 @api.representation("application/pdf")
 def output_pdf(data, code, headers=None):
     return send_file(data, as_attachment=True)
-
 
 class ClassQuizGeneratorExecutor(Resource):
     @jwt_required
@@ -163,7 +160,6 @@ class ClassQuizGeneratorExecutor(Resource):
         response['message'] = 'Succeeded generating quiz'
         response['status'] = 'Success'
         return make_response(jsonify(response), 200)
-
 
 class ClassQuizGenerator(Resource):
     @jwt_required
@@ -228,9 +224,24 @@ class QuizReportCard(Resource):
 
         return make_response(jsonify(grade.grade_breakdown), 200)
 
+class QuizAttendedStudents(Resource):
+    @jwt_required
+    def get(self, class_quiz_id):
+        quiz = ClassQuizModel.query.filter_by(id=class_quiz_id, status=ClassQuizStatus.administered).first()
+        print(quiz.student_quiz_grades)
+        if len(quiz.student_quiz_grades) == 0:
+            abort(404, "Student or quiz don't exist.")
+
+        students = quiz.student_quiz_grades
+        print(students)
+        responses = students_dumper.dump(students)
+
+        return make_response(jsonify(responses))
+
 api.add_resource(ClassQuizPing, '/class_quiz/ping')
 api.add_resource(ClassQuiz, '/class_quiz/<int:class_quiz_id>')
 api.add_resource(ClassQuizGenerator, '/class_quiz/<int:class_quiz_id>/generate')
 api.add_resource(ClassQuizGeneratorExecutor, '/class_quiz/<int:class_quiz_id>/<script_id>/generate/execute')
 api.add_resource(ClassQuizList, '/class_quiz')
 api.add_resource(QuizReportCard, '/class_quiz/report_card/<string:uuid>')
+api.add_resource(QuizAttendedStudents, '/class_quiz/<int:class_quiz_id>/attended_students')

@@ -29,6 +29,10 @@ from server import ma
 #     class Meta:
 #         table = 'QuizGrade'
 
+class QuizGradeSchema(ma.ModelSchema):
+    class Meta:
+        model = QuizGrade
+        fields = ('score', 'grade_breakdown')
 
 class QuestionChoicesSchema(ma.ModelSchema):
     class Meta:
@@ -54,7 +58,7 @@ class StudentSchema(ma.ModelSchema):
     class Meta:
         model = Student
         fields = ('id', 'firstname', 'lastname', 'email',
-                  'date_of_birth', 'role', 'classes')
+                  'date_of_birth', 'role', 'classes', 'quiz_grades')
     classes = ma.List(ma.HyperlinkRelated(
         "school_class.schoolclass", url_key="school_class_id"))
 
