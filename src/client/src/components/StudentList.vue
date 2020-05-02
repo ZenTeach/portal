@@ -11,7 +11,6 @@
             <td class="text-xs-right">{{ props.item.firstname }}</td>
             <td class="text-xs-right">{{ props.item.lastname }}</td>
             <td class="text-xs-right">{{ props.item.email }}</td>
-            <td><router-link to="/report_card/1">Report card</router-link></td>
           </tr>
         </template>
         <template v-slot:footer>
