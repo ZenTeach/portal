@@ -141,8 +141,8 @@ class SchoolClassView(BaseView):
     form_excluded_columns = ['uuid', 'student_attended_classes']
 
 class StudentView(BaseView):
-    column_exclude_list = ['password', 'role', 'uuid']
-    form_excluded_columns = ['uuid', 'student_attended_classes', 'role']
+    column_exclude_list = ['password', 'role', 'uuid' ]
+    form_excluded_columns = ['uuid', 'student_attended_classes', 'role', 'quiz_sessions', 'quiz_session', 'quiz_grades', 'quiz_grade']
     column_formatters = {
         'date_of_birth': date_format
     }
