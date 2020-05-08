@@ -4,15 +4,7 @@ pipeline {
         CI = 'true'
   }
   stages {
-    stage('Clone Project') {
-      steps {
-        ws(dir: '/home/builds')
-        sh 'git clone git@github.com:ngetahun/zenteach.git'
-        dir(path: '/home/builds')
-      }
-    }
 
-		
     // Build FE
     stage("Build Frontend Project") {
       when {
