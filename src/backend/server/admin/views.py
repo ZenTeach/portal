@@ -10,7 +10,7 @@ from jinja2 import Markup
 from wtforms import SelectField, form, fields, validators
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from server.models import QuestionTypeEnum, Admin
+from server.models import QuestionTypeEnum, Admin, QuestionChoice
 from server import db as sdb
 
 from wtforms.csrf.session import SessionCSRF
@@ -106,6 +106,15 @@ class QuestionView(BaseView):
     column_formatters = {
         'choices': json_formatter,
     }
+    # TODO: Broken. Fix this
+    # form_ajax_refs = {
+    #     'correct_choice': {
+    #         'fields': (QuestionChoice.value,),
+    #         'minimum_input_length': 0,  # show suggestions, even before any user input
+    #         'placeholder': 'Please select',
+    #         'page_size': 5,
+    #     },
+    # }
     form_excluded_columns = ['uuid']
     detail_modal = True
 
