@@ -32,6 +32,9 @@ def site_map():
 def ping():
     return "pong", 200
 
+@root_api.route("/debug-sentry")
+def debug():
+    return 1/0
 # TODO: Use this to dynamically register api blueprint during app creation
 # def register_blueprints(app):
 #     """Automagically register all blueprint packages

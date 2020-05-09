@@ -10,3 +10,6 @@ class ChoiceFeedback(BaseModelMixin, db.Model):
 
     def __init__(self, content):
         self.content = content
+
+    def __repr__(self):
+        return 'Feedback: {}'.format(self.content)
