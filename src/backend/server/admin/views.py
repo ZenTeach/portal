@@ -165,5 +165,9 @@ class TeacherView(BaseView):
     }
 
 class ClassQuizView(BaseView):
-    column_exclude_list = ['uuid', 'questions', 'script_id', 'gform_id']
-    form_excluded_columns = ['uuid', 'student_attended_classes', 'created_at', 'school_class', 'student']
+    column_exclude_list = ['uuid', 'questions', 'script_id', 'gform_id', 'school_class']
+    form_excluded_columns = ['uuid', 'status', 'held_on',
+            'student_attended_classes', 'created_at',
+            'student', 'gform_id', 'script_id',
+            'student_quiz_sessions', 'student_quiz_grades',
+            'quiz_session', 'student_quiz_grade']
