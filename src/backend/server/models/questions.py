@@ -42,7 +42,7 @@ class Questions(BaseModelMixin, db.Model):
     topic = db.Column(db.String(256), nullable=True)
     tag = db.Column(db.String(128), nullable=False)
     correct_choice = db.Column(UUID(as_uuid=True), unique=True, nullable=False)
-    choices = db.relationship('QuestionChoice')
+    choices = db.relationship('QuestionChoice', backref="question")
     knowledge_item = db.Column(db.String(256), nullable=False)
     search_vector = db.Column(TSVectorType('question'))
 

@@ -1,4 +1,5 @@
 from server.models.base_model import BaseModelMixin
+from server.models import ChoiceFeedback as FeedbackModel
 from server import db
 from sqlalchemy.dialects.postgresql import UUID
 from uuid import uuid4
@@ -16,7 +17,7 @@ class QuestionChoice(db.Model, BaseModelMixin):
         self.value = value
         self.weight = weight
         self.uuid = uuid
-        self.feedback = feedback
+        self.feedback = FeedbackModel(feedback)
 
     def __repr__(self):
         return 'Choice: {}'.format(self.value)

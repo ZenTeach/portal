@@ -1,26 +1,29 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
+from secrets import token_bytes, token_urlsafe
 
-from flask_admin.contrib.sqla import ModelView
 import flask_admin as admin
-from flask import redirect, url_for, request, flash
+from flask import flash, redirect, request, session, url_for
+from flask_admin.actions import action
+from flask_admin.contrib.sqla import ModelView
+from flask_admin.form import BaseForm, Select2Field, Select2TagsField
 from flask_admin.model import typefmt
 from flask_login import current_user, login_user, logout_user
 from jinja2 import Markup
-from wtforms import SelectField, form, fields, validators
-from werkzeug.security import generate_password_hash, check_password_hash
-
-from server.models import QuestionTypeEnum, Admin, QuestionChoice
-from server import db as sdb
-
+from werkzeug.security import check_password_hash, generate_password_hash
+from wtforms import SelectField, fields, form, validators, StringField
 from wtforms.csrf.session import SessionCSRF
 from wtforms.meta import DefaultMeta
-from flask import session
-from datetime import timedelta
-from flask_admin.form import BaseForm
-from secrets import token_urlsafe, token_bytes
-from flask_admin.actions import action
-from server.models import Questions
+
+from server import db as sdb
+from server.models import Admin, Questions, QuestionTypeEnum, QuestionChoice, ChoiceFeedback
+
+from flask_admin.form import RenderTemplateWidget
+from flask_admin.model.form import InlineFormAdmin
+from flask_admin.contrib.sqla.form import InlineModelConverter
+from flask_admin.contrib.sqla.fields import InlineModelFormList
+from markupsafe import Markup
+
 
 class SecureForm(BaseForm):
     class Meta(DefaultMeta):
@@ -100,6 +103,74 @@ class ZenteachAdminIndexView(admin.AdminIndexView):
         return redirect(url_for('.index'))
 
 
+# This widget uses custom template for inline field list
+class CustomInlineFieldListWidget(RenderTemplateWidget):
+    def __init__(self):
+        super(CustomInlineFieldListWidget, self).__init__('admin/field_list.html')
+
+
+# This InlineModelFormList will use our custom widget and hide row controls
+class CustomInlineModelFormList(InlineModelFormList):
+    widget = CustomInlineFieldListWidget()
+
+    def display_row_controls(self, field):
+        return False
+
+
+# Create custom InlineModelConverter and tell it to use our InlineModelFormList
+class CustomInlineModelConverter(InlineModelConverter):
+    inline_field_list_type = CustomInlineModelFormList
+
+class ChoiceFeedbackInlineModelForm(InlineFormAdmin):
+    form_excluded_columns = ('choice', 'choice_id')
+    form_label = 'Feedback'
+    form_overrides = {
+        'content': Select2TagsField
+    }
+
+    form_ajax_refs = {
+        'content': {
+            'fields': (ChoiceFeedback.content,),
+            'minimum_input_length': 0,  # show suggestions, even before any user input
+            'placeholder': 'Please select',
+            'page_size': 5,
+        }
+    }
+
+    def __init__(self):
+        super(ChoiceFeedbackInlineModelForm, self).__init__(ChoiceFeedback)
+
+    def postprocess_form(self, form_class):
+        form_class.content = StringField('content')
+        return form_class
+
+
+# Customized inline form handler
+class QuestionChoiceInlineModelForm(InlineFormAdmin):
+    form_excluded_columns = ('question_id', 'uuid')
+    inline_models = (ChoiceFeedbackInlineModelForm(),)
+    # column_formatters = {
+    #     'feedback': feedback_formatter,
+    # }
+    form_label = 'Choice'
+
+    # form_ajax_refs = {
+    #     'feedback': {
+    #         'fields': (ChoiceFeedback.content,),
+    #         'minimum_input_length': 0,  # show suggestions, even before any user input
+    #         'placeholder': 'Please select',
+    #         'page_size': 5,
+    #     }
+    # }
+
+    def __init__(self):
+        super(QuestionChoiceInlineModelForm, self).__init__(QuestionChoice)
+
+    def postprocess_form(self, form_class):
+        form_class.value = StringField('value')
+        return form_class
+
+
 class QuestionView(BaseView):
     column_exclude_list = ['search_vector', 'uuid']
     column_filters = ('topic', 'question_type', 'subject', 'knowledge_item')
@@ -117,6 +188,9 @@ class QuestionView(BaseView):
     # }
     form_excluded_columns = ['uuid']
     detail_modal = True
+    inline_model_form_converter = CustomInlineModelConverter
+    inline_models = (QuestionChoiceInlineModelForm(),)
+
 
     def scaffold_form(self):
         form = super().scaffold_form()

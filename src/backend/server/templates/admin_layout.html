@@ -3,7 +3,10 @@
 
 {% block head_tail %}
   {{ super() }}
-  <link href="{{ url_for('static', filename='layout.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='layout.css') }}" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.12/css/select2.min.css" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.12/js/select2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/formjs/1.1.1/formjs.min.css"></script>
 {% endblock %}
 
 {% block page_body %}
