@@ -147,7 +147,7 @@ class QuestionView(BaseView):
 
 class SchoolClassView(BaseView):
     column_exclude_list = ['uuid']
-    form_excluded_columns = ['uuid', 'student_attended_classes']
+    form_excluded_columns = ['uuid', 'student_attended_classes', 'students', 'quizzes']
 
 class StudentView(BaseView):
     column_exclude_list = ['password', 'role', 'uuid' ]
