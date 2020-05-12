@@ -5,7 +5,8 @@ from secrets import token_bytes, token_urlsafe
 import flask_admin as admin
 from flask import flash, redirect, request, session, url_for
 from flask_admin.actions import action
-from flask_admin.contrib.sqla import ModelView
+from flask_admin.contrib.sqla import ModelView, ajax
+from flask_admin.contrib.sqla.fields import QuerySelectField
 from flask_admin.form import BaseForm, Select2Field, Select2TagsField
 from flask_admin.model import typefmt
 from flask_login import current_user, login_user, logout_user
@@ -171,20 +172,34 @@ class QuestionChoiceInlineModelForm(InlineFormAdmin):
         return form_class
 
 
+def correct_choice_formatter(view, context, model, name):
+    value = getattr(model, name)
+    return QuestionChoice.query.filter_by(uuid=value).first().value
+
+#def QuestionEditForm():
+
 class QuestionView(BaseView):
     column_exclude_list = ['search_vector', 'uuid']
     column_filters = ('topic', 'question_type', 'subject', 'knowledge_item')
     column_formatters = {
         'choices': json_formatter,
+        'correct_choice': correct_choice_formatter
     }
     # TODO: Broken. Fix this
-    # form_ajax_refs = {
-    #     'correct_choice': {
-    #         'fields': (QuestionChoice.value,),
-    #         'minimum_input_length': 0,  # show suggestions, even before any user input
-    #         'placeholder': 'Please select',
-    #         'page_size': 5,
-    #     },
+    form_overrides = {
+        # 'correct_choice': correct_choice_formatter
+    }
+    form_ajax_refs = {
+        # 'correct_choice': {
+        #     'fields': (QuestionChoice.value,),
+        #     'minimum_input_length': 0,  # show suggestions, even before any user input
+        #     'placeholder': 'Please select',
+        #     'page_size': 5,
+        # },
+        'correct_choice': ajax.QueryAjaxModelLoader('correct_choice', sdb.session, QuestionChoice, fields=[QuestionChoice.uuid,])
+    }
+    # form_overrides = {
+    #     'correct_choice':
     # }
     form_excluded_columns = ['uuid']
     detail_modal = True
@@ -192,6 +207,9 @@ class QuestionView(BaseView):
     inline_models = (QuestionChoiceInlineModelForm(),)
 
 
+    def edit_form(self, obj=None):
+        return super().edit_form(obj=obj)
+    # def postprocess_form
     def scaffold_form(self):
         form = super().scaffold_form()
         form.question_type = SelectField(u'Question Type', choices=[
@@ -204,6 +222,7 @@ class QuestionView(BaseView):
             ('biology', 'Biology'),
             ('physics', 'Physics')
         ])
+        # form.correct_choice = QuerySelectField(label='Correct choice', query_factory=sdb.session.query(QuestionChoice))
         return form
 
     @action('create_quiz', 'Create Quiz', 'Are you sure you want to create a quiz with the questions?')
