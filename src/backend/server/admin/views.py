@@ -12,7 +12,7 @@ from flask_admin.model import typefmt
 from flask_login import current_user, login_user, logout_user
 from jinja2 import Markup
 from werkzeug.security import check_password_hash, generate_password_hash
-from wtforms import SelectField, fields, form, validators, StringField
+from wtforms import SelectField, fields, form, validators, StringField, BooleanField, IntegerField
 from wtforms.csrf.session import SessionCSRF
 from wtforms.meta import DefaultMeta
 
@@ -24,7 +24,7 @@ from flask_admin.model.form import InlineFormAdmin
 from flask_admin.contrib.sqla.form import InlineModelConverter
 from flask_admin.contrib.sqla.fields import InlineModelFormList
 from markupsafe import Markup
-
+from flask_admin.model.fields import AjaxSelectField
 
 class SecureForm(BaseForm):
     class Meta(DefaultMeta):
@@ -104,6 +104,15 @@ class ZenteachAdminIndexView(admin.AdminIndexView):
         return redirect(url_for('.index'))
 
 
+class QuestionChoiceForm(form.Form):
+    value = StringField("Choice value", validators=[validators.InputRequired()])
+    is_correct = BooleanField("Mark as correct")
+    feedback = StringField("Choice Feedback", validators=[validators.DataRequired()])
+    weight = IntegerField("Choice weight")
+
+    def populate_obj(self, obj):
+        pass
+
 # This widget uses custom template for inline field list
 class CustomInlineFieldListWidget(RenderTemplateWidget):
     def __init__(self):
@@ -117,52 +126,14 @@ class CustomInlineModelFormList(InlineModelFormList):
     def display_row_controls(self, field):
         return False
 
-
-# Create custom InlineModelConverter and tell it to use our InlineModelFormList
 class CustomInlineModelConverter(InlineModelConverter):
     inline_field_list_type = CustomInlineModelFormList
 
-class ChoiceFeedbackInlineModelForm(InlineFormAdmin):
-    form_excluded_columns = ('choice', 'choice_id')
-    form_label = 'Feedback'
-    form_overrides = {
-        'content': Select2TagsField
-    }
-
-    form_ajax_refs = {
-        'content': {
-            'fields': (ChoiceFeedback.content,),
-            'minimum_input_length': 0,  # show suggestions, even before any user input
-            'placeholder': 'Please select',
-            'page_size': 5,
-        }
-    }
-
-    def __init__(self):
-        super(ChoiceFeedbackInlineModelForm, self).__init__(ChoiceFeedback)
-
-    def postprocess_form(self, form_class):
-        form_class.content = StringField('content')
-        return form_class
-
-
 # Customized inline form handler
 class QuestionChoiceInlineModelForm(InlineFormAdmin):
-    form_excluded_columns = ('question_id', 'uuid')
-    inline_models = (ChoiceFeedbackInlineModelForm(),)
-    # column_formatters = {
-    #     'feedback': feedback_formatter,
-    # }
+    form = QuestionChoiceForm
+    form_excluded_columns = ('question_id', 'uuid', 'question')
     form_label = 'Choice'
-
-    # form_ajax_refs = {
-    #     'feedback': {
-    #         'fields': (ChoiceFeedback.content,),
-    #         'minimum_input_length': 0,  # show suggestions, even before any user input
-    #         'placeholder': 'Please select',
-    #         'page_size': 5,
-    #     }
-    # }
 
     def __init__(self):
         super(QuestionChoiceInlineModelForm, self).__init__(QuestionChoice)
@@ -171,59 +142,51 @@ class QuestionChoiceInlineModelForm(InlineFormAdmin):
         form_class.value = StringField('value')
         return form_class
 
+    def get_create_form(self):
+        return QuestionChoiceForm
 
 def correct_choice_formatter(view, context, model, name):
     value = getattr(model, name)
     return QuestionChoice.query.filter_by(uuid=value).first().value
 
-#def QuestionEditForm():
+class QuestionForm(form.Form):
+    question = StringField("Question")
+        # question_type = SelectField("Question Type", choices=[])
+    question_type = SelectField(u'Question Type', choices=[
+            ('multiple_choice', 'Multiple Choice'),
+            ('short_answer', 'Short Answer'),
+            ('long_answer', 'Long Answer')
+        ])
+    subject = SelectField(u'Subject', choices=[
+            ('chemistry', 'Chemistry'),
+            ('biology', 'Biology'),
+            ('physics', 'Physics')
+        ])
+    topic = StringField("Topic")
+    tag = StringField("Tag")
+    knowledge_item = StringField("Knowledge Item")
 
 class QuestionView(BaseView):
+    form = QuestionForm
     column_exclude_list = ['search_vector', 'uuid']
     column_filters = ('topic', 'question_type', 'subject', 'knowledge_item')
     column_formatters = {
         'choices': json_formatter,
         'correct_choice': correct_choice_formatter
     }
-    # TODO: Broken. Fix this
-    form_overrides = {
-        # 'correct_choice': correct_choice_formatter
-    }
-    form_ajax_refs = {
-        # 'correct_choice': {
-        #     'fields': (QuestionChoice.value,),
-        #     'minimum_input_length': 0,  # show suggestions, even before any user input
-        #     'placeholder': 'Please select',
-        #     'page_size': 5,
-        # },
-        'correct_choice': ajax.QueryAjaxModelLoader('correct_choice', sdb.session, QuestionChoice, fields=[QuestionChoice.uuid,])
-    }
-    # form_overrides = {
-    #     'correct_choice':
-    # }
-    form_excluded_columns = ['uuid']
+    form_excluded_columns = ['uuid', 'choices', 'correct_choice']
     detail_modal = True
     inline_model_form_converter = CustomInlineModelConverter
     inline_models = (QuestionChoiceInlineModelForm(),)
 
+    def edit_form(self, obj):
+        import pdb; pdb.set_trace()
+        edit_form = super().edit_form(obj=obj)
+        edit_form.correct_choice = None
 
-    def edit_form(self, obj=None):
-        return super().edit_form(obj=obj)
-    # def postprocess_form
-    def scaffold_form(self):
-        form = super().scaffold_form()
-        form.question_type = SelectField(u'Question Type', choices=[
-            ('multiple_choice', 'Multiple Choice'),
-            ('short_answer', 'Short Answer'),
-            ('long_answer', 'Long Answer')
-        ])
-        form.subject = SelectField(u'Subject', choices=[
-            ('chemistry', 'Chemistry'),
-            ('biology', 'Biology'),
-            ('physics', 'Physics')
-        ])
-        # form.correct_choice = QuerySelectField(label='Correct choice', query_factory=sdb.session.query(QuestionChoice))
-        return form
+    # def scaffold_form(self):
+    #     form = super().scaffold_form()
+    #     return form
 
     @action('create_quiz', 'Create Quiz', 'Are you sure you want to create a quiz with the questions?')
     def action_approve(self, ids):

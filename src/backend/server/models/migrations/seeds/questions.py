@@ -25,7 +25,7 @@ def question_seeds():
                 topic=line["Topic"],
                 tag=line["TAG"],
                 knowledge_item=line["KnowledgeItem"],
+                correct_choice=choice([ x for x in choices]),
                 uuid=uuid4(),
-                choices=choices,
-                correct_choice=choice([ x.uuid for x in choices])
+                choices=choices
             ).save()

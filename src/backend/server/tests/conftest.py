@@ -1,17 +1,24 @@
 from server import create_app, db
 import pytest
+import os
 import pytest_mock
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 import mock
 from pytest_factoryboy import register, LazyFixture
-from server.tests.factories import StudentFactory, TeacherFactory, SchoolClassFactory, ClassQuizFactory, ClassQuizScoreFactory
+from server.tests.factories import StudentFactory, TeacherFactory, SchoolClassFactory, ClassQuizFactory, QuizGradeFactory, QuizSessionFactory, QuestionsFactory, QuestionChoiceFactory
 
-register(StudentFactory, "student")
-register(TeacherFactory, "teacher")
-register(SchoolClassFactory, "school_class")
-         #_postgen_dependencies=["teacher__id"])
 register(ClassQuizFactory, "class_quiz")
-         #_postgen_dependencies=["school_class__id"])
-# register(ClassQuizScoreFactory)
+register(SchoolClassFactory, "school_class")
+register(TeacherFactory, "teacher")
+register(QuizGradeFactory, "quiz_grade")
+register(QuizSessionFactory, "quiz_session")
+register(StudentFactory, "student")
+register(QuestionsFactory, "questions")
+register(QuestionChoiceFactory)
+@pytest.fixture(scope="session")
+def engine():
+    return create_engine(os.environ.get('DATABASE_TEST_URL'))
 
 
 @pytest.fixture(scope="function")
@@ -23,6 +30,18 @@ def client():
         yield app.test_client()
         db.session.remove()  # looks like db.session.close() would work as well
         db.drop_all()
+
+
+@pytest.yield_fixture
+def dbsession(engine):
+    """Returns an sqlalchemy session, and after the test tears down everything properly."""
+    connection = engine.connect()
+    transaction = connection.begin()
+    session = Session(bind=connection)
+    yield session
+    session.close()
+    transaction.rollback()
+    connection.close()
 
 @pytest.fixture(autouse=True)
 def after_each_cleanup(mocker):

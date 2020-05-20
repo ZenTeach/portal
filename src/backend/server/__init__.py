@@ -20,10 +20,12 @@ if sentry_dsn_key:
     import sentry_sdk
     from sentry_sdk.integrations.flask import FlaskIntegration
     from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+    from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.redis import RedisIntegration
 
     sentry_sdk.init(
         dsn=sentry_dsn_key,
-        integrations=[FlaskIntegration(), SqlalchemyIntegration()]
+        integrations=[FlaskIntegration(), SqlalchemyIntegration(), CeleryIntegration(), RedisIntegration()]
     )
 
 def configure_logging():
