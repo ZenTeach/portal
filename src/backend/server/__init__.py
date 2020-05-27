@@ -32,6 +32,8 @@ def configure_logging():
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger('werkzeug').setLevel(logging.INFO)
 
+mpl_logger = logging.getLogger('matplotlib')
+mpl_logger.setLevel(logging.WARNING)
 
 class RequestFormatter(logging.Formatter):
     def format(self, record):

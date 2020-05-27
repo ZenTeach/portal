@@ -10,9 +10,9 @@ from .teacher import Teacher
 from .admin import Admin
 from .quiz_grade import QuizGrade
 from .quiz_session import QuizSession
-from .questions import Questions, QuestionTypeEnum
 from .feedback import ChoiceFeedback
 from .question_choice import QuestionChoice
+from .questions import Questions, QuestionTypeEnum
 from .migrations.seeds import run_seed
 
 __all__ = ['ClassQuiz', 'ClassQuizStatus', 'ClassQuizSchema', 'Teacher', 'TeacherSchema',

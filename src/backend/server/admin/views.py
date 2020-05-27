@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from secrets import token_bytes, token_urlsafe
 
 import flask_admin as admin
+from flask_admin import expose
 from flask import flash, redirect, request, session, url_for
 from flask_admin.actions import action
 from flask_admin.contrib.sqla import ModelView, ajax
@@ -17,7 +18,7 @@ from wtforms.csrf.session import SessionCSRF
 from wtforms.meta import DefaultMeta
 
 from server import db as sdb
-from server.models import Admin, Questions, QuestionTypeEnum, QuestionChoice, ChoiceFeedback
+from server.models import Admin, Questions, QuestionTypeEnum, QuestionChoice, ChoiceFeedback, Student
 
 from flask_admin.form import RenderTemplateWidget
 from flask_admin.model.form import InlineFormAdmin
@@ -124,7 +125,10 @@ class CustomInlineModelFormList(InlineModelFormList):
     widget = CustomInlineFieldListWidget()
 
     def display_row_controls(self, field):
-        return False
+        return True
+    def populate_obj(self, obj, name):
+        import pdb; pdb.set_trace()
+        # return super().populate_obj(obj, name)
 
 class CustomInlineModelConverter(InlineModelConverter):
     inline_field_list_type = CustomInlineModelFormList
@@ -140,14 +144,18 @@ class QuestionChoiceInlineModelForm(InlineFormAdmin):
 
     def postprocess_form(self, form_class):
         form_class.value = StringField('value')
+        form_class.is_correct_choice = BooleanField("Is this the correct choice?")
         return form_class
+
+    # def get_form(self):
+    #     import pdb; pdb.set_trace()
 
     def get_create_form(self):
         return QuestionChoiceForm
 
 def correct_choice_formatter(view, context, model, name):
     value = getattr(model, name)
-    return QuestionChoice.query.filter_by(uuid=value).first().value
+    return QuestionChoice.query.filter_by(id=value).first().value
 
 class QuestionForm(form.Form):
     question = StringField("Question")
@@ -165,28 +173,38 @@ class QuestionForm(form.Form):
     topic = StringField("Topic")
     tag = StringField("Tag")
     knowledge_item = StringField("Knowledge Item")
-
+    # correct_choice = QuerySelectField('Correct Choice', query_factory=QuestionChoice.query)
 class QuestionView(BaseView):
-    form = QuestionForm
+    # form = QuestionForm
     column_exclude_list = ['search_vector', 'uuid']
     column_filters = ('topic', 'question_type', 'subject', 'knowledge_item')
     column_formatters = {
         'choices': json_formatter,
-        'correct_choice': correct_choice_formatter
+        'correct_choice_id': correct_choice_formatter
     }
-    form_excluded_columns = ['uuid', 'choices', 'correct_choice']
+    form_excluded_columns = ['uuid', 'choices', 'correct_choice', 'correct_choice_id']
     detail_modal = True
     inline_model_form_converter = CustomInlineModelConverter
     inline_models = (QuestionChoiceInlineModelForm(),)
 
     def edit_form(self, obj):
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         edit_form = super().edit_form(obj=obj)
-        edit_form.correct_choice = None
+        # edit_form = QuestionForm(obj=obj)
+        # edit_form.correct_choice = QuerySelectField('Correct Choice', query_factory=Questions.query, )
+        return edit_form
 
-    # def scaffold_form(self):
-    #     form = super().scaffold_form()
-    #     return form
+    def create_model(self, form):
+        # import pdb; pdb.set_trace()
+        try:
+            return Questions.create_from_admin_form(form.data)
+        except Exception as e:
+            flash("Failed to create record: %(error)s".format(error=str(e)), 'error')
+
+    def on_model_change(self, form, model, is_created):
+        if not is_created: # Model updated
+            print(form)
+            import pdb; pdb.set_trace()
 
     @action('create_quiz', 'Create Quiz', 'Are you sure you want to create a quiz with the questions?')
     def action_approve(self, ids):
@@ -206,7 +224,8 @@ class SchoolClassView(BaseView):
     form_excluded_columns = ['uuid', 'student_attended_classes', 'students', 'quizzes']
 
 class StudentView(BaseView):
-    column_exclude_list = ['password', 'role', 'uuid' ]
+    # TODO: Editing school class has no effect
+    column_exclude_list = ['password', 'role', 'uuid', 'password']
     form_excluded_columns = ['uuid', 'student_attended_classes', 'role', 'quiz_sessions', 'quiz_session', 'quiz_grades', 'quiz_grade']
     column_formatters = {
         'date_of_birth': date_format
@@ -214,7 +233,7 @@ class StudentView(BaseView):
 
 # TODO: remove password field from edit form
 class TeacherView(BaseView):
-    column_exclude_list = ['password', 'role', 'uuid']
+    column_exclude_list = ['password', 'role', 'uuid', 'password']
     form_excluded_columns = ['uuid', 'student_attended_classes', 'role']
     column_formatters = {
         'date_of_birth': date_format
