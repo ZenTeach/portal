@@ -20,7 +20,6 @@ class Student(BaseModelMixin, db.Model):
     lastname = db.Column(db.String(256), nullable=False)
     email = db.Column(db.String(128), nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    date_of_birth = db.Column(db.DateTime, nullable=False)
     role = db.Column(db.String(128), nullable=False)
 
     classes = db.relationship('SchoolClass',
@@ -28,22 +27,19 @@ class Student(BaseModelMixin, db.Model):
 
     quiz_sessions = db.relationship('ClassQuiz', secondary='quiz_session', viewonly=True)
 
-    # TODO: Fix this relationship, keeps throwing sqlalchemy.exc.NoForeignKeysError
     quiz_grades = db.relationship('ClassQuiz', secondary='quiz_grade', viewonly=True)
-    # primaryjoin="Student.id == foreign(QuizGrade.student_id)",
-    # foreign_keys='QuizGrade.student_id'
 
-    def __init__(self, firstname, lastname, email, date_of_birth, classes=[], password=None, role="Student"):
+    def __init__(self, firstname, lastname, email, classes=[], password=None, role="Student"):
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
         self.password = password or bcrypt.generate_password_hash(randomString())
-        self.date_of_birth = date_of_birth
         self.role = role
 
     def __repr__(self):
         return '<Student %s>' % (self.firstname + " " + self.lastname)
 
+    @property
     def full_name(self):
         return "{} {}".format(self.firstname, self.lastname)
 
@@ -52,3 +48,22 @@ class Student(BaseModelMixin, db.Model):
         self.quiz_grade.append(
             QuizGrade(student=self, class_quiz=quiz, responses=response)
         )
+
+    @classmethod
+    def create_from_list(cls, lst):
+        if len(lst) == 0:
+            return
+        errors = []
+        # TODO: Finish this
+        # import pdb; pdb.set_trace()
+        instance = None
+        added_students = []
+        for it in lst:
+            try:
+                instance = cls(**it)
+                instance.save()
+            except Exception as e:
+                errors.append(str(e))
+            else:
+                added_students.append(instance)
+        return errors, added_students

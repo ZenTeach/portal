@@ -10,6 +10,7 @@ from sqlalchemy_utils.types import TSVectorType
 
 from server import db
 from server.models.base_model import BaseModelMixin
+from server.models import QuestionChoice
 
 
 class QuestionsQuery(BaseQuery, SearchQueryMixin):
@@ -29,6 +30,7 @@ class MultipleChoiceSchema(Schema):
     c=fields.Str(required=True)
     d=fields.Str(required=True)
 
+
 class Questions(BaseModelMixin, db.Model):
     __tablename__ = 'questions'
     query_class = QuestionsQuery
@@ -41,25 +43,56 @@ class Questions(BaseModelMixin, db.Model):
     subject = db.Column(db.String(256), nullable=False)
     topic = db.Column(db.String(256), nullable=True)
     tag = db.Column(db.String(128), nullable=False)
-    correct_choice = db.relationship('QuestionChoice', uselist=False, back_populates="referenced_question")
+    # correct_choice = db.relationship('QuestionChoice', uselist=False, back_populates="referenced_question")
+    correct_choice_id = db.Column(db.Integer, nullable=False)
     choices = db.relationship('QuestionChoice', backref="question")
     knowledge_item = db.Column(db.String(256), nullable=False)
     search_vector = db.Column(TSVectorType('question'))
 
-    # def __init__(self, question, question_type, subject, topic, tag, knowledge_item, correct_choice=None, uuid=uuid4(), choices={}):
-    #     if question_type == QuestionTypeEnum.multiple_choice:
-    #         try:
-    #             MultipleChoiceSchema().validate(data=choices)
-    #         except ValidationError as err:
-    #             print(err)
-    #             raise
+    def __init__(self, question, question_type, subject, topic, tag, knowledge_item, correct_choice_id, uuid=uuid4(), choices=[]):
+        if question_type == QuestionTypeEnum.multiple_choice:
+            try:
+                MultipleChoiceSchema().validate(data=choices)
+            except ValidationError as err:
+                print(err)
+                raise
 
-    #     self.question = question
-    #     self.question_type = question_type
-    #     self.subject = subject
-    #     self.topic = topic
-    #     self.tag = tag
-    #     self.knowledge_item = knowledge_item
-    #     self.uuid = uuid
-    #     self.correct_choice = correct_choice
-    #     self.choices = choices
+        self.question = question
+        self.question_type = question_type
+        self.subject = subject
+        self.topic = topic
+        self.tag = tag
+        self.knowledge_item = knowledge_item
+        self.uuid = uuid
+        self.correct_choice_id = correct_choice_id
+        self.choices = choices
+
+    @classmethod
+    def create_from_admin_form(cls, data):
+        print(data)
+        # create choices
+        created_choice = []
+        correct_choice_id = None
+        for choice in data["choices"]:
+            interim = QuestionChoice(choice["value"], choice["feedback"], choice["weight"], uuid4())
+            interim.save()
+            if choice["is_correct_choice"] and correct_choice_id is None:
+                correct_choice_id = interim.id
+            created_choice.append(interim)
+        instance = cls(
+            data["question"],
+            data["question_type"],
+            data["subject"],
+            data["topic"],
+            data["tag"],
+            data["knowledge_item"],
+            correct_choice_id,
+            uuid=uuid4(),
+            choices=created_choice
+        )
+        instance.save()
+        # instance.set_correct_choice()
+
+    @classmethod
+    def empty_instance(cls):
+        return cls()

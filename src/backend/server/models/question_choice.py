@@ -8,7 +8,7 @@ class QuestionChoice(db.Model, BaseModelMixin):
     __tablename__ = 'question_choice'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
-    referenced_question =  db.relationship('Questions', back_populates="correct_choice")
+    # referenced_question =  db.relationship('Questions', back_populates="correct_choice")
     value = db.Column(db.String(256), nullable=False)
     weight = db.Column(db.Integer, nullable=False, default=0)
     feedback = db.relationship('ChoiceFeedback', uselist=False, back_populates='choice')
@@ -18,7 +18,10 @@ class QuestionChoice(db.Model, BaseModelMixin):
         self.value = value
         self.weight = weight
         self.uuid = uuid
-        self.feedback = FeedbackModel(feedback)
+        if type(feedback) == FeedbackModel:
+            self.feedback = feedback
+        else: # string input
+            self.feedback = FeedbackModel(feedback)
 
     def __repr__(self):
         return 'Choice: {}'.format(self.value)
