@@ -128,13 +128,12 @@ class CustomInlineModelConverter(InlineModelConverter):
 
 class QuestionChoiceInlineModelForm(InlineFormAdmin):
     form_excluded_columns = ('question_id', 'uuid', 'question')
-    form_label = 'Choice'
+    form_label = 'Choices'
 
     def __init__(self):
         super(QuestionChoiceInlineModelForm, self).__init__(QuestionChoice)
 
     def postprocess_form(self, form_class):
-        form_class.value = StringField('value')
         form_class.is_correct_choice = BooleanField("Is this the correct choice?")
         return form_class
 
@@ -237,6 +236,7 @@ class TeacherView(BaseView):
     }
 
 class ClassQuizView(BaseView):
+    can_create = False
     column_exclude_list = ['uuid', 'questions', 'script_id', 'gform_id', 'school_class']
     form_excluded_columns = ['uuid', 'status', 'held_on',
             'student_attended_classes', 'created_at',
