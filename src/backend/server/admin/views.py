@@ -107,35 +107,26 @@ class ZenteachAdminIndexView(admin.AdminIndexView):
 
 class QuestionChoiceForm(form.Form):
     value = StringField("Choice value", validators=[validators.InputRequired()])
-    is_correct = BooleanField("Mark as correct")
     feedback = StringField("Choice Feedback", validators=[validators.DataRequired()])
     weight = IntegerField("Choice weight")
+    is_correct_choice = BooleanField("Is this the correct choice?")
 
-    def populate_obj(self, obj):
-        pass
 
 # This widget uses custom template for inline field list
 class CustomInlineFieldListWidget(RenderTemplateWidget):
     def __init__(self):
         super(CustomInlineFieldListWidget, self).__init__('admin/field_list.html')
 
-
-# This InlineModelFormList will use our custom widget and hide row controls
 class CustomInlineModelFormList(InlineModelFormList):
     widget = CustomInlineFieldListWidget()
 
     def display_row_controls(self, field):
         return True
-    def populate_obj(self, obj, name):
-        import pdb; pdb.set_trace()
-        # return super().populate_obj(obj, name)
 
 class CustomInlineModelConverter(InlineModelConverter):
     inline_field_list_type = CustomInlineModelFormList
 
-# Customized inline form handler
 class QuestionChoiceInlineModelForm(InlineFormAdmin):
-    form = QuestionChoiceForm
     form_excluded_columns = ('question_id', 'uuid', 'question')
     form_label = 'Choice'
 
@@ -147,40 +138,44 @@ class QuestionChoiceInlineModelForm(InlineFormAdmin):
         form_class.is_correct_choice = BooleanField("Is this the correct choice?")
         return form_class
 
-    # def get_form(self):
-    #     import pdb; pdb.set_trace()
-
-    def get_create_form(self):
-        return QuestionChoiceForm
 
 def correct_choice_formatter(view, context, model, name):
     value = getattr(model, name)
     return QuestionChoice.query.filter_by(id=value).first().value
 
-class QuestionForm(form.Form):
-    question = StringField("Question")
-        # question_type = SelectField("Question Type", choices=[])
-    question_type = SelectField(u'Question Type', choices=[
-            ('multiple_choice', 'Multiple Choice'),
-            ('short_answer', 'Short Answer'),
-            ('long_answer', 'Long Answer')
-        ])
-    subject = SelectField(u'Subject', choices=[
-            ('chemistry', 'Chemistry'),
-            ('biology', 'Biology'),
-            ('physics', 'Physics')
-        ])
-    topic = StringField("Topic")
-    tag = StringField("Tag")
-    knowledge_item = StringField("Knowledge Item")
-    # correct_choice = QuerySelectField('Correct Choice', query_factory=QuestionChoice.query)
+def one_correct_choice_validator(form_data, field):
+        message = "Please select exactly one correct choice"
+        # FIX: Buggy validator, seems to not work during creation
+        selected_correct_choice = [int(x['id']) for x in form_data['choices'] if x.get(field) == True]
+        if len(selected_correct_choice) != 1:
+                # Throw error
+                raise validators.ValidationError(message)
+
+def selected_correct_choice(form_data, field):
+    return [int(x['id']) for x in form_data['choices'] if x.get(field) == True][0]
+
 class QuestionView(BaseView):
-    # form = QuestionForm
     column_exclude_list = ['search_vector', 'uuid']
     column_filters = ('topic', 'question_type', 'subject', 'knowledge_item')
     column_formatters = {
         'choices': json_formatter,
         'correct_choice_id': correct_choice_formatter
+    }
+    form_overrides = {
+        'subject': SelectField,
+        'question_type': SelectField
+    }
+    form_args = {
+        'subject': dict(choices=[
+            ('chemistry', 'Chemistry'),
+            ('biology', 'Biology'),
+            ('physics', 'Physics')
+        ]),
+        'question_type': dict(choices=[
+            ('multiple_choice', 'Multiple Choice'),
+            ('short_answer', 'Short Answer'),
+            ('long_answer', 'Long Answer')
+        ])
     }
     form_excluded_columns = ['uuid', 'choices', 'correct_choice', 'correct_choice_id']
     detail_modal = True
@@ -188,36 +183,31 @@ class QuestionView(BaseView):
     inline_models = (QuestionChoiceInlineModelForm(),)
 
     def edit_form(self, obj):
-        # import pdb; pdb.set_trace()
+        # handle correct question choice updates
+        choice_id = obj.correct_choice_id
+        for choice in obj.choices:
+            if choice.id == choice_id:
+                choice.is_correct_choice = True
+
         edit_form = super().edit_form(obj=obj)
-        # edit_form = QuestionForm(obj=obj)
-        # edit_form.correct_choice = QuerySelectField('Correct Choice', query_factory=Questions.query, )
         return edit_form
 
     def create_model(self, form):
-        # import pdb; pdb.set_trace()
+        # Validations
+        one_correct_choice_validator(form.data, 'is_correct_choice')
         try:
-            return Questions.create_from_admin_form(form.data)
+            Questions.create_from_admin_form(form.data)
+            return redirect(url_for('admin.question.index_view'))
         except Exception as e:
             flash("Failed to create record: %(error)s".format(error=str(e)), 'error')
 
     def on_model_change(self, form, model, is_created):
         if not is_created: # Model updated
-            print(form)
-            import pdb; pdb.set_trace()
-
-    @action('create_quiz', 'Create Quiz', 'Are you sure you want to create a quiz with the questions?')
-    def action_approve(self, ids):
-        try:
-            # Given ids of questions,
-            # Create quiz
-            print(ids)
-
-            flash("Success")
-        except Exception as ex:
-            if not self.handle_view_exception(ex):
-                raise
-            flash("Failed to create quiz.")
+            _selected_correct_choice = selected_correct_choice(form.data, 'is_correct_choice')
+            one_correct_choice_validator(form.data, 'is_correct_choice')
+            model.correct_choice_id = _selected_correct_choice
+            model.save()
+            return redirect(url_for('admin.question.index_view'))
 
 class SchoolClassView(BaseView):
     column_exclude_list = ['uuid']
