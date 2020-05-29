@@ -23,5 +23,16 @@ class QuestionChoice(db.Model, BaseModelMixin):
         else: # string input
             self.feedback = FeedbackModel(feedback)
 
+    @property
+    def is_correct_choice(self):
+        if not hasattr(self, '_is_correct_choice'):
+            self._is_correct_choice = False
+
+        return self._is_correct_choice
+
+    @is_correct_choice.setter
+    def is_correct_choice(self, val):
+        self._is_correct_choice = val
+
     def __repr__(self):
         return 'Choice: {}'.format(self.value)
