@@ -216,12 +216,19 @@ class SchoolClassView(BaseView):
 class StudentView(BaseView):
     # TODO: Editing school class has no effect
     column_exclude_list = ['password', 'role', 'uuid', 'password']
-    form_excluded_columns = ['uuid', 'student_attended_classes', 'role', 'quiz_sessions', 'quiz_session', 'quiz_grades', 'quiz_grade']
+    form_excluded_columns = ['uuid', 'student_attended_classes', 'role', 'quiz_sessions', 'quiz_session', 'quiz_grades', 'quiz_grade', 'password']
     column_formatters = {
         'date_of_birth': date_format
     }
 
-# TODO: remove password field from edit form
+    def create_model(self, form):
+        try:
+            instance = Student(form.data['firstname'], form.data['lastname'], form.data['email'])
+            instance.save()
+            return redirect(url_for('admin.student.index_view'))
+        except Exception as e:
+            flash("Failed to create record: {}".format(str(e)), 'error')
+
 class TeacherView(BaseView):
     column_exclude_list = ['password', 'role', 'uuid', 'password']
     form_excluded_columns = ['uuid', 'student_attended_classes', 'role']
