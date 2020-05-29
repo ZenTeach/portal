@@ -33,7 +33,10 @@ class Student(BaseModelMixin, db.Model):
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
-        self.password = password or bcrypt.generate_password_hash(randomString())
+        if password is None:
+            self.password = bcrypt.generate_password_hash(randomString())
+        else:
+            self.password = password
         self.role = role
 
     def __repr__(self):
@@ -54,8 +57,6 @@ class Student(BaseModelMixin, db.Model):
         if len(lst) == 0:
             return
         errors = []
-        # TODO: Finish this
-        # import pdb; pdb.set_trace()
         instance = None
         added_students = []
         for it in lst:
