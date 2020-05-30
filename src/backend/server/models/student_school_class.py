@@ -22,4 +22,4 @@ class StudentAttendedClass(BaseModelMixin, db.Model):
         self.school_class = school_class
 
     def __repr__(self):
-        return '<StudentAttendedClass {}>'.format(self.school_class.name+" "+self.student.full_name())
+        return '<StudentAttendedClass {}>'.format(self.school_class.name+" "+self.student.full_name)
