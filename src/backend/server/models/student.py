@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import event
 
 from server import db, bcrypt
 from server.models.base_model import BaseModelMixin
@@ -68,3 +69,12 @@ class Student(BaseModelMixin, db.Model):
             else:
                 added_students.append(instance)
         return errors, added_students
+
+
+@event.listens_for(Student.classes, 'append')
+def student_class_append_listener(target, value, initiator):
+    value.add_student(target)
+
+@event.listens_for(Student.classes, 'remove')
+def student_class_remove_listener(target, value, initiator):
+    db.engine.execute("DELETE FROM student_attended_class WHERE school_class_id=%s AND student_id=%s", value.id, target.id)
