@@ -213,7 +213,6 @@ class SchoolClassView(BaseView):
     form_excluded_columns = ['uuid', 'student_attended_classes', 'students', 'quizzes']
 
 class StudentView(BaseView):
-    # TODO: Editing school class has no effect
     column_exclude_list = ['password', 'role', 'uuid', 'password']
     form_excluded_columns = ['uuid', 'student_attended_classes', 'role', 'quiz_sessions', 'quiz_session', 'quiz_grades', 'quiz_grade', 'password']
     column_formatters = {
