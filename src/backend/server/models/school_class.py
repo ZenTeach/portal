@@ -23,7 +23,7 @@ class SchoolClass(BaseModelMixin, db.Model):
     quizzes = db.relationship('ClassQuiz', backref='school_class', lazy=True)
 
     def __repr__(self):
-        return '<SchoolClass %r>' % self.name
+        return '<Classroom: %r>' % self.name
 
     def add_student(self, student):
         from .student_school_class import StudentAttendedClass

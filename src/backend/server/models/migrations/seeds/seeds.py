@@ -14,8 +14,8 @@ def seeds():
             password=password.decode('utf-8'), role="Admin", uuid=uuid4()).save()
 
     # Student
-    Student(firstname="peter", lastname="griffin", date_of_birth="01-01-2002",
-            email="peter.griffin@example.com", password=password.decode('utf-8'), role="Student", uuid=uuid4()).save()
+    Student(firstname="peter", lastname="griffin",email="peter.griffin@example.com",
+            password=password.decode('utf-8'), role="Student").save()
 
     # SchoolClass
     class_student = Student.query.first()

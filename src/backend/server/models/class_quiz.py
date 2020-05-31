@@ -44,9 +44,16 @@ class ClassQuiz(BaseModelMixin, db.Model):
 
     student_quiz_grades = db.relationship('Student',
             secondary="quiz_grade",
-            viewonly=True,
-            # primaryjoin="Student.id == QuizGrade.student_id"
+            viewonly=True
             )
+
+    def __init__(self, subject, max_score, variants, class_id, questions=None, status=ClassQuizStatus.created):
+        self.subject = subject
+        self.max_score = max_score
+        self.variants = variants
+        self.status = status
+        self.class_id = class_id
+        self.questions = questions
 
     def __repr__(self):
         return '<ClassQuiz %r>' % self.id

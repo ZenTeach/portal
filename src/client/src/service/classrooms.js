@@ -31,3 +31,10 @@ export function inviteStudent (classId, payload) {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function inviteStudentFromCSVFile (classId, formData) {
+  const header = {
+    'Content-Type': 'multipart/form-data'
+  }
+  return Api.post(`/school_class/${classId}/student/inviteFromCSV`, formData, header)
+}

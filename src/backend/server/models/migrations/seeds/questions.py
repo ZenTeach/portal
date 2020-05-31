@@ -13,10 +13,18 @@ def question_seeds():
         reader = csv.DictReader(fp, delimiter=',', quotechar='|')
         for line in reader:
             choices=[]
-            choices.append(QuestionChoice(line["a"], ChoiceFeedback("Look at these images."), 0, uuid4()))
-            choices.append(QuestionChoice(line["b"], ChoiceFeedback("Revise theses lesson slides."), 0, uuid4()))
-            choices.append(QuestionChoice(line["c"], ChoiceFeedback("Look at these images."), 1, uuid4()))
-            choices.append(QuestionChoice(line["d"], ChoiceFeedback("Revise theses lesson slides."), 0, uuid4()))
+            choice_a = QuestionChoice(line["a"], "Look at these images.", 0, uuid4())
+            choice_a.save()
+            choices.append(choice_a)
+            choice_b = QuestionChoice(line["b"], "Revise theses lesson slides.", 0, uuid4())
+            choice_b.save()
+            choices.append(choice_b)
+            choice_c = QuestionChoice(line["c"], "Look at these images.", 1, uuid4())
+            choice_c.save()
+            choices.append(choice_c)
+            choice_d = QuestionChoice(line["d"], "Revise theses lesson slides.", 0, uuid4())
+            choice_d.save()
+            choices.append(choice_d)
 
             Questions(
                 question=line["Question"],
@@ -25,7 +33,7 @@ def question_seeds():
                 topic=line["Topic"],
                 tag=line["TAG"],
                 knowledge_item=line["KnowledgeItem"],
+                correct_choice_id=choice([ x.id for x in choices]),
                 uuid=uuid4(),
-                choices=choices,
-                correct_choice=choice([ x.uuid for x in choices])
+                choices=choices
             ).save()

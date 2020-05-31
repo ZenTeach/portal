@@ -2,6 +2,7 @@ from server import db
 from server.models.base_model import BaseModelMixin
 from uuid import uuid4
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import event
 
 class Teacher(BaseModelMixin, db.Model):
 
@@ -31,3 +32,12 @@ class Teacher(BaseModelMixin, db.Model):
             return False
 
         return class_id in self.classes
+
+@event.listens_for(Teacher.classes, 'append')
+def teacher_class_append_listener(target, value, initiator):
+    value.teacher_id = target.id
+    value.save()
+
+@event.listens_for(Teacher.classes, 'remove')
+def student_class_remove_listener(target, value, initiator):
+    db.engine.execute("DELETE teacher_id FROM school_class WHERE id=%s", value.id)
