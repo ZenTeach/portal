@@ -140,7 +140,11 @@ class QuestionChoiceInlineModelForm(InlineFormAdmin):
 
 def correct_choice_formatter(view, context, model, name):
     value = getattr(model, name)
-    return QuestionChoice.query.filter_by(id=value).first().value
+    choice = QuestionChoice.query.filter_by(id=value).first()
+    if choice:
+        return choice.value
+    else:
+        return ''
 
 def one_correct_choice_validator(form_data, field):
         message = "Please select exactly one correct choice"
