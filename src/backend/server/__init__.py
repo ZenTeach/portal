@@ -13,6 +13,8 @@ from flask_mail import Mail
 from flask_marshmallow import Marshmallow
 from flask_redis import FlaskRedis
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import event, exc
+from sqlalchemy.pool import Pool
 from sqlalchemy_searchable import make_searchable
 
 sentry_dsn_key = os.environ.get('SENTRY_DSN')
@@ -61,6 +63,21 @@ ma = Marshmallow()
 mail = Mail()
 celery=Celery('zenteach_tasks')
 redis_store = FlaskRedis()
+
+@event.listens_for(Pool, 'checkout')
+def ping_connection(dbapi_connection, connection_record, connection_proxy):
+    cursor = dbapi_connection.cursor()
+    try:
+        cursor.execute("SELECT 1;")
+    except:
+        # optional - dispose the whole pool
+        # instead of invalidating one at a time
+        connection_proxy._pool.dispose()
+
+        # raise DisconnectionError - pool will try
+        # connecting again up to three times before raising.
+        raise exc.DisconnectionError()
+    cursor.close()
 
 def create_app():
     app = Flask(__name__, template_folder='templates')
