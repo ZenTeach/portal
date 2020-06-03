@@ -23,7 +23,7 @@ class Teacher(BaseModelMixin, db.Model):
 
     classes = db.relationship('SchoolClass', backref='teacher', lazy=True)
 
-    def __init__(self, firstname, lastname, email, date_of_birth, classes=[], password=None, role="Teacher"):
+    def __init__(self, firstname, lastname, email, date_of_birth, classes=[], password=None, role="Teacher", uuid=uuid4()):
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
@@ -32,6 +32,7 @@ class Teacher(BaseModelMixin, db.Model):
         else:
             self.password = password
         self.role = role
+        self.uuid = uuid
         print("In __init__, classes: {}", classes)
         self.classes = classes
         self.date_of_birth = date_of_birth

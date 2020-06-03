@@ -18,7 +18,7 @@ from wtforms.csrf.session import SessionCSRF
 from wtforms.meta import DefaultMeta
 
 from server import db as sdb
-from server.models import Admin, Questions, QuestionTypeEnum, QuestionChoice, ChoiceFeedback, Student
+from server.models import Admin, Questions, QuestionTypeEnum, QuestionChoice, ChoiceFeedback, Student, Teacher
 
 from flask_admin.form import RenderTemplateWidget
 from flask_admin.model.form import InlineFormAdmin
@@ -233,10 +233,18 @@ class StudentView(BaseView):
 
 class TeacherView(BaseView):
     column_exclude_list = ['password', 'role', 'uuid', 'password']
-    form_excluded_columns = ['uuid', 'student_attended_classes', 'role']
+    form_excluded_columns = ['uuid', 'student_attended_classes', 'role', 'password']
     column_formatters = {
         'date_of_birth': date_format
     }
+
+    def create_model(self, form):
+        try:
+            instance = Teacher(form.data['firstname'], form.data['lastname'], form.data['email'], form.data['date_of_birth'], form.data['classes'])
+            instance.save()
+            return redirect(url_for('admin.teacher.index_view'))
+        except Exception as e:
+            flash("Failed to create record: {}".format(str(e)), 'error')
 
 class ClassQuizView(BaseView):
     can_create = False
