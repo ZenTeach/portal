@@ -1,8 +1,14 @@
-from server import db
+from server import db, bcrypt
 from server.models.base_model import BaseModelMixin
 from uuid import uuid4
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import event
+import string
+import random
+
+def randomString(stringLength=8):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
 
 class Teacher(BaseModelMixin, db.Model):
 
@@ -16,6 +22,19 @@ class Teacher(BaseModelMixin, db.Model):
     role = db.Column(db.String(128), nullable=False)
 
     classes = db.relationship('SchoolClass', backref='teacher', lazy=True)
+
+    def __init__(self, firstname, lastname, email, date_of_birth, classes=[], password=None, role="Teacher"):
+        self.firstname = firstname
+        self.lastname = lastname
+        self.email = email
+        if password is None:
+            self.password = bcrypt.generate_password_hash(randomString())
+        else:
+            self.password = password
+        self.role = role
+        print("In __init__, classes: {}", classes)
+        self.classes = classes
+        self.date_of_birth = date_of_birth
 
     def __repr__(self):
         return '%s %s' % (self.firstname, self.lastname)
@@ -40,4 +59,4 @@ def teacher_class_append_listener(target, value, initiator):
 
 @event.listens_for(Teacher.classes, 'remove')
 def student_class_remove_listener(target, value, initiator):
-    db.engine.execute("DELETE teacher_id FROM school_class WHERE id=%s", value.id)
+    db.engine.execute("UPDATE school_class SET teacher_id=null WHERE id=%s", value.id)

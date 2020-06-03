@@ -3,6 +3,7 @@ from server.models.base_model import BaseModelMixin
 from datetime import datetime
 from uuid import uuid4
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import event
 
 class SchoolClass(BaseModelMixin, db.Model):
     __tablename__ = 'school_class'

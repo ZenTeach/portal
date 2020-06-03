@@ -74,6 +74,7 @@ class Student(BaseModelMixin, db.Model):
 @event.listens_for(Student.classes, 'append')
 def student_class_append_listener(target, value, initiator):
     value.add_student(target)
+    target.save()
 
 @event.listens_for(Student.classes, 'remove')
 def student_class_remove_listener(target, value, initiator):
