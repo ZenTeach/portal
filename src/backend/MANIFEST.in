@@ -13,6 +13,9 @@ include entrypoint_prod.sh
 # requirements.txt
 include requirements.txt
 
+# wsgi
+include wsgi.py
+
 # recursively include server files
 recursive-include server *
 
