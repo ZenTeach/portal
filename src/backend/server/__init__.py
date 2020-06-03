@@ -17,19 +17,6 @@ from sqlalchemy import event, exc
 from sqlalchemy.pool import Pool
 from sqlalchemy_searchable import make_searchable
 
-sentry_dsn_key = os.environ.get('SENTRY_DSN')
-if sentry_dsn_key:
-    import sentry_sdk
-    from sentry_sdk.integrations.flask import FlaskIntegration
-    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
-    from sentry_sdk.integrations.celery import CeleryIntegration
-    from sentry_sdk.integrations.redis import RedisIntegration
-
-    sentry_sdk.init(
-        dsn=sentry_dsn_key,
-        integrations=[FlaskIntegration(), SqlalchemyIntegration(), CeleryIntegration(), RedisIntegration()]
-    )
-
 def configure_logging():
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger('werkzeug').setLevel(logging.INFO)
