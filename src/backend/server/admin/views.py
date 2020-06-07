@@ -3,47 +3,50 @@ from datetime import datetime, timedelta
 from secrets import token_bytes, token_urlsafe
 
 import flask_admin as admin
+from flask import current_app, flash, redirect, request, session, url_for
 from flask_admin import expose
-from flask import flash, redirect, request, session, url_for
 from flask_admin.actions import action
 from flask_admin.contrib.sqla import ModelView, ajax
-from flask_admin.contrib.sqla.fields import QuerySelectField
-from flask_admin.form import BaseForm, Select2Field, Select2TagsField
+from flask_admin.contrib.sqla.fields import (InlineModelFormList,
+                                             QuerySelectField)
+from flask_admin.contrib.sqla.form import InlineModelConverter
+from flask_admin.form import (BaseForm, RenderTemplateWidget, SecureForm,
+                              Select2Field, Select2TagsField)
 from flask_admin.model import typefmt
+from flask_admin.model.fields import AjaxSelectField
+from flask_admin.model.form import InlineFormAdmin
 from flask_login import current_user, login_user, logout_user
+from flask_wtf.csrf import _FlaskFormCSRF
 from jinja2 import Markup
+from markupsafe import Markup
 from werkzeug.security import check_password_hash, generate_password_hash
-from wtforms import SelectField, fields, form, validators, StringField, BooleanField, IntegerField
+from wtforms import (BooleanField, IntegerField, SelectField, StringField,
+                     fields, form, validators)
 from wtforms.csrf.session import SessionCSRF
 from wtforms.meta import DefaultMeta
 
 from server import db as sdb
-from server.models import Admin, Questions, QuestionTypeEnum, QuestionChoice, ChoiceFeedback, Student, Teacher
+from server.models import (Admin, ChoiceFeedback, QuestionChoice, Questions,
+                           QuestionTypeEnum, Student, Teacher)
 
-from flask_admin.form import RenderTemplateWidget
-from flask_admin.model.form import InlineFormAdmin
-from flask_admin.contrib.sqla.form import InlineModelConverter
-from flask_admin.contrib.sqla.fields import InlineModelFormList
-from markupsafe import Markup
-from flask_admin.model.fields import AjaxSelectField
 
-class SecureForm(BaseForm):
+class CustomSecureForm(SecureForm):
     class Meta(DefaultMeta):
-        csrf = True
-        csrf_class = SessionCSRF
-        csrf_secret = token_bytes()
-        csrf_time_limit = timedelta(minutes=20)
+        csrf_class = _FlaskFormCSRF
+        csrf_context = session
 
         @property
-        def csrf_context(self):
-            return session
+        def csrf_secret(self):
+            return current_app.config.get('WTF_CSRF_SECRET_KEY',
+                                          current_app.secret_key)
+
 
 class BaseView(ModelView):
     can_export = True
     list_template = 'admin/list.html'
     create_template = 'admin/create.html'
     edit_template = 'admin/edit.html'
-    form_base_class = SecureForm
+    form_base_class = CustomSecureForm
 
     def is_accessible(self):
         return current_user.is_authenticated
