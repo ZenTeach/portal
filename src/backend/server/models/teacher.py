@@ -30,7 +30,7 @@ class Teacher(BaseModelMixin, db.Model):
         if password is None:
             self.password = bcrypt.generate_password_hash(randomString())
         else:
-            self.password = password
+            self.password = bcrypt.generate_password_hash(password).decode('utf-8')
         self.role = role
         self.uuid = uuid
         print("In __init__, classes: {}", classes)

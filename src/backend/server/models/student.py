@@ -35,9 +35,9 @@ class Student(BaseModelMixin, db.Model):
         self.lastname = lastname
         self.email = email
         if password is None:
-            self.password = bcrypt.generate_password_hash(randomString())
+            self.password = bcrypt.generate_password_hash(randomString()).decode('utf-8')
         else:
-            self.password = password
+            self.password = bcrypt.generate_password_hash(password).decode('utf-8')
         self.role = role
 
     def __repr__(self):
