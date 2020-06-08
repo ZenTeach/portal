@@ -1,43 +1,85 @@
-#### To run the demo app:
+# Zenteach Portal
 
-Start the backend by running the start_backend.sh script
-Then start the frontend by running the start_frontend.sh script
+## Prerequisites
+- Download the latest [Python 3](https://www.python.org/)
+- Download [PostgreSQL](https://www.postgresql.org/) version 12
+- Install [Node.js](https://nodejs.org/en/download/)
+- Install [Redis](https://redis.io/)
+- Finally, install [Rabbitmq](https://www.rabbitmq.com/download.html)
 
-Navigate your browser to localhost:8080
+## Setup
+> :warning: **These commands were only tested on *nix like systems, please advise when running it on windows. We advise using docker & docker-compose for windows.**
 
+### Backend
+The backend is a flask app written in python. `src/backend` contains all the backend code including models and apis. Copy the `.env.example` to `.env` and change these files.
 
-##### Frontend-related:
-# zenteach-src
+#### Database setup
+Project needs `zenteach` user in postgres. To create a user, run the following:
 
-## Project setup
-```
-yarn install
-```
-
-### Compiles and hot-reloads for development
-```
-yarn run serve
-```
-
-### Compiles and minifies for production
-```
-yarn run build
+-
+```bash
+ createuser --interactive
+ # Set the name to `zenteach` and grant super user privileges.
 ```
 
-### Run your tests
+- Create the dev and test databases:
 ```
-yarn run test
-```
-
-### Lints and fixes files
-```
-yarn run lint
+createdb -O zenteach zenteach_dev
+createdb -O zenteach zenteach_test
 ```
 
-### Run your unit tests
+- Next, we'll alter the database user password by logging in with
+
+```bash
+psql -U zenteach -d zenteach_dev
+# Then execute
+ALTER ROLE zenteach WITH PASSWORD 'zenteach';
 ```
-yarn run test:unit
+This will set the password.
+
+#### Rabbitmq setup
+
+- Rabbitmq is a queue server used by `celery` the enqueue jobs. Together with Redis as the result backend, it serves as the background processing engine. For rabbitmq, we'd need to create a user `zenteach` and password `zenteach_broker` with admin privilege, please follow this [link](https://www.rabbitmq.com/access-control.html) to setup the users.
+
+- We need a [vhost](https://www.rabbitmq.com/vhosts.html) for our jobs. Run the following command to add a vhost:
+
+```bash
+rabbitmqctl add_vhost jobs
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Running the backend
+
+> :warning: **This command is only tested on *nix like systems, please advise when running it on windows. We advise using docker & docker-compose for windows.**
+
+To run the backend server:
+
+```bash
+env $(cat .env | xargs) ./entrypoint.sh init
+```
+
+### Frontend:
+
+After installing node.js and npm, install [yarn](https://yarnpkg.com/) with `npm i -g yarn`.
+
+- Copy the `.env.example` in the client source. No need to change this now.
+
+- Then run the following in `src/client` to start the frontend dev server.
+
+```
+yarn install && yarn serve
+```
+
+Visit `localhost:8080`.
+
+
+## Dockerized build
+
+Both the backend and frontend have docker setups for local testing and development. Install [docker](https://docs.docker.com/get-docker/) and [docker-compose](https://docs.docker.com/compose/install/)
+
+After installation run the following in the root folder to run the backend and frontend together:
+
+```bash
+docker-compose up --build -d
+```
+
+This will download the prerequisites as docker images and run them in containers. Now you can access the frontend from `localhost:8080`.

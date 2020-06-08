@@ -111,6 +111,7 @@ celerybeat-schedule
 # Environments
 .env
 .env.*
+!.env.example
 .venv
 env/
 venv/
@@ -323,3 +324,4 @@ gradle-app.setting
 ### Gradle Patch ###
 **/build/
 students.csv
+-h
