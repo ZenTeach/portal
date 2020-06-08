@@ -40,6 +40,11 @@ class CustomSecureForm(SecureForm):
             return current_app.config.get('WTF_CSRF_SECRET_KEY',
                                           current_app.secret_key)
 
+        @property
+        def csrf_time_limit(self):
+            return current_app.config.get('WTF_CSRF_TIME_LIMIT',
+                                          3600)
+
 
 class BaseView(ModelView):
     can_export = True

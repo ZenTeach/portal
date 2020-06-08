@@ -40,6 +40,7 @@ class DevelopmentConfig(BaseConfig):
     MAIL_USE_TLS=True
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ('access', 'refresh')
+    WTF_CSRF_TIME_LIMIT=3600
 
 class TestingConfig(BaseConfig):
     TESTING = True
