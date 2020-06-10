@@ -55,11 +55,11 @@ const GETCURRENTCLASS = ({ commit }, payload) => {
 }
 
 const IMPORTSTUDENTSFROMCSV = ({ commit }, payload) => {
-  const { classId, formData } = payload
-  console.log(classId, formData)
-  inviteStudentFromCSVFile(classId, formData)
+  const { classId, formData, headerData } = payload
+  inviteStudentFromCSVFile(classId, formData, headerData)
     .then(response => {
-      console.log(response.data)
+			console.log(response)
+      // console.log(response.data)
     })
     .catch(error => {
       commit('app/TOGGLE_ERROR', error.response.data, { root: true })

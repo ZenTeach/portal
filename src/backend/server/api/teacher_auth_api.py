@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, make_response, current_app, url_for, redirect
 from flask_restful import Resource, Api
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, set_access_cookies,
-                                set_refresh_cookies, unset_jwt_cookies, get_jwt_identity, get_raw_jwt, get_jti)
+                                set_refresh_cookies, unset_jwt_cookies, get_jwt_identity, get_raw_jwt, get_jti, get_csrf_token)
 from server.models import Teacher, TeacherSchema
 from server import db, bcrypt, jwt, redis_store
 from pathlib import Path
@@ -69,18 +69,25 @@ class TeacherLogin(Resource):
         if bcrypt.check_password_hash(current_user.password, data['password']):
             access_token = create_access_token(identity=current_user)
             refresh_token = create_refresh_token(identity=current_user)
-            response = jsonify({
+            access_csrf_token = get_csrf_token(access_token)
+            refresh_csrf_token = get_csrf_token(refresh_token)
+            response_data = jsonify({
                 'message': 'Logged in as {}'.format(current_user.email)
             })
-            set_access_cookies(response, access_token)
-            set_refresh_cookies(response, refresh_token)
+            set_access_cookies(response_data, access_token)
+            set_refresh_cookies(response_data, refresh_token)
             access_jti = get_jti(encoded_token=access_token)
             refresh_jti = get_jti(encoded_token=refresh_token)
             redis_store.set(access_jti, 'false', ACCESS_EXPIRES * 1.2)
             redis_store.set(refresh_jti, 'false', REFRESH_EXPIRES * 1.2)
 
 
-            return make_response(response, 200)
+            response = make_response(response_data, 200)
+            response.set_cookie('access_csrf_token', access_csrf_token, secure=True)
+            response.set_cookie('refresh_csrf_token', refresh_csrf_token, secure=True)
+
+            return response
+
         else:
             return make_response({'message': 'Wrong credentials'}, 400)
 

@@ -30,7 +30,6 @@ class DevelopmentConfig(BaseConfig):
     JWT_CSRF_IN_COOKIES = False
     JWT_COOKIE_CSRF_PROTECT = False
     FLASK_DEBUG = 1
-    # Mailgun config
     MAIL_DEFAULT_SENDER='no-reply@zenteach.co.uk'
     MAIL_SERVER=os.environ.get('MAIL_SERVER')
     MAIL_PORT=os.environ.get('MAIL_PORT')

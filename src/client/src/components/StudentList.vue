@@ -104,8 +104,10 @@ export default {
     importStudents () {
       this.fileSelectorDialog = false
       const formData = new FormData()
+      const csrfCookie = this.$cookies.get('access_csrf_token')
+      console.log('CSRF access cookie', csrfCookie)
       formData.append('files', this.selectedFile, this.selectedFile.name)
-      this.$store.dispatch('classrooms/IMPORTSTUDENTSFROMCSV', { classId: this.classId, formData: formData }, { root: true })
+      this.$store.dispatch('classrooms/IMPORTSTUDENTSFROMCSV', { classId: this.classId, formData: formData, headerData: csrfCookie }, { root: true })
         .then(response => {
           this.$store.dispatch('classrooms/GETCURRENTCLASS', this.classId, { root: true })
         })

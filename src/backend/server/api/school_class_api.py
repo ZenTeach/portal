@@ -93,7 +93,7 @@ class SchoolClassOwned(Resource):
             class_rooms = SchoolClassModel.query.filter_by(
                 teacher_id=int(teacher_id)).all()
             if not class_rooms:
-                return make_response(error_response, 404)
+                return make_response(error_message, 404)
             else:
 
                 response_object = jsonify({
