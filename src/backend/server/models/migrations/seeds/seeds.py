@@ -6,16 +6,16 @@ from uuid import uuid4
 
 def seeds():
     # Teacher seed
-    password = bcrypt.generate_password_hash('Asdfgh12!')
+    password = 'Asdfgh12!'
     Teacher(firstname="john", lastname="doe", email="connect@ngetahun.me", date_of_birth="01-01-1970",
-            password=password.decode('utf-8'), role="Teacher", uuid=uuid4()).save()
+            password=password, role="Teacher", uuid=uuid4()).save()
     # Admin Teacher seed
     Admin(firstname="jane", lastname="doe", email="john.doe+2@example.com", date_of_birth="04-04-1975",
-            password=password.decode('utf-8'), role="Admin", uuid=uuid4()).save()
+            password=password, role="Admin", uuid=uuid4()).save()
 
     # Student
     Student(firstname="peter", lastname="griffin",email="peter.griffin@example.com",
-            password=password.decode('utf-8'), role="Student").save()
+            password=password, role="Student").save()
 
     # SchoolClass
     class_student = Student.query.first()
