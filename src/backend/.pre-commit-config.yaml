@@ -22,12 +22,12 @@ repos:
     -   id: codestyle_hook
         name: PyCodeStyle violations
         description: This hook runs PEP8 code style validations
-        entry: pycodestyle 
+        entry: pycodestyle
         language: python
 
 # -   id: bandit_code_analysis
 #     name: Run Bandit code analyzer
 #     description: This hook runs bandit to scan for security issues.
-#     entry: bandit 
+#     entry: bandit
 #     language: python
 #     types: ["*.py"]
