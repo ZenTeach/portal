@@ -1,24 +1,20 @@
-from flask import make_response, jsonify, Blueprint, request, abort
-from flask_restful import Resource, Api, reqparse
-import json
-from server.models import (
-                    ClassQuiz as ClassQuizModel, ClassQuizStatus,
-                    QuizGrade,
-                    Student,
-                    QuizSession, QuizSessionStatus)
-from server.tasks import grader_administered_quizzes
+
+from flask import Blueprint, abort, jsonify, make_response, request
+from flask_restful import Api, Resource, reqparse
 from server import db
+from server.models import ClassQuiz as ClassQuizModel
+from server.models import (ClassQuizStatus, QuizSession, QuizSessionStatus,
+                           Student)
+from server.tasks import grader_administered_quizzes
 from sqlalchemy import exc
 
-quiz_submit_blueprint = Blueprint('quiz_submit', __name__)
+quiz_submit_blueprint = Blueprint("quiz_submit", __name__)
 api = Api(quiz_submit_blueprint)
 
 parser = reqparse.RequestParser()
-parser.add_argument('email', required=True,
-                    help="Student Email")
+parser.add_argument("email", required=True, help="Student Email")
 
-parser.add_argument('quiz', required=True,
-                    help="Quiz unique id")
+parser.add_argument("quiz", required=True, help="Quiz unique id")
 
 
 class SubmitQuiz(Resource):
@@ -29,12 +25,12 @@ class SubmitQuiz(Resource):
         # Find student with ID
         args = parser.parse_args()
 
-        student = Student.query.filter_by(email=args['email']).first()
+        student = Student.query.filter_by(email=args["email"]).first()
         if not student:
             abort(404, "Student email doesn't exist")
 
         # add session to class_quiz
-        class_quiz = ClassQuizModel.query.filter_by(uuid=args['quiz']).first()
+        class_quiz = ClassQuizModel.query.filter_by(uuid=args["quiz"]).first()
         if not class_quiz:
             abort(404, "Class Quiz doesn't exist")
 
@@ -44,28 +40,39 @@ class SubmitQuiz(Resource):
         except exc.DatabaseError as e:
             # TODO: Add sentry error reporting
             print(e)
-            return make_response(jsonify({
-                'message': 'Encountered Server error. Couldn\'t create a new session for email address.',
-                'status': 'error'
-            }), 500)
+            return make_response(
+                jsonify({
+                    "message": "Couldn't create a new quiz session.",
+                    "status": "error",
+                }),
+                500)
         else:
-            return make_response(jsonify({
-                'message': 'Created a new session!',
-                'status': 'success'
-            }), 200)
+            return make_response(
+                jsonify({"message": "Created a new session!",
+                         "status": "success"}), 200
+            )
 
     def post(self):
         post_data = request.get_json()
         # Step 1: Validate data
-        student = Student.query.filter_by(email=post_data.get('StudentEmail')).first()
+        student_email = post_data.get('StudentEmail')
+        student = Student.query.filter_by(
+            email=student_email).first()
         if student is None:
-            abort(404, f"Student with email {post_data.get('StudentEmail')} doesn't exist")
+            abort(
+                404,
+                "Student with email {} doesn't exist".format(student_email)
+            )
 
-        class_quiz = ClassQuizModel.query.filter_by(uuid=post_data.get('QuizId')).first()
+        class_quiz = ClassQuizModel.query.filter_by(
+            uuid=post_data.get("QuizId")
+        ).first()
         if class_quiz is None:
             abort(404, "Class Quiz doesn't exist")
 
-        quiz_session = QuizSession.query.filter_by(student_id=student.id, class_quiz_id=class_quiz.id).first()
+        quiz_session = QuizSession.query.filter_by(
+            student_id=student.id, class_quiz_id=class_quiz.id
+        ).first()
         if not quiz_session:
             abort(404, "Quiz not started")
         try:
@@ -74,7 +81,7 @@ class SubmitQuiz(Resource):
                 abort(404, "Session has ended!")
 
             # Step 2: Store
-            student.add_quiz_score(class_quiz, post_data.get('data'))
+            student.add_quiz_score(class_quiz, post_data.get("data"))
             student.save()
             # TODO: Fix! This logic is somehow flawed as the first submission
             # triggers a model update.
@@ -86,17 +93,18 @@ class SubmitQuiz(Resource):
             # 2. Trigger background job
             grader_administered_quizzes.apply_async(args=[quiz_session.uuid])
             db.session.commit()
-            response_object = {
-                'status': 'success',
-                'message': 'Quiz submitted!'
-            }
+            response_object = {"status": "success",
+                               "message": "Quiz submitted!"}
             return make_response(response_object, 201)
         # Step 3: Update
         except exc.IntegrityError as e:
             print(e)
-            return make_response(jsonify({
-                'status': 'error',
-                'message': 'Encountered a server error'
-            }), 500)
+            return make_response(
+                jsonify({
+                    "status": "error",
+                    "message": "Encountered a server error"
+                }),
+                500)
 
-api.add_resource(SubmitQuiz, '/submit_quiz')
+
+api.add_resource(SubmitQuiz, "/submit_quiz")

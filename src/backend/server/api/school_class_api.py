@@ -1,14 +1,15 @@
-import json
 
-from flask import Blueprint, jsonify, make_response, request, current_app, abort
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Blueprint, abort, jsonify, make_response, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Api, Resource
+from pandas import read_csv
 from server import db
 from server.decorators import with_required_roles
-from server.models import SchoolClassSchema, SchoolClass as SchoolClassModel, Student
+from server.models import SchoolClass as SchoolClassModel
+from server.models import SchoolClassSchema, Student
 from sqlalchemy import exc
 
-school_class_blueprint = Blueprint('school_class', __name__)
+school_class_blueprint = Blueprint("school_class", __name__)
 api = Api(school_class_blueprint)
 schema_dumper = SchoolClassSchema()
 
@@ -16,19 +17,18 @@ schema_dumper = SchoolClassSchema()
 class SchoolClass(Resource):
     @jwt_required
     def get(self, school_class_id):
-        error_response = jsonify({
-            'message': "Class room doesn't exist"
-        })
+        error_response = jsonify({"message": "Class room doesn't exist"})
         try:
             class_room = SchoolClassModel.query.filter_by(
-                id=int(school_class_id)).first()
+                id=int(school_class_id)
+            ).first()
             if not class_room:
                 return make_response(error_response, 404)
             else:
-                response_object = jsonify({
-                    'status': 'success',
-                    'data': schema_dumper.dump(class_room)
-                })
+                response_object = jsonify(
+                    {"status": "success",
+                        "data": schema_dumper.dump(class_room)}
+                )
             return make_response(response_object, 200)
         except ValueError:
             return make_response(error_response, 404)
@@ -36,68 +36,75 @@ class SchoolClass(Resource):
 
 class SchoolClassList(Resource):
     @jwt_required
-    @with_required_roles(['Admin'])
+    @with_required_roles(["Admin"])
     def get(self):
-        response_object = jsonify({
-            'status': 'success',
-            'data': {
-                'school_classes': [schema_dumper.dump(classroom) for classroom in SchoolClassModel.query.all()]
+        response_object = jsonify(
+            {
+                "status": "success",
+                "data": {
+                    "school_classes": [
+                        schema_dumper.dump(classroom)
+                        for classroom in SchoolClassModel.query.all()
+                    ]
+                },
             }
-        })
+        )
         return make_response(response_object, 200)
 
     @jwt_required
     @with_required_roles(["Teacher", "Admin"])
     def post(self):
         post_data = request.get_json()
-        error_object = jsonify({
-            'status': 'fail',
-            'message': 'Invalid payload.'
-        })
-        teacher = get_jwt_identity()['identity']
+        error_object = jsonify(
+            {"status": "fail", "message": "Invalid payload."})
+        teacher = get_jwt_identity()["identity"]
         if not post_data:
             return make_response(error_object, 400)
-        name = post_data.get('name')
-        subject = post_data.get('subject')
-        start_date = post_data.get('start_date')
+        name = post_data.get("name")
+        subject = post_data.get("subject")
+        start_date = post_data.get("start_date")
         teacher_id = teacher["id"]
         try:
             school_class = SchoolClassModel.query.filter_by(name=name).first()
             if not school_class:
-                school_class = SchoolClassModel(name=name, subject=subject,
-                                                 start_date=start_date, teacher_id=teacher_id)
+                school_class = SchoolClassModel(
+                    name=name,
+                    subject=subject,
+                    start_date=start_date,
+                    teacher_id=teacher_id,
+                )
                 school_class.save()
-                response_object = jsonify({
-                    'status': 'success',
-                    'message': '{} was added!'.format(name)
-                })
+                response_object = jsonify(
+                    {"status": "success",
+                        "message": "{} was added!".format(name)}
+                )
                 return make_response(response_object, 201)
             else:
-                error_object.message = 'Sorry. That school class already exists.'
+                error_object.message = "School class already exists."
                 return make_response(error_object, 400)
-        except exc.IntegrityError as err:
+        except exc.IntegrityError as err:  # noqa
             db.session.rollback()
             return make_response(error_object, 500)
 
 
 class SchoolClassOwned(Resource):
     @jwt_required
-    @with_required_roles(['Admin'])
+    @with_required_roles(["Admin"])
     def get(self, teacher_id):
-        error_message = jsonify({
-            'message': "Class room doesn't exist"
-        })
+        error_message = jsonify({"message": "Class room doesn't exist"})
         try:
-            class_rooms = SchoolClassModel.query.filter_by(
-                teacher_id=int(teacher_id)).all()
-            if not class_rooms:
+            classrooms = SchoolClassModel.query.filter_by(
+                teacher_id=int(teacher_id)
+            ).all()
+            if not classrooms:
                 return make_response(error_message, 404)
             else:
 
                 response_object = jsonify({
-                    'status': 'success',
-                    'data': [schema_dumper.dump(classroom) for classroom in class_rooms]
-                    # 'data': schema_dumper.dump(class_rooms)
+                    "status": "success",
+                    "data": [
+                        schema_dumper.dump(c) for c in classrooms
+                    ]
                 })
                 return make_response(response_object, 200)
         except ValueError:
@@ -107,43 +114,45 @@ class SchoolClassOwned(Resource):
 class TeacherOwnedClass(Resource):
     @jwt_required
     def get(self):
-        error_object = {
-            'message': ''
-        }
+        error_object = {"message": ""}
         try:
-            teacher = get_jwt_identity()['identity']
-            class_rooms = SchoolClassModel.query.filter_by(
-                teacher_id=int(teacher['id']))
+            teacher = get_jwt_identity()["identity"]
+            classrooms = SchoolClassModel.query.filter_by(
+                teacher_id=int(teacher["id"])
+            )
 
-            if not class_rooms:
-                error_object['message'] = 'No class rooms found'
+            if not classrooms:
+                error_object["message"] = "No class rooms found"
                 return make_response(jsonify(error_object), 200)
             else:
                 response_object = jsonify({
-                    'status': 'success',
-                    'data': [schema_dumper.dump(classroom) for classroom in class_rooms]
+                    "status": "success",
+                    "data": [
+                        schema_dumper.dump(c) for c in classrooms
+                    ]
                 })
                 return make_response(response_object, 200)
         except Exception as e:
             from server.api import api_logger
+
             api_logger.debug(e)
-            error_object['message'] = 'Error processing request'
+            error_object["message"] = "Error processing request"
             return make_response(jsonify(error_object), 500)
 
 
 class SchoolClassPing(Resource):
     def get(self):
-        return make_response(jsonify({
-            'status': 'success',
-            'message': 'Pinged school class'
-        }))
+        return make_response(
+            jsonify({"status": "success", "message": "Pinged school class"})
+        )
+
 
 class SchoolClassInviteStudent(Resource):
     @jwt_required
     def post(self, class_id):
         school_class = SchoolClassModel.query.filter_by(id=class_id).first()
         if not school_class:
-            abort(404, 'School class room doesn\'t exist')
+            abort(404, "School class room doesn't exist")
 
         data = request.get_json()
         try:
@@ -151,19 +160,84 @@ class SchoolClassInviteStudent(Resource):
             new_student.save()
             school_class.add_student(new_student)
             school_class.save()
-        except exc.IntegrityError as e:
-            abort(400, 'Student missing required data.')
-        except exc.DatabaseError as e:
-            abort(500, 'Server got an error.')
+        except exc.IntegrityError:
+            abort(400, "Student missing required data.")
+        except exc.DatabaseError as e:  # noqa
+            abort(500, "Server got an error.")
         else:
-            return make_response(jsonify({
-                'message': 'An invite to the student was sent',
-                'status': 'success'
-            }), 201)
+            return make_response(
+                jsonify(
+                    {
+                        "message": "An invite to the student was sent",
+                        "status": "success",
+                    }
+                ),
+                201,
+            )
 
-api.add_resource(SchoolClassPing, '/school_class/ping')
-api.add_resource(SchoolClass, '/school_class/<school_class_id>')
-api.add_resource(SchoolClassOwned, '/school_class/owned/<teacher_id>')
-api.add_resource(TeacherOwnedClass, '/school_class/owned')
-api.add_resource(SchoolClassList, '/school_class')
-api.add_resource(SchoolClassInviteStudent, '/school_class/<int:class_id>/student/invite')
+
+class SchoolClassInviteFromCSVStudent(Resource):
+    allowed_extenstions = ["csv"]
+
+    def allowed_file(self, filename):
+        return (
+            "." in filename and filename
+            .rsplit(".", 1)[1].lower() in self.allowed_extenstions
+        )
+
+    @jwt_required
+    def post(self, class_id):
+        school_class = SchoolClassModel.query.filter_by(id=class_id).first()
+        if not school_class:
+            abort(404, "School class room doesn't exist")
+
+        csv_file = request.files["files"]
+        print(csv_file)
+
+        if csv_file.filename == "":
+            abort(404, "No selected file")
+        students = []
+        if csv_file and self.allowed_file(csv_file.filename):
+            df = read_csv(csv_file, header=0, names=[
+                          "firstname", "lastname", "email"])
+
+            for it in df.values.tolist():
+                print(it)
+                students.append(
+                    {"firstname": it[0], "lastname": it[1], "email": it[2]})
+
+            print(students)
+
+        result = None
+        try:
+            result = Student.create_from_list(students)
+            errs = result[0]
+            all_students = result[1]
+        except Exception as e:
+            print("Got an exception", e)
+            abort(404, "The file is not valid.")
+
+        if len(all_students) != 0:
+            for student in all_students:
+                school_class.add_student(student)
+                school_class.save()
+
+        if len(errs) == 0:
+            return make_response("Students were added", 200)
+        else:
+            print(errs)
+            return make_response("Got some errors adding student", 404)
+
+
+api.add_resource(SchoolClassPing, "/school_class/ping")
+api.add_resource(SchoolClass, "/school_class/<school_class_id>")
+api.add_resource(SchoolClassOwned, "/school_class/owned/<teacher_id>")
+api.add_resource(TeacherOwnedClass, "/school_class/owned")
+api.add_resource(SchoolClassList, "/school_class")
+api.add_resource(
+    SchoolClassInviteStudent, "/school_class/<int:class_id>/student/invite"
+)
+api.add_resource(
+    SchoolClassInviteFromCSVStudent,
+    "/school_class/<int:class_id>/student/inviteFromCSV",
+)

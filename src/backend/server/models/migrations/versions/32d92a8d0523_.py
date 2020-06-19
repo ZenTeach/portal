@@ -1,4 +1,5 @@
-"""Add postgres search functions as per this issue https://github.com/kvesteri/sqlalchemy-searchable/issues/67
+"""Add postgres search functions as
+per this issue https://github.com/kvesteri/sqlalchemy-searchable/issues/67
 
 Revision ID: 32d92a8d0523
 Revises: f027de5b23f1
@@ -6,18 +7,17 @@ Create Date: 2019-10-29 13:18:34.003891
 
 """
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
-revision = '32d92a8d0523'
-down_revision = 'f027de5b23f1'
+revision = "32d92a8d0523"
+down_revision = "f027de5b23f1"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    op.execute("""DROP TYPE IF EXISTS tsq_state CASCADE;\
+    op.execute(
+        """DROP TYPE IF EXISTS tsq_state CASCADE;\
 
 CREATE TYPE tsq_state AS (
     search_query text,
@@ -237,11 +237,13 @@ BEGIN
             FROM unnest($1) WITH ORDINALITY AS t(value, index)
             WHERE index NOT IN (SELECT position FROM replaced_positions)
         ), $1[1:0]);
-$$ LANGUAGE SQL IMMUTABLE;""")
+$$ LANGUAGE SQL IMMUTABLE;"""
+    )
 
 
 def downgrade():
-    op.execute("""
+    op.execute(
+        """
         DROP TYPE IF EXISTS tsq_state CASCADE;
 
         DROP FUNCTION tsq_append_current_token(state tsq_state);
@@ -253,4 +255,5 @@ def downgrade():
         DROP FUNCTION tsq_parse(config text, search_query text);
         DROP FUNCTION tsq_parse(search_query text);
         DROP FUNCTION array_nremove(anyarray, anyelement, int);
-    """)
+    """
+    )

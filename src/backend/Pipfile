@@ -144,6 +144,7 @@ autopep8 = "*"
 isort = "*"
 pre-commit = "*"
 bandit = "*"
+autoflake = "*"
 
 [requires]
 python_version = "3.7"

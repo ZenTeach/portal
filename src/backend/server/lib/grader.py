@@ -1,17 +1,13 @@
-
 import json
-import os
 from collections import namedtuple
 from uuid import UUID
 
-from sqlalchemy import and_, update
-from sqlalchemy.orm import load_only
-
-from server import db
 from server.models import (ClassQuiz, ClassQuizStatus, QuestionChoice,
-                           Questions, QuizGrade, QuizSession, SchoolClass)
+                           Questions, QuizGrade, QuizSession)
+from sqlalchemy import and_
 
-CorrectChoice = namedtuple('CorrectChoice', ['id', 'correct_choice'])
+CorrectChoice = namedtuple("CorrectChoice", ["id", "correct_choice"])
+
 
 class Feedback(object):
     def __init__(self):
@@ -24,12 +20,16 @@ class Feedback(object):
     def _topic_exist_in_feedback(self, topic):
         if len(self._feedback) == 0:
             return False
-        return len(list(filter(lambda x: x["topic"] == topic, self._feedback))) != 0
+        filtered_topic = [x["topic"] == topic for x in self._feedback]
+        return len(filtered_topic) != 0
 
     def build_from_question_id(self, questionID, choiceID):
-        _tuple = Questions.query\
-            .with_entities(Questions.topic, Questions.knowledge_item)\
-            .filter_by(id=questionID).first()
+        _tuple = (
+            Questions.query.with_entities(
+                Questions.topic, Questions.knowledge_item)
+            .filter_by(id=questionID)
+            .first()
+        )
         self.build_for_topic(_tuple[0])
         self.add_ki_to_topic(_tuple[0], _tuple[1])
         self.add_feedback_to_topic(choiceID, _tuple[0])
@@ -43,12 +43,16 @@ class Feedback(object):
                 "topic": topic,
                 "knowledge_item": [],
                 "progress": [],
-                "feedback": []
+                "feedback": [],
             }
             self._feedback.append(interim)
 
     def _get_topic_breakdown(self, topic):
-        return next(iter(item for item in self._feedback if item["topic"] == topic), None)
+        return next(
+            iter(
+                item for item in self._feedback if item["topic"] == topic
+            ),
+            None)
 
     def _get_feedback_for_choice(self, choice_id):
         choice = QuestionChoice.query.filter_by(uuid=choice_id).first()
@@ -76,6 +80,7 @@ class Feedback(object):
     def to_json(self):
         return json.dumps(self._feedback)
 
+
 class Grader(object):
     # Takes a batch of administered quizzes and grades them
     # TODO: Add batching
@@ -95,7 +100,6 @@ class Grader(object):
 
         # get submission
         quiz = session.class_quiz
-        student = session.student
 
         cls(quiz.class_id, quiz)
 
@@ -103,14 +107,17 @@ class Grader(object):
         if self.class_quiz:
             administered_quiz_list = [self.class_quiz]
         else:
-            administered_quiz_list = ClassQuiz.query\
-                .filter(\
-                    and_(ClassQuiz.status == ClassQuizStatus.administered.name\
-                        , ClassQuiz.class_id == self.school_class_id)).all()
+            administered_quiz_list = ClassQuiz.query.filter(
+                and_(
+                    ClassQuiz.status == ClassQuizStatus.administered.name,
+                    ClassQuiz.class_id == self.school_class_id,
+                )
+            ).all()
 
         print(f"Found {len(administered_quiz_list)} administered quizzes!")
         for quiz in administered_quiz_list:
-            res = QuizGrade.query.filter(QuizGrade.class_quiz_id==quiz.id).all()
+            res = QuizGrade.query.filter(
+                QuizGrade.class_quiz_id == quiz.id).all()
             print(f"Found {len(res)} submissions for quiz with id {quiz.id}")
             self._score_quiz(res, quiz)
 
@@ -118,10 +125,16 @@ class Grader(object):
         for submission in quiz_submissions:
             data = submission.responses
             quiz_questions_id = list(map(lambda x: x["id"], quiz.questions))
-            correct_choices_resultset = Questions.query\
-                            .with_entities(Questions.id, Questions.correct_choice)\
-                            .filter(Questions.id.in_(quiz_questions_id)).all()
-            correct_choices = [CorrectChoice._make([vals.id, vals.correct_choice]) for vals in correct_choices_resultset]
+            correct_choices_resultset = (
+                Questions.query.with_entities(
+                    Questions.id, Questions.correct_choice)
+                .filter(Questions.id.in_(quiz_questions_id))
+                .all()
+            )
+            correct_choices = [
+                CorrectChoice._make([vals.id, vals.correct_choice])
+                for vals in correct_choices_resultset
+            ]
             score = self._calculate_score(correct_choices, data)
             submission.update_score(score)
             submission.is_graded()
@@ -135,11 +148,13 @@ class Grader(object):
         cum_sum = 0
         for response in submission_responses:
             correct_choice = self._get_from_tuple_from_list(
-                            correct_responses,
-                            response['questionID'])
-            if UUID(str(correct_choice)) == UUID(response['Choice_answer']):
+                correct_responses, response["questionID"]
+            )
+            if UUID(str(correct_choice)) == UUID(response["Choice_answer"]):
                 cum_sum += 1
             else:
-                #TODO: build feedback
-                self._feedback_builder.build_from_question_id(response['questionID'], response['Choice_answer'])
+                # TODO: build feedback
+                self._feedback_builder.build_from_question_id(
+                    response["questionID"], response["Choice_answer"]
+                )
         return cum_sum

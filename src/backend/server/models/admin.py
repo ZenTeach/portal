@@ -1,9 +1,7 @@
-from uuid import uuid4
-
-from sqlalchemy.dialects.postgresql import UUID
 
 from server import db
 from server.models.base_model import BaseModelMixin
+from sqlalchemy.dialects.postgresql import UUID
 
 
 class Admin(BaseModelMixin, db.Model):
@@ -37,7 +35,7 @@ class Admin(BaseModelMixin, db.Model):
         return self.firstname
 
     def __repr__(self):
-        return '<Admin %r>' % self.id
+        return "<Admin %r>" % self.id
 
     def full_name(self):
         return "{} {}".format(self.firstname, self.lastname)

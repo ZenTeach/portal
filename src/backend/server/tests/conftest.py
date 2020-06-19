@@ -1,12 +1,14 @@
-from server import create_app, db
-import pytest
 import os
-import pytest_mock
+
+import pytest
+from pytest_factoryboy import register
+from server import create_app, db
+from server.tests.factories import (ClassQuizFactory, QuestionChoiceFactory,
+                                    QuestionsFactory, QuizGradeFactory,
+                                    QuizSessionFactory, SchoolClassFactory,
+                                    StudentFactory, TeacherFactory)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-import mock
-from pytest_factoryboy import register, LazyFixture
-from server.tests.factories import StudentFactory, TeacherFactory, SchoolClassFactory, ClassQuizFactory, QuizGradeFactory, QuizSessionFactory, QuestionsFactory, QuestionChoiceFactory
 
 register(ClassQuizFactory, "class_quiz")
 register(SchoolClassFactory, "school_class")
@@ -16,15 +18,17 @@ register(QuizSessionFactory, "quiz_session")
 register(StudentFactory, "student")
 register(QuestionsFactory, "questions")
 register(QuestionChoiceFactory)
+
+
 @pytest.fixture(scope="session")
 def engine():
-    return create_engine(os.environ.get('DATABASE_TEST_URL'))
+    return create_engine(os.environ.get("DATABASE_TEST_URL"))
 
 
 @pytest.fixture(scope="function")
 def client():
     app = create_app()
-    app.config.from_object('server.config.TestingConfig')
+    app.config.from_object("server.config.TestingConfig")
     with app.app_context():
         db.create_all()
         yield app.test_client()
@@ -34,7 +38,8 @@ def client():
 
 @pytest.yield_fixture
 def dbsession(engine):
-    """Returns an sqlalchemy session, and after the test tears down everything properly."""
+    """Returns an sqlalchemy session, and after the test
+        tears down everything properly."""
     connection = engine.connect()
     transaction = connection.begin()
     session = Session(bind=connection)
@@ -42,6 +47,7 @@ def dbsession(engine):
     session.close()
     transaction.rollback()
     connection.close()
+
 
 @pytest.fixture(autouse=True)
 def after_each_cleanup(mocker):

@@ -1,27 +1,25 @@
-import enum
-from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy.dialects.postgresql import JSON, UUID
-
 from server import db
+from sqlalchemy.dialects.postgresql import JSON, UUID
 
 from .base_model import BaseModelMixin
 
 
 # A many-to-many relationship between a Student and ClassQuiz model
 class QuizGrade(BaseModelMixin, db.Model):
-    __tablename__ = 'quiz_grade'
-    uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=False, default=uuid4())
+    __tablename__ = "quiz_grade"
+    uuid = db.Column(UUID(as_uuid=True), unique=True,
+                     nullable=False, default=uuid4())
 
     student_id = db.Column(db.Integer, db.ForeignKey(
-                                'student.id'), primary_key=True)
+        "student.id"), primary_key=True)
 
-    class_quiz_id = db.Column(db.Integer, db.ForeignKey(
-                                'class_quiz.id'), primary_key=True)
+    class_quiz_id = db.Column(
+        db.Integer, db.ForeignKey("class_quiz.id"), primary_key=True
+    )
 
-    student = db.relationship(
-        "Student", backref=db.backref("quiz_grade"))
+    student = db.relationship("Student", backref=db.backref("quiz_grade"))
 
     class_quiz = db.relationship(
         "ClassQuiz", backref=db.backref("student_quiz_grade"))
@@ -38,7 +36,9 @@ class QuizGrade(BaseModelMixin, db.Model):
         self.graded = graded
 
     def __repr__(self):
-        return '<QuizGrade {}>'.format(self.class_quiz.subject+" "+self.student.full_name())
+        return "<QuizGrade {}>".format(
+            self.class_quiz.subject + " " + self.student.full_name()
+        )
 
     def update_score(self, new_score):
         self.score = new_score

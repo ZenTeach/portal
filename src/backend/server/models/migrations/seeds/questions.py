@@ -1,28 +1,35 @@
-import os
 import csv
-from server.models import Questions, QuestionTypeEnum, QuestionChoice, ChoiceFeedback
-from uuid import uuid4
+import os
 from random import choice
+from uuid import uuid4
+
+from server.models import QuestionChoice, Questions, QuestionTypeEnum
 
 filename = "Questions.csv"
 filepath = os.path.join(os.path.dirname(__file__), filename)
 
 
 def question_seeds():
-    with open(filepath, newline='') as fp:
-        reader = csv.DictReader(fp, delimiter=',', quotechar='|')
+    with open(filepath, newline="") as fp:
+        reader = csv.DictReader(fp, delimiter=",", quotechar="|")
         for line in reader:
-            choices=[]
-            choice_a = QuestionChoice(line["a"], "Look at these images.", 0, uuid4())
+            choices = []
+            choice_a = QuestionChoice(
+                line["a"], "Look at these images.", 0, uuid4())
             choice_a.save()
             choices.append(choice_a)
-            choice_b = QuestionChoice(line["b"], "Revise theses lesson slides.", 0, uuid4())
+            choice_b = QuestionChoice(
+                line["b"], "Revise theses lesson slides.", 0, uuid4()
+            )
             choice_b.save()
             choices.append(choice_b)
-            choice_c = QuestionChoice(line["c"], "Look at these images.", 1, uuid4())
+            choice_c = QuestionChoice(
+                line["c"], "Look at these images.", 1, uuid4())
             choice_c.save()
             choices.append(choice_c)
-            choice_d = QuestionChoice(line["d"], "Revise theses lesson slides.", 0, uuid4())
+            choice_d = QuestionChoice(
+                line["d"], "Revise theses lesson slides.", 0, uuid4()
+            )
             choice_d.save()
             choices.append(choice_d)
 
@@ -33,7 +40,7 @@ def question_seeds():
                 topic=line["Topic"],
                 tag=line["TAG"],
                 knowledge_item=line["KnowledgeItem"],
-                correct_choice_id=choice([ x.id for x in choices]),
+                correct_choice_id=choice([x.id for x in choices]),  # nosec
                 uuid=uuid4(),
-                choices=choices
+                choices=choices,
             ).save()

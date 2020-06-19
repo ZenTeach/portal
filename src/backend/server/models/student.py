@@ -1,16 +1,15 @@
-from uuid import uuid4
-
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import event
-
-from server import db, bcrypt
-from server.models.base_model import BaseModelMixin
-import string
 import random
+import string
+
+from server import bcrypt, db
+from server.models.base_model import BaseModelMixin
+from sqlalchemy import event
+from sqlalchemy.dialects.postgresql import UUID
+
 
 def randomString(stringLength=8):
     letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(stringLength))
+    return "".join(random.choice(letters) for i in range(stringLength))  # nosec
 
 
 class Student(BaseModelMixin, db.Model):
@@ -23,25 +22,34 @@ class Student(BaseModelMixin, db.Model):
     password = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(128), nullable=False)
 
-    classes = db.relationship('SchoolClass',
-                              secondary='student_attended_class', viewonly=True)
+    classes = db.relationship(
+        "SchoolClass", secondary="student_attended_class", viewonly=True
+    )
 
-    quiz_sessions = db.relationship('ClassQuiz', secondary='quiz_session', viewonly=True)
+    quiz_sessions = db.relationship(
+        "ClassQuiz", secondary="quiz_session", viewonly=True
+    )
 
-    quiz_grades = db.relationship('ClassQuiz', secondary='quiz_grade', viewonly=True)
+    quiz_grades = db.relationship(
+        "ClassQuiz", secondary="quiz_grade", viewonly=True)
 
-    def __init__(self, firstname, lastname, email, classes=[], password=None, role="Student"):
+    def __init__(
+        self, firstname, lastname, email, classes=[], password=None, role="Student"
+    ):
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
         if password is None:
-            self.password = bcrypt.generate_password_hash(randomString()).decode('utf-8')
+            self.password = bcrypt.generate_password_hash(randomString()).decode(
+                "utf-8"
+            )
         else:
-            self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+            self.password = bcrypt.generate_password_hash(
+                password).decode("utf-8")
         self.role = role
 
     def __repr__(self):
-        return '<Student %s>' % (self.firstname + " " + self.lastname)
+        return "<Student %s>" % (self.firstname + " " + self.lastname)
 
     @property
     def full_name(self):
@@ -49,6 +57,7 @@ class Student(BaseModelMixin, db.Model):
 
     def add_quiz_score(self, quiz, response):
         from .quiz_grade import QuizGrade
+
         self.quiz_grade.append(
             QuizGrade(student=self, class_quiz=quiz, responses=response)
         )
@@ -71,11 +80,16 @@ class Student(BaseModelMixin, db.Model):
         return errors, added_students
 
 
-@event.listens_for(Student.classes, 'append')
+@event.listens_for(Student.classes, "append")
 def student_class_append_listener(target, value, initiator):
     value.add_student(target)
     target.save()
 
-@event.listens_for(Student.classes, 'remove')
+
+@event.listens_for(Student.classes, "remove")
 def student_class_remove_listener(target, value, initiator):
-    db.engine.execute("DELETE FROM student_attended_class WHERE school_class_id=%s AND student_id=%s", value.id, target.id)
+    db.engine.execute(
+        "DELETE FROM student_attended_class WHERE school_class_id=%s AND student_id=%s",
+        value.id,
+        target.id,
+    )

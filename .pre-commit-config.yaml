@@ -1,0 +1,57 @@
+repos:
+    # backend hooks
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.4.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-added-large-files
+    -   id: debug-statements
+    -   id: no-commit-to-branch
+        name: Block commit to master
+        args: [--branch, master]
+
+-   repo: https://github.com/asottile/seed-isort-config
+    rev: v1.9.3
+    hooks:
+    - id: seed-isort-config
+
+-   repo: https://github.com/pre-commit/mirrors-isort
+    rev: v4.3.21
+    hooks:
+    - id: isort
+
+-   repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v1.5.2
+    hooks:
+    -   id: autopep8
+        files: ^src/backend/
+
+-   repo: https://github.com/Lucas-C/pre-commit-hooks-bandit
+    sha: v1.0.4
+    hooks:
+    -   id: python-bandit-vulnerability-check
+        files: ^src/backend/
+        args: [--skip, "B101,B311"]
+        exclude: ^src/client/
+
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: master
+    hooks:
+    -   id: flake8
+        args: [--config, src/backend/tox.ini]
+        files: ^src/backend/
+        exclude: ^src/client/
+
+
+# Frontend hooks
+
+# -   repo: local
+#     hooks:
+#     -   id: vue_unit_tests
+#         name: Run vue tests
+#         language: node
+#         entry: yarn run test:unit
+#         pass_filenames: false
+#         files: ^src/client/

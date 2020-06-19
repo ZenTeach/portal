@@ -1,11 +1,8 @@
 import logging
-from flask import Blueprint, current_app, jsonify, url_for, request, make_response
-from server.models import Questions
-from jinja2 import Environment, FileSystemLoader
-from weasyprint import HTML, CSS
-from weasyprint.fonts import FontConfiguration
 
-root_api = Blueprint('root', __name__)
+from flask import Blueprint, current_app, jsonify, url_for
+
+root_api = Blueprint("root", __name__)
 
 api_logger = logging.getLogger(__name__)
 
@@ -26,15 +23,19 @@ def site_map():
             url = url_for(rule.endpoint, **(rule.defaults or {}))
             links.append((url, rule.endpoint))
     # links is now a list of url, endpoint tuples
-    return(jsonify(links))
+    return jsonify(links)
+
 
 @root_api.route("/ping")
 def ping():
     return "pong", 200
 
+
 @root_api.route("/debug-sentry")
 def debug():
-    return 1/0
+    return 1 / 0
+
+
 # TODO: Use this to dynamically register api blueprint during app creation
 # def register_blueprints(app):
 #     """Automagically register all blueprint packages

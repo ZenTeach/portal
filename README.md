@@ -8,7 +8,7 @@
 - Finally, install [Rabbitmq](https://www.rabbitmq.com/download.html)
 
 ## Setup
-> :warning: **These commands were only tested on *nix like systems, please advise when running it on windows. We advise using docker & docker-compose for windows.**
+> ⚠️ **These commands were only tested on *nix like systems, please advise when running it on windows. It's advised tp use docker & docker-compose on windows.**
 
 ### Backend
 The backend is a flask app written in python. `src/backend` contains all the backend code including models and apis. Copy the `.env.example` to `.env` and change these files.
@@ -54,8 +54,12 @@ rabbitmqctl add_vhost jobs
 To run the backend server:
 
 ```bash
+# install the deps first
+pipenv install
 env $(cat .env | xargs) ./entrypoint.sh init
 ```
+
+**NOTE**: Please take a look at [Sample env file](#sample-env-file) for an example `.env` file.
 
 ### Frontend:
 
@@ -83,3 +87,21 @@ docker-compose up --build -d
 ```
 
 This will download the prerequisites as docker images and run them in containers. Now you can access the frontend from `localhost:8080`.
+
+
+## Sample env file
+
+This is a sample env file to follow
+
+```ini
+FLASK_ENV=development
+FLASK_ADMIN_SWATCH=journal
+DATABASE_URL=postgres://zenteach:zenteach@localhost:5432/zenteach_dev
+DATABASE_TEST_URL=postgres://zenteach:zenteach@localhost:5432/zenteach_test
+APP_SETTINGS=server.config.DevelopmentConfig
+CELERY_BROKER_URL=amqp://zenteach:zenteach_broker@localhost:5672/jobs
+CELERY_RESULT_BACKEND=redis://localhost:6379/0
+REDIS_URL=redis://localhost:6379/app
+PYTHONUNBUFFERED=TRUE
+PRECOMMIT_CONFIG=./src/backend/.pre-commit-config.yaml
+```

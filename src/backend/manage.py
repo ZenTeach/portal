@@ -1,49 +1,43 @@
-import datetime
-import operator
-import os
 import sys
 
 import coverage
 import pytest
-import sqlalchemy as sa
-from flask import url_for
 from flask.cli import FlaskGroup
 from flask_migrate import MigrateCommand
-
-from server import bcrypt, create_app, db
+from server import create_app, db
 
 app = create_app()
 cli = FlaskGroup(create_app=create_app)
-cli.add_command('db', MigrateCommand)
+cli.add_command("db", MigrateCommand)
 
 COV = coverage.coverage(
     branch=True,
-    include='server/*',
-    omit=[
-        'server/tests/*',
-        'server/config.py',
-    ]
+    include="server/*",
+    omit=["server/tests/*", "server/config.py"]
 )
 COV.start()
 
 
-@cli.command('recreate_db')
+@cli.command("recreate_db")
 def recreate_db():
     db.drop_all()
     db.create_all()
     db.session.commit()
 
-@cli.command('truncate_tables')
+
+@cli.command("truncate_tables")
 def truncate_tables():
     def clear_data(session):
         meta = db.metadata
         for table in reversed(meta.sorted_tables):
-            print(f'Clear table {table}')
+            print(f"Clear table {table}")
             session.execute(table.delete())
         session.commit()
+
     clear_data(db.session)
 
-@cli.command('db_conf')
+
+@cli.command("db_conf")
 def db_conf():
     db.configure_mappers()
 
@@ -54,31 +48,30 @@ def test():
     pytest.main(["-s", "server/tests"])
 
 
-@cli.command('routes')
+@cli.command("routes")
 def routes():
     """ Prints all registered routes"""
     print("Method \tEndpoint \turl name")
     for rule in app.url_map.iter_rules():
-        # url = url_for(rule.endpoint, **(rule.defaults or {}))
-        #method = [(http_method in ['GET', 'POST']) for http_method in sorted(rule.methods)].join(',')
         print("{} \t{} \t{}".format(rule.methods, rule.endpoint, str(rule)))
 
 
-@cli.command('seed')
+@cli.command("seed")
 def seed():
     from server.models import run_seed
+
     run_seed()
 
 
-@cli.command('coverage')
+@cli.command("coverage")
 def cov():
     """Runs the unit tests with coverage."""
-    tests = unittest.TestLoader().discover('server/tests')
-    result = unittest.TextTestRunner(verbosity=2).run(tests)
+    tests = unittest.TestLoader().discover("server/tests")  # noqa
+    result = unittest.TextTestRunner(verbosity=2).run(tests)  # noqa
     if result.wasSuccessful():
         COV.stop()
         COV.save()
-        print('Coverage Summary:')
+        print("Coverage Summary:")
         COV.report()
         COV.html_report()
         COV.erase()
@@ -86,5 +79,5 @@ def cov():
     sys.exit(result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

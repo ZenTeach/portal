@@ -34,6 +34,7 @@ services:
       - CELERY_BROKER_URL=amqp://zenteach:zenteach_broker@rabbitmq_broker:5672/jobs
       - CELERY_RESULT_BACKEND=redis://redis_store:6379/0
       - REDIS_URL=redis://redis_store:6379/1
+      - PRECOMMIT_CONFIG=/home/flask/server/.pre-commit-config.yaml
     depends_on:
       - zenteach_db
       - redis_store

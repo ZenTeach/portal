@@ -12,7 +12,7 @@ pipeline {
       }
     }
 
-		
+
     // Build FE
     stage("Build Frontend Project") {
       when {
