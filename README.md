@@ -83,6 +83,7 @@ Both the backend and frontend have docker setups for local testing and developme
 After installation run the following in the root folder to run the backend and frontend together:
 
 ```bash
+pip install pre-commit && pre-commit install -c ../../.pre-commit-config.yaml
 docker-compose up --build -d
 ```
 

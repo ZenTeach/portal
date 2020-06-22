@@ -21,7 +21,7 @@ services:
       context: ./src/backend
       dockerfile: Dockerfile
     env_file:
-      - './src/backend/.env'
+      - './src/backend/.env.docker'
     volumes:
       - "./src/backend:/home/flask/server"
     ports:
@@ -45,19 +45,21 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    links:
+      - "zenteach_db"
+      - "redis_store"
+      - "rabbitmq_broker"
   zenteach_db:
     build:
       context: ./src/backend/db
       dockerfile: Dockerfile
     ports:
-      - 5435:5432
+      - 5432:5432
     environment:
       - POSTGRES_USER=zenteach
       - POSTGRES_PASSWORD=zenteach
   redis_store:
     image: redis:5.0.7-alpine
-    # ports:
-    #   - "6379:6379"
   rabbitmq_broker:
     image: rabbitmq:3.7.22-management-alpine
     ports:

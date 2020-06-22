@@ -26,9 +26,9 @@ RUN pip install pipenv
 COPY Pipfile.* /home/flask/server/
 RUN pipenv sync
 
-COPY ./entrypoint.sh /home/flask/server/entrypoint.sh
-RUN chmod +x /home/flask/server/entrypoint.sh
+COPY ./entrypoint_docker.sh /home/flask/server/entrypoint_docker.sh
+RUN chmod a+x /home/flask/server/entrypoint_docker.sh
 
-COPY . /home/flask/server
+COPY . /home/flask/server/
 
-CMD ["/home/flask/server/entrypoint.sh"]
+CMD ["/home/flask/server/entrypoint_docker.sh"]

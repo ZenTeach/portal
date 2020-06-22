@@ -3,3 +3,5 @@ npm-debug.log
 Dockerfile
 .dockerignore
 Dockerfile-prod
+dist
+entrypoint.sh
