@@ -69,8 +69,6 @@ class TeacherLogin(Resource):
         if bcrypt.check_password_hash(current_user.password, data['password']):
             access_token = create_access_token(identity=current_user)
             refresh_token = create_refresh_token(identity=current_user)
-            access_csrf_token = get_csrf_token(access_token)
-            refresh_csrf_token = get_csrf_token(refresh_token)
             response_data = jsonify({
                 'message': 'Logged in as {}'.format(current_user.email)
             })
@@ -83,9 +81,6 @@ class TeacherLogin(Resource):
 
 
             response = make_response(response_data, 200)
-            response.set_cookie('access_csrf_token', access_csrf_token, secure=True)
-            response.set_cookie('refresh_csrf_token', refresh_csrf_token, secure=True)
-
             return response
 
         else:
