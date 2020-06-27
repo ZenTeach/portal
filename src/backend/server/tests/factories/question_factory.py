@@ -7,7 +7,8 @@ from random import randrange, choice, randint
 from uuid import uuid4
 from faker import Faker
 from faker.providers import internet, date_time, lorem, misc
-from random import randint
+from random import randint, choice
+
 fake = Faker()
 fake.add_provider(internet)
 fake.add_provider(date_time)
@@ -19,14 +20,16 @@ class QuestionsFactory(SQLAlchemyModelFactory):
         model = Questions
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = 'commit'
+
     class Params:
         multiple_choice_question_type = Trait(
             question_type=QuestionTypeEnum.multiple_choice
-            # choices=RelatedFactoryList('server.tests.factories.QuestionChoiceFactory', size=lambda: randint(2, 6))
         )
+
 
     question = fake.sentence()
     knowledge_item=fake.words()
     tag=fake.words()
     topic=fake.word()
+    correct_choice_id = choice([1, 2, 3 ,4])
     subject = choice(["Chemistry", "Biology", "Physics"])
