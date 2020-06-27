@@ -35,7 +35,7 @@ export function inviteStudent (classId, payload) {
 export function inviteStudentFromCSVFile (classId, formData, headerData) {
   const header = {
     'Content-Type': 'multipart/form-data',
-    'X-CSRF-TOKEN': headerData
+    'X-CSRF-ACCESS-TOKEN': headerData
   }
   return Api.post(`/school_class/${classId}/student/inviteFromCSV`, formData, { headers: header })
 }

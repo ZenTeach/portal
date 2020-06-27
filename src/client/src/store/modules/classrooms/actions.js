@@ -58,7 +58,7 @@ const IMPORTSTUDENTSFROMCSV = ({ commit }, payload) => {
   const { classId, formData, headerData } = payload
   inviteStudentFromCSVFile(classId, formData, headerData)
     .then(response => {
-			console.log(response)
+      console.log(response)
       // console.log(response.data)
     })
     .catch(error => {
