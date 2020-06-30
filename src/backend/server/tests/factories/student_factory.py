@@ -28,7 +28,6 @@ class StudentFactory(SQLAlchemyModelFactory):
     lastname = fake.last_name()
     email = fake.safe_email()
     password = fake.password(length=12, special_chars=True, digits=True, upper_case=True, lower_case=True)
-    date_of_birth = fake.date_of_birth()
     role="Student"
     # classes = RelatedFactory('server.tests.factories.SchoolClassFactory')
 

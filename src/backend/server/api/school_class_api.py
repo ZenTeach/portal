@@ -7,8 +7,6 @@ from server import db
 from server.decorators import with_required_roles
 from server.models import SchoolClassSchema, SchoolClass as SchoolClassModel, Student
 from sqlalchemy import exc
-from werkzeug import secure_filename
-from pandas import read_csv
 
 school_class_blueprint = Blueprint('school_class', __name__)
 api = Api(school_class_blueprint)
@@ -163,63 +161,9 @@ class SchoolClassInviteStudent(Resource):
                 'status': 'success'
             }), 201)
 
-class SchoolClassInviteFromCSVStudent(Resource):
-    allowed_extenstions=["csv"]
-
-    def allowed_file(self, filename):
-        return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in self.allowed_extenstions
-
-    @jwt_required
-    def post(self, class_id):
-        school_class = SchoolClassModel.query.filter_by(id=class_id).first()
-        if not school_class:
-            abort(404, 'School class room doesn\'t exist')
-
-        csv_file = request.files['files']
-        print(csv_file)
-
-        if csv_file.filename == '':
-            abort(404, 'No selected file')
-        students = []
-        if csv_file and self.allowed_file(csv_file.filename):
-            filename = secure_filename(csv_file.filename)
-            df = read_csv(csv_file, header=0, names=['firstname', 'lastname', 'email'])
-
-            for it in df.values.tolist():
-                print(it)
-                students.append({
-                    'firstname': it[0],
-                    'lastname': it[1],
-                    'email': it[2]
-                })
-
-            print(students)
-
-        result = None
-        try:
-            result = Student.create_from_list(students)
-            errs = result[0]
-            all_students = result[1]
-        except Exception as e:
-            print("Got an exception", e)
-            abort(404, "The file is not valid.")
-
-        if len(all_students) != 0:
-            for student in all_students:
-                school_class.add_student(student)
-                school_class.save()
-
-        if len(errs) == 0:
-            return make_response("Students were added", 200)
-        else:
-            print(errs)
-            return make_response("Got some errors adding student", 404)
-
 api.add_resource(SchoolClassPing, '/school_class/ping')
 api.add_resource(SchoolClass, '/school_class/<school_class_id>')
 api.add_resource(SchoolClassOwned, '/school_class/owned/<teacher_id>')
 api.add_resource(TeacherOwnedClass, '/school_class/owned')
 api.add_resource(SchoolClassList, '/school_class')
 api.add_resource(SchoolClassInviteStudent, '/school_class/<int:class_id>/student/invite')
-api.add_resource(SchoolClassInviteFromCSVStudent, '/school_class/<int:class_id>/student/inviteFromCSV')
