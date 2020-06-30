@@ -2,8 +2,7 @@ import {
   fetchClasses,
   addNewClass,
   fetchCurrentClass,
-  inviteStudent,
-  inviteStudentFromCSVFile
+  inviteStudent
 } from '../../../service/classrooms'
 
 const GETCLASSES = ({ commit }) => {
@@ -48,18 +47,6 @@ const GETCURRENTCLASS = ({ commit }, payload) => {
       if (response.status === 'success') {
         commit('UPDATE_CURRENT_CLASS', response.data)
       }
-    })
-    .catch(error => {
-      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-    })
-}
-
-const IMPORTSTUDENTSFROMCSV = ({ commit }, payload) => {
-  const { classId, formData, headerData } = payload
-  inviteStudentFromCSVFile(classId, formData, headerData)
-    .then(response => {
-      console.log(response)
-      // console.log(response.data)
     })
     .catch(error => {
       commit('app/TOGGLE_ERROR', error.response.data, { root: true })

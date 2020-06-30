@@ -45,8 +45,6 @@ class TeacherRegistration(Resource):
             response = jsonify({
                 'message': 'Teacher {} was created'.format(new_teacher.full_name())
             })
-            set_access_cookies(response, access_token)
-            set_refresh_cookies(response, refresh_token)
 
             access_jti = get_jti(encoded_token=access_token)
             refresh_jti = get_jti(encoded_token=refresh_token)
