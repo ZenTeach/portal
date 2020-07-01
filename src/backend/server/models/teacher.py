@@ -58,6 +58,9 @@ class Teacher(BaseModelMixin, db.Model):
     def full_name(self):
         return "{} {}".format(self.firstname, self.lastname)
 
+    def get_user_id(self):
+        return self.id
+
     def owns_class(self, class_id):
         """
             Checks if the teacher owns the class
