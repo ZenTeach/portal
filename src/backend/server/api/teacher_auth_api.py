@@ -1,12 +1,10 @@
-import os
 from datetime import timedelta
 
 from flask import Blueprint, current_app, jsonify, make_response, request
 from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                get_csrf_token, get_jti, get_jwt_identity,
-                                get_raw_jwt, jwt_refresh_token_required,
-                                jwt_required, set_access_cookies,
-                                set_refresh_cookies)
+                                get_jti, get_jwt_identity, get_raw_jwt,
+                                jwt_refresh_token_required, jwt_required,
+                                set_access_cookies, set_refresh_cookies)
 from flask_restful import Api, Resource
 from server import bcrypt, jwt, redis_store
 from server.models import Teacher, TeacherSchema
@@ -77,7 +75,6 @@ class TeacherLogin(Resource):
                 404)
 
         if bcrypt.check_password_hash(current_user.password, data["password"]):
-            production_env = os.environ.get("FLASK_ENV") == "production"
             access_token = create_access_token(identity=current_user)
             refresh_token = create_refresh_token(identity=current_user)
             response_data = jsonify({

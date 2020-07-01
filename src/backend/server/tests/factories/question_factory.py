@@ -25,10 +25,9 @@ class QuestionsFactory(SQLAlchemyModelFactory):
             question_type=QuestionTypeEnum.multiple_choice
         )
 
-
     question = fake.sentence()
-    knowledge_item=fake.words()
-    tag=fake.words()
-    topic=fake.word()
-    correct_choice_id = choice([1, 2, 3 ,4])
+    knowledge_item = fake.words()
+    tag = fake.words()
+    topic = fake.word()
+    correct_choice_id = choice([1, 2, 3, 4])
     subject = choice(["Chemistry", "Biology", "Physics"])

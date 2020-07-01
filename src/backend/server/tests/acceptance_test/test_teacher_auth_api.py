@@ -1,12 +1,16 @@
 import json
+
 import pytest
-from server.tests.factories import TeacherFactory
 from factory import build
+from server.tests.factories import TeacherFactory
+
 
 @pytest.fixture
 def teacher():
-    teacher = TeacherFactory(with_school_class=True, email="joemama@example.com", password="Asdfgh12!")
+    teacher = TeacherFactory(with_school_class=True,  # nosec
+                             email="joemama@example.com", password="Asdfgh12!")
     return teacher
+
 
 @pytest.mark.parametrize(
     "email,password,message,status_code",
@@ -21,14 +25,15 @@ def teacher():
             "joe@example.com", "123456789", {'message': 'User joe@example.com doesn\'t exist'}, 404
         ),
         pytest.param(
-            "joemama@example.com", "Asdfgh12!", {'message': 'Logged in as joemama@example.com'}, 200
+            "joemama@example.com", "Asdfgh12!", {
+                'message': 'Logged in as joemama@example.com'}, 200
         )
     ],
 )
 def test_teacher_login_endpoint(client, teacher, email, password, message, status_code):
     response = client.post(
         '/api/v1/teacher/login',
-        json = {
+        json={
             "email": email,
             "password": password
         }
@@ -43,7 +48,7 @@ def test_teacher_registration_endpoint(client, teacher):
     new_teacher = build(dict, FACTORY_CLASS=TeacherFactory)
     response = client.post(
         '/api/v1/teacher/registration',
-        json = new_teacher
+        json=new_teacher
     )
 
     assert response.status_code, 200

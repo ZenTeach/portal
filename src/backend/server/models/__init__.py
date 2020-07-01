@@ -1,18 +1,22 @@
+"""
+    isort:skip_file
+"""
+
 from marshmallow_enum import EnumField
 from server import ma
 
-from .admin import Admin
-from .class_quiz import ClassQuiz, ClassQuizStatus
-from .feedback import ChoiceFeedback
-from .migrations.seeds import run_seed
-from .question_choice import QuestionChoice
-from .questions import Questions, QuestionTypeEnum
-from .quiz_grade import QuizGrade
 from .quiz_session import QuizSession, QuizSessionStatus
+from .quiz_grade import QuizGrade
+from .class_quiz import ClassQuiz, ClassQuizStatus
+from .student_school_class import StudentAttendedClass
 from .school_class import SchoolClass
 from .student import Student
-from .student_school_class import StudentAttendedClass
 from .teacher import Teacher
+from .admin import Admin
+from .feedback import ChoiceFeedback
+from .question_choice import QuestionChoice
+from .questions import Questions, QuestionTypeEnum
+from .migrations.seeds import run_seed
 
 __all__ = [
     "ClassQuiz",

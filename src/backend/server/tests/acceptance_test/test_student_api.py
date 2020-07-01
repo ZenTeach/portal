@@ -1,5 +1,3 @@
-import json
-
 from server.tests.base import BaseTestCase
 
 
