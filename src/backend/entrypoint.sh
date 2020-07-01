@@ -13,6 +13,8 @@ python manage.py db upgrade
 
 python manage.py db_conf
 
+pre-commit install -c $PRECOMMIT_CONFIG
+
 # Run migrations before booting up the app
 if [[ "$1" == "init" ]] ;then
     echo "Deleting database schema"

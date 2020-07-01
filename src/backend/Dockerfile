@@ -21,12 +21,14 @@ WORKDIR /home/flask/server
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY ./requirements.txt /home/flask/server/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install pipenv
 
-COPY ./entrypoint.sh /home/flask/server/entrypoint.sh
-RUN chmod +x /home/flask/server/entrypoint.sh
+COPY Pipfile.* /home/flask/server/
+RUN pipenv sync
 
-COPY . /home/flask/server
+COPY ./entrypoint_docker.sh /home/flask/server/entrypoint_docker.sh
+RUN chmod a+x /home/flask/server/entrypoint_docker.sh
 
-CMD ["/home/flask/server/entrypoint.sh"]
+COPY . /home/flask/server/
+
+CMD ["/home/flask/server/entrypoint_docker.sh"]

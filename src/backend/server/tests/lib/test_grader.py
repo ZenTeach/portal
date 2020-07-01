@@ -1,7 +1,3 @@
-import pytest
-from server.lib.grader import Grader
-from server.models import ClassQuizStatus, ClassQuiz, SchoolClass
-
 def test_grader(client, teacher_factory):
     # TODO
     # teacher = teacher_factory(has_class_and_student=True)

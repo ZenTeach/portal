@@ -1,9 +1,7 @@
-import json
+
 
 def test_get_quiz_submit(client):
-    response = client.get(
-        '/api/v1/quiz_api/submit_quiz'
-    )
+    response = client.get("/api/v1/quiz_api/submit_quiz")
     # TODO
     print(response.data)
     # data = json.loads(response.data.decode())

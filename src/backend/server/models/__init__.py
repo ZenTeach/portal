@@ -1,4 +1,9 @@
+"""
+    isort:skip_file
+"""
+
 from marshmallow_enum import EnumField
+from server import ma
 
 from .quiz_session import QuizSession, QuizSessionStatus
 from .quiz_grade import QuizGrade
@@ -8,42 +13,63 @@ from .school_class import SchoolClass
 from .student import Student
 from .teacher import Teacher
 from .admin import Admin
-from .quiz_grade import QuizGrade
-from .quiz_session import QuizSession
 from .feedback import ChoiceFeedback
 from .question_choice import QuestionChoice
 from .questions import Questions, QuestionTypeEnum
 from .migrations.seeds import run_seed
 
-__all__ = ['ClassQuiz', 'ClassQuizStatus', 'ClassQuizSchema', 'Teacher', 'TeacherSchema',
-           'QuizSession', 'QuizSessionStatus', 'QuizGrade', 'StudentAttendedClass',
-           'Student', 'StudentSchema',
-           'SchoolClass', 'SchoolClassSchema', 'ClassQuizScore', 'Admin',
-           'QuizSession', 'Questions', 'QuestionTypeEnum', 'QuestionChoice', 'QuestionsSchema', 'ChoiceFeedback', 'run_seed']
+__all__ = [
+    "ClassQuiz",
+    "ClassQuizStatus",
+    "ClassQuizSchema",
+    "Teacher",
+    "TeacherSchema",
+    "QuizSession",
+    "QuizSessionStatus",
+    "QuizGrade",
+    "StudentAttendedClass",
+    "Student",
+    "StudentSchema",
+    "SchoolClass",
+    "SchoolClassSchema",
+    "ClassQuizScore",
+    "Admin",
+    "QuizSession",
+    "Questions",
+    "QuestionTypeEnum",
+    "QuestionChoice",
+    "QuestionsSchema",
+    "ChoiceFeedback",
+    "run_seed",
+]
 
-# serializers
-from server import ma
-
-
-# class ClassQuizScoreSchema(ma.ModelSchema):
-#     class Meta:
-#         table = 'QuizGrade'
 
 class QuizGradeSchema(ma.ModelSchema):
     class Meta:
         model = QuizGrade
-        fields = ('score', 'grade_breakdown')
+        fields = ("score", "grade_breakdown")
+
 
 class QuestionChoicesSchema(ma.ModelSchema):
     class Meta:
         model = QuestionChoice
-        fields = ('value', 'uuid')
+        fields = ("value", "uuid")
+
 
 class QuestionsSchema(ma.ModelSchema):
     class Meta:
         model = Questions
-        fields = ('id', 'question', 'question_type',
-                  'subject', 'topic', 'knowledge_item', 'tag', 'choices')
+        fields = (
+            "id",
+            "question",
+            "question_type",
+            "subject",
+            "topic",
+            "knowledge_item",
+            "tag",
+            "choices",
+        )
+
     question_type = EnumField(QuestionTypeEnum, by_value=True)
     choices = ma.Nested(QuestionChoicesSchema, many=True)
 
@@ -51,28 +77,48 @@ class QuestionsSchema(ma.ModelSchema):
 class ClassQuizSchema(ma.ModelSchema):
     class Meta:
         model = ClassQuiz
+
     status = EnumField(ClassQuizStatus)
 
 
 class StudentSchema(ma.ModelSchema):
     class Meta:
         model = Student
-        fields = ('id', 'firstname', 'lastname', 'email',
-                  'date_of_birth', 'role', 'classes', 'quiz_grades')
-    classes = ma.List(ma.HyperlinkRelated(
-        "school_class.schoolclass", url_key="school_class_id"))
+        fields = (
+            "id",
+            "firstname",
+            "lastname",
+            "email",
+            "date_of_birth",
+            "role",
+            "classes",
+            "quiz_grades",
+        )
+
+    classes = ma.List(
+        ma.HyperlinkRelated("school_class.schoolclass",
+                            url_key="school_class_id")
+    )
+
 
 class AdminSchema(ma.ModelSchema):
     class Meta:
         model = Admin
-        fields = ('id', 'firstname', 'lastname', 'email',
-                  'date_of_birth', 'role', 'classes')
+        fields = (
+            "id",
+            "firstname",
+            "lastname",
+            "email",
+            "date_of_birth",
+            "role",
+            "classes",
+        )
 
 
 class SchoolClassSchema(ma.ModelSchema):
     class Meta:
         model = SchoolClass
-        fields = ('id', 'name', 'subject', 'start_date', 'students', 'quizzes')
+        fields = ("id", "name", "subject", "start_date", "students", "quizzes")
 
     quizzes = ma.Nested(ClassQuizSchema, many=True)
     students = ma.Nested(StudentSchema, many=True)
@@ -80,8 +126,15 @@ class SchoolClassSchema(ma.ModelSchema):
 
 class TeacherSchema(ma.ModelSchema):
     class Meta:
-        fields = ('id', 'firstname', 'lastname', 'email',
-                  'date_of_birth', 'role', 'classes')
+        fields = (
+            "id",
+            "firstname",
+            "lastname",
+            "email",
+            "date_of_birth",
+            "role",
+            "classes",
+        )
         model = Teacher
 
     classes = ma.Nested(SchoolClassSchema, many=True)

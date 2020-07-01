@@ -1,19 +1,18 @@
+from random import choice
+
+from factory import Trait
+from factory.alchemy import SQLAlchemyModelFactory
+from faker import Faker
+from faker.providers import date_time, internet, lorem, misc
 from server import db
 from server.models import Questions, QuestionTypeEnum
-
-from factory import SubFactory, RelatedFactory, RelatedFactoryList, post_generation, Trait
-from factory.alchemy import SQLAlchemyModelFactory
-from random import randrange, choice, randint
-from uuid import uuid4
-from faker import Faker
-from faker.providers import internet, date_time, lorem, misc
-from random import randint, choice
 
 fake = Faker()
 fake.add_provider(internet)
 fake.add_provider(date_time)
 fake.add_provider(lorem)
 fake.add_provider(misc)
+
 
 class QuestionsFactory(SQLAlchemyModelFactory):
     class Meta:
@@ -26,10 +25,9 @@ class QuestionsFactory(SQLAlchemyModelFactory):
             question_type=QuestionTypeEnum.multiple_choice
         )
 
-
     question = fake.sentence()
-    knowledge_item=fake.words()
-    tag=fake.words()
-    topic=fake.word()
-    correct_choice_id = choice([1, 2, 3 ,4])
+    knowledge_item = fake.words()
+    tag = fake.words()
+    topic = fake.word()
+    correct_choice_id = choice([1, 2, 3, 4])
     subject = choice(["Chemistry", "Biology", "Physics"])

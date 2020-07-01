@@ -5,11 +5,12 @@ project, and log the script's URL to the user.
 """
 
 from __future__ import print_function
-import pickle
+
 from pathlib import Path
-import json
+
 from jinja2 import Environment, FileSystemLoader
 from server.models import ClassQuiz as ClassQuizModel
+
 
 class GoogleFormsGenerator(object):
     def __init__(self, template_dir, quiz_id, js_tmpl):
@@ -44,17 +45,15 @@ class GoogleFormsGenerator(object):
             raise Exception("Quiz not found!")
 
         try:
-            env = Environment(loader=FileSystemLoader(self.template_dir))
+            env = Environment(loader=FileSystemLoader(self.template_dir), autoescape=True)
             template = env.get_template(self.js_tmpl)
 
-            template_vars = {
-                "subject": "Chemistry",
-                "questions": self.quiz.questions
-            }
+            template_vars = {"subject": "Chemistry",
+                             "questions": self.quiz.questions}
 
             return template.render(template_vars)
         except Exception as e:
-            print (e)
+            print(e)
 
     def update_quiz(self, pr_id, dep_id, version_number):
         self.quiz.update_gform_id(pr_id, dep_id, version_number)

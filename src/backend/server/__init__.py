@@ -13,16 +13,19 @@ from flask_mail import Mail
 from flask_marshmallow import Marshmallow
 from flask_redis import FlaskRedis
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import event, exc
+from sqlalchemy import event
 from sqlalchemy.pool import Pool
 from sqlalchemy_searchable import make_searchable
 
+
 def configure_logging():
     logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger('werkzeug').setLevel(logging.INFO)
+    logging.getLogger("werkzeug").setLevel(logging.INFO)
 
-mpl_logger = logging.getLogger('matplotlib')
+
+mpl_logger = logging.getLogger("matplotlib")
 mpl_logger.setLevel(logging.WARNING)
+
 
 class RequestFormatter(logging.Formatter):
     def format(self, record):
@@ -37,8 +40,8 @@ class RequestFormatter(logging.Formatter):
 
 
 formatter = RequestFormatter(
-    '[%(asctime)s] %(remote_addr)s requested %(url)s\n'
-    '%(levelname)s in %(module)s: %(message)s'
+    "[%(asctime)s] %(remote_addr)s requested %(url)s\n"
+    "%(levelname)s in %(module)s: %(message)s"
 )
 
 db = SQLAlchemy()
@@ -48,15 +51,16 @@ jwt = JWTManager()
 cors = CORS(supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
 ma = Marshmallow()
 mail = Mail()
-celery=Celery('zenteach_tasks')
+celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
 
-@event.listens_for(Pool, 'checkout')
+
+@event.listens_for(Pool, "checkout")
 def ping_connection(dbapi_connection, connection_record, connection_proxy):
     cursor = dbapi_connection.cursor()
     try:
         cursor.execute("SELECT 1;")
-    except:
+    except Exception as exc:
         # optional - dispose the whole pool
         # instead of invalidating one at a time
         connection_proxy._pool.dispose()
@@ -66,17 +70,19 @@ def ping_connection(dbapi_connection, connection_record, connection_proxy):
         raise exc.DisconnectionError()
     cursor.close()
 
-def create_app():
-    app = Flask(__name__, template_folder='templates')
 
-    if os.environ.get("FLASK_ENV") == 'production':
+def create_app():
+    app = Flask(__name__, template_folder="templates")
+
+    if os.environ.get("FLASK_ENV") == "production":
         app.config.from_pyfile("/var/www/zenteach_be/application.cfg")
         # app_settings = os.getenv('APP_SETTINGS')
         import pprint
-        with open('output.txt', 'wt') as out:
+
+        with open("output.txt", "wt") as out:
             pprint.pprint(dict(app.config), stream=out)
     else:
-        app_settings = os.getenv('APP_SETTINGS')
+        app_settings = os.getenv("APP_SETTINGS")
         app.config.from_object(app_settings)
 
     db.init_app(app)
@@ -92,50 +98,72 @@ def create_app():
     login_manager.init_app(app)
 
     from server.models import Admin as AdminModel
+
     @login_manager.user_loader
     def load_user(admin_id):
         return db.session.query(AdminModel).get(admin_id)
 
     celery.conf.update(app.config)
     TaskBase = celery.Task
+
     class ContextTask(TaskBase):
         def __call__(self, *args, **kwargs):
             with app.app_context():
                 return TaskBase.__call__(self, *args, **kwargs)
+
     celery.Task = ContextTask
-    import server.tasks
 
     configure_logging()
     from . import models
-    from flask_migrate import Migrate, MigrateCommand
-    migration_directory = os.path.join('server', 'models', 'migrations')
-    migrate = Migrate(app, db, directory=migration_directory)
+    from flask_migrate import Migrate
 
-    from flask_admin.contrib.sqla import ModelView
-    from server.admin import QuestionView, SchoolClassView, StudentView, TeacherView, ClassQuizView, ZenteachAdminIndexView
-    admin = Admin(app, name="Zenteach Admin Portal", template_mode='bootstrap3', base_template='admin_layout.html', index_view=ZenteachAdminIndexView())
-    admin.add_view(ClassQuizView(models.ClassQuiz, db.session, endpoint="admin.quiz"))
-    admin.add_view(TeacherView(models.Teacher, db.session, endpoint="admin.teacher"))
-    admin.add_view(StudentView(models.Student, db.session, endpoint="admin.student"))
-    admin.add_view(SchoolClassView(models.SchoolClass, db.session, endpoint="admin.class"))
-    admin.add_view(QuestionView(models.Questions, db.session, endpoint="admin.question"))
+    migration_directory = os.path.join("server", "models", "migrations")
+    Migrate(app, db, directory=migration_directory)
+
+    from server.admin import (
+        QuestionView,
+        SchoolClassView,
+        StudentView,
+        TeacherView,
+        ClassQuizView,
+        ZenteachAdminIndexView,
+    )
+
+    admin = Admin(
+        app,
+        name="Zenteach Admin Portal",
+        template_mode="bootstrap3",
+        base_template="admin_layout.html",
+        index_view=ZenteachAdminIndexView(),
+    )
+    admin.add_view(ClassQuizView(models.ClassQuiz,
+                                 db.session, endpoint="admin.quiz"))
+    admin.add_view(TeacherView(
+        models.Teacher, db.session, endpoint="admin.teacher"))
+    admin.add_view(StudentView(
+        models.Student, db.session, endpoint="admin.student"))
+    admin.add_view(
+        SchoolClassView(models.SchoolClass, db.session, endpoint="admin.class")
+    )
+    admin.add_view(
+        QuestionView(models.Questions, db.session, endpoint="admin.question")
+    )
 
     # import background tasks after initializing celery
     # import server.tasks
     @jwt.token_in_blacklist_loader
     def check_if_token_is_revoked(decrypted_token):
-        jti = decrypted_token['jti']
+        jti = decrypted_token["jti"]
         entry = redis_store.get(jti)
         if entry is None:
             return True
-        return entry == 'true'
+        return entry == "true"
 
     @jwt.invalid_token_loader
     def respond_to_invalid_token(description):
-        return make_response(jsonify({
-            "status": "error",
-            "message": "Session expired"
-        }), 401)
+        return make_response(
+            jsonify({"status": "error", "message": "Session expired"}), 401
+        )
 
     # Register bluprints
     from server.api.school_class_api import school_class_blueprint
@@ -147,13 +175,13 @@ def create_app():
     from server.api.quiz_submit_api import quiz_submit_blueprint
     from server.api import root_api
 
-    app.register_blueprint(school_class_blueprint, url_prefix='/api/v1')
-    app.register_blueprint(class_quiz_blueprint, url_prefix='/api/v1')
-    app.register_blueprint(teacher_auth_blueprint, url_prefix='/api/v1')
-    app.register_blueprint(student_auth_blueprint, url_prefix='/api/v1')
-    app.register_blueprint(question_blueprint, url_prefix='/api/v1')
-    app.register_blueprint(statistics_view_blueprint, url_prefix='/api/v1')
-    app.register_blueprint(quiz_submit_blueprint, url_prefix='/api/v1')
+    app.register_blueprint(school_class_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(class_quiz_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(teacher_auth_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(student_auth_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(question_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(statistics_view_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(quiz_submit_blueprint, url_prefix="/api/v1")
     app.register_blueprint(root_api)
 
     default_handler.setFormatter(formatter)
@@ -164,6 +192,6 @@ def create_app():
 
     @app.shell_context_processor
     def ctx():
-        return {'app': app, 'db': db}
+        return {"app": app, "db": db}
 
     return app

@@ -1,10 +1,10 @@
-from server import create_app
-import sentry_sdk
 import os
+
 from aiohttp import web
 from aiohttp_wsgi import WSGIHandler
+from server import create_app
 
-sentry_dsn_key = os.environ.get('SENTRY_DSN')
+sentry_dsn_key = os.environ.get("SENTRY_DSN")
 app = None
 
 if sentry_dsn_key:
@@ -16,14 +16,20 @@ if sentry_dsn_key:
 
     sentry_sdk.init(
         dsn=sentry_dsn_key,
-        integrations=[FlaskIntegration(), SqlalchemyIntegration(), CeleryIntegration(), RedisIntegration()]
+        integrations=[
+            FlaskIntegration(),
+            SqlalchemyIntegration(),
+            CeleryIntegration(),
+            RedisIntegration(),
+        ],
     )
+
 
 def make_aiohttp_app():
     app = create_app()
     wsgi_handler = WSGIHandler(app)
     aioapp = web.Application()
-    aioapp.router.add_route('*', '/{path_info:.*}', wsgi_handler)
+    aioapp.router.add_route("*", "/{path_info:.*}", wsgi_handler)
     return aioapp
 
 

@@ -1,14 +1,18 @@
-from server import db, bcrypt
-from server.models.base_model import BaseModelMixin
-from uuid import uuid4
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import event
-import string
 import random
+import string
+from uuid import uuid4
 
+from server import bcrypt, db
+from server.models.base_model import BaseModelMixin
+from sqlalchemy import event
+from sqlalchemy.dialects.postgresql import UUID
+
+
+# TODO: Find an alternative to generate human readable password
 def randomString(stringLength=8):
     letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(stringLength))
+    return "".join(random.choice(letters) for i in range(stringLength))  # nosec
+
 
 class Teacher(BaseModelMixin, db.Model):
 
@@ -21,16 +25,27 @@ class Teacher(BaseModelMixin, db.Model):
     date_of_birth = db.Column(db.DateTime, nullable=False)
     role = db.Column(db.String(128), nullable=False)
 
-    classes = db.relationship('SchoolClass', backref='teacher', lazy=True)
+    classes = db.relationship("SchoolClass", backref="teacher", lazy=True)
 
-    def __init__(self, firstname, lastname, email, date_of_birth, classes=[], password=None, role="Teacher", uuid=uuid4()):
+    def __init__(
+        self,
+        firstname,
+        lastname,
+        email,
+        date_of_birth,
+        classes=[],
+        password=None,
+        role="Teacher",
+        uuid=uuid4(),
+    ):
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
         if password is None:
             self.password = bcrypt.generate_password_hash(randomString())
         else:
-            self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+            self.password = bcrypt.generate_password_hash(
+                password).decode("utf-8")
         self.role = role
         self.uuid = uuid
         print("In __init__, classes: {}", classes)
@@ -38,7 +53,7 @@ class Teacher(BaseModelMixin, db.Model):
         self.date_of_birth = date_of_birth
 
     def __repr__(self):
-        return '%s %s' % (self.firstname, self.lastname)
+        return "%s %s" % (self.firstname, self.lastname)
 
     def full_name(self):
         return "{} {}".format(self.firstname, self.lastname)
@@ -53,11 +68,14 @@ class Teacher(BaseModelMixin, db.Model):
 
         return class_id in self.classes
 
-@event.listens_for(Teacher.classes, 'append')
+
+@event.listens_for(Teacher.classes, "append")
 def teacher_class_append_listener(target, value, initiator):
     value.teacher_id = target.id
     value.save()
 
-@event.listens_for(Teacher.classes, 'remove')
+
+@event.listens_for(Teacher.classes, "remove")
 def student_class_remove_listener(target, value, initiator):
-    db.engine.execute("UPDATE school_class SET teacher_id=null WHERE id=%s", value.id)
+    db.engine.execute(
+        "UPDATE school_class SET teacher_id=null WHERE id=%s", value.id)
