@@ -145,6 +145,7 @@ isort = "*"
 pre-commit = "*"
 bandit = "*"
 autoflake = "*"
+authlib = "*"
 
 [requires]
 python_version = "3.7"
