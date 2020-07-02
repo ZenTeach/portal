@@ -72,6 +72,18 @@ const router = new Router({
       name: 'Student Report Card',
       component: () =>
         import(/* webpackChunkName: "QuizView" */ './views/ReportCard')
+    },
+    {
+      path: '/tos',
+      name: 'Terms Of Service',
+      component: () =>
+        import(/* webpackChunkName: "TOSView" */ './views/TOS')
+    },
+    {
+      path: '/privacy_policy',
+      name: 'Privacy Policy',
+      component: () =>
+        import(/* webpackChunkName: "PrivacyPolicyView" */ './views/PrivacyPolicy')
     }
   ]
 })
