@@ -1,9 +1,13 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils'
 import Vuex from 'vuex'
 import NavBar from '@/components/NavBar.vue'
+import Vue from 'vue'
+import Vuetify from 'vuetify'
+
+Vue.use(Vuex)
+Vue.use(Vuetify)
 const localVue = createLocalVue()
 
-localVue.use(Vuex)
 describe('NavBar.vue', () => {
   let actions
   let store
