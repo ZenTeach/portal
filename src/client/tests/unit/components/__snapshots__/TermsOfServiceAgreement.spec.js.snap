@@ -1,0 +1,396 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
+<v-card-stub
+  loaderheight="4"
+  tag="div"
+>
+  <v-card-title-stub>
+    <p
+      class="display-3 text--primary"
+    >
+       Terms and Conditions
+    </p>
+
+    <br />
+  </v-card-title-stub>
+
+  <v-card-subtitle-stub>
+    <small>
+      Last updated: February 20, 2020
+    </small>
+  </v-card-subtitle-stub>
+
+  <v-card-text-stub>
+    <div>
+      <p
+        class="text--primary"
+      >
+
+        Please read these Terms of Use (“Terms”, “Terms of Use”) carefully before using the
+        http://zenteach.co.uk website (the “Service”) operated by ZenTeach (“us”, “we”, or
+        “our”).
+
+      </p>
+
+      <p
+        class="text--primary"
+      >
+
+        Your access to and use of the Service is conditioned on your acceptance of and
+        compliance with these Terms. These Terms apply to all visitors, users and others
+        who access or use the Service.
+
+      </p>
+
+      <p
+        class="text--primary"
+      >
+
+        By accessing or using the Service you agree to be bound by these Terms. If you
+        disagree with any part of the terms then you may not access the Service.
+
+      </p>
+    </div>
+
+    <div>
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+         Accounts
+      </p>
+
+      <p
+        class="text--primary"
+      >
+         When you create an account with us, you must provide us information that is
+      accurate, complete, and current at all times. Failure to do so constitutes a breach of
+      the Terms, which may result in immediate termination of your account on our
+      Service.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        You are responsible for safeguarding the password that you use to access the
+      Service and for any activities or actions under your password, whether your
+      password is with our Service or a third-party service.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        You agree not to disclose your password to any third party. You must notify us
+      immediately upon becoming aware of any breach of security or unauthorized use of
+      your account.
+      </p>
+    </div>
+
+    <div>
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+        Intellectual Property
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        The Service and its original content, features and functionality are and will remain
+      the exclusive property of ZenTeach and its licensors.
+      </p>
+    </div>
+
+    <div>
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+        User-Uploaded Content
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        Our website allows you to upload content (“User-Uploaded Content”) for the
+      exchange of lawful, relevant, fair and appropriate information, opinions, materials
+      and comments with other users. You acknowledge that all User-Uploaded Content is
+      the sole responsibility of the person from which such content originated. We accept
+      no responsibility for, and do not guarantee, the accuracy, integrity or quality of any
+      User-Uploaded Content.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+         Please be aware that any user who is aggrieved by your User-Uploaded Content
+        may take legal action against you. This could result in data concerning your identity
+        being disclosed and you having to pay compensation to the aggrieved party.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+         We do not pre-screen User-Uploaded Content but we have the right to monitor UserUploaded Content if we wish.
+        If we determine that any User-Uploaded Content is inappropriate or otherwise objectionable, we may remove any User-Uploaded
+      Content from the Websites without any liability to you or to a third party.
+      </p>
+    </div>
+
+    <div>
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+         Use of content you upload
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        When you upload User-Uploaded Content to our Websites, you will (assuming you
+      are the owner of the content) retain all intellectual property rights in such content.
+      This means that you will be able to modify or remove your User-Uploaded Content
+      as you wish. To enable us to provide our Services and host your User-Uploaded
+      Content, we require a licence. Similarly, third party users of our Websites will require
+      a licence from you to enable them to make use of your User-Uploaded Content.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        The licence you grant us and each of our affiliates is non-exclusive, sub-licensable,
+      worldwide, fully paid-up, royalty-free, perpetual and irrevocable (save as set out
+      below). This means that we can use, reproduce, publish, distribute and display your
+      User-Uploaded Content (in whole or in part) and/or incorporate it in other works in
+      any form, media, or technology. Third party users are allowed to download and/or
+      otherwise use your User-Uploaded Content under an Attribution License:
+      </p>
+
+      <ul>
+        <li>
+          <p
+            class="text--primary"
+          >
+            <span
+              class="font-weight-bold"
+            >
+              Share
+            </span>
+             — copy and redistribute the material in any medium or format
+          </p>
+        </li>
+
+        <li>
+          <p
+            class="text--primary"
+          >
+            <span
+              class="font-weight-bold"
+            >
+              Adapt
+            </span>
+             — remix, transform, and build upon the material for any purpose, even
+          commercially.
+          </p>
+        </li>
+      </ul>
+
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+        Your use of other peoples’ content
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        Services that we provide, allow you to use third party users’ User-Uploaded Content
+    within our Websites. You acknowledge that your use of such User-Uploaded Content
+    does not entitle you to any intellectual property rights to such User-Uploaded
+    Content. All User-Uploaded Content will be governed by the relevant “upload”
+    licence applied by the person uploading the content (third party user).
+      </p>
+    </div>
+
+    <div>
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+         Objections to User-Uploaded Content
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        You acknowledge that by using our Websites, there is a risk that you may be
+    exposed to User-Uploaded Content that you may find offensive, indecent or
+    objectionable. If you object to the publication of any User-Uploaded Content made
+    available through our Websites, please contact us via email with a URL to the
+    content.
+      </p>
+    </div>
+
+    <div>
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+         Links To Other Web Sites
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        Our Service may contain links to third-party web sites or services that are not owned
+      or controlled by ZenTeach.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+         ZenTeach has no control over, and assumes no responsibility for, the content,
+    privacy policies, or practices of any third party web sites or services. You further
+    acknowledge and agree that ZenTeach shall not be responsible or liable, directly or
+    indirectly, for any damage or loss caused or alleged to be caused by or in connection
+    with use of or reliance on any such content, goods or services available on or
+    through any such web sites or services.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        We strongly advise you to read the terms and conditions and privacy policies of any
+    third-party web sites or services that you visit.
+      </p>
+    </div>
+
+    <div>
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+        Termination
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        We may terminate or suspend access to our Service immediately, without prior
+    notice or liability, for any reason whatsoever, including without limitation if you
+    breach the Terms.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        All provisions of the Terms which by their nature should survive termination shall
+    survive termination, including, without limitation, ownership provisions, warranty
+    disclaimers, indemnity and limitations of liability.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        We may terminate or suspend your account immediately, without prior notice or
+    liability, for any reason whatsoever, including without limitation if you breach the
+    Terms.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        Upon termination, your right to use the Service will immediately cease. If you wish to
+    terminate your account, you may simply discontinue using the Service.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        All provisions of the Terms which by their nature should survive termination shall
+    survive termination, including, without limitation, ownership provisions, warranty
+    disclaimers, indemnity and limitations of liability.
+      </p>
+    </div>
+
+    <div>
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+        Disclaimer
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        Your use of the Service is at your sole risk. The Service is provided on an “AS IS”
+    and “AS AVAILABLE” basis. The Service is provided without warranties of any kind,
+    whether express or implied, including, but not limited to, implied warranties of
+    merchantability, fitness for a particular purpose, non-infringement or course of
+    performance.
+      </p>
+    </div>
+
+    <div>
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+        Governing Law
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        These Terms shall be governed and construed in accordance with the laws of United
+    Kingdom without regard to its conflict of law provisions.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        Our failure to enforce any right or provision of these Terms will not be considered a
+    waiver of those rights. If any provision of these Terms is held to be invalid or
+    unenforceable by a court, the remaining provisions of these Terms will remain in
+    effect. These Terms constitute the entire agreement between us regarding our
+    Service, and supersede and replace any prior agreements we might have between
+    us regarding the Service.
+      </p>
+    </div>
+
+    <div>
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+        Changes
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        We reserve the right, at our sole discretion, to modify or replace these Terms at any
+    time. If a revision is material we will try to provide at least 30 days notice prior to any
+    new terms taking effect. What constitutes a material change will be determined at
+    our sole discretion.
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        By continuing to access or use our Service after those revisions become effective,
+    you agree to be bound by the revised terms. If you do not agree to the new terms,
+    please stop using the Service.
+      </p>
+    </div>
+
+    <div>
+      <p
+        class="display-1 font-weight-medium text--primary"
+      >
+        Contact Us
+      </p>
+
+      <p
+        class="text--primary"
+      >
+        If you have any questions about these Terms, please contact us.
+      </p>
+    </div>
+  </v-card-text-stub>
+</v-card-stub>
+`;
