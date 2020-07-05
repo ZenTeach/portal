@@ -16,6 +16,7 @@ from .admin import Admin
 from .feedback import ChoiceFeedback
 from .question_choice import QuestionChoice
 from .questions import Questions, QuestionTypeEnum
+from .oauth2_client import OAuth2Client
 from .migrations.seeds import run_seed
 
 __all__ = [
@@ -33,6 +34,7 @@ __all__ = [
     "SchoolClass",
     "SchoolClassSchema",
     "ClassQuizScore",
+    "OAuth2Client",
     "Admin",
     "QuizSession",
     "Questions",
