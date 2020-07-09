@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 
-from server import create_app
+from server import celery, create_app  # noqa
 
 # from server.tasks import grader_administered_quizzes
 # from celery.schedules import crontab

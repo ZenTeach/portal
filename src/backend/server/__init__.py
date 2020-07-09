@@ -71,6 +71,36 @@ def ping_connection(dbapi_connection, connection_record, connection_proxy):
     cursor.close()
 
 
+def config_oauth(app):
+    from server.models.oauth2_grants import (authorization, require_oauth,
+                                             AuthorizationCodeGrant, PasswordGrant,
+                                             RefreshTokenGrant)
+    from authlib.oauth2.rfc6749 import grants
+    from authlib.oauth2.rfc7636 import CodeChallenge
+    from authlib.integrations.sqla_oauth2 import (
+        create_revocation_endpoint,
+        create_bearer_token_validator,
+    )
+    from server.models import OAuth2Token
+
+    authorization.init_app(app)
+
+    # support all grants
+    authorization.register_grant(grants.ImplicitGrant)
+    authorization.register_grant(grants.ClientCredentialsGrant)
+    authorization.register_grant(AuthorizationCodeGrant, [CodeChallenge(required=True)])
+    authorization.register_grant(PasswordGrant)
+    authorization.register_grant(RefreshTokenGrant)
+
+    # support revocation
+    revocation_cls = create_revocation_endpoint(db.session, OAuth2Token)
+    authorization.register_endpoint(revocation_cls)
+
+    # protect resource
+    bearer_cls = create_bearer_token_validator(db.session, OAuth2Token)
+    require_oauth.register_token_validator(bearer_cls())
+
+
 def create_app():
     app = Flask(__name__, template_folder="templates")
 
@@ -93,6 +123,7 @@ def create_app():
     ma.init_app(app)
     mail.init_app(app)
     redis_store.init_app(app)
+    config_oauth(app)
     make_searchable(db.metadata)
 
     login_manager.init_app(app)
@@ -173,6 +204,7 @@ def create_app():
     from server.api.questions_api import question_blueprint
     from server.api.stats_api import statistics_view_blueprint
     from server.api.quiz_submit_api import quiz_submit_blueprint
+    from server.api.oauth_api import oauth_api_blueprint
     from server.api import root_api
 
     app.register_blueprint(school_class_blueprint, url_prefix="/api/v1")
@@ -182,6 +214,7 @@ def create_app():
     app.register_blueprint(question_blueprint, url_prefix="/api/v1")
     app.register_blueprint(statistics_view_blueprint, url_prefix="/api/v1")
     app.register_blueprint(quiz_submit_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(oauth_api_blueprint, url_prefix="/oauth")
     app.register_blueprint(root_api)
 
     default_handler.setFormatter(formatter)
