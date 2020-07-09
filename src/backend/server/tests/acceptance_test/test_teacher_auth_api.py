@@ -2,10 +2,11 @@ import json
 
 import pytest
 from factory import build
+from server.models import Teacher
 from server.tests.factories import TeacherFactory
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def teacher():
     teacher = TeacherFactory(with_school_class=True,  # nosec
                              email="joemama@example.com", password="Asdfgh12!")
@@ -44,11 +45,14 @@ def test_teacher_login_endpoint(client, teacher, email, password, message, statu
     assert data == message
 
 
-def test_teacher_registration_endpoint(client, teacher):
+def test_teacher_registration_endpoint(client):
     new_teacher = build(dict, FACTORY_CLASS=TeacherFactory)
     response = client.post(
         '/api/v1/teacher/registration',
         json=new_teacher
     )
 
+    created_teacher = Teacher.query.order_by(Teacher.id).first()
+
+    assert created_teacher.check_password(new_teacher["password"]), True
     assert response.status_code, 200

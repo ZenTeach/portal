@@ -6,7 +6,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_refresh_token_required, jwt_required,
                                 set_access_cookies, set_refresh_cookies)
 from flask_restful import Api, Resource
-from server import bcrypt, jwt, redis_store
+from server import jwt, redis_store
 from server.models import Teacher, TeacherSchema
 
 teacher_auth_blueprint = Blueprint("teacher_auth", __name__)
@@ -29,13 +29,11 @@ class TeacherRegistration(Resource):
                 "message": "Teacher {} already exists".format(data["email"])
             }
 
-        password_hash = bcrypt.generate_password_hash(
-            data["password"]).decode("utf-8")
         new_teacher = Teacher(
             firstname=data["firstname"],
             lastname=data["lastname"],
             email=data["email"],
-            password=password_hash,
+            password=data["password"],
             date_of_birth=data["date_of_birth"],
             role=data["role"],
         )
@@ -74,7 +72,7 @@ class TeacherLogin(Resource):
                 }),
                 404)
 
-        if bcrypt.check_password_hash(current_user.password, data["password"]):
+        if current_user.check_password(data["password"]):
             access_token = create_access_token(identity=current_user)
             refresh_token = create_refresh_token(identity=current_user)
             response_data = jsonify({
