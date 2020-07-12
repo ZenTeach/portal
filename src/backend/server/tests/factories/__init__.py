@@ -1,4 +1,5 @@
 from .class_quiz_factory import ClassQuizFactory
+from .oauth2_client_factory import OAuth2ClientFactory
 from .question_choice_factory import QuestionChoiceFactory
 from .question_factory import QuestionsFactory
 from .quiz_grade_factory import QuizGradeFactory
@@ -15,5 +16,6 @@ __all__ = [
     "TeacherFactory",
     "SchoolClassFactory",
     "QuestionsFactory",
+    "OAuth2ClientFactory",
     "QuestionChoiceFactory",
 ]
