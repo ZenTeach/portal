@@ -1,3 +1,4 @@
+from .admin_factory import AdminFactory
 from .class_quiz_factory import ClassQuizFactory
 from .question_choice_factory import QuestionChoiceFactory
 from .question_factory import QuestionsFactory
@@ -13,6 +14,7 @@ __all__ = [
     "QuizSessionFactory",
     "StudentFactory",
     "TeacherFactory",
+    "AdminFactory",
     "SchoolClassFactory",
     "QuestionsFactory",
     "QuestionChoiceFactory",

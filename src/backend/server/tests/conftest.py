@@ -3,10 +3,11 @@ import os
 import pytest
 from pytest_factoryboy import register
 from server import create_app, db
-from server.tests.factories import (ClassQuizFactory, QuestionChoiceFactory,
-                                    QuestionsFactory, QuizGradeFactory,
-                                    QuizSessionFactory, SchoolClassFactory,
-                                    StudentFactory, TeacherFactory)
+from server.tests.factories import (AdminFactory, ClassQuizFactory,
+                                    QuestionChoiceFactory, QuestionsFactory,
+                                    QuizGradeFactory, QuizSessionFactory,
+                                    SchoolClassFactory, StudentFactory,
+                                    TeacherFactory)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -25,7 +26,13 @@ def engine():
     return create_engine(os.environ.get("DATABASE_TEST_URL"))
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
+def app():
+    app = create_app()
+    return app
+
+
+@pytest.fixture(scope="session")
 def client():
     app = create_app()
     app.config.from_object("server.config.TestingConfig")
@@ -36,7 +43,7 @@ def client():
         db.drop_all()
 
 
-@pytest.yield_fixture
+@pytest.yield_fixture(scope="function")
 def dbsession(engine):
     """Returns an sqlalchemy session, and after the test
         tears down everything properly."""
@@ -51,5 +58,10 @@ def dbsession(engine):
 
 @pytest.fixture(autouse=True)
 def after_each_cleanup(mocker):
-    # import pdb; pdb.set_trace()
     mocker.resetall()
+
+
+@pytest.fixture
+def admin_(engine):
+    a = AdminFactory.create()
+    return a
