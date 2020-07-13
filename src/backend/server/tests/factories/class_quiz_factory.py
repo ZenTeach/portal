@@ -1,7 +1,7 @@
 import logging
 from random import choice, randrange
 
-from factory import post_generation
+from factory import Trait, post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc, person
@@ -25,6 +25,10 @@ class ClassQuizFactory(SQLAlchemyModelFactory):
         model = ClassQuiz
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
+
+    class Params:
+        # TODO: Finish this
+        with_school_class = Trait()
 
     subject = choice(["Chemistry", "Biology", "Physics"])
     max_score = randrange(5, 9)
