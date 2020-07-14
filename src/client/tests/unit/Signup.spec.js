@@ -1,73 +1,60 @@
-import { mount, shallowMount, createLocalVue } from '@vue/test-utils'
+import { shallowMount, createLocalVue } from '@vue/test-utils'
 import Signup from '@/views/Signup.vue'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import Vuex from 'vuex'
-import flushPromises from 'flush-promises'
-import { ValidationObserver, ValidationProvider, extend } from 'vee-validate'
-import { required, email, max, min, confirmed } from 'vee-validate/dist/rules'
-Vue.use(Vuex)
-Vue.use(Vuetify)
+import { ValidationObserver, ValidationProvider } from 'vee-validate'
 
+Vue.use(Vuetify)
 const localVue = createLocalVue()
 localVue.component('ValidationObserver', ValidationObserver)
+localVue.use(Vuex)
 localVue.component('ValidationProvider', ValidationProvider)
 
 describe('Signup.vue Tests', () => {
-  let actions
-  let $store
+  const userRegisterAction = jest.fn()
+  let store
+  let $router
   let vuetify
 
   beforeEach(() => {
-    extend('required', {
-      ...required,
-      message: 'This field is required'
-    })
-
-    extend('max', {
-      ...max,
-      message: 'This field must be {length} characters or less'
-    })
-
-    extend('min', {
-      ...min,
-      message: 'This {_field_} must be greater that {length} characters or less'
-    })
-
-    extend('confirmed', {
-      ...confirmed,
-      message: 'This {_field_} should not be different from {_target_}.'
-    })
-
-    extend('email', {
-      ...email,
-      message: 'This field must be a valid email'
-    })
-
     jest.useFakeTimers()
     vuetify = new Vuetify()
-    actions = {
-      REGISTER_USER: jest.fn()
+    $router = {
+      push: jest.fn()
     }
-
-    $store = new Vuex.Store({
+    store = new Vuex.Store({
       modules: {
         user: {
-          actions
+          namespaced: true,
+          actions: {
+            REGISTER_USER: userRegisterAction
+          }
         }
       }
     })
   })
 
   it('renders a Signup form', () => {
-    const wrapper = shallowMount(Signup, { localVue, mocks: { $store } })
+    const wrapper = shallowMount(Signup, { localVue })
     expect(wrapper.element).toMatchSnapshot()
   })
 
   it('checks form Validity', async () => {
-    const wrapper = mount(Signup, { localVue, vuetify, mocks: { $store }, sync: false })
-    wrapper.find('input').setValue('')
-    await flushPromises()
-    expect(wrapper.find('.error')).toBeTruthy()
+    const wrapper = shallowMount(Signup, { localVue, store, vuetify, mocks: { $router }, sync: false })
+    wrapper.setData({
+      firstname: 'Joe',
+      lastname: 'Mama',
+      email: 'joe.mama@example.com',
+      password: 'Asdfgh123456!',
+      passwordConfirmation: 'Asdfgh123456!',
+      dob: '01/01/1970',
+      legal_checkbox: true
+    })
+    wrapper.vm.checkValidity = jest.fn(() => true)
+    expect(wrapper.vm.checkValidity()).toBeTruthy()
+    wrapper.vm.processSignup()
+    await wrapper.vm.$nextTick()
+    expect(userRegisterAction).toHaveBeenCalled()
   })
 })

@@ -141,6 +141,9 @@ import {
 } from 'vee-validate'
 import TermsOfServiceAgreement from '@/components/TermsOfServiceAgreement'
 import PrivacyPolicy from '@/components/PrivacyPolicy'
+import { createNamespacedHelpers } from 'vuex'
+
+const { mapActions } = createNamespacedHelpers('user')
 
 export default {
   name: 'Signup',
@@ -167,19 +170,21 @@ export default {
     }
   },
   methods: {
+    ...mapActions({ registerUser: 'REGISTER_USER' }),
     checkValidity () {
       return this.$refs.observer.validate()
     },
     processSignup () {
       if (this.checkValidity) {
-        this.$store.dispatch('user/REGISTER_USER', {
-          firstname: this.firstname,
-          lastname: this.lastname,
-          email: this.email,
-          password: this.password,
-          date_of_birth: this.dob,
-          role: 'Teacher'
-        }, { root: true })
+        this.registerUser(
+          {
+            firstname: this.firstname,
+            lastname: this.lastname,
+            email: this.email,
+            password: this.password,
+            date_of_birth: this.dob,
+            role: 'Teacher'
+          })
 
         this.$router.push('/')
       }
