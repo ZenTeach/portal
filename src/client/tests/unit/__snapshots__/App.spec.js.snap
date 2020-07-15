@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App.vue matches snapshot 1`] = `
+<v-app-stub id="inspire">
+  <nav-bar-stub></nav-bar-stub>
+  <nav-bar-drawer-stub></nav-bar-drawer-stub>
+  <v-content-stub tag="main" class="grey lighten-3">
+    <div id="core-view">
+      <v-container-stub tag="div" fluid="true">
+        <v-fade-transition-stub mode="out-in" origin="top center 0">
+          <router-view-stub name="default"></router-view-stub>
+        </v-fade-transition-stub>
+        <v-snackbar-stub color="error" tag="div" right="true" top="true" contentclass="" timeout="0" transition="v-snack-transition">
+
+          <v-btn-stub dark="true" tag="button" activeclass="" text="true" type="button">
+            Close
+          </v-btn-stub>
+        </v-snackbar-stub>
+      </v-container-stub>
+    </div>
+  </v-content-stub>
+</v-app-stub>
+`;

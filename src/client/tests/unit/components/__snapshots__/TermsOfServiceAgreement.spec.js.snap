@@ -9,66 +9,66 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     <p
       class="display-3 text--primary"
     >
-       Terms and Conditions
+       Terms and Conditions 
     </p>
-
+     
     <br />
   </v-card-title-stub>
-
+   
   <v-card-subtitle-stub>
     <small>
       Last updated: February 20, 2020
     </small>
   </v-card-subtitle-stub>
-
+   
   <v-card-text-stub>
     <div>
       <p
         class="text--primary"
       >
-
+        
         Please read these Terms of Use (“Terms”, “Terms of Use”) carefully before using the
         http://zenteach.co.uk website (the “Service”) operated by ZenTeach (“us”, “we”, or
         “our”).
-
+      
       </p>
-
+       
       <p
         class="text--primary"
       >
-
+        
         Your access to and use of the Service is conditioned on your acceptance of and
         compliance with these Terms. These Terms apply to all visitors, users and others
         who access or use the Service.
-
+      
       </p>
-
+       
       <p
         class="text--primary"
       >
-
+        
         By accessing or using the Service you agree to be bound by these Terms. If you
         disagree with any part of the terms then you may not access the Service.
-
+      
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
-         Accounts
+         Accounts 
       </p>
-
+       
       <p
         class="text--primary"
       >
          When you create an account with us, you must provide us information that is
       accurate, complete, and current at all times. Failure to do so constitutes a breach of
       the Terms, which may result in immediate termination of your account on our
-      Service.
+      Service. 
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -76,7 +76,7 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
       Service and for any activities or actions under your password, whether your
       password is with our Service or a third-party service.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -85,14 +85,14 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
       your account.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Intellectual Property
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -100,14 +100,14 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
       the exclusive property of ZenTeach and its licensors.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         User-Uploaded Content
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -116,9 +116,9 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
       and comments with other users. You acknowledge that all User-Uploaded Content is
       the sole responsibility of the person from which such content originated. We accept
       no responsibility for, and do not guarantee, the accuracy, integrity or quality of any
-      User-Uploaded Content.
+      User-Uploaded Content. 
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -126,7 +126,7 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
         may take legal action against you. This could result in data concerning your identity
         being disclosed and you having to pay compensation to the aggrieved party.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -135,14 +135,14 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
       Content from the Websites without any liability to you or to a third party.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
-         Use of content you upload
+         Use of content you upload 
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -153,7 +153,7 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
       Content, we require a licence. Similarly, third party users of our Websites will require
       a licence from you to enable them to make use of your User-Uploaded Content.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -164,7 +164,7 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
       any form, media, or technology. Third party users are allowed to download and/or
       otherwise use your User-Uploaded Content under an Attribution License:
       </p>
-
+       
       <ul>
         <li>
           <p
@@ -178,7 +178,7 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
              — copy and redistribute the material in any medium or format
           </p>
         </li>
-
+         
         <li>
           <p
             class="text--primary"
@@ -193,13 +193,13 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
           </p>
         </li>
       </ul>
-
+       
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Your use of other peoples’ content
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -210,14 +210,14 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     licence applied by the person uploading the content (third party user).
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
-         Objections to User-Uploaded Content
+         Objections to User-Uploaded Content 
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -228,21 +228,21 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     content.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
-         Links To Other Web Sites
+         Links To Other Web Sites 
       </p>
-
+       
       <p
         class="text--primary"
       >
         Our Service may contain links to third-party web sites or services that are not owned
       or controlled by ZenTeach.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -251,9 +251,9 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     acknowledge and agree that ZenTeach shall not be responsible or liable, directly or
     indirectly, for any damage or loss caused or alleged to be caused by or in connection
     with use of or reliance on any such content, goods or services available on or
-    through any such web sites or services.
+    through any such web sites or services. 
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -261,14 +261,14 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     third-party web sites or services that you visit.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Termination
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -276,7 +276,7 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     notice or liability, for any reason whatsoever, including without limitation if you
     breach the Terms.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -284,7 +284,7 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     survive termination, including, without limitation, ownership provisions, warranty
     disclaimers, indemnity and limitations of liability.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -292,14 +292,14 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     liability, for any reason whatsoever, including without limitation if you breach the
     Terms.
       </p>
-
+       
       <p
         class="text--primary"
       >
         Upon termination, your right to use the Service will immediately cease. If you wish to
     terminate your account, you may simply discontinue using the Service.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -308,14 +308,14 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     disclaimers, indemnity and limitations of liability.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Disclaimer
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -326,21 +326,21 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     performance.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Governing Law
       </p>
-
+       
       <p
         class="text--primary"
       >
         These Terms shall be governed and construed in accordance with the laws of United
     Kingdom without regard to its conflict of law provisions.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -352,14 +352,14 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     us regarding the Service.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Changes
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -368,7 +368,7 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     new terms taking effect. What constitutes a material change will be determined at
     our sole discretion.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -377,14 +377,14 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     please stop using the Service.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Contact Us
       </p>
-
+       
       <p
         class="text--primary"
       >

@@ -11,16 +11,16 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
     >
       Privacy Policy
     </p>
-
+     
     <br />
   </v-card-title-stub>
-
+   
   <v-card-subtitle-stub>
     <small>
       Last updated: January 13, 2020
     </small>
   </v-card-subtitle-stub>
-
+   
   <v-card-text-stub>
     <div>
       <p
@@ -32,7 +32,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             We will not use or share your information with anyone except as described in this
             Privacy Policy.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -43,20 +43,20 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             http://zenteach.co.uk
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Information Collection And Uses
       </p>
-
+       
       <h3
         class="font-weight-bold text--primary"
       >
         Teacher member.
       </h3>
-
+       
       <p
         class="text--primary"
       >
@@ -64,7 +64,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             identifiable information that can be used to contact or identify you. Personally
             identifiable information (“Personal Information”) may include, but is not limited to:
       </p>
-
+       
       <ul>
         <li>
           <p
@@ -73,7 +73,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             Your name (compulsory)
           </p>
         </li>
-
+         
         <li>
           <p
             class="text--primary"
@@ -81,7 +81,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             Your email address (compulsory)
           </p>
         </li>
-
+         
         <li>
           <p
             class="text--primary"
@@ -89,7 +89,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             Your school name (compulsory)
           </p>
         </li>
-
+         
         <li>
           <p
             class="text--primary"
@@ -97,7 +97,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             Students’ names (compulsory)
           </p>
         </li>
-
+         
         <li>
           <p
             class="text--primary"
@@ -105,7 +105,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             Students’ email addresses (compulsory)
           </p>
         </li>
-
+         
         <li>
           <p
             class="text--primary"
@@ -113,7 +113,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             Students’ classes (compulsory)
           </p>
         </li>
-
+         
         <li>
           <p
             class="text--primary"
@@ -122,7 +122,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
           </p>
         </li>
       </ul>
-
+       
       <p
         class="text--primary"
       >
@@ -133,7 +133,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             parent and/or guardian) to use the Platform and for us to collect and process any
             user data.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -141,7 +141,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             requirement to retake consent directly from the student and we require the relevant
             School to secure that consent.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -153,13 +153,13 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             connection with the use of the Platform on the terms set out in our terms and
             conditions and this privacy policy.
       </p>
-
+       
       <h3
         class="text--primary"
       >
         What is the lawful basis for storing this information?
       </h3>
-
+       
       <p
         class="text--primary"
       >
@@ -167,14 +167,14 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             platform for online testing and revision, which is the core of ZenTeach’s service.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Log Data
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -184,7 +184,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             you visit, the time and date of your visit, the time spent on those pages and other
             statistics.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -192,7 +192,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             by Amazon Web Services (AWS). AWS data centres are compliant with the
             international information security standard, ISO 27001.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -200,7 +200,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             webpage:
             https://aws.amazon.com/compliance/iso-27001-faqs/
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -208,14 +208,14 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             https://aws.amazon.com/security/
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Cookies
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -223,7 +223,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             unique identifier. Cookies are sent to your browser from a web site and stored on
             your computer’s hard drive.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -232,14 +232,14 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             cookies, you may not be able to use some portions of our Service.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Service Providers
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -247,7 +247,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             provide the Service on our behalf, to perform Service-related services or to assist us
             in analyzing how our Service is used.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -255,14 +255,14 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             tasks on our behalf and are obligated not to disclose or use it for any other purpose.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Security
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -272,14 +272,14 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             Personal Information, we cannot guarantee its absolute security.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Links To Other Sites
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -287,7 +287,7 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             on a third party link, you will be directed to that third party’s site. We strongly advise
             you to review the Privacy Policy of every site you visit.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -295,20 +295,20 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             policies or practices of any third party sites or services.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Children’s Privacy
       </p>
-
+       
       <p
         class="text--primary"
       >
         Our Service does not address anyone under the age of 18 (“Children”).
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -319,14 +319,14 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             servers immediately.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Compliance With Laws
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -334,21 +334,21 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             subpoena.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Changes To This Privacy Policy
       </p>
-
+       
       <p
         class="text--primary"
       >
         We may update our Privacy Policy from time to time. We will notify you of any
             changes by posting the new Privacy Policy on this page.
       </p>
-
+       
       <p
         class="text--primary"
       >
@@ -356,14 +356,14 @@ exports[`PrivacyPolicy.vue Test renders TOS component 1`] = `
             to this Privacy Policy are effective when they are posted on this page.
       </p>
     </div>
-
+     
     <div>
       <p
         class="display-1 font-weight-medium text--primary"
       >
         Contact Us
       </p>
-
+       
       <p
         class="text--primary"
       >
