@@ -8,7 +8,8 @@ from server.decorators import with_required_roles
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizSchema, ClassQuizStatus, QuizGrade,
                            StudentSchema, Teacher)
-from server.tasks import generate_pdf, send_quiz_pdf
+from server.tasks import (generate_pdf, send_quiz_generation_email,
+                          send_quiz_pdf)
 from sqlalchemy import exc
 
 class_quiz_blueprint = Blueprint("class_quiz", __name__)
@@ -74,6 +75,7 @@ class ClassQuizList(Resource):
     @jwt_required
     def post(self):
         post_data = request.get_json()
+        teacher_email = get_jwt_identity()['identity']["email"]
         error_object = {"status": "Failed", "message": "Invalid payload."}
         if not post_data:
             return make_response(error_object, 400)
@@ -84,18 +86,17 @@ class ClassQuizList(Resource):
         # TODO: Validate if questions exist in db
         questions = post_data.get("questions")
         try:
-            db.session.add(
-                ClassQuizModel(
-                    subject=subject,
-                    max_score=max_score,
-                    class_id=class_id,
-                    variants=variants,
-                    questions=questions,
-                )
+            quiz = ClassQuizModel(
+                subject=subject,
+                max_score=max_score,
+                class_id=class_id,
+                variants=variants,
+                questions=questions,
             )
-            db.session.commit()
+            quiz.save()
             response_object = {"status": "success",
                                "message": "Quiz was added!"}
+            send_quiz_generation_email.apply_async(args=[teacher_email, quiz.id])
             return make_response(response_object, 201)
         except exc.IntegrityError:
             db.session.rollback()
