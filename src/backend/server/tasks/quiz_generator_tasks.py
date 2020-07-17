@@ -3,6 +3,7 @@ from celery.utils.log import get_task_logger
 from flask_mail import Message
 from server import celery
 from server.lib import QuizGenerator
+from server.models import ClassQuiz, Teacher
 
 from .commons import send_mail, send_mail_with_html
 
@@ -25,17 +26,13 @@ def generate_pdf(quiz_id):
 
 
 @celery.task
-def send_google_form_email(teacher_email, published_url):
-    msg = Message(subject="Your Google Form quiz is ready!")
+def send_quiz_generation_email(teacher_email, quiz_id):
+    msg = Message(subject="Hi! Your Quiz have arrived.")
     msg.recipients = ["{}".format(teacher_email)]
-
-    # msg.body = "Hi,\n Your Google Form can be
-    # found by following this link: {}\n
-    # \nThank you for using zenteach,\n \nZenteach support"
-    # .format(published_url)
+    quiz = ClassQuiz.query.filter_by(id=quiz_id).first()
+    teacher_fullname = Teacher.query.filter_by(email=teacher_email).first().full_name()
     send_mail_with_html(msg, "google_form_template.html",
-                        form_link=published_url)
-    # send_mail(msg)
+                        fullname=teacher_fullname, quiz_url=quiz.url)
 
 
 @celery.task
