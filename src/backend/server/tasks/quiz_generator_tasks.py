@@ -31,8 +31,8 @@ def send_quiz_generation_email(teacher_email, quiz_id):
     msg.recipients = ["{}".format(teacher_email)]
     quiz = ClassQuiz.query.filter_by(id=quiz_id).first()
     teacher_fullname = Teacher.query.filter_by(email=teacher_email).first().full_name()
-    send_mail_with_html(msg, "google_form_template.html",
-                        fullname=teacher_fullname, quiz_url=quiz.url)
+    send_mail_with_html(msg, "class_quiz_prepared.html.j2",
+                        full_name=teacher_fullname, quiz_link=quiz.url)
 
 
 @celery.task

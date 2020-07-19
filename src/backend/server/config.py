@@ -24,7 +24,7 @@ class BaseConfig:
     CELERY_TRACK_STARTED = True
     CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
-    DEFAULT_MAIL_SENDER = os.environ.get("DEFAULT_MAIL_SENDER")
+    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
 
 
 class DevelopmentConfig(BaseConfig):
@@ -47,7 +47,7 @@ class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_TEST_URL")
     JWT_SECRET_KEY = token_urlsafe()
     JWT_BLACKLIST_ENABLED = False
-    DEFAULT_MAIL_SENDER = "no-reply@tester.com"
+    MAIL_DEFAULT_SENDER = "no-reply@tester.com"
 
 
 class ProductionConfig(BaseConfig):
