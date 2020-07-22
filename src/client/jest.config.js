@@ -4,7 +4,8 @@ module.exports = {
     '.*\\.(vue)$': 'vue-jest',
     '.+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$':
       'jest-transform-stub',
-    '^.+\\.js$': 'babel-jest'
+    '^.+\\.js$': 'babel-jest',
+    'vee-validate/dist/rules': 'babel-jest'
   },
   globals: {
     'vue-jest': {
@@ -31,8 +32,11 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
-  transformIgnorePatterns: ['/node_modules/(?!(vuetify)/)'],
-  collectCoverage: true,
+  transformIgnorePatterns: [
+    '/node_modules/(?!(vuetify)|(@babel)/)',
+    '/node_modules/(?!vee-validate/dist/rules)'
+  ],
+  collectCoverage: false,
   collectCoverageFrom: ['**/*.{js,vue}', '!**/node_modules/**'],
   coverageReporters: ['html', 'text-summary'],
   snapshotSerializers: ['jest-serializer-vue'],

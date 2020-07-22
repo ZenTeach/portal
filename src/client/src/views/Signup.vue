@@ -1,5 +1,5 @@
 <template>
-  <v-content>
+  <v-main>
     <v-container fluid fill-height>
       <v-layout align-center justify-center>
         <v-flex xs12 sm10 md6>
@@ -88,6 +88,22 @@
                   type="password"
                 ></v-text-field>
                 </ValidationProvider>
+
+                <ValidationProvider :rules="{ required: { allowFalse: false } }" name="TosAndPrivacyPolicyAgreement" v-slot="{errors, valid}">
+                  <v-checkbox
+                    v-model="legal_checkbox"
+                    color="deep-purple"
+                    :error-messages="errors"
+                    required
+                  >
+                    <template v-slot:label>
+                      I agree to the&nbsp;
+                      <a href="#" @click.stop.prevent="tos_dialog = true">Terms of Service</a>
+                      &nbsp;and&nbsp;
+                      <a href="#" @click.stop.prevent="privacy_policy_dialog = true">Privacy Policy</a>*
+                    </template>
+                  </v-checkbox>
+                </ValidationProvider>
               </v-form>
             </v-card-text>
             <v-card-actions>
@@ -95,25 +111,47 @@
               <v-btn :disabled="invalid || !validated" color="primary lighten-2" outlined class="mr-4" @click="processSignup">Signup</v-btn>
             </v-card-actions>
             <v-spacer></v-spacer>
+            <v-dialog
+              v-model="tos_dialog"
+              absolute
+              max-width="800"
+            >
+              <terms-of-service-agreement />
+            </v-dialog>
+            <v-dialog
+              v-model="privacy_policy_dialog"
+              absolute
+              max-width="800"
+            >
+              <privacy-policy />
+            </v-dialog>
           </v-card>
           </ValidationObserver>
         </v-flex>
       </v-layout>
     </v-container>
-  </v-content>
+  </v-main>
 </template>
 
 <script>
+
 import {
   ValidationObserver,
   ValidationProvider
 } from 'vee-validate'
+import TermsOfServiceAgreement from '@/components/TermsOfServiceAgreement'
+import PrivacyPolicy from '@/components/PrivacyPolicy'
+import { createNamespacedHelpers } from 'vuex'
+
+const { mapActions } = createNamespacedHelpers('user')
 
 export default {
   name: 'Signup',
   components: {
     ValidationProvider,
-    ValidationObserver
+    ValidationObserver,
+    TermsOfServiceAgreement,
+    PrivacyPolicy
   },
   data () {
     return {
@@ -125,23 +163,28 @@ export default {
       password: '',
       passwordConfirmation: '',
       checkbox: false,
-      lazy: false
+      lazy: false,
+      tos_dialog: false,
+      privacy_policy_dialog: false,
+      legal_checkbox: false
     }
   },
   methods: {
+    ...mapActions({ registerUser: 'REGISTER_USER' }),
     checkValidity () {
       return this.$refs.observer.validate()
     },
     processSignup () {
       if (this.checkValidity) {
-        this.$store.dispatch('user/REGISTER_USER', {
-          firstname: this.firstname,
-          lastname: this.lastname,
-          email: this.email,
-          password: this.password,
-          date_of_birth: this.dob,
-          role: 'Teacher'
-        }, { root: true })
+        this.registerUser(
+          {
+            firstname: this.firstname,
+            lastname: this.lastname,
+            email: this.email,
+            password: this.password,
+            date_of_birth: this.dob,
+            role: 'Teacher'
+          })
 
         this.$router.push('/')
       }

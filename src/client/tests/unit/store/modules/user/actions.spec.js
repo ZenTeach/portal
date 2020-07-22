@@ -1,21 +1,7 @@
-import actions from '@/store/modules/user'
+import actions from '@/store/modules/user/actions'
 import { Store } from 'vuex-mock-store'
-// import Vuex from 'vuex'
-// eslint-disable-next-line import/no-webpack-loader-syntax
-const actionsInjector = require('inject-loader!./actions')
-// eslint-disable-next-line no-unused-vars
-const _actions = actionsInjector({
-  '../api/shop': {
-    getProducts (cb) {
-      setTimeout(() => {
-        // eslint-disable-next-line standard/no-callback-literal
-        cb([
-          /* mocked response */
-        ])
-      }, 100)
-    }
-  }
-})
+// import { loginUser } from '@/service/user_auth'
+
 const { LOGIN_USER } = actions
 
 const mockStore = new Store({
@@ -23,6 +9,11 @@ const mockStore = new Store({
     user: {
       current_user: {}
     }
+  },
+  mutations: {
+    'app/TOGGLE_APP_LOADING': 'from app',
+    'app/TOGGLE_APP_LOGGED_IN': 'from app',
+    'app/TOGGLE_ERROR': 'from app'
   },
   getters: {
     'user/getCurrentUser': 'from user'
@@ -35,18 +26,15 @@ const mockStore = new Store({
   }
 })
 
-// const mockStore
-
-describe('Vuex user actions', () => {
-  beforeEach(() => {})
-  // const mockStore = new Vuex()
-  it.skip('executes LOGIN_USER', () => {
+describe('User actions', () => {
+  it('executes LOGIN_USER', () => {
     const payload = {
       email: 'someone@example.com',
       password: 'asdfghj'
     }
-
+    // TODO: Mock auth service calls
+    // jest.spyOn(loginUser)
     LOGIN_USER(mockStore, payload)
-    expect(mockStore.dispatch).toHaveBeenCalledWith('user/LOGIN_USER')
+    expect(mockStore.commit).toHaveBeenCalledTimes(2)
   })
 })
