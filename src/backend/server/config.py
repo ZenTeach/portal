@@ -24,6 +24,7 @@ class BaseConfig:
     CELERY_TRACK_STARTED = True
     CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
 
 
 class DevelopmentConfig(BaseConfig):
@@ -31,12 +32,10 @@ class DevelopmentConfig(BaseConfig):
     JWT_CSRF_IN_COOKIES = False
     JWT_COOKIE_CSRF_PROTECT = False
     FLASK_DEBUG = 1
-    MAIL_DEFAULT_SENDER = "no-reply@zenteach.co.uk"
     MAIL_SERVER = os.environ.get("MAIL_SERVER")
     MAIL_PORT = os.environ.get("MAIL_PORT")
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
-    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
     MAIL_USE_TLS = True
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ("access", "refresh")
@@ -48,6 +47,7 @@ class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_TEST_URL")
     JWT_SECRET_KEY = token_urlsafe()
     JWT_BLACKLIST_ENABLED = False
+    MAIL_DEFAULT_SENDER = "no-reply@tester.com"
 
 
 class ProductionConfig(BaseConfig):

@@ -1,9 +1,11 @@
 import enum
 import json
+import os
 from datetime import datetime
 from uuid import uuid4
 
 from server import db
+from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import JSON, UUID
 
 from .base_model import BaseModelMixin
@@ -39,6 +41,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
     script_id = db.Column(db.String(128), nullable=True, default=None)
     gform_id = db.Column(db.String(128), nullable=True)
     questions = db.Column(JSON)
+    url = db.Column(db.String(256), nullable=True, default=None)
 
     student_quiz_sessions = db.relationship(
         "Student", secondary="quiz_session", viewonly=True
@@ -63,6 +66,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
         self.status = status
         self.class_id = class_id
         self.questions = questions
+        self.uuid = uuid4()
 
     def __repr__(self):
         return "<ClassQuiz %r>" % self.id
@@ -83,3 +87,9 @@ class ClassQuiz(BaseModelMixin, db.Model):
 
         self.student_quiz_sessions.append(
             QuizSession(student=student, class_quiz=self))
+
+
+@event.listens_for(ClassQuiz, 'before_insert')
+def receive_init(target, args, kwargs):
+    quiz_url = "{}/quiz_view/{}".format(os.environ.get('CLIENT_URL'), kwargs.uuid)
+    kwargs.url = quiz_url
