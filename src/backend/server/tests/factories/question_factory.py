@@ -1,4 +1,5 @@
 from random import choice
+from uuid import uuid4
 
 from factory import Trait
 from factory.alchemy import SQLAlchemyModelFactory
@@ -24,7 +25,7 @@ class QuestionsFactory(SQLAlchemyModelFactory):
         multiple_choice_question_type = Trait(
             question_type=QuestionTypeEnum.multiple_choice
         )
-
+    uuid = uuid4()
     question = fake.sentence()
     knowledge_item = fake.words()
     tag = fake.words()

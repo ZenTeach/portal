@@ -159,7 +159,21 @@ class QuestionKIFilter(Resource):
             .filter_by(topic=topic)
             .all()
         )
-        response = [x[0] for x in kis]
+        response = [x for (x,) in kis]
+        return make_response(jsonify(response), 200)
+
+
+class QuestionTopicFilter(Resource):
+    @jwt_required
+    def get(self, subject):
+        if len(subject) == 0:
+            abort(404, "Topic is not given.")
+        topics = (
+            Questions.query.with_entities(Questions.topic)
+            .filter_by(subject=subject)
+            .all()
+        )
+        response = [x for (x,) in topics]
         return make_response(jsonify(response), 200)
 
 
@@ -168,3 +182,4 @@ api.add_resource(Question, "/question/<question_id>")
 api.add_resource(QuestionList, "/question")
 api.add_resource(QuestionSearch, "/question/search")
 api.add_resource(QuestionKIFilter, "/question/filter/ki/<string:topic>")
+api.add_resource(QuestionTopicFilter, "/question/filter/topic/<string:subject>")
