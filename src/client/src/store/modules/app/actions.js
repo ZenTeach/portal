@@ -1,4 +1,4 @@
-import { fetchQuestions, fetchKis } from '../../../service/questions'
+import { fetchQuestions, fetchKis, fetchTopics } from '../../../service/questions'
 
 export default {
   QUERY_QUESTIONS ({ commit }, payload) {
@@ -16,6 +16,15 @@ export default {
     fetchKis(topic)
       .then(result => {
         commit('app/UPDATE_KIS', result, { root: true })
+      })
+      .catch(error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      })
+  },
+  FETCH_TOPICS ({ commit }, subject) {
+    fetchTopics(subject)
+      .then(result => {
+        commit('app/UPDATE_TOPICS', result, { root: true })
       })
       .catch(error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })

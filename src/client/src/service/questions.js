@@ -12,3 +12,9 @@ export function fetchKis (topic) {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function fetchTopics (subject) {
+  return Api.get(`/question/filter/topic/${subject}`)
+    .then(handleResponse)
+    .then(data => data)
+}
