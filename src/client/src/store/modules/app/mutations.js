@@ -43,5 +43,13 @@ export default {
         state.knowledgeItems.push(ki)
       }
     })
+  },
+  UPDATE_TOPICS (state, topics) {
+    state.topics = []
+    topics.forEach(topic => {
+      if (!existsInList(state.topics, topic) && topic !== '') {
+        state.topics.push(topic)
+      }
+    })
   }
 }

@@ -10,6 +10,7 @@ const state = {
   error: {},
   questionSearch: [],
   knowledgeItems: [],
+  topics: [],
   questionList: []
 }
 

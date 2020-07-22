@@ -98,7 +98,12 @@ export default {
     QuestionSearchResult
   },
   computed: {
-    ...mapState(['questionSearch', 'questionList', 'knowledgeItems']),
+    ...mapState({
+      questionSearch: state => state.questionSearch,
+      questionList: state => state.questionList,
+      knowledgeItems: state => state.knowledgeItems,
+      questionTopics: state => state.topics
+    }),
     subject () {
       const classData = this.$store.getters['classrooms/CLASSLIST']
       const filtered = classData.find(x => {
@@ -111,6 +116,9 @@ export default {
     //   const filterKey = this.topicSelected
     // }
   },
+  mounted: function () {
+    this.$store.dispatch('app/FETCH_TOPICS', this.subject, { root: true })
+  },
   data () {
     return this.initial()
   },
@@ -121,7 +129,6 @@ export default {
         quizMaxScore: 0,
         questionSearchResult: [],
         hasSearchResult: false,
-        questionTopics: ['Atomic Structure', 'Chemical Bonds'],
         topicSelected: '',
         questionKnowledgeItems: {
           'Atomic Structure': ['DEFINITION ATOM', 'ELECTRON MASS AND CHARGE', 'DEFINITION ELEMENT'],
@@ -156,6 +163,9 @@ export default {
     fetch_KIs () {
       this.$store.dispatch('app/FETCH_KIS', this.topicSelected, { root: true })
     }
+    // fetchTopic () {
+    //   this.$store.dispatch('app/FETCH_TOPICS', this.topicSelected, { root: true })
+    // }
   }
 }
 </script>
