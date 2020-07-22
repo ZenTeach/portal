@@ -39,7 +39,6 @@ def test_teacher_login_endpoint(client, teacher, email, password, message, statu
         }
     )
     assert response.status_code, status_code
-    # assert len(response.headers.get_all('Set-Cookie')), 4
     data = json.loads(response.data.decode())
     assert data == message
 
