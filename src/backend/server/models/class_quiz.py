@@ -59,7 +59,9 @@ class ClassQuiz(BaseModelMixin, db.Model):
         class_id,
         questions=None,
         status=ClassQuizStatus.created,
+        **kwargs
     ):
+        # import pdb; pdb.set_trace()
         self.subject = subject
         self.max_score = max_score
         self.variants = variants
