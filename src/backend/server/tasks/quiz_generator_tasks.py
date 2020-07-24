@@ -13,6 +13,7 @@ logger = get_task_logger(__name__)
 @celery.task
 def generate_pdf(quiz_id):
     generator = QuizGenerator(
+        # TODO: Fix hardcoded values
         "/home/flask/server/server/api/templates",
         "demo.html",
         "/tmp/zenteach_quizzes"   # nosec

@@ -31,10 +31,9 @@ class QuizGenerator:
         try:
             env = Environment(loader=FileSystemLoader(self.template_dir), autoescape=True)
             template = env.get_template(self.template_name)
-            # TODO: change template vars
             template_vars = {
-                "title": "Demo Chemistry quiz",
-                "subject": "Chemistry",
+                "title": "{} quiz".format(quiz.subject),
+                "subject": quiz.subject,
                 "questions": quiz.questions,
             }
             html_out = template.render(template_vars)
