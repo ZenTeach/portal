@@ -14,8 +14,9 @@ from server import db as sdb
 from server.models import Admin, QuestionChoice, Questions, Student, Teacher
 from werkzeug.security import check_password_hash
 from wtforms import (BooleanField, IntegerField, SelectField, StringField,
-                     fields, form, validators)
+                     TextAreaField, fields, form, validators)
 from wtforms.meta import DefaultMeta
+from wtforms.widgets import TextArea
 
 
 class CustomSecureForm(SecureForm):
@@ -135,9 +136,25 @@ class CustomInlineModelConverter(InlineModelConverter):
     inline_field_list_type = CustomInlineModelFormList
 
 
+class CKTextAreaWidget(TextArea):
+    def __call__(self, field, **kwargs):
+        if kwargs.get('class'):
+            kwargs['class'] += ' editor'
+        else:
+            kwargs.setdefault('class', 'editor')
+        return super(CKTextAreaWidget, self).__call__(field, **kwargs)
+
+
+class CKTextAreaField(TextAreaField):
+    widget = CKTextAreaWidget()
+
+
 class QuestionChoiceInlineModelForm(InlineFormAdmin):
     form_excluded_columns = ("question_id", "uuid", "question")
     form_label = "Choices"
+    form_overrides = {
+        'feedback_text': CKTextAreaField
+    }
 
     def __init__(self):
         super(QuestionChoiceInlineModelForm, self).__init__(QuestionChoice)
@@ -179,6 +196,8 @@ class QuestionView(BaseView):
         "choices": json_formatter,
         "correct_choice_id": correct_choice_formatter,
     }
+    create_template = "admin/question_create.html"
+    edit_template = "admin/question_edit.html"
     form_overrides = {"subject": SelectField, "question_type": SelectField}
     form_args = {
         "subject": dict(
