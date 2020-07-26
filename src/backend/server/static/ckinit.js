@@ -24,7 +24,7 @@ function removeEditors(){
 
 function editorCount(){
     var count = 0
-    var keyRegex = new RegExp('^choices-[0-9]+-feedback_text$')
+    var keyRegex = new RegExp('^choices-[0-9]+-feedback$')
     for( var i = 0; i < sessionStorage.length; i++) {
         var keyx = sessionStorage.key(i)
         if (keyRegex.test(keyx)) count++;
@@ -36,6 +36,7 @@ function editorCount(){
 window.editorCount = editorCount
 window.onload = (_event) => {
     removeEditors()
+    initializeQuill()
 }
 
 function initializeQuill(){
@@ -51,8 +52,6 @@ function initializeQuill(){
     }
 
 }
-
-// window.onload = initialize
 
 
 const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
@@ -75,7 +74,7 @@ const observer = new MutationObserver(function(mutations) {
                     var choicePattern = new RegExp('^choices-([0-9]*)$')
                     if(choicePattern.test(child.id)) {
                         var choice_number = choicePattern.exec(child.id)[1]
-                        var storeKey = `choices-${choice_number}-feedback_text`
+                        var storeKey = `choices-${choice_number}-feedback`
                         if(editorExists(storeKey)){
                             removeEditor(storeKey)
                         }

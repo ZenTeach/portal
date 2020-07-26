@@ -1,4 +1,5 @@
 import json
+from html import escape
 
 import flask_admin as admin
 from flask import current_app, flash, redirect, request, session, url_for
@@ -14,9 +15,10 @@ from server import db as sdb
 from server.models import Admin, QuestionChoice, Questions, Student, Teacher
 from werkzeug.security import check_password_hash
 from wtforms import (BooleanField, IntegerField, SelectField, StringField,
-                     TextAreaField, fields, form, validators)
+                     TextField, fields, form, validators)
+from wtforms.compat import text_type
 from wtforms.meta import DefaultMeta
-from wtforms.widgets import TextArea
+from wtforms.widgets import HTMLString, TextInput, html_params
 
 
 class CustomSecureForm(SecureForm):
@@ -136,16 +138,23 @@ class CustomInlineModelConverter(InlineModelConverter):
     inline_field_list_type = CustomInlineModelFormList
 
 
-class CKTextAreaWidget(TextArea):
+class CKTextAreaWidget(TextInput):
     def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        if 'required' not in kwargs and 'required' in getattr(field, 'flags', []):
+            kwargs['required'] = True
         if kwargs.get('class'):
             kwargs['class'] += ' editor'
         else:
             kwargs.setdefault('class', 'editor')
-        return super(CKTextAreaWidget, self).__call__(field, **kwargs)
+
+        return HTMLString('<div %s><p>%s</p></div>' % (
+            html_params(name=field.name, **kwargs),
+            escape(text_type(field._value()), quote=False)
+        ))
 
 
-class CKTextAreaField(TextAreaField):
+class CKTextAreaField(TextField):
     widget = CKTextAreaWidget()
 
 
@@ -153,7 +162,7 @@ class QuestionChoiceInlineModelForm(InlineFormAdmin):
     form_excluded_columns = ("question_id", "uuid", "question")
     form_label = "Choices"
     form_overrides = {
-        'feedback_text': CKTextAreaField
+        'feedback': CKTextAreaField
     }
 
     def __init__(self):
@@ -235,6 +244,7 @@ class QuestionView(BaseView):
         # Validations
         one_correct_choice_validator(form.data, "is_correct_choice")
         try:
+            print(form.data)
             Questions.create_from_admin_form(form.data)
             return redirect(url_for("admin.question.index_view"))
         except Exception as e:
