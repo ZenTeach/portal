@@ -1,6 +1,6 @@
 from random import randint
 
-from factory import RelatedFactory, post_generation
+from factory import SubFactory, post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc
@@ -22,8 +22,8 @@ class QuestionChoiceFactory(SQLAlchemyModelFactory):
 
     weight = randint(1, 10)
     value = fake.sentence()
-    feedback = RelatedFactory('server.tests.factories.question_choice_factory.QuestionChoiceFeedbackFactory')  # noqa
-    feedback_text = fake.sentence()
+    feedback = SubFactory('server.tests.factories.question_choice_factory.QuestionChoiceFeedbackFactory')  # noqa
+    # feedback_text = fake.sentence()
 
     @post_generation
     def question(obj, create, extracted, **kwargs):

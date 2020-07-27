@@ -53,6 +53,7 @@ ma = Marshmallow()
 mail = Mail()
 celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
+app = None
 
 
 @event.listens_for(Pool, "checkout")

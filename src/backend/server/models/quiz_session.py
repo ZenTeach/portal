@@ -38,10 +38,6 @@ class QuizSession(BaseModelMixin, db.Model):
         db.Enum(QuizSessionStatus), nullable=False, default=QuizSessionStatus.created
     )
 
-    def __init__(self, student=None, class_quiz=None):
-        self.student = student
-        self.class_quiz = class_quiz
-
     def __repr__(self):
         return "<QuizSession {}>".format(
             self.class_quiz.subject + " " + self.student.full_name()

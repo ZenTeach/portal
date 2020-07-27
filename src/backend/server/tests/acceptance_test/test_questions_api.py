@@ -17,8 +17,10 @@ class TestQuestionsAPI:
     def test_knowledge_item_filter(self, client, mocker):
         mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
         for _ in range(10):
-            QuestionsFactory.create(topic="testKI", uuid=uuid4(),
-                                    multiple_choice_question_type=True)
+            uuid = uuid4()
+            v = QuestionsFactory.build(topic="testKI", uuid=uuid,
+                                       multiple_choice_question_type=True)
+            v.save()
         response = client.get("/api/v1/question/filter/ki/testKI")
         data = json.loads(response.data)
         kis = Questions.query.with_entities(Questions.knowledge_item)\
@@ -32,8 +34,10 @@ class TestQuestionsAPI:
     def test_topic_filter(self, client, mocker):
         mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
         for _ in range(10):
-            QuestionsFactory.create(subject="Chemistry", uuid=uuid4(),
-                                    multiple_choice_question_type=True)
+            uuid = uuid4()
+            v = QuestionsFactory.build(subject="Chemistry", uuid=uuid,
+                                       multiple_choice_question_type=True)
+            v.save()
         response = client.get("/api/v1/question/filter/topic/Chemistry")
         data = json.loads(response.data)
         topics = Questions.query.with_entities(Questions.topic)\
