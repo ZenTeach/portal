@@ -11,11 +11,13 @@ from flask_login import current_user, login_user, logout_user
 from flask_wtf.csrf import _FlaskFormCSRF
 from jinja2 import Markup
 from server import db as sdb
-from server.models import Admin, QuestionChoice, Questions, Student, Teacher
 from werkzeug.security import check_password_hash
 from wtforms import (BooleanField, IntegerField, SelectField, StringField,
                      fields, form, validators)
 from wtforms.meta import DefaultMeta
+
+from server.models import (Admin, OAuth2Client, QuestionChoice,  # noqa; noqa
+                           Questions, Student, Teacher)
 
 
 class CustomSecureForm(SecureForm):
@@ -302,3 +304,8 @@ class ClassQuizView(BaseView):
         "quiz_session",
         "student_quiz_grade",
     ]
+
+
+class OAuth2ClientView(BaseView):
+    can_create = True
+    # TODO: change on auth2client create
