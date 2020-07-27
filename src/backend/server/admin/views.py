@@ -174,7 +174,7 @@ def selected_correct_choice(form_data, field):
 
 class QuestionView(BaseView):
     column_exclude_list = ["search_vector", "uuid"]
-    column_filters = ("topic", "question_type", "subject", "knowledge_item")
+    column_filters = ("question_type", "subject", "knowledge_item")
     column_formatters = {
         "choices": json_formatter,
         "correct_choice_id": correct_choice_formatter,

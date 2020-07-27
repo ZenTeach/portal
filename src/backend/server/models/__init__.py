@@ -16,6 +16,7 @@ from .admin import Admin
 from .feedback import ChoiceFeedback
 from .question_choice import QuestionChoice
 from .questions import Questions, QuestionTypeEnum
+from .topic import Topic
 from .migrations.seeds import run_seed
 
 __all__ = [
@@ -40,6 +41,7 @@ __all__ = [
     "QuestionChoice",
     "QuestionsSchema",
     "ChoiceFeedback",
+    "Topic",
     "run_seed",
 ]
 

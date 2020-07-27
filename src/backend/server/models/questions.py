@@ -45,7 +45,7 @@ class Questions(BaseModelMixin, db.Model):
         default=QuestionTypeEnum.multiple_choice,
     )
     subject = db.Column(db.String(256), nullable=False)
-    topic = db.Column(db.String(256), nullable=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"))
     tag = db.Column(db.String(128), nullable=False)
     correct_choice_id = db.Column(db.Integer, nullable=False)
     choices = db.relationship("QuestionChoice", backref="question")
