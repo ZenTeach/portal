@@ -1,16 +1,11 @@
-import logging
 from random import choice, randrange
 
-from factory import Trait, post_generation
+from factory import SelfAttribute, SubFactory, Trait, post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc, person
 from server import db
 from server.models import ClassQuiz
-
-logger = logging.getLogger("factory")
-logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.DEBUG)
 
 fake = Faker()
 fake.add_provider(person)
@@ -27,13 +22,21 @@ class ClassQuizFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     class Params:
+
         # TODO: Finish this
-        with_school_class = Trait()
+        with_school_class = Trait(
+            _class=SubFactory('server.tests.factories.SchoolClassFactory'),
+            class_id=SelfAttribute('_class.id')
+            # school_class=SubFactory('server.tests.factories.SchoolClassFactory')
+        )
 
     subject = choice(["Chemistry", "Biology", "Physics"])
     max_score = randrange(5, 9)
     variants = randrange(1, 4)
     school_class = None
+    # # class_id = 0
+    # _class = SubFactory('server.tests.factories.SchoolClassFactory'),
+    # class_id = SelfAttribute('_class.id')
 
     @post_generation
     def school_class(obj, create, extracted, **kwargs):

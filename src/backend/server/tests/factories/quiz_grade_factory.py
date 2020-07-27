@@ -1,4 +1,3 @@
-import logging
 from random import randrange
 from uuid import uuid4
 
@@ -8,10 +7,6 @@ from faker import Faker
 from faker.providers import date_time, internet, lorem, misc, person
 from server import db
 from server.models import QuizGrade
-
-logger = logging.getLogger("factory")
-logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.DEBUG)
 
 fake = Faker()
 fake.add_provider(person)

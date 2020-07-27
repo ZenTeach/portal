@@ -34,15 +34,3 @@ def ping():
 @root_api.route("/debug-sentry")
 def debug():
     return 1 / 0
-
-
-# TODO: Use this to dynamically register api blueprint during app creation
-# def register_blueprints(app):
-#     """Automagically register all blueprint packages
-#     Just take a look in the blueprints directory.
-#     """
-#     for name in find_modules('blueprints', recursive=True):
-#         mod = import_string(name)
-#         if hasattr(mod, 'bp'):
-#             app.register_blueprint(mod.bp)
-#     return None

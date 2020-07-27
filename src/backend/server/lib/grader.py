@@ -123,6 +123,11 @@ class Grader(object):
 
     def _score_quiz(self, quiz_submissions, quiz):
         for submission in quiz_submissions:
+            # TODO: There are two issues with working with unvalidated
+            # input. One, the quiz submission can be flawed if they're referencing
+            # invalid/inexistent question. Second, the class quiz itself can contain
+            # flawed/inconsistent question ids if there's no validation.
+            #  Possible solution, add validation when creating quizzes.
             data = submission.responses
             quiz_questions_id = list(map(lambda x: x["id"], quiz.questions))
             correct_choices_resultset = (

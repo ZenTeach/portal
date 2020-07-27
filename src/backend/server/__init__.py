@@ -53,6 +53,7 @@ ma = Marshmallow()
 mail = Mail()
 celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
+app = None
 
 
 @event.listens_for(Pool, "checkout")
@@ -87,7 +88,6 @@ def create_app():
 
     db.init_app(app)
     bcrypt.init_app(app)
-    # TODO: Move JWT sessions to redis
     jwt.init_app(app)
     cors.init_app(app)
     ma.init_app(app)

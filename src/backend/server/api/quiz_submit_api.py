@@ -85,8 +85,7 @@ class SubmitQuiz(Resource):
             student.save()
             # TODO: Fix! This logic is somehow flawed as the first submission
             # triggers a model update.
-            # Proposal: Add a background job to be executed only when all the
-            # quizzes have been submitted.
+            # Proposal: Execute only once the due date is up!
             class_quiz.update_status(ClassQuizStatus.administered)
             # 1. End Quiz Session
             quiz_session.update_status(QuizSessionStatus.ended)

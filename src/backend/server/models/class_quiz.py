@@ -59,6 +59,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
         class_id,
         questions=None,
         status=ClassQuizStatus.created,
+        **kwargs
     ):
         self.subject = subject
         self.max_score = max_score

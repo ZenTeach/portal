@@ -1,7 +1,7 @@
 from random import choice
 from uuid import uuid4
 
-from factory import Trait
+from factory import RelatedFactoryList, Trait
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc
@@ -23,7 +23,9 @@ class QuestionsFactory(SQLAlchemyModelFactory):
 
     class Params:
         multiple_choice_question_type = Trait(
-            question_type=QuestionTypeEnum.multiple_choice
+            question_type=QuestionTypeEnum.multiple_choice,
+            choices=RelatedFactoryList('server.tests.factories.QuestionChoiceFactory',
+                                       size=4)
         )
     uuid = uuid4()
     question = fake.sentence()
