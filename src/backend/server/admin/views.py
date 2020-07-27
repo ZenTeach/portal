@@ -148,7 +148,7 @@ class CKTextAreaWidget(TextInput):
         else:
             kwargs.setdefault('class', 'editor')
 
-        return HTMLString('<div %s><p>%s</p></div>' % (
+        return HTMLString('<div %s contenteditable="true"><p>%s</p></div>' % (
             html_params(name=field.name, **kwargs),
             escape(text_type(field._value()), quote=False)
         ))

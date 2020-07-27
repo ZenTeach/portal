@@ -2,8 +2,14 @@ window.editors = []
 var options = {
     debug: 'info',
     placeholder: 'Compose an epic...',
-    readOnly: true,
-    theme: 'snow'
+    theme: 'snow',
+    modules: {
+        toolbar: [
+          [{ header: [1, 2, false] }],
+          ['bold', 'italic', 'underline'],
+          ['image', 'code-block', 'link']
+        ]
+      },
   };
 
 function storeEditor(key, value) {
