@@ -65,24 +65,56 @@ class ApiService {
     return this[singleton]
   }
 
+  fetchCookieByName (name) {
+    if (document.cookie.length === 0) {
+      return ''
+    }
+    var csrfCookie = document.cookie.split('; ').find(row => row.startsWith(name))
+
+    if (csrfCookie !== undefined) {
+      return csrfCookie.split('=')[1]
+    } else {
+      return ''
+    }
+  }
+
+  csrfDoubleSubmitHeader (cookieName) {
+    const csrfCookieValue = this.fetchCookieByName(cookieName)
+    return {
+      'X-CSRF-TOKEN': csrfCookieValue
+    }
+  }
+
+  pushToHeader (main, dict) {
+    return { ...main, ...dict }
+  }
+
   async get (...params) {
     return Promise.resolve(this.session.get(...params))
   }
 
   async post (...params) {
-    return Promise.resolve(this.session.post(...params))
+    const updatedHeaders = this.pushToHeader({}, this.csrfDoubleSubmitHeader('csrf_access_token'))
+
+    return Promise.resolve(this.session.post(...params, { headers: updatedHeaders }))
   }
 
   async put (...params) {
-    return Promise.resolve(this.session.put(...params))
+    const updatedHeaders = this.pushToHeader(params.headers || {}, this.csrfDoubleSubmitHeader('csrf_access_token'))
+
+    return Promise.resolve(this.session.put(...params, { headers: updatedHeaders }))
   }
 
   async patch (...params) {
-    return Promise.resolve(this.session.patch(...params))
+    const updatedHeaders = this.pushToHeader(params.headers || {}, this.csrfDoubleSubmitHeader('csrf_access_token'))
+
+    return Promise.resolve(this.session.patch(...params, { headers: updatedHeaders }))
   }
 
   async remove (...params) {
-    return Promise.resolve(this.session.delete(...params))
+    const updatedHeaders = this.pushToHeader(params.headers || {}, this.csrfDoubleSubmitHeader('csrf_access_token'))
+
+    return Promise.resolve(this.session.delete(...params, { headers: updatedHeaders }))
   }
 }
 export default ApiService.instance
