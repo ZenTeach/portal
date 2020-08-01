@@ -181,6 +181,15 @@ def correct_choice_formatter(view, context, model, name):
         return ""
 
 
+def has_choice_for_multiple_choice_type(form_data):
+    choices = form_data.get('choices')
+    question_type = form_data.get('question_type')
+    message = "Multiple Choice type question must have between 2 and 6 choices present."
+
+    if question_type == 'multiple_choice' and len(choices) == 0:
+        raise validators.ValidationError(message)
+
+
 def one_correct_choice_validator(form_data, field):
     message = "Please select exactly one correct choice"
     choices = form_data.get('choices')
@@ -237,9 +246,9 @@ class QuestionView(BaseView):
         return edit_form
 
     def create_model(self, form):
-        one_correct_choice_validator(form.data, "is_correct_choice")
         try:
-            print(form.data)
+            one_correct_choice_validator(form.data, "is_correct_choice")
+            has_choice_for_multiple_choice_type(form.data)
             Questions.create_from_admin_form(form.data)
             return redirect(url_for("admin.question.index_view"))
         except Exception as e:
@@ -251,6 +260,7 @@ class QuestionView(BaseView):
                 form.data, "is_correct_choice"
             )
             one_correct_choice_validator(form.data, "is_correct_choice")
+            has_choice_for_multiple_choice_type(form.data)
             model.correct_choice_id = _selected_correct_choice
             model.save()
             return redirect(url_for("admin.question.index_view"))
