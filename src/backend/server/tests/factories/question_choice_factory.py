@@ -1,11 +1,11 @@
 from random import randint
 
-from factory import SubFactory, post_generation
+from factory import post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc
 from server import db
-from server.models import ChoiceFeedback, QuestionChoice
+from server.models import QuestionChoice
 
 fake = Faker()
 fake.add_provider(internet)
@@ -22,8 +22,7 @@ class QuestionChoiceFactory(SQLAlchemyModelFactory):
 
     weight = randint(1, 10)
     value = fake.sentence()
-    feedback = SubFactory('server.tests.factories.question_choice_factory.QuestionChoiceFeedbackFactory')  # noqa
-    # feedback_text = fake.sentence()
+    feedback = fake.sentence()
 
     @post_generation
     def question(obj, create, extracted, **kwargs):
@@ -38,12 +37,3 @@ class QuestionChoiceFactory(SQLAlchemyModelFactory):
             return
         print("Is correct choice data", extracted)
         obj.referenced_question = extracted
-
-
-class QuestionChoiceFeedbackFactory(SQLAlchemyModelFactory):
-    class Meta:
-        model = ChoiceFeedback
-        sqlalchemy_session = db.session
-        sqlalchemy_session_persistence = "commit"
-
-    content = fake.sentence()

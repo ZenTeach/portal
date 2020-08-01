@@ -1,4 +1,5 @@
 import json
+from html import escape
 
 import flask_admin as admin
 from flask import current_app, flash, redirect, request, session, url_for
@@ -14,8 +15,10 @@ from server import db as sdb
 from server.models import Admin, QuestionChoice, Questions, Student, Teacher
 from werkzeug.security import check_password_hash
 from wtforms import (BooleanField, IntegerField, SelectField, StringField,
-                     fields, form, validators)
+                     TextField, fields, form, validators)
+from wtforms.compat import text_type
 from wtforms.meta import DefaultMeta
+from wtforms.widgets import HTMLString, TextInput, html_params
 
 
 class CustomSecureForm(SecureForm):
@@ -91,7 +94,6 @@ class ZenteachAdminIndexView(admin.AdminIndexView):
 
     @admin.expose("/login/", methods=("GET", "POST"))
     def login_view(self):
-        # handle user login
         form = LoginForm(request.form)
         if admin.helpers.validate_form_on_submit(form):
             user = form.get_user()
@@ -117,7 +119,6 @@ class QuestionChoiceForm(form.Form):
     is_correct_choice = BooleanField("Is this the correct choice?")
 
 
-# This widget uses custom template for inline field list
 class CustomInlineFieldListWidget(RenderTemplateWidget):
     def __init__(self):
         super(CustomInlineFieldListWidget, self).__init__(
@@ -135,9 +136,32 @@ class CustomInlineModelConverter(InlineModelConverter):
     inline_field_list_type = CustomInlineModelFormList
 
 
+class CKTextAreaWidget(TextInput):
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        if 'required' not in kwargs and 'required' in getattr(field, 'flags', []):
+            kwargs['required'] = True
+        return HTMLString('<div> \
+                            <input type="hidden" {html_params}/>\
+                            <div class="editor" {html_params}>\
+                                <p>{escaped_content}</p>\
+                            </div>\
+                          </div>'.format(
+            html_params=html_params(name=field.id, **kwargs),
+            escaped_content=escape(text_type(field._value()), quote=False)
+        ))
+
+
+class CKTextAreaField(TextField):
+    widget = CKTextAreaWidget()
+
+
 class QuestionChoiceInlineModelForm(InlineFormAdmin):
     form_excluded_columns = ("question_id", "uuid", "question")
     form_label = "Choices"
+    form_overrides = {
+        'feedback': CKTextAreaField
+    }
 
     def __init__(self):
         super(QuestionChoiceInlineModelForm, self).__init__(QuestionChoice)
@@ -159,12 +183,10 @@ def correct_choice_formatter(view, context, model, name):
 
 def one_correct_choice_validator(form_data, field):
     message = "Please select exactly one correct choice"
-    # FIX: Buggy validator, seems to not work during creation
-    selected_correct_choice = [
-        int(x["id"]) for x in form_data["choices"] if x.get(field) == True  # noqa
-    ]
-    if len(selected_correct_choice) != 1:
-        # Throw error
+    choices = form_data.get('choices')
+    has_correct_choice = [x.get('is_correct_choice') is True for x in choices]
+
+    if len(has_correct_choice) != 1:
         raise validators.ValidationError(message)
 
 
@@ -179,6 +201,8 @@ class QuestionView(BaseView):
         "choices": json_formatter,
         "correct_choice_id": correct_choice_formatter,
     }
+    create_template = "admin/question_create.html"
+    edit_template = "admin/question_edit.html"
     form_overrides = {"subject": SelectField, "question_type": SelectField}
     form_args = {
         "subject": dict(
@@ -213,9 +237,9 @@ class QuestionView(BaseView):
         return edit_form
 
     def create_model(self, form):
-        # Validations
         one_correct_choice_validator(form.data, "is_correct_choice")
         try:
+            print(form.data)
             Questions.create_from_admin_form(form.data)
             return redirect(url_for("admin.question.index_view"))
         except Exception as e:

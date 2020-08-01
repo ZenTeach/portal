@@ -13,7 +13,6 @@ from .school_class import SchoolClass
 from .student import Student
 from .teacher import Teacher
 from .admin import Admin
-from .feedback import ChoiceFeedback
 from .question_choice import QuestionChoice
 from .questions import Questions, QuestionTypeEnum
 from .migrations.seeds import run_seed
@@ -39,7 +38,6 @@ __all__ = [
     "QuestionTypeEnum",
     "QuestionChoice",
     "QuestionsSchema",
-    "ChoiceFeedback",
     "run_seed",
 ]
 

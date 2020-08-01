@@ -1,0 +1,25 @@
+{% extends 'admin/model/edit.html' %}
+
+{% block model_menu_bar %}
+    <h2 id="brand">Edit {{ admin_view.name|capitalize }}</h2>
+    <div class="clearfix"></div>
+    <hr>
+{% endblock %}
+
+{% block body %}
+	<h2 id="brand">Edit {{ admin_view.name|capitalize }}</h2>
+    <div class="clearfix"></div>
+    <hr>
+  {% call lib.form_tag(form) %}
+      {{ lib.render_form_fields(form, form_opts=form_opts) }}
+      <div class="form-buttons">
+        {{ lib.render_form_buttons(return_url) }}
+      </div>
+  {% endcall %}
+{% endblock %}
+
+{% block tail %}
+  {{ super() }}
+  <script src="//cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script src="{{ url_for('static', filename='ckinit.js') }}"></script>
+{% endblock %}
