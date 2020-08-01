@@ -94,7 +94,6 @@ class ZenteachAdminIndexView(admin.AdminIndexView):
 
     @admin.expose("/login/", methods=("GET", "POST"))
     def login_view(self):
-        # handle user login
         form = LoginForm(request.form)
         if admin.helpers.validate_form_on_submit(form):
             user = form.get_user()
@@ -120,7 +119,6 @@ class QuestionChoiceForm(form.Form):
     is_correct_choice = BooleanField("Is this the correct choice?")
 
 
-# This widget uses custom template for inline field list
 class CustomInlineFieldListWidget(RenderTemplateWidget):
     def __init__(self):
         super(CustomInlineFieldListWidget, self).__init__(
@@ -143,14 +141,14 @@ class CKTextAreaWidget(TextInput):
         kwargs.setdefault('id', field.id)
         if 'required' not in kwargs and 'required' in getattr(field, 'flags', []):
             kwargs['required'] = True
-        if kwargs.get('class'):
-            kwargs['class'] += ' editor'
-        else:
-            kwargs.setdefault('class', 'editor')
-
-        return HTMLString('<div %s contenteditable="true"><p>%s</p></div>' % (
-            html_params(name=field.name, **kwargs),
-            escape(text_type(field._value()), quote=False)
+        return HTMLString('<div> \
+                            <input type="hidden" {html_params}/>\
+                            <div class="editor" {html_params}>\
+                                <p>{escaped_content}</p>\
+                            </div>\
+                          </div>'.format(
+            html_params=html_params(name=field.id, **kwargs),
+            escaped_content=escape(text_type(field._value()), quote=False)
         ))
 
 
@@ -185,12 +183,10 @@ def correct_choice_formatter(view, context, model, name):
 
 def one_correct_choice_validator(form_data, field):
     message = "Please select exactly one correct choice"
-    # FIX: Buggy validator, seems to not work during creation
-    selected_correct_choice = [
-        int(x["id"]) for x in form_data["choices"] if x.get(field) == True  # noqa
-    ]
-    if len(selected_correct_choice) != 1:
-        # Throw error
+    choices = form_data.get('choices')
+    has_correct_choice = [x.get('is_correct_choice') is True for x in choices]
+
+    if len(has_correct_choice) != 1:
         raise validators.ValidationError(message)
 
 
@@ -241,7 +237,6 @@ class QuestionView(BaseView):
         return edit_form
 
     def create_model(self, form):
-        # Validations
         one_correct_choice_validator(form.data, "is_correct_choice")
         try:
             print(form.data)

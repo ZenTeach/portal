@@ -1,13 +1,11 @@
-window.editors = []
 var options = {
-    debug: 'info',
-    placeholder: 'Compose an epic...',
+    placeholder: 'Write a choice feedback...',
     theme: 'snow',
     modules: {
         toolbar: [
           [{ header: [1, 2, false] }],
           ['bold', 'italic', 'underline'],
-          ['image', 'code-block', 'link']
+          ['code-block', 'link']
         ]
       },
   };
@@ -45,6 +43,21 @@ window.onload = (_event) => {
     initializeQuill()
 }
 
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    var editors = Array.from(document.querySelectorAll('.ql-container'))
+    if (editors.length == 0){
+        return;
+    }
+    editors.forEach(node => {
+        var id = node.id
+        var inputHiddenElement = document.querySelector(`input#${id}`)
+        var content = node.__quill.getContents()
+        inputHiddenElement.value = JSON.stringify(content["ops"])
+    })
+    
+})
+
 function initializeQuill(){
     var editorContainer = document.querySelectorAll('.editor')
 
@@ -52,7 +65,15 @@ function initializeQuill(){
         var editor = editorContainer[editorIdx]
         var editorKey = editor.id
         if (!editorExists(editorKey) && editorKey !== undefined) {
+            var content = ""
+            if (editor.children && 
+                editor.children.length > 0 &&
+                editor.children[0].innerText.length > 0){               
+                 content= JSON.parse(editor.children[0].innerText)
+            }
             var quillInstance = new Quill(editor, options)
+            quillInstance.setContents(content)
+            // quillInstance.on('text-change', onTextChange)
             storeEditor(editorKey, quillInstance)
         }
     }
