@@ -65,15 +65,23 @@ function initializeQuill(){
         var editor = editorContainer[editorIdx]
         var editorKey = editor.id
         if (!editorExists(editorKey) && editorKey !== undefined) {
-            var content = ""
+            var editorContent = ""
             if (editor.children && 
                 editor.children.length > 0 &&
-                editor.children[0].innerText.length > 0){               
-                 content= JSON.parse(editor.children[0].innerText)
+                editor.children[0].innerText.length > 0){    
+                
+                editorContent = editor.children[0].innerText 
             }
+
             var quillInstance = new Quill(editor, options)
-            quillInstance.setContents(content)
-            // quillInstance.on('text-change', onTextChange)
+            
+            try {
+                var c = JSON.parse(editorContent)
+                quillInstance.setContents(c)
+            } catch (error) {
+                quillInstance.setText(editorContent + "\n")
+            }
+            
             storeEditor(editorKey, quillInstance)
         }
     }
