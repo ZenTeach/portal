@@ -38,6 +38,7 @@ class Questions(BaseModelMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     uuid = db.Column(UUID(as_uuid=True), unique=True,
                      nullable=False, default=uuid4())
+    image_url = db.Column(db.Text, nullable=True)
     question = db.Column(db.Text, nullable=False)
     question_type = db.Column(
         db.Enum(QuestionTypeEnum),
@@ -82,7 +83,6 @@ class Questions(BaseModelMixin, db.Model):
 
     @classmethod
     def create_from_admin_form(cls, data):
-        # create choices
         created_choice = []
         correct_choice_id = None
         for choice in data["choices"]:
@@ -110,3 +110,6 @@ class Questions(BaseModelMixin, db.Model):
     @classmethod
     def empty_instance(cls):
         return cls()
+
+    def copy_image_to_tmp(self):
+        pass
