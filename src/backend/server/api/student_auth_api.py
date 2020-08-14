@@ -107,6 +107,8 @@ class TokenRefresh(Resource):
     @jwt_refresh_token_required
     def post(self):
         current_user = get_jwt_claims()
+        current_identity = get_jwt_identity()["identity"]
+        current_user = Student.query.filter_by(email=current_identity["email"]).first()
         access_token = create_access_token(identity=current_user)
         access_jti = get_jti(encoded_token=access_token)
         redis_store.set(access_jti, "false", ACCESS_EXPIRES * 1.2)
