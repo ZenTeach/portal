@@ -28,8 +28,7 @@ class ApiService {
           resolve()
         } else {
           console.log('Refreshing...')
-          this.session
-            .post('/teacher/token/refresh')
+          this.post('/teacher/token/refresh')
             .then(response => {
               if (response.status === 200) {
                 console.log('Session Refreshed!')
