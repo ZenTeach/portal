@@ -42,12 +42,6 @@ __all__ = [
 ]
 
 
-class QuizGradeSchema(ma.ModelSchema):
-    class Meta:
-        model = QuizGrade
-        fields = ("score", "grade_breakdown")
-
-
 class QuestionChoicesSchema(ma.ModelSchema):
     class Meta:
         model = QuestionChoice
@@ -88,9 +82,7 @@ class StudentSchema(ma.ModelSchema):
             "lastname",
             "email",
             "date_of_birth",
-            "role",
             "classes",
-            "quiz_grades",
         )
 
     classes = ma.List(
@@ -130,9 +122,19 @@ class TeacherSchema(ma.ModelSchema):
             "lastname",
             "email",
             "date_of_birth",
-            "role",
             "classes",
         )
         model = Teacher
 
     classes = ma.Nested(SchoolClassSchema, many=True)
+
+
+class QuizGradeSchema(ma.ModelSchema):
+    class Meta:
+        model = QuizGrade
+        fields = ("uuid",
+                  "score",
+                  "grade_breakdown",
+                  "student")
+
+    student = ma.Nested(StudentSchema)

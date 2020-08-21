@@ -72,6 +72,20 @@
           </v-card-action>
         </v-card>
       </v-dialog>
+
+      <v-row>
+        <v-col cols="12" rows="10">
+          <h3> Graded report cards </h3>
+          <v-data-table
+            :headers="headers"
+            :items="gradedQuizzes"
+            hide-actions
+            class="elevation-1"
+            no-data-text="No graded report cards yet!"
+          >
+          </v-data-table>
+        </v-col>
+      </v-row>
     </v-layout>
   </v-container>
 </template>
@@ -97,13 +111,32 @@ export default {
       ],
       script_id: null,
       script_url: null,
-      dialog: false
+      dialog: false,
+      items: [],
+      headers: [
+        {
+          text: 'Student Email',
+          align: 'start',
+          value: 'email'
+        },
+        {
+          text: 'Score',
+          value: 'score'
+        },
+        {
+          text: 'Report Card',
+          value: 'gradeId'
+        }
+      ]
     }
   },
   mounted: function () {
     // TODO: Finalize loading and rendering the quiz
     // then move to making the session get request.
     this.$store.dispatch('quiz/LOAD_QUIZ', this.$route.params.id)
+    this.$store.dispatch('quiz/FETCH_GRADEDQUIZZES', this.$route.params.id)
+    // Promise.all(
+    // )
   },
   computed: {
     // quiz_id () {
@@ -112,7 +145,8 @@ export default {
     ...mapGetters({
       subject: 'quiz/subject',
       uuid: 'quiz/uuid',
-      quizQuestions: 'quiz/quizQuestions'
+      quizQuestions: 'quiz/quizQuestions',
+      gradedQuizzes: 'quiz/gradedQuizzes'
     })
   },
 
