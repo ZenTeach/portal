@@ -26,9 +26,7 @@ export default {
     this.$store.dispatch('quiz/FETCH_REPORTCARD', this.uniqueId, { root: true })
   },
   data: () => {
-    return {
-      reports: []
-    }
+    return {}
   },
   methods: {
     highlightProgress (progress) {
