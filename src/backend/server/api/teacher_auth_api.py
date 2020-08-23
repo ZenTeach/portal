@@ -8,6 +8,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 from flask_restful import Api, Resource
 from server import jwt, redis_store
 from server.models import Teacher, TeacherSchema
+from server.tasks import confirm_and_send_instruction
 
 teacher_auth_blueprint = Blueprint("teacher_auth", __name__)
 api = Api(teacher_auth_blueprint)
@@ -49,6 +50,8 @@ class TeacherRegistration(Resource):
             refresh_jti = get_jti(encoded_token=refresh_token)
             redis_store.set(access_jti, "false", ACCESS_EXPIRES * 1.2)
             redis_store.set(refresh_jti, "false", REFRESH_EXPIRES * 1.2)
+
+            confirm_and_send_instruction.delay(new_teacher.id)
 
             return make_response(response, 200)
         except Exception as e:

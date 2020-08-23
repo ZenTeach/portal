@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from server import bcrypt, db
 from server.models.base_model import BaseModelMixin
+from server.models.user_account.confirmable import Confirmable
 from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -14,7 +15,7 @@ def randomString(stringLength=8):
     return "".join(random.choice(letters) for i in range(stringLength))  # nosec
 
 
-class Teacher(BaseModelMixin, db.Model):
+class Teacher(BaseModelMixin, db.Model, Confirmable):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=True)
@@ -26,6 +27,10 @@ class Teacher(BaseModelMixin, db.Model):
     role = db.Column(db.String(128), nullable=False)
 
     classes = db.relationship("SchoolClass", backref="teacher", lazy=True)
+
+    confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    confirmed_at = db.Column(db.DateTime, nullable=True)
+    confirmation_token = db.Column(db.String, nullable=True)
 
     def __init__(
         self,
