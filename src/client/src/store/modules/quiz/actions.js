@@ -58,7 +58,6 @@ export default {
   FETCH_GRADEDQUIZZES ({ commit }, classQuizId) {
     fetchGradedReportCards(classQuizId).then(
       data => {
-        console.log(data)
         const graded = data.reduce((accumulator, x) => {
           accumulator.push({
             gradeId: x.uuid,
@@ -67,12 +66,11 @@ export default {
           })
           return accumulator
         }, [])
-        console.log(graded)
 
         commit('UNSET_GRADEDQUIZZES')
         commit('app/TOGGLE_APP_LOADING', true, { root: true })
         commit('SET_GRADEDQUIZZES', graded)
-        commit('app/TOGGLE_APP_LOADING', true, { root: true })
+        commit('app/TOGGLE_APP_LOADING', false, { root: true })
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
