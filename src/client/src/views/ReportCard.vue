@@ -22,8 +22,8 @@ export default {
       return this.$route.params.uuid
     }
   },
-  mounted: async function () {
-    await this.$store.dispatch('quiz/FETCH_REPORTCARD', this.uniqueId, { root: true })
+  mounted: function () {
+    this.$store.dispatch('quiz/FETCH_REPORTCARD', this.uniqueId, { root: true })
   },
   data: () => {
     return {

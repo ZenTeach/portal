@@ -135,8 +135,6 @@ export default {
     // then move to making the session get request.
     this.$store.dispatch('quiz/LOAD_QUIZ', this.$route.params.id)
     this.$store.dispatch('quiz/FETCH_GRADEDQUIZZES', this.$route.params.id)
-    // Promise.all(
-    // )
   },
   computed: {
     // quiz_id () {
