@@ -26,6 +26,7 @@ def send_confirmation_instructions(teacher_id):
                         confirmation_link=confirmation_link)
 
 
+@celery.task
 def confirm_and_send_instruction(teacher_id):
     chain = confirm_user(teacher_id) | send_confirmation_instructions.s()
     chain()

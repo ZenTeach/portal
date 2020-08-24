@@ -187,9 +187,9 @@ class ConfirmAccount(Resource):
         teacher = Teacher.query.filter_by(email=teacher_email).first()
 
         if not teacher:
-            abort(404, "Encountered an confirming account. Make sure the email is correct.")
+            abort(404, "Encountered an error confirming account. Make sure the email is correct.")
 
-        if post_data["token"] is None or not teacher.valid_confirmation_token(confirmation_token):
+        if confirmation_token is None or not teacher.valid_confirmation_token(confirmation_token):
             abort(404, "Encountered an error. Invalid token.")
 
         if not teacher.confirm_user():

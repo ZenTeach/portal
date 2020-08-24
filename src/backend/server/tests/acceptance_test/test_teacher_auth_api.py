@@ -38,19 +38,19 @@ def test_teacher_login_endpoint(client, teacher, email, password, message, statu
             "password": password
         }
     )
-    assert response.status_code, status_code
+    assert response.status_code == status_code
     data = json.loads(response.data.decode())
     assert data == message
 
 
-def test_teacher_registration_endpoint(client, teacher):
+def test_teacher_registration_endpoint(client):
     new_teacher = build(dict, FACTORY_CLASS=TeacherFactory)
     response = client.post(
         '/api/v1/teacher/registration',
         json=new_teacher
     )
 
-    assert response.status_code, 200
+    assert response.status_code == 200
 
 
 def test_teacher_account_confirmation(client, teacher):
