@@ -17,13 +17,14 @@ class Confirmable(object):
         return token
 
     def confirm_user(self):
-        if self.confirmed_at is not None:
+        if self.confirmed_at is not None or self.confirmed:
             return False
         self.confirmed_at = datetime.now()
+        self.confirmed = True
         self.save()
         return True
 
-    def valid_token(self, token):
+    def valid_confirmation_token(self, token):
         if self.confirmation_token is None:
             return False
         return self.confirmation_token == token

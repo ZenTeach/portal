@@ -18,7 +18,7 @@ def test_teacher_confirmation_token_validator(client):
     teacher = TeacherFactory.create()
     token = teacher.generate_confirmation_token()
 
-    assert teacher.valid_token(token)
+    assert teacher.valid_confirmation_token(token)
 
     teacher.generate_confirmation_token()
-    assert teacher.valid_token(token)
+    assert teacher.valid_confirmation_token(token)

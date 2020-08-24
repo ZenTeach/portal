@@ -51,3 +51,18 @@ def test_teacher_registration_endpoint(client, teacher):
     )
 
     assert response.status_code, 200
+
+
+def test_teacher_account_confirmation(client, teacher):
+    token = teacher.generate_confirmation_token()
+
+    response = client.post(
+        '/api/v1/teacher/confirm',
+        json={
+            "email": teacher.email,
+            "token": token
+        }
+    )
+
+    assert response.status_code == 200
+    assert teacher.confirmed

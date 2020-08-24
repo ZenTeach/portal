@@ -1,6 +1,7 @@
 from datetime import timedelta
 
-from flask import Blueprint, current_app, jsonify, make_response, request
+from flask import (Blueprint, abort, current_app, jsonify, make_response,
+                   request)
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jti, get_jwt_identity, get_raw_jwt,
                                 jwt_refresh_token_required, jwt_required,
@@ -177,6 +178,29 @@ class GAuth(Resource):
             )
 
 
+class ConfirmAccount(Resource):
+    def post(self):
+        print("Inside ConfirmAccount")
+        post_data = request.get_json()
+        teacher_email = post_data["email"]
+        confirmation_token = post_data["token"]
+        teacher = Teacher.query.filter_by(email=teacher_email).first()
+
+        if not teacher:
+            abort(404, "Encountered an confirming account. Make sure the email is correct.")
+
+        if post_data["token"] is None or not teacher.valid_confirmation_token(confirmation_token):
+            abort(404, "Encountered an error. Invalid token.")
+
+        if not teacher.confirm_user():
+            abort(400, "Account already confirmed.")
+
+        return make_response(jsonify({
+            "status": "Success",
+            "message": "Account successfully confirmed."
+        }), 200)
+
+
 api.add_resource(TeacherRegistration, "/teacher/registration")
 api.add_resource(TeacherLogin, "/teacher/login")
 api.add_resource(TeacherLogout, "/teacher/logout")
@@ -184,3 +208,4 @@ api.add_resource(TokenRefresh, "/teacher/token/refresh")
 api.add_resource(AllTeachers, "/teachers")
 api.add_resource(CurrentUser, "/teacher/current")
 api.add_resource(GAuth, "/teacher/auth/google")
+api.add_resource(ConfirmAccount, "/teacher/confirm")
