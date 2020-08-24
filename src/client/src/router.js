@@ -84,6 +84,18 @@ const router = new Router({
       name: 'Privacy Policy',
       component: () =>
         import(/* webpackChunkName: "PrivacyPolicyView" */ './views/PrivacyPolicy')
+    },
+    {
+      path: '/recover_account',
+      name: 'Recover Account',
+      component: () =>
+        import(/* webpackChunkName: "AccountRecoveryView" */ './views/AccountRecovery')
+    },
+    {
+      path: '/change_password',
+      name: 'Change Password',
+      component: () =>
+        import(/* webpackChunkName: "ChangePasswordView" */ './views/ChangePassword')
     }
   ]
 })

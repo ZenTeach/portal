@@ -45,6 +45,12 @@
               <p class="subheading">
                 <a href="/signup" class="subheading">Don't have an account yet? Sign up now</a>
               </p>
+              <hr />
+            </div>
+            <div class="d-flex mx-auto justify-center">
+              <p class="subheading">
+                <a href="/recover_account" class="subtitle-2">Forgot your password? Recover it here.</a>
+              </p>
             </div>
             <v-spacer></v-spacer>
           </v-card>

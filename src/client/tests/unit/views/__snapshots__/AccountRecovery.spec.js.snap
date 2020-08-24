@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AccountRecovery.vue has renders the view correctly 1`] = `
+<v-content-stub tag="main">
+  <v-container-stub tag="div" fluid="true" fill-height="">
+    <v-layout-stub tag="div" align-center="" justify-center="">
+      <v-flex-stub tag="div" xs12="" sm10="" md6="">
+        <validationobserver-stub tag="span" vid="obs_0"></validationobserver-stub>
+      </v-flex-stub>
+    </v-layout-stub>
+  </v-container-stub>
+</v-content-stub>
+`;

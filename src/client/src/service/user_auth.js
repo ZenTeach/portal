@@ -24,3 +24,15 @@ export function getCurrentUser () {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function sendAccountRecovery (email) {
+  return Api.get(`/teacher/reset-password?email=${email}`)
+    .then(handleResponse)
+    .then(data => data)
+}
+
+export function changePassword (payload) {
+  return Api.post('/teacher/reset-password', payload)
+    .then(handleResponse)
+    .then(data => data)
+}
