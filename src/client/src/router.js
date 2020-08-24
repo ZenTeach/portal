@@ -89,7 +89,7 @@ const router = new Router({
       path: '/user-profile',
       name: 'User Profile',
       component: () =>
-        import(/* webpackChunkName: "PrivacyPolicyView" */ './views/UserProfile'),
+        import(/* webpackChunkName: "UserProfileView" */ './views/UserProfile'),
       meta: {
         requiresAuth: true
       }
