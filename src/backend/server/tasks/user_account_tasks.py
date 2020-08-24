@@ -6,7 +6,7 @@ from server.tasks.commons import send_mail_with_html
 
 @celery.task
 def send_confirmation_instructions(teacher_id):
-    teacher = Teacher.query.find(teacher_id)
+    teacher = Teacher.query.filter_by(id=teacher_id).first()
     confirmation_link = teacher.generate_confirmation_link()
 
     message = Message(subject="Confirm your account")
