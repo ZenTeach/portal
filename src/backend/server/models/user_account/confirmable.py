@@ -1,11 +1,15 @@
 from datetime import datetime
+from os import environ
 from secrets import token_urlsafe
 
 
 class Confirmable(object):
     def generate_confirmation_link(self):
         token = self.generate_confirmation_token()
-        return token
+        client_url = environ.get('CLIENT_URL')
+        endpoint = '/confirm_account'
+        query = f'?token={token}'
+        return f'{client_url}{endpoint}{query}'
 
     def generate_confirmation_token(self):
         token = token_urlsafe(10)
