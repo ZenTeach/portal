@@ -1,3 +1,5 @@
+import re
+
 from server.tests.factories import TeacherFactory
 
 
@@ -13,6 +15,11 @@ def test_reset_functions(client):
     assert teacher.recovered_at is None
 
     assert teacher.valid_recovery_token(token)
+
+    token_link = teacher.get_reset_link()
+    regex_link = re.compile(
+        r'http:\/\/localhost:8080\/change_password\?token=([a-z0-9]*)&email=([a-z0-9]*)')
+    assert re.match(regex_link, token_link)
 
 
 def test_reset_account(client):

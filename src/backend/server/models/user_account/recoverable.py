@@ -1,11 +1,16 @@
 from datetime import datetime
+from os import environ
 from secrets import token_hex
 
 
 class Recoverable(object):
 
     def get_reset_link(self):
-        pass
+        client_url = environ.get('CLIENT_URL')
+        endpoint = '/change_password'
+        token = self.get_reset_token()
+        query = f'?token={token}&email={self.email}'
+        return f'{client_url}{endpoint}{query}'
 
     def get_reset_token(self):
         token = token_hex(16)
