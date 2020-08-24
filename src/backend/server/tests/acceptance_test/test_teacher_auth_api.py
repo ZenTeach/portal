@@ -66,3 +66,30 @@ def test_teacher_account_confirmation(client, teacher):
 
     assert response.status_code == 200
     assert teacher.confirmed
+
+
+def test_teacher_account_recovery(client, teacher):
+    token = teacher.get_reset_token()
+    new_psswd = "FooPassword"
+
+    response = client.post(
+        '/api/v1/teacher/reset-password',
+        json={
+            "email": teacher.email,
+            "password": new_psswd,
+            "token": token
+        }
+    )
+
+    assert response.status_code == 200
+    assert teacher.password != new_psswd
+
+    relogin_response = client.post(
+        '/api/v1/teacher/login',
+        json={
+            "email": teacher.email,
+            "password": new_psswd
+        }
+    )
+
+    assert relogin_response.status_code == 200

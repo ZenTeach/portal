@@ -7,7 +7,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_refresh_token_required, jwt_required,
                                 set_access_cookies, set_refresh_cookies)
 from flask_restful import Api, Resource
-from server import jwt, redis_store
+from server import bcrypt, jwt, redis_store
 from server.models import Teacher, TeacherSchema
 from server.tasks import confirm_and_send_instruction
 
@@ -201,6 +201,31 @@ class ConfirmAccount(Resource):
         }), 200)
 
 
+class ResetAccount(Resource):
+    def post(self):
+        post_data = request.get_json()
+        token = post_data["token"]
+        email = post_data["email"]
+        password = bcrypt.generate_password_hash(
+            post_data["password"]).decode("utf-8")
+
+        teacher = Teacher.query.filter_by(email=email).first()
+
+        if not teacher:
+            abort(404, "Encountered an recovering account. Make sure the email is correct.")
+
+        if token is None or not teacher.valid_recovery_token(token):
+            abort(404, "Encountered an error. Invalid token.")
+
+        if not teacher.reset_account(token, password):
+            abort(400, "Account already confirmed.")
+
+        return make_response(jsonify({
+            "status": "Success",
+            "message": "Account successfully recovered."
+        }), 200)
+
+
 api.add_resource(TeacherRegistration, "/teacher/registration")
 api.add_resource(TeacherLogin, "/teacher/login")
 api.add_resource(TeacherLogout, "/teacher/logout")
@@ -209,3 +234,4 @@ api.add_resource(AllTeachers, "/teachers")
 api.add_resource(CurrentUser, "/teacher/current")
 api.add_resource(GAuth, "/teacher/auth/google")
 api.add_resource(ConfirmAccount, "/teacher/confirm")
+api.add_resource(ResetAccount, "/teacher/reset-password")
