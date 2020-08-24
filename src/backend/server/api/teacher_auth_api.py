@@ -183,9 +183,8 @@ class ConfirmAccount(Resource):
     def post(self):
         print("Inside ConfirmAccount")
         post_data = request.get_json()
-        teacher_email = post_data["email"]
         confirmation_token = post_data["token"]
-        teacher = Teacher.query.filter_by(email=teacher_email).first()
+        teacher = Teacher.query.filter_by(confirmation_token=confirmation_token).first()
 
         if not teacher:
             abort(404, "Encountered an error confirming account. Make sure the email is correct.")

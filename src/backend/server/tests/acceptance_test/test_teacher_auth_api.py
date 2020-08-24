@@ -59,7 +59,6 @@ def test_teacher_account_confirmation(client, teacher):
     response = client.post(
         '/api/v1/teacher/confirm',
         json={
-            "email": teacher.email,
             "token": token
         }
     )
