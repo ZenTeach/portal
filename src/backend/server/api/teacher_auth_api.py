@@ -6,10 +6,11 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jti, get_jwt_identity, get_raw_jwt,
                                 jwt_refresh_token_required, jwt_required,
                                 set_access_cookies, set_refresh_cookies)
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource, reqparse
 from server import bcrypt, jwt, redis_store
 from server.models import Teacher, TeacherSchema
-from server.tasks import confirm_and_send_instruction
+from server.tasks import (send_account_recovery_instructions,
+                          send_confirmation_instructions)
 
 teacher_auth_blueprint = Blueprint("teacher_auth", __name__)
 api = Api(teacher_auth_blueprint)
@@ -52,7 +53,7 @@ class TeacherRegistration(Resource):
             redis_store.set(access_jti, "false", ACCESS_EXPIRES * 1.2)
             redis_store.set(refresh_jti, "false", REFRESH_EXPIRES * 1.2)
 
-            confirm_and_send_instruction.delay(new_teacher.id)
+            send_confirmation_instructions.delay(new_teacher.id)
 
             return make_response(response, 200)
         except Exception as e:
@@ -202,6 +203,20 @@ class ConfirmAccount(Resource):
 
 
 class ResetAccount(Resource):
+
+    parser = reqparse.RequestParser()
+    parser.add_argument("email", required=True,
+                        help="Email address not found.")
+
+    def get(self):
+        email = self.parser.parse_args()["email"]
+        send_account_recovery_instructions.delay(email)
+        return make_response(jsonify({
+            "status": "Success",
+            "message": "Recovery successful. If the account\
+                        exists, you will get a recovery instruction."
+        }), 200)
+
     def post(self):
         post_data = request.get_json()
         token = post_data["token"]

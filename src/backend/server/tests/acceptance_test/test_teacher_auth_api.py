@@ -68,9 +68,18 @@ def test_teacher_account_confirmation(client, teacher):
     assert teacher.confirmed
 
 
-def test_teacher_account_recovery(client, teacher):
+def test_teacher_account_recovery(client, teacher, mocker):
     token = teacher.get_reset_token()
     new_psswd = "FooPassword"
+
+    @mocker.patch('server.api.teacher_auth_api.send_account_recovery_instructions.delay')
+    def test_reset_get(send_account_recovery_instructions_delay):
+        response = client.get(
+            f'/api/v1/teacher/reset-password?email={teacher.email}'
+        )
+
+        send_account_recovery_instructions_delay.assert_called_with(teacher.email)
+        assert response.status_code == 200
 
     response = client.post(
         '/api/v1/teacher/reset-password',
