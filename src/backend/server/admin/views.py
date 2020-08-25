@@ -1,4 +1,5 @@
 import json
+from functools import reduce
 from html import escape
 
 import flask_admin as admin
@@ -193,9 +194,10 @@ def has_choice_for_multiple_choice_type(form_data):
 def one_correct_choice_validator(form_data, field):
     message = "Please select exactly one correct choice"
     choices = form_data.get('choices')
-    has_correct_choice = [x.get('is_correct_choice') is True for x in choices]
+    has_correct_choice = reduce(
+        (lambda acc, val: acc + 1 if val['is_correct_choice'] else acc), choices, 0)
 
-    if len(has_correct_choice) != 1:
+    if has_correct_choice != 1:
         raise validators.ValidationError(message)
 
 
