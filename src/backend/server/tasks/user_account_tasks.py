@@ -1,6 +1,6 @@
 from flask_mail import Message
 from server import celery
-from server.models import Teacher
+from server.models import Invitations, Teacher
 from server.tasks.commons import send_mail_with_html
 
 
@@ -31,4 +31,19 @@ def send_account_recovery_instructions(email):
                             recovery_link=recovery_link)
     except Exception:
         # Ignore non-existing email addresses
+        return
+
+
+@celery.task
+def send_user_invite(invite_email):
+    invite = Invitations.query.filter_by(email=invite_email, active=True).first()
+
+    try:
+        message = Message(subject="Your invite is here!")
+        message.recipients = ["{}".format(invite.email)]
+
+        send_mail_with_html(message,
+                            'user_invite.html.j2',
+                            invite_token=invite.token)
+    except Exception:
         return

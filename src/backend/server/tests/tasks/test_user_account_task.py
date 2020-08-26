@@ -1,7 +1,12 @@
+from secrets import token_hex
+
 import pytest
+from faker import Faker
+from faker.providers import internet
 from flask_mail import Message
+from server.models import Invitations
 from server.tasks import (send_account_recovery_instructions,
-                          send_confirmation_instructions)
+                          send_confirmation_instructions, send_user_invite)
 from server.tests.factories import TeacherFactory
 
 
@@ -16,6 +21,17 @@ def celery_config():
 @pytest.fixture
 def teacher():
     return TeacherFactory.create()
+
+
+fake = Faker()
+fake.add_provider(internet)
+
+
+@pytest.fixture
+def invitations(teacher):
+    invite = Invitations(fake.safe_email(), token_hex(8), teacher.id)
+    invite.save()
+    return invite
 
 
 def test_send_confirmation_instructions(client, teacher, mocker):
@@ -48,3 +64,15 @@ def test_send_account_recovery_instructions(client, teacher, mocker):
         send_account_recovery_instructions("")
 
         send_mail_with_html.assert_not_called()
+
+
+def test_send_user_invite(client, invitations, mocker):
+    @mocker.patch('server.tasks.user_account_tasks.send_mail_with_html')
+    def test_success(send_mail_with_html):
+        send_user_invite(invitations.email)
+        message = Message(subject="Your invite is here!")
+        message.recipients = ["{}".format(invitations.email)]
+
+        send_mail_with_html.assert_called_with(message,
+                                               'user_invite.html.j2',
+                                               invite_token=invitations.token)
