@@ -96,6 +96,12 @@ const router = new Router({
       name: 'Change Password',
       component: () =>
         import(/* webpackChunkName: "ChangePasswordView" */ './views/ChangePassword')
+    },
+    {
+      path: '/confirm_account',
+      name: 'Confirm Account',
+      component: () =>
+        import(/** webpackChunkName: "ConfirmAccountView" */ './views/AccountConfirmation')
     }
   ]
 })
