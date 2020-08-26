@@ -36,3 +36,9 @@ export function changePassword (payload) {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function confirmAccount (token) {
+  return Api.post('/teacher/confirm', {
+    token: token
+  }).then(handleResponse).then(data => data)
+}

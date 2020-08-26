@@ -4,7 +4,8 @@ import {
   registerUser,
   getCurrentUser,
   sendAccountRecovery,
-  changePassword
+  changePassword,
+  confirmAccount
 } from '../../../service/user_auth'
 import router from '@/router'
 import Vue from 'vue'
@@ -75,11 +76,25 @@ const UPDATEUSERPASSWORD = ({ commit }, payload) => {
     )
 }
 
+const CONFIRMNEWACCOUNT = ({ commit }, token) => {
+  commit('app/TOGGLE_APP_LOADING', true, { root: true })
+  confirmAccount(token).then(
+    _data => {
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+    },
+    error => {
+      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+    }
+  )
+}
+
 export default {
   LOGIN_USER,
   SIGNOUT_USER,
   REGISTER_USER,
   FETCHCURRENTUSER,
   SENDACCOUNTRECOVERY,
-  UPDATEUSERPASSWORD
+  UPDATEUSERPASSWORD,
+  CONFIRMNEWACCOUNT
 }
