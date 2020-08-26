@@ -7,7 +7,7 @@ from server.api import api_logger
 from server.decorators import with_required_roles
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizSchema, ClassQuizStatus, QuizGrade,
-                           StudentSchema, Teacher)
+                           QuizGradeSchema, StudentSchema, Teacher)
 from server.tasks import (generate_pdf, send_quiz_generation_email,
                           send_quiz_pdf)
 from sqlalchemy import exc
@@ -98,9 +98,13 @@ class ClassQuizList(Resource):
                                "message": "Quiz was added!"}
             send_quiz_generation_email.apply_async(args=[teacher_email, quiz.id])
             return make_response(response_object, 201)
-        except exc.IntegrityError:
+        except exc.IntegrityError as e:
             db.session.rollback()
-            return make_response(response_object, 400)
+            api_logger.error(e)
+            return make_response(jsonify({
+                "status": "failed",
+                "message": "Quiz couldn't be created!"
+            }), 400)
 
 
 class ClassQuizPing(Resource):
@@ -203,6 +207,18 @@ class QuizReportCard(Resource):
         return make_response(jsonify(grade.grade_breakdown), 200)
 
 
+class GradedQuizzes(Resource):
+    @jwt_required
+    def get(self, quizId):
+        graded_quizzes = QuizGrade.query.filter_by(class_quiz_id=quizId, graded=True).all()
+        if not graded_quizzes or len(graded_quizzes) == 0:
+            abort(404, "No Quiz grading found!")
+
+        # TODO: Check against non-existing student email
+        serializer = QuizGradeSchema(many=True)
+        return make_response(jsonify(serializer.dump(graded_quizzes)), 200)
+
+
 class QuizAttendedStudents(Resource):
     @jwt_required
     def get(self, class_quiz_id):
@@ -229,3 +245,4 @@ api.add_resource(QuizReportCard, "/class_quiz/report_card/<string:uuid>")
 api.add_resource(
     QuizAttendedStudents, "/class_quiz/<int:class_quiz_id>/attended_students"
 )
+api.add_resource(GradedQuizzes, "/class_quiz/<int:quizId>/graded")

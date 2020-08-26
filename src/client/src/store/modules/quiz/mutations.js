@@ -50,5 +50,13 @@ export default {
 
   UNSET_REPORTCARD (state) {
     state.report_card = []
+  },
+
+  SET_GRADEDQUIZZES (state, payload) {
+    state.graded_quizzes = payload
+  },
+
+  UNSET_GRADEDQUIZZES (state) {
+    state.graded_quizzes = []
   }
 }

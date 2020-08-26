@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Quiz.vue matches snapshot 1`] = `
+<v-container-stub id="quiz_details_view" tag="div">
+  <v-layout-stub tag="div" row="" column="" wrap="" justify-center="">
+    <v-row-stub tag="div">
+      <v-col-stub cols="12" lg="5" tag="div"><a href="../quiz_view/undefined">
+          Open Quiz in Browser
+        </a></v-col-stub>
+      <v-col-stub cols="12" lg="5" tag="div">
+        <div class="text-center">
+          <v-menu-stub opendelay="0" closedelay="0" contentclass="" bottom="true" maxwidth="auto" nudgebottom="0" nudgeleft="0" nudgeright="0" nudgetop="0" nudgewidth="0" openonclick="true" closeonclick="true" closeoncontentclick="true" maxheight="auto" offsety="true" origin="top left" transition="v-menu-transition">
+            <v-list-stub tag="div">
+              <v-list-item-stub activeclass="" tag="div">
+                <v-list-item-title-stub>Google Form</v-list-item-title-stub>
+              </v-list-item-stub>
+              <v-list-item-stub activeclass="" tag="div">
+                <v-list-item-title-stub>PDF</v-list-item-title-stub>
+              </v-list-item-stub>
+            </v-list-stub>
+          </v-menu-stub>
+        </div>
+      </v-col-stub>
+    </v-row-stub>
+    <v-dialog-stub opendelay="0" closedelay="0" contentclass="" maxwidth="500px" origin="center center" persistent="true" retainfocus="true" scrollable="true" transition="dialog-transition" width="auto">
+      <v-card-stub loaderheight="4" tag="div">
+        <v-card-title-stub primarytitle="" primary-title="">
+          Google Form generation underway
+        </v-card-title-stub>
+        <v-card-text-stub>
+          Google Form Quiz generation is underway. We need your help configuring the project.
+          Please add the following code to the project.
+
+          Steps:
+          1. Open the Google Apps Script by following this link
+          <span><v-btn-stub color="primary" dark="true" tag="button" activeclass="" small="true" fab="true" type="button"><v-icon-stub dark="">open-in-new</v-icon-stub></v-btn-stub></span>
+          2. Head to Resources &gt; Cloud Platform project...
+          3. Enter "SomeProjectCode" in the input field and press "SetProject".
+          Hit "Confirm".
+          4. Finally, press Close to close the dialog.
+          When done with the steps, Press the Generate button below and the quiz link will be sent to your email.
+        </v-card-text-stub>
+        <v-card-action>
+          <v-btn-stub color="success" tag="button" activeclass="" type="button">Generate</v-btn-stub>
+          <v-btn-stub color="" tag="button" activeclass="" type="button">Close</v-btn-stub>
+        </v-card-action>
+      </v-card-stub>
+    </v-dialog-stub>
+    <v-row-stub tag="div">
+      <v-col-stub cols="12" tag="div" rows="10">
+        <h3> Graded report cards </h3>
+        <v-data-table-stub mobilebreakpoint="600" items="" options="[object Object]" sortby="" sortdesc="" customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
+  if (sortBy === null || !sortBy.length) return items;
+  var stringCollator = new Intl.Collator(locale, {
+    sensitivity: 'accent',
+    usage: 'sort'
+  });
+  return items.sort(function (a, b) {
+    var _a, _b;
+
+    for (var i = 0; i < sortBy.length; i++) {
+      var sortKey = sortBy[i];
+      var sortA = getObjectValueByPath(a, sortKey);
+      var sortB = getObjectValueByPath(b, sortKey);
+
+      if (sortDesc[i]) {
+        _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
+      }
+
+      if (customSorters &amp;&amp; customSorters[sortKey]) {
+        var customResult = customSorters[sortKey](sortA, sortB);
+        if (!customResult) continue;
+        return customResult;
+      } // Check if both cannot be evaluated
+
+
+      if (sortA === null &amp;&amp; sortB === null) {
+        continue;
+      }
+
+      _b = __read([sortA, sortB].map(function (s) {
+        return (s || '').toString().toLocaleLowerCase();
+      }), 2), sortA = _b[0], sortB = _b[1];
+
+      if (sortA !== sortB) {
+        if (!isNaN(sortA) &amp;&amp; !isNaN(sortB)) return Number(sortA) - Number(sortB);
+        return stringCollator.compare(sortA, sortB);
+      }
+    }
+
+    return 0;
+  });
+}" page="1" itemsperpage="10" groupby="" groupdesc="" customgroup="function groupItems(items, groupBy, groupDesc) {
+  var key = groupBy[0];
+  var groups = [];
+  var current = null;
+
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var val = getObjectValueByPath(item, key);
+
+    if (current !== val) {
+      current = val;
+      groups.push({
+        name: val,
+        items: []
+      });
+    }
+
+    groups[groups.length - 1].items.push(item);
+  }
+
+  return groups;
+}" locale="en-US" customfilter="function defaultFilter(value, search, item) {
+  return value != null &amp;&amp; search != null &amp;&amp; typeof value !== 'boolean' &amp;&amp; value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
+}" serveritemslength="-1" itemkey="id" value="" expanded="" noresultstext="$vuetify.dataIterator.noResultsText" nodatatext="No graded report cards yet!" loadingtext="$vuetify.dataIterator.loadingText" selectablekey="isSelectable" loaderheight="4" headers="[object Object],[object Object],[object Object]" expandicon="$expand" itemclass="" hide-actions="" class="elevation-1"></v-data-table-stub>
+      </v-col-stub>
+    </v-row-stub>
+  </v-layout-stub>
+</v-container-stub>
+`;

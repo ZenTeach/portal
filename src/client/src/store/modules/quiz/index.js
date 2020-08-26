@@ -8,7 +8,8 @@ const state = {
   uuid: '',
   has_started: false,
   has_submitted: false,
-  report_card: []
+  report_card: [],
+  graded_quizzes: []
 }
 
 export default {
