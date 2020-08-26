@@ -72,6 +72,41 @@
           </v-card-action>
         </v-card>
       </v-dialog>
+      <v-row>
+      </v-row>
+      <v-divider></v-divider>
+      <v-row>
+        <v-col cols="12" rows="10">
+          <h3> Graded report cards </h3>
+        <v-simple-table>
+          <template v-slot:default>
+          <thead>
+              <tr>
+                <th class="text-left">Student Email</th>
+                <th class="text-left">Score</th>
+                <th class="text-left">Report card</th>
+              </tr>
+          </thead>
+          <tbody>
+            <template v-for="item in gradedQuizzes">
+              <tr :key="item.email">
+                <td class="tg-cly1" >{{ item.email }}</td>
+                <td class="tg-0lax">{{ item.score }}</td>
+                <td class="tg-0lax">
+                  <a :href="'/report_card/' + item.gradeId" class="text-decoration-none" target="new">
+                    <span>
+                      <v-icon>mdi-open-in-new</v-icon>
+                      View here
+                    </span>
+                  </a>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+          </template>
+        </v-simple-table>
+        </v-col>
+      </v-row>
     </v-layout>
   </v-container>
 </template>
@@ -97,13 +132,15 @@ export default {
       ],
       script_id: null,
       script_url: null,
-      dialog: false
+      dialog: false,
+      items: []
     }
   },
   mounted: function () {
     // TODO: Finalize loading and rendering the quiz
     // then move to making the session get request.
     this.$store.dispatch('quiz/LOAD_QUIZ', this.$route.params.id)
+    this.$store.dispatch('quiz/FETCH_GRADEDQUIZZES', this.$route.params.id)
   },
   computed: {
     // quiz_id () {
@@ -112,7 +149,8 @@ export default {
     ...mapGetters({
       subject: 'quiz/subject',
       uuid: 'quiz/uuid',
-      quizQuestions: 'quiz/quizQuestions'
+      quizQuestions: 'quiz/quizQuestions',
+      gradedQuizzes: 'quiz/gradedQuizzes'
     })
   },
 

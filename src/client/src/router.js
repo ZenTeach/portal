@@ -102,6 +102,15 @@ const router = new Router({
       name: 'Confirm Account',
       component: () =>
         import(/** webpackChunkName: "ConfirmAccountView" */ './views/AccountConfirmation')
+    },
+    {
+      path: '/user-profile',
+      name: 'User Profile',
+      component: () =>
+        import(/* webpackChunkName: "UserProfileView" */ './views/UserProfile'),
+      meta: {
+        requiresAuth: true
+      }
     }
   ]
 })

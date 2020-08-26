@@ -2,29 +2,43 @@ import { shallowMount, createLocalVue } from '@vue/test-utils'
 import Quiz from '@/views/Quiz.vue'
 import VueRouter from 'vue-router'
 import Vuex from 'vuex'
-// import { jestPreset } from 'ts-jest'
-// import mockApi from 'Api'
+import Vue from 'vue'
+import Vuetify from 'vuetify'
+import { Store } from 'vuex-mock-store'
 
+Vue.use(Vuetify)
+Vue.use(VueRouter)
 const localVue = createLocalVue()
 localVue.use(Vuex)
-localVue.use(VueRouter)
 const router = new VueRouter()
 
 describe('Quiz.vue', () => {
-  // let actions
   let store
+  let vuetify
+  let mockStore
 
   beforeEach(() => {
-    store = new Vuex.Store({})
+    vuetify = new Vuetify()
+    mockStore = new Store({
+      state: {
+        app: {
+          loggedIn: 'from app',
+          error: 'from app'
+        }
+      },
+      getters: {
+        'getters/gradedQuizzes': 'from quiz',
+        'getters/uuid': 'from quiz'
+      },
+      actions: {
+        'actions/LOAD_QUIZ': 'from quiz',
+        'actions/FETCH_GRADEDQUIZZES': 'from quiz'
+      }
+    })
   })
-  it.skip('has renders the view correctly', () => {
-    // jest.mock('@/services/Api', () => {
-    //   return {
-    //     post: () => {authCode: 'asjksdko'}
-    //   }
-    // })
-    // mockApi.post.mockImplementation(async () => {})
-    const wrapper = shallowMount(Quiz, { store, localVue, router })
-    expect(wrapper.isVueInstance()).toBe(true)
+
+  it('matches snapshot', () => {
+    const wrapper = shallowMount(Quiz, { store, localVue, vuetify, router, mocks: { $store: mockStore } })
+    expect(wrapper).toMatchSnapshot()
   })
 })

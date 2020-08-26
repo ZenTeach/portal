@@ -29,3 +29,9 @@ export function fetchReportCard (gradeId) {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function fetchGradedReportCards (classQuizId) {
+  return Api.get(`class_quiz/${classQuizId}/graded`)
+    .then(handleResponse)
+    .then(data => data)
+}

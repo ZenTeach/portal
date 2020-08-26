@@ -1,0 +1,214 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReportCardComponent.vue Test renders component with data 1`] = `
+<v-simple-table-stub>
+  <thead>
+    <tr>
+      <th
+        class="text-left"
+      >
+        Topic
+      </th>
+       
+      <th
+        class="text-left"
+      >
+        Knowledge items
+      </th>
+       
+      <th
+        class="text-left"
+      >
+        Progress
+      </th>
+       
+      <th
+        class="text-left"
+      >
+        Learning resources
+      </th>
+    </tr>
+  </thead>
+   
+  <tbody>
+    <tr>
+      <td
+        class="tg-cly1"
+        rowspan="5"
+      >
+        Atoms and elements
+      </td>
+       
+      <td
+        class="tg-0lax"
+      >
+        Atoms are made up of protons, neutrons and electrons
+      </td>
+       
+      <td
+        class="yellow"
+      >
+        1/2
+      </td>
+       
+      <td
+        class="tg-0lax"
+      >
+        Look at this image of an atom.
+      </td>
+    </tr>
+    <tr>
+      <!---->
+       
+      <td
+        class="tg-0lax"
+      >
+        Electrons circle the nucleus.
+      </td>
+       
+      <td
+        class="red"
+      >
+        0/1
+      </td>
+       
+      <td
+        class="tg-0lax"
+      >
+        Look at this image of an atom.
+      </td>
+    </tr>
+    <tr>
+      <!---->
+       
+      <td
+        class="tg-0lax"
+      >
+        Protons and neutrons are located inside the nucleus.
+      </td>
+       
+      <td
+        class="red"
+      >
+        0/1
+      </td>
+       
+      <td
+        class="tg-0lax"
+      >
+        Look at this image of an atom.
+      </td>
+    </tr>
+    <tr>
+      <!---->
+       
+      <td
+        class="tg-0lax"
+      >
+        Protons and neutrons have a mass of 1.
+      </td>
+       
+      <td
+        class="yellow"
+      >
+        1/1
+      </td>
+       
+      <td
+        class="tg-0lax"
+      >
+        Look at this image of an atom.
+      </td>
+    </tr>
+    <tr>
+      <!---->
+       
+      <td
+        class="tg-0lax"
+      >
+        Electrons have a mass of 0.
+      </td>
+       
+      <td
+        class="yellow"
+      >
+        1/1
+      </td>
+       
+      <td
+        class="tg-0lax"
+      >
+        Look at this image of an atom.
+      </td>
+    </tr>
+    <tr>
+      <td
+        class="tg-cly1"
+        rowspan="3"
+      >
+        Charges and Ions
+      </td>
+       
+      <td
+        class="tg-0lax"
+      >
+        Two electrons or two protons repel each other.
+      </td>
+       
+      <td
+        class="yellow"
+      >
+        1/1
+      </td>
+       
+      <td
+        class="tg-0lax"
+      >
+        This video explains electron shells quite nicely.
+      </td>
+    </tr>
+    <tr>
+      <!---->
+       
+      <td
+        class="tg-0lax"
+      >
+        Atoms have a neutral charge.
+      </td>
+       
+      <td
+        class="red"
+      >
+        0/1
+      </td>
+       
+      <td
+        class="tg-0lax"
+      >
+        Revise theses lesson slides.
+      </td>
+    </tr>
+    <tr>
+      <!---->
+       
+      <td
+        class="tg-0lax"
+      >
+        All atoms want to achieve a full outer shell (usually 8 electrons)
+      </td>
+       
+      <td
+        class="red"
+      >
+        0/1
+      </td>
+       
+      <td
+        class="tg-0lax"
+      >
+        This video explains electron shells quite nicely.
+      </td>
+    </tr>
+  </tbody>
+</v-simple-table-stub>
+`;

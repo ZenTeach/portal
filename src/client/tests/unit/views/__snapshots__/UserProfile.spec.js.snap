@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UserProfile.vue has renders the view correctly 1`] = `
+<v-container-stub tag="div" fluid="true" fill-height="">
+  <v-row-stub tag="div" justify="center">
+    <v-col-stub cols="12" md="8" tag="div"></v-col-stub>
+    <v-col-stub cols="12" md="10" tag="div">
+      <material-card-stub color="secondary" elevation="10" offset="24" class="v-card-profile">
+        <v-avatar-stub color="indigo" size="130" class="mx-auto d-block elevation-6">
+          <v-icon-stub dark="">mdi-account-circle</v-icon-stub>
+        </v-avatar-stub>
+        <v-card-text-stub class="text-center">
+          <h6 class="overline mb-3">
+            Teacher
+          </h6>
+          <h3 class="font-weight-light text-capitalize">
+
+          </h3>
+        </v-card-text-stub>
+      </material-card-stub>
+    </v-col-stub>
+  </v-row-stub>
+</v-container-stub>
+`;
