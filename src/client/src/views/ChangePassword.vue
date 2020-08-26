@@ -15,7 +15,7 @@
             </v-toolbar>
             <v-card-text>
               <v-form>
-                <ValidationProvider rules="required|min:12" name="password" v-slot="{errors, valid}" vid="password">
+                <ValidationProvider rules="required|min:12" name="password" v-slot="{errors}" vid="password">
                 <v-text-field
                   id="password"
                   v-model="password"
@@ -30,7 +30,7 @@
                 ></v-text-field>
                 </ValidationProvider>
 
-                <ValidationProvider rules="required|confirmed:password" name="passwordConfirmation" v-slot="{errors, valid}">
+                <ValidationProvider rules="required|confirmed:password" name="passwordConfirmation" v-slot="{errors}">
                 <v-text-field
                   id="password-confirmation"
                   v-model="passwordConfirmation"

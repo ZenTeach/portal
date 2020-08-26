@@ -15,7 +15,7 @@
             </v-toolbar>
             <v-card-text>
               <v-form>
-                <ValidationProvider rules="required|email" name="email" v-slot="{errors, valid}">
+                <ValidationProvider rules="required|email" name="email" v-slot="{errors}">
                 <v-text-field
                   v-model="email"
                   :error-messages="errors"

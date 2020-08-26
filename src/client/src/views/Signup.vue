@@ -11,7 +11,7 @@
             </v-toolbar>
             <v-card-text>
               <v-form>
-                <ValidationProvider rules="required" name="firstname" v-slot="{ errors, valid }">
+                <ValidationProvider rules="required" name="firstname" v-slot="{ errors }">
                 <v-text-field
                   v-model="firstname"
                   label="Firstname"
@@ -23,7 +23,7 @@
                 ></v-text-field>
                 </ValidationProvider>
 
-                <ValidationProvider rules="required" name="lastname" v-slot="{errors, valid}">
+                <ValidationProvider rules="required" name="lastname" v-slot="{errors}">
                 <v-text-field
                   v-model="lastname"
                   label="Lastname"
@@ -35,7 +35,7 @@
                 ></v-text-field>
                 </ValidationProvider>
 
-                <ValidationProvider rules="required|email" name="email" v-slot="{errors, valid}">
+                <ValidationProvider rules="required|email" name="email" v-slot="{errors}">
                 <v-text-field
                   v-model="email"
                   :error-messages="errors"
@@ -47,7 +47,7 @@
                 ></v-text-field>
                 </ValidationProvider>
 
-                <ValidationProvider rules="required" name="dob" v-slot="{errors, valid}">
+                <ValidationProvider rules="required" name="dob" v-slot="{errors}">
                 <v-text-field
                   v-model="dob"
                   label="Date of Birth"
@@ -60,7 +60,7 @@
                 ></v-text-field>
                 </ValidationProvider>
 
-                <ValidationProvider rules="required|min:12" name="password" v-slot="{errors, valid}" vid="password">
+                <ValidationProvider rules="required|min:12" name="password" v-slot="{errors}" vid="password">
                 <v-text-field
                   id="password"
                   v-model="password"
@@ -75,7 +75,7 @@
                 ></v-text-field>
                 </ValidationProvider>
 
-                <ValidationProvider rules="required|confirmed:password" name="passwordConfirmation" v-slot="{errors, valid}">
+                <ValidationProvider rules="required|confirmed:password" name="passwordConfirmation" v-slot="{errors}">
                 <v-text-field
                   id="password-confirmation"
                   v-model="passwordConfirmation"
@@ -89,7 +89,7 @@
                 ></v-text-field>
                 </ValidationProvider>
 
-                <ValidationProvider :rules="{ required: { allowFalse: false } }" name="TosAndPrivacyPolicyAgreement" v-slot="{errors, valid}">
+                <ValidationProvider :rules="{ required: { allowFalse: false } }" name="TosAndPrivacyPolicyAgreement" v-slot="{errors}">
                   <v-checkbox
                     v-model="legal_checkbox"
                     color="deep-purple"
