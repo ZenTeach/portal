@@ -57,7 +57,6 @@ class Teacher(BaseModelMixin, db.Model, Confirmable, Recoverable):
                 password).decode("utf-8")
         self.role = role
         self.uuid = uuid
-        print("In __init__, classes: {}", classes)
         self.classes = classes
         self.date_of_birth = date_of_birth
 

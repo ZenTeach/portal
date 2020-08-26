@@ -181,7 +181,6 @@ class GAuth(Resource):
 
 class ConfirmAccount(Resource):
     def post(self):
-        print("Inside ConfirmAccount")
         post_data = request.get_json()
         confirmation_token = post_data["token"]
         teacher = Teacher.query.filter_by(confirmation_token=confirmation_token).first()

@@ -1,3 +1,4 @@
+import logging
 import os.path as path
 from pathlib import Path
 
@@ -5,6 +6,8 @@ from jinja2 import Environment, FileSystemLoader
 from server.models import ClassQuiz as ClassQuizModel
 from weasyprint import CSS, HTML
 from weasyprint.fonts import FontConfiguration
+
+logger = logging.getLogger(__name__)
 
 
 class QuizGenerator:
@@ -53,7 +56,8 @@ class QuizGenerator:
                 self.output_file, stylesheets=[css], font_config=font_config
             )
         except Exception as e:
-            print(e)
+            logger.error(e)
+            raise
 
     @property
     def quiz_file_name(self):

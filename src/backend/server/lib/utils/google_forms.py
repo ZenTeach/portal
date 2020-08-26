@@ -6,10 +6,13 @@ project, and log the script's URL to the user.
 
 from __future__ import print_function
 
+import logging
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 from server.models import ClassQuiz as ClassQuizModel
+
+logger = logging.getLogger(__name__)
 
 
 class GoogleFormsGenerator(object):
@@ -53,7 +56,7 @@ class GoogleFormsGenerator(object):
 
             return template.render(template_vars)
         except Exception as e:
-            print(e)
+            logger.error(e)
 
     def update_quiz(self, pr_id, dep_id, version_number):
         self.quiz.update_gform_id(pr_id, dep_id, version_number)

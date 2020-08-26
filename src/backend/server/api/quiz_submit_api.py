@@ -2,6 +2,7 @@
 from flask import Blueprint, abort, jsonify, make_response, request
 from flask_restful import Api, Resource, reqparse
 from server import db
+from server.api import api_logger
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizStatus, QuizSession, QuizSessionStatus,
                            Student)
@@ -38,8 +39,7 @@ class SubmitQuiz(Resource):
             class_quiz.add_student_session(student)
             class_quiz.save()
         except exc.DatabaseError as e:
-            # TODO: Add sentry error reporting
-            print(e)
+            api_logger.error(e)
             return make_response(
                 jsonify({
                     "message": "Couldn't create a new quiz session.",
@@ -97,7 +97,7 @@ class SubmitQuiz(Resource):
             return make_response(response_object, 201)
         # Step 3: Update
         except exc.IntegrityError as e:
-            print(e)
+            api_logger.error(e)
             return make_response(
                 jsonify({
                     "status": "error",

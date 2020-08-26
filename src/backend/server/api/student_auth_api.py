@@ -70,7 +70,6 @@ class StudentRegistration(Resource):
 class StudentLogin(Resource):
     def post(self):
         data = request.get_json()
-        print("Got a request with this payload: ", data)
         current_user = Student.query.filter_by(email=data["email"]).first()
         if not current_user:
             return make_response(
