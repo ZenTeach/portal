@@ -100,7 +100,7 @@ class ClassQuizList(Resource):
             return make_response(response_object, 201)
         except exc.IntegrityError as e:
             db.session.rollback()
-            api_logger.debug(e)
+            api_logger.error(e)
             return make_response(jsonify({
                 "status": "failed",
                 "message": "Quiz couldn't be created!"
