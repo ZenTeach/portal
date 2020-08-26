@@ -37,7 +37,7 @@ describe('Signup.vue Tests', () => {
 
   it('renders a Signup form', () => {
     const wrapper = shallowMount(Signup, { localVue })
-    expect(wrapper.element).toMatchSnapshot()
+    expect(wrapper).toMatchSnapshot()
   })
 
   it('checks form Validity', async () => {

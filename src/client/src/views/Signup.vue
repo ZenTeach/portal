@@ -89,6 +89,17 @@
                 ></v-text-field>
                 </ValidationProvider>
 
+                <ValidationProvider rules="required" name="invite_code" v-slot="{errors}">
+                <v-text-field
+                  v-model="invite_code"
+                  label="Invite code"
+                  placeholder
+                  :error-messages="errors"
+                  type="date"
+                  outline
+                  required
+                ></v-text-field>
+                </ValidationProvider>
                 <ValidationProvider :rules="{ required: { allowFalse: false } }" name="TosAndPrivacyPolicyAgreement" v-slot="{errors}">
                   <v-checkbox
                     v-model="legal_checkbox"
@@ -162,6 +173,7 @@ export default {
       dob: null,
       password: '',
       passwordConfirmation: '',
+      invite_code: '',
       checkbox: false,
       lazy: false,
       tos_dialog: false,
@@ -183,6 +195,7 @@ export default {
             email: this.email,
             password: this.password,
             date_of_birth: this.dob,
+            invitation_code: this.invite_code,
             role: 'Teacher'
           })
 
