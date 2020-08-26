@@ -1,4 +1,5 @@
 import logging
+from secrets import token_hex
 
 from factory import RelatedFactory, Trait
 from factory.alchemy import SQLAlchemyModelFactory
@@ -40,6 +41,9 @@ class TeacherFactory(SQLAlchemyModelFactory):
                 with_students=True,
                 with_classquiz=True,
             )
+        )
+        with_invite_code = Trait(
+            invitation_code=token_hex(8)
         )
 
     firstname = fake.first_name()

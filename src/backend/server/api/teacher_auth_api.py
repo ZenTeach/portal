@@ -1,14 +1,14 @@
 from datetime import timedelta
 
-from flask import (Blueprint, abort, current_app, jsonify, make_response,
-                   request)
+from flask import Blueprint, abort, jsonify, make_response, request
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jti, get_jwt_identity, get_raw_jwt,
                                 jwt_refresh_token_required, jwt_required,
                                 set_access_cookies, set_refresh_cookies)
 from flask_restful import Api, Resource, reqparse
 from server import bcrypt, jwt, redis_store
-from server.models import Teacher, TeacherSchema
+from server.api import api_logger
+from server.models import Invitations, Teacher, TeacherSchema
 from server.tasks import (send_account_recovery_instructions,
                           send_confirmation_instructions)
 
@@ -25,8 +25,15 @@ def load_user(identity):
 
 
 class TeacherRegistration(Resource):
+    def validate_invite(self, email, invite_code):
+        return Invitations.validate_email_invitation_token(email, invite_code)
+
     def post(self):
         data = request.get_json()
+
+        if not self.validate_invite(data["email"], data["invitation_code"]):
+            abort(400, "Registrations are only through valid invites.")
+
         if Teacher.query.filter_by(email=data["email"]).first():
             return {
                 "message": "Teacher {} already exists".format(data["email"])
@@ -57,7 +64,7 @@ class TeacherRegistration(Resource):
 
             return make_response(response, 200)
         except Exception as e:
-            current_app.logger.error(e)
+            api_logger.error(e)
             return make_response(
                 jsonify({
                     "message": "Something went wrong"

@@ -14,7 +14,13 @@ class Invitations(BaseModelMixin, db.Model):
     invitation_from_id = db.Column(db.Integer, db.ForeignKey(
         "teacher.id"), nullable=False)
 
-    def __init__(self, email, token, invitation_from_id, invite_sent_at=datetime.now()):
+    def __init__(self,
+                 email,
+                 token,
+                 invitation_from_id,
+                 active=True,
+                 invite_sent_at=datetime.now()):
+
         self.email = email
         self.token = token
         self.invitation_from_id = invitation_from_id
