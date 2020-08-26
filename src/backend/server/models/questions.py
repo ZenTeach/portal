@@ -67,8 +67,7 @@ class Questions(BaseModelMixin, db.Model):
         if question_type == QuestionTypeEnum.multiple_choice:
             try:
                 MultipleChoiceSchema().validate(data=choices)
-            except ValidationError as err:
-                print(err)
+            except ValidationError:
                 raise
 
         self.question = question
@@ -83,7 +82,6 @@ class Questions(BaseModelMixin, db.Model):
 
     @classmethod
     def create_from_admin_form(cls, data):
-        print(data)
         # create choices
         created_choice = []
         correct_choice_id = None

@@ -25,7 +25,8 @@ def generate_pdf(quiz_id):
     try:
         generator.generate(quiz_id)
     except Exception as e:
-        print(e)
+        logger.error(e)
+        raise
 
     return generator.quiz_file_name
 

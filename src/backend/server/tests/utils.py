@@ -26,6 +26,5 @@ class LoggedInUserMixin(object):
     def login_with_user(self, email, psswd, type):
         login_details = jsonify({"email": email, "password": psswd})
         url = "api/v1/{}/login".format(type)
-        print("In TestLoginMixin: ", url)
         self.client.post(url, json=login_details)
         # return make_response(jsonify(response), 200)

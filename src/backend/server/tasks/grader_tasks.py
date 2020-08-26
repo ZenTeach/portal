@@ -14,7 +14,7 @@ def grader_administered_quizzes(self, quiz_session_id):
         Grader.from_quiz_session(quiz_session_id)
         # grader.start_grading()
     except Exception as e:
-        print(e)
+        logger.error(e)
         self.retry(exc=e, countdown=2 ** self.request.retries)
 
 

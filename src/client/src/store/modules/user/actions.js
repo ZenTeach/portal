@@ -2,7 +2,10 @@ import {
   loginUser,
   logoutUser,
   registerUser,
-  getCurrentUser
+  getCurrentUser,
+  sendAccountRecovery,
+  changePassword,
+  confirmAccount
 } from '../../../service/user_auth'
 import router from '@/router'
 import Vue from 'vue'
@@ -45,12 +48,53 @@ const FETCHCURRENTUSER = ({ commit }) => {
     const { user } = result
     commit('TOGGLECURRENTUSER', user)
   })
+  commit('app/TOGGLE_APP_LOADING', false, { root: true })
+}
+
+const SENDACCOUNTRECOVERY = ({ commit }, email) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
+  sendAccountRecovery(email).then(result => {
+    // TODO: store message
+    commit('app/TOGGLE_APP_LOADING', false, { root: true })
+    router.push('/')
+  })
+}
+
+const UPDATEUSERPASSWORD = ({ commit }, payload) => {
+  commit('app/TOGGLE_APP_LOADING', true, { root: true })
+  changePassword(payload)
+    .then(
+      data => {
+        commit('app/TOGGLE_APP_LOADING', false, { root: true })
+        router.push('/')
+      },
+      error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        commit('app/TOGGLE_APP_LOADING', false, { root: true })
+        router.push('/login')
+      }
+    )
+}
+
+const CONFIRMNEWACCOUNT = ({ commit }, token) => {
+  commit('app/TOGGLE_APP_LOADING', true, { root: true })
+  confirmAccount(token).then(
+    _data => {
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+    },
+    error => {
+      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+    }
+  )
 }
 
 export default {
   LOGIN_USER,
   SIGNOUT_USER,
   REGISTER_USER,
-  FETCHCURRENTUSER
+  FETCHCURRENTUSER,
+  SENDACCOUNTRECOVERY,
+  UPDATEUSERPASSWORD,
+  CONFIRMNEWACCOUNT
 }

@@ -1,13 +1,16 @@
 from datetime import timedelta
 
-from flask import Blueprint, current_app, jsonify, make_response, request
+from flask import (Blueprint, abort, current_app, jsonify, make_response,
+                   request)
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jti, get_jwt_identity, get_raw_jwt,
                                 jwt_refresh_token_required, jwt_required,
                                 set_access_cookies, set_refresh_cookies)
-from flask_restful import Api, Resource
-from server import jwt, redis_store
+from flask_restful import Api, Resource, reqparse
+from server import bcrypt, jwt, redis_store
 from server.models import Teacher, TeacherSchema
+from server.tasks import (send_account_recovery_instructions,
+                          send_confirmation_instructions)
 
 teacher_auth_blueprint = Blueprint("teacher_auth", __name__)
 api = Api(teacher_auth_blueprint)
@@ -49,6 +52,8 @@ class TeacherRegistration(Resource):
             refresh_jti = get_jti(encoded_token=refresh_token)
             redis_store.set(access_jti, "false", ACCESS_EXPIRES * 1.2)
             redis_store.set(refresh_jti, "false", REFRESH_EXPIRES * 1.2)
+
+            send_confirmation_instructions.delay(new_teacher.id)
 
             return make_response(response, 200)
         except Exception as e:
@@ -174,6 +179,66 @@ class GAuth(Resource):
             )
 
 
+class ConfirmAccount(Resource):
+    def post(self):
+        post_data = request.get_json()
+        confirmation_token = post_data["token"]
+        teacher = Teacher.query.filter_by(confirmation_token=confirmation_token).first()
+
+        if not teacher:
+            abort(404, "Encountered an error confirming account. Make sure the email is correct.")
+
+        if confirmation_token is None or not teacher.valid_confirmation_token(confirmation_token):
+            abort(404, "Encountered an error. Invalid token.")
+
+        if not teacher.confirm_user():
+            abort(400, "Account already confirmed.")
+
+        return make_response(jsonify({
+            "status": "Success",
+            "message": "Account successfully confirmed."
+        }), 200)
+
+
+class ResetAccount(Resource):
+
+    parser = reqparse.RequestParser()
+    parser.add_argument("email", required=True,
+                        help="Email address not found.")
+
+    def get(self):
+        email = self.parser.parse_args()["email"]
+        send_account_recovery_instructions.delay(email)
+        return make_response(jsonify({
+            "status": "Success",
+            "message": "Recovery successful. If the account\
+                        exists, you will get a recovery instruction."
+        }), 200)
+
+    def post(self):
+        post_data = request.get_json()
+        token = post_data["token"]
+        email = post_data["email"]
+        password = bcrypt.generate_password_hash(
+            post_data["password"]).decode("utf-8")
+
+        teacher = Teacher.query.filter_by(email=email).first()
+
+        if not teacher:
+            abort(404, "Encountered an recovering account. Make sure the email is correct.")
+
+        if token is None or not teacher.valid_recovery_token(token):
+            abort(404, "Encountered an error. Invalid token.")
+
+        if not teacher.reset_account(token, password):
+            abort(400, "Account already confirmed.")
+
+        return make_response(jsonify({
+            "status": "Success",
+            "message": "Account successfully recovered."
+        }), 200)
+
+
 api.add_resource(TeacherRegistration, "/teacher/registration")
 api.add_resource(TeacherLogin, "/teacher/login")
 api.add_resource(TeacherLogout, "/teacher/logout")
@@ -181,3 +246,5 @@ api.add_resource(TokenRefresh, "/teacher/token/refresh")
 api.add_resource(AllTeachers, "/teachers")
 api.add_resource(CurrentUser, "/teacher/current")
 api.add_resource(GAuth, "/teacher/auth/google")
+api.add_resource(ConfirmAccount, "/teacher/confirm")
+api.add_resource(ResetAccount, "/teacher/reset-password")

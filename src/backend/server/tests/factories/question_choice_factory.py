@@ -28,12 +28,10 @@ class QuestionChoiceFactory(SQLAlchemyModelFactory):
     def question(obj, create, extracted, **kwargs):
         if not create:
             return
-        print("Question data", extracted)
         obj.question_id = extracted
 
     @post_generation
     def is_correct_choice(obj, create, extracted, **kwargs):
         if not create:
             return
-        print("Is correct choice data", extracted)
         obj.referenced_question = extracted

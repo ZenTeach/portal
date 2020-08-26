@@ -300,9 +300,25 @@ class StudentView(BaseView):
 
 
 class TeacherView(BaseView):
-    column_exclude_list = ["password", "role", "uuid", "password"]
-    form_excluded_columns = [
-        "uuid", "student_attended_classes", "role", "password"]
+    column_exclude_list = ["password",
+                           "role",
+                           "uuid",
+                           "confirmed",
+                           "confirmed_at",
+                           "confirmation_token",
+                           "recovered_at",
+                           "recovery_token"]
+
+    form_excluded_columns = ["uuid",
+                             "student_attended_classes",
+                             "role",
+                             "password",
+                             "confirmed",
+                             "confirmed_at",
+                             "confirmation_token",
+                             "recovered_at",
+                             "recovery_token"]
+
     column_formatters = {"date_of_birth": date_format}
 
     def create_model(self, form):

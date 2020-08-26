@@ -176,8 +176,6 @@ class ClassQuizGenerator(Resource):
             teacher_uid = str(t.uuid)  # noqa
             script_id = None
             try:
-                # published_url = script_execution_job.get()
-                # print("Publised URL: {}", published_url)
                 pass
             except Exception as e:
                 api_logger.exception(e)
@@ -225,12 +223,10 @@ class QuizAttendedStudents(Resource):
         quiz = ClassQuizModel.query.filter_by(
             id=class_quiz_id, status=ClassQuizStatus.administered
         ).first()
-        print(quiz.student_quiz_grades)
         if len(quiz.student_quiz_grades) == 0:
             abort(404, "Student or quiz don't exist.")
 
         students = quiz.student_quiz_grades
-        print(students)
         responses = students_dumper.dump(students)
 
         return make_response(jsonify(responses))

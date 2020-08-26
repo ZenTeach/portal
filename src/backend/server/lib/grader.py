@@ -1,4 +1,5 @@
 import json
+import logging
 from collections import namedtuple
 from uuid import UUID
 
@@ -7,6 +8,8 @@ from server.models import (ClassQuiz, ClassQuizStatus, QuestionChoice,
 from sqlalchemy import and_
 
 CorrectChoice = namedtuple("CorrectChoice", ["id", "correct_choice"])
+
+logger = logging.getLogger(__name__)
 
 
 class Feedback(object):
@@ -114,11 +117,11 @@ class Grader(object):
                 )
             ).all()
 
-        print(f"Found {len(administered_quiz_list)} administered quizzes!")
+        logger.info(f"Found {len(administered_quiz_list)} administered quizzes!")
         for quiz in administered_quiz_list:
             res = QuizGrade.query.filter(
                 QuizGrade.class_quiz_id == quiz.id).all()
-            print(f"Found {len(res)} submissions for quiz with id {quiz.id}")
+            logger.info(f"Found {len(res)} submissions for quiz with id {quiz.id}")
             self._score_quiz(res, quiz)
 
     def _score_quiz(self, quiz_submissions, quiz):

@@ -48,7 +48,6 @@ def test_add_school_class(client, mocker, teacher, student):
         ),
     )
 
-    print(f"test_add_school_class: {response.data}")
     assert response.status_code == 201
     data = json.loads(response.data.decode())["data"]
     assert data == {

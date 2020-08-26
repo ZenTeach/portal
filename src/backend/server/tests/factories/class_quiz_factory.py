@@ -42,7 +42,6 @@ class ClassQuizFactory(SQLAlchemyModelFactory):
     def school_class(obj, create, extracted, **kwargs):
         if not create:
             return
-        print("SCHOOL CLASS data", extracted)
         obj.class_id = extracted
 
     # student_quiz_sessions = RelatedFactoryList(QuizSessionFactory,
