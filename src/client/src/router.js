@@ -84,6 +84,15 @@ const router = new Router({
       name: 'Privacy Policy',
       component: () =>
         import(/* webpackChunkName: "PrivacyPolicyView" */ './views/PrivacyPolicy')
+    },
+    {
+      path: '/user-profile',
+      name: 'User Profile',
+      component: () =>
+        import(/* webpackChunkName: "UserProfileView" */ './views/UserProfile'),
+      meta: {
+        requiresAuth: true
+      }
     }
   ]
 })

@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HelperOffset.vue renders component 1`] = `<div class="v-offset" style="top: -0px; margin-bottom: -0px;"></div>`;
