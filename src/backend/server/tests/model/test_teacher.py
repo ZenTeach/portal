@@ -9,6 +9,6 @@ def test_teacher_model(client):
 def test_teacher_confirmable(client):
     teacher = TeacherFactory.create()
 
-    assert not teacher.confirmed
+    assert teacher.confirmed == False  # noqa
     assert teacher.confirmed_at is None
     assert teacher.confirmation_token is None

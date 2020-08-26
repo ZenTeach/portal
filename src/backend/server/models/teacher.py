@@ -29,7 +29,7 @@ class Teacher(BaseModelMixin, db.Model, Confirmable, Recoverable):
 
     classes = db.relationship("SchoolClass", backref="teacher", lazy=True)
 
-    confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    confirmed = db.Column(db.Boolean, nullable=True, default=False)
     confirmed_at = db.Column(db.DateTime, nullable=True)
     confirmation_token = db.Column(db.String, nullable=True)
 
