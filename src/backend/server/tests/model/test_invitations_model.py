@@ -21,6 +21,8 @@ def test_invitations_instance(client, invitations):
     assert invitations.token
     assert invitations.invitation_from_id
 
-
-def test_invitations_validate_email_invitation_token(client, teacher, invitations):
     assert Invitations.validate_email_invitation_token(invitations.email, invitations.token)
+
+    assert invitations.active == True  # noqa
+    Invitations.use_token(invitations.email, invitations.token)
+    assert invitations.active == False  # noqa

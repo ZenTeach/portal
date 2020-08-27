@@ -29,11 +29,16 @@ class TeacherRegistration(Resource):
     def validate_invite(self, email, invite_code):
         return Invitations.validate_email_invitation_token(email, invite_code)
 
+    def deactivate_token(self, email, invite_code):
+        Invitations.use_token(email, invite_code)
+
     def post(self):
         data = request.get_json()
 
         if not self.validate_invite(data["email"], data["invitation_code"]):
             abort(400, "Registrations are only through valid invites.")
+
+        self.deactivate_token(data["email"], data["invitation_code"])
 
         if Teacher.query.filter_by(email=data["email"]).first():
             return {

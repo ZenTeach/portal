@@ -126,6 +126,7 @@ def create_app():
         StudentView,
         TeacherView,
         ClassQuizView,
+        UserInvitationView,
         ZenteachAdminIndexView,
     )
 
@@ -147,6 +148,9 @@ def create_app():
     )
     admin.add_view(
         QuestionView(models.Questions, db.session, endpoint="admin.question")
+    )
+    admin.add_view(
+        UserInvitationView(models.Invitations, db.session, endpoint="admin.user_invite")
     )
 
     # import background tasks after initializing celery
