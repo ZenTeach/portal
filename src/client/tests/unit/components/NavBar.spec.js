@@ -26,6 +26,6 @@ describe('NavBar.vue', () => {
 
   it('renders component', () => {
     const wrapper = shallowMount(NavBar, { store, localVue })
-    expect(wrapper.isVueInstance()).toBe(true)
+    expect(wrapper).toMatchSnapshot()
   })
 })
