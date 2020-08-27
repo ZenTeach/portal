@@ -42,3 +42,9 @@ export function confirmAccount (token) {
     token: token
   }).then(handleResponse).then(data => data)
 }
+
+export function userInvite (email) {
+  return Api.post('/teacher/invite', {
+    email: email
+  }).then(handleResponse).then(data => data)
+}
