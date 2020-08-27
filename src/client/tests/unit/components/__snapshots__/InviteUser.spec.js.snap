@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InviteUser.vue renders InviteUser component 1`] = `
+<v-card-stub loaderheight="4" tag="div" class="d-flex align-left pa-3">
+  <validationobserver-stub tag="span" vid="obs_0"></validationobserver-stub>
+</v-card-stub>
+`;
