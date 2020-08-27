@@ -8,6 +8,16 @@
           <v-fade-transition mode="out-in">
             <router-view />
           </v-fade-transition>
+          <v-dialog
+              v-model="isInviteVisible"
+              scrollable
+              persistent
+              :overlay="false"
+              max-width="500px"
+              transition="dialog-transition"
+          >
+            <invite-user/>
+          </v-dialog>
             <!-- <material-notification
               color="error"
               class="mb-3"
@@ -39,6 +49,7 @@
 import NavBar from '@/components/NavBar'
 import NavBarDrawer from '@/components/NavBarDrawer'
 import MaterialNotification from '@/components/Notification'
+import InviteUser from '@/components/InviteUser'
 import { createNamespacedHelpers } from 'vuex'
 const { mapState } = createNamespacedHelpers('app')
 
@@ -46,12 +57,14 @@ export default {
   components: {
     NavBar,
     NavBarDrawer,
-    MaterialNotification
+    MaterialNotification,
+    InviteUser
   },
   computed: {
     ...mapState({
       isLoggedIn: state => state.loggedIn,
       error: state => state.error,
+      isInviteVisible: state => state.inviteModalVisible,
       hasError: state => {
         return Object.keys(state.error).length > 0 &&
           state.error.constructor === Object
