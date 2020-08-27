@@ -114,3 +114,25 @@ def test_teacher_account_recovery(client, teacher, mocker):
     )
 
     assert relogin_response.status_code == 200
+
+
+def test_teacher_user_invite(client, teacher, mocker, monkeypatch):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    invite_email = "invitee@someevent.com"
+
+    @mocker.patch('server.api.teacher_auth_api.get_jwt_identity')
+    def mock_identity():
+        return {
+            'email': teacher.email
+        }
+
+    @mocker.patch('server.api.teacher_auth_api.send_user_invite.delay')
+    def test_success(send_user_invite_delay):
+        response = client.post(
+            '/api/v1/teacher/invite',
+            json={
+                'email': invite_email
+            }
+        )
+        send_user_invite_delay.assert_called_with(invite_email)
+        assert response.status_code == 200

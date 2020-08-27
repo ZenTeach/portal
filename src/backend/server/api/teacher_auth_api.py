@@ -1,4 +1,5 @@
 from datetime import timedelta
+from secrets import token_hex
 
 from flask import Blueprint, abort, jsonify, make_response, request
 from flask_jwt_extended import (create_access_token, create_refresh_token,
@@ -10,7 +11,7 @@ from server import bcrypt, jwt, redis_store
 from server.api import api_logger
 from server.models import Invitations, Teacher, TeacherSchema
 from server.tasks import (send_account_recovery_instructions,
-                          send_confirmation_instructions)
+                          send_confirmation_instructions, send_user_invite)
 
 teacher_auth_blueprint = Blueprint("teacher_auth", __name__)
 api = Api(teacher_auth_blueprint)
@@ -246,6 +247,30 @@ class ResetAccount(Resource):
         }), 200)
 
 
+class InviteTeacher(Resource):
+    @jwt_required
+    def post(self):
+        teacher = get_jwt_identity()["identity"]
+        t = Teacher.query.filter_by(email=teacher["email"]).first()
+
+        post_data = request.get_json()
+        email = post_data["email"]
+        try:
+            Invitations(email, token_hex(8), t.id).save()
+            send_user_invite.delay(email)
+
+            return make_response(jsonify({
+                'status': 'success',
+                'message': 'Invite Sent!'
+            }))
+        except Exception as e:
+            api_logger.error(e)
+            return make_response(jsonify({
+                'status': 'error',
+                'message': 'Encountered an error.'
+            }))
+
+
 api.add_resource(TeacherRegistration, "/teacher/registration")
 api.add_resource(TeacherLogin, "/teacher/login")
 api.add_resource(TeacherLogout, "/teacher/logout")
@@ -255,3 +280,4 @@ api.add_resource(CurrentUser, "/teacher/current")
 api.add_resource(GAuth, "/teacher/auth/google")
 api.add_resource(ConfirmAccount, "/teacher/confirm")
 api.add_resource(ResetAccount, "/teacher/reset-password")
+api.add_resource(InviteTeacher, "/teacher/invite")
