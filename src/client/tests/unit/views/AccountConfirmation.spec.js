@@ -1,6 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils'
 import AccountConfirmation from '@/views/AccountConfirmation.vue'
-import VueRouter from 'vue-router'
 import Vuex from 'vuex'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
@@ -9,8 +8,6 @@ import { Store } from 'vuex-mock-store'
 Vue.use(Vuetify)
 const localVue = createLocalVue()
 localVue.use(Vuex)
-// localVue.use(VueRouter)
-// const router = new VueRouter()
 
 describe('AccountConfirmation.vue', () => {
   let vuetify
