@@ -95,11 +95,11 @@ const SENDUSERINVITE = ({ commit }, email) => {
     _data => {
       // commit('app/')
       console.log('succeeded!')
-      commit('app/TOGGLE_APP_INVITE_MODAL')
+      commit('app/TOGGLE_APP_INVITE_MODAL', false, { root: true })
     },
     error => {
       commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-      commit('app/TOGGLE_APP_INVITE_MODAL')
+      commit('app/TOGGLE_APP_INVITE_MODAL', false, { root: true })
     }
   )
 }

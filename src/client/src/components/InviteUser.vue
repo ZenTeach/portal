@@ -27,7 +27,7 @@
             </v-form>
         </v-card-text>
         <v-card-actions class="justify-space-between px-5">
-            <v-btn :disabled="invalid || !validated" color="primary" outlined class="mr-4" >Send Invitation</v-btn>
+            <v-btn :disabled="invalid || !validated" color="primary" @click="processInvite()" class="mr-4" >Send Invitation</v-btn>
             <v-btn color="error" outlined class="mr-4" @click.native.prevent="closeInviteDialog()">Cancel</v-btn>
         </v-card-actions>
       </ValidationObserver>
@@ -63,7 +63,7 @@ export default {
     },
     processInvite () {
       if (this.isFormValid()) {
-        this.$store.dispatch('app/SENDUSERINVITE', this.email)
+        this.$store.dispatch('user/SENDUSERINVITE', this.email)
       }
     }
   }

@@ -95,7 +95,8 @@
                   label="Invite code"
                   placeholder
                   :error-messages="errors"
-                  type="date"
+                  prepend-icon="mdi-account-key"
+                  type="text"
                   outline
                   required
                 ></v-text-field>
