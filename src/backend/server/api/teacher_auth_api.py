@@ -1,16 +1,17 @@
 from datetime import timedelta
+from secrets import token_hex
 
-from flask import (Blueprint, abort, current_app, jsonify, make_response,
-                   request)
+from flask import Blueprint, abort, jsonify, make_response, request
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jti, get_jwt_identity, get_raw_jwt,
                                 jwt_refresh_token_required, jwt_required,
                                 set_access_cookies, set_refresh_cookies)
 from flask_restful import Api, Resource, reqparse
 from server import bcrypt, jwt, redis_store
-from server.models import Teacher, TeacherSchema
+from server.api import api_logger
+from server.models import Invitations, Teacher, TeacherSchema
 from server.tasks import (send_account_recovery_instructions,
-                          send_confirmation_instructions)
+                          send_confirmation_instructions, send_user_invite)
 
 teacher_auth_blueprint = Blueprint("teacher_auth", __name__)
 api = Api(teacher_auth_blueprint)
@@ -25,8 +26,20 @@ def load_user(identity):
 
 
 class TeacherRegistration(Resource):
+    def validate_invite(self, email, invite_code):
+        return Invitations.validate_email_invitation_token(email, invite_code)
+
+    def deactivate_token(self, email, invite_code):
+        Invitations.use_token(email, invite_code)
+
     def post(self):
         data = request.get_json()
+
+        if not self.validate_invite(data["email"], data["invitation_code"]):
+            abort(400, "Registrations are only through valid invites.")
+
+        self.deactivate_token(data["email"], data["invitation_code"])
+
         if Teacher.query.filter_by(email=data["email"]).first():
             return {
                 "message": "Teacher {} already exists".format(data["email"])
@@ -57,7 +70,7 @@ class TeacherRegistration(Resource):
 
             return make_response(response, 200)
         except Exception as e:
-            current_app.logger.error(e)
+            api_logger.error(e)
             return make_response(
                 jsonify({
                     "message": "Something went wrong"
@@ -239,6 +252,30 @@ class ResetAccount(Resource):
         }), 200)
 
 
+class InviteTeacher(Resource):
+    @jwt_required
+    def post(self):
+        teacher = get_jwt_identity()["identity"]
+        t = Teacher.query.filter_by(email=teacher["email"]).first()
+
+        post_data = request.get_json()
+        email = post_data["email"]
+        try:
+            Invitations(email, token_hex(8), t.id).save()
+            send_user_invite.delay(email)
+
+            return make_response(jsonify({
+                'status': 'success',
+                'message': 'Invite Sent!'
+            }))
+        except Exception as e:
+            api_logger.error(e)
+            return make_response(jsonify({
+                'status': 'error',
+                'message': 'Encountered an error.'
+            }))
+
+
 api.add_resource(TeacherRegistration, "/teacher/registration")
 api.add_resource(TeacherLogin, "/teacher/login")
 api.add_resource(TeacherLogout, "/teacher/logout")
@@ -248,3 +285,4 @@ api.add_resource(CurrentUser, "/teacher/current")
 api.add_resource(GAuth, "/teacher/auth/google")
 api.add_resource(ConfirmAccount, "/teacher/confirm")
 api.add_resource(ResetAccount, "/teacher/reset-password")
+api.add_resource(InviteTeacher, "/teacher/invite")

@@ -1,4 +1,5 @@
 from .class_quiz_factory import ClassQuizFactory
+from .invitation_factory import InvitationFactory
 from .question_choice_factory import QuestionChoiceFactory
 from .question_factory import QuestionsFactory
 from .quiz_grade_factory import QuizGradeFactory
@@ -16,4 +17,5 @@ __all__ = [
     "SchoolClassFactory",
     "QuestionsFactory",
     "QuestionChoiceFactory",
+    "InvitationFactory"
 ]

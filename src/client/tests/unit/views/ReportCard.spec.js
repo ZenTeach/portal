@@ -24,6 +24,9 @@ describe('ReportCard.vue', () => {
         app: {
           loggedIn: 'from app',
           error: 'from app'
+        },
+        quiz: {
+          report_card: []
         }
       },
       getters: {

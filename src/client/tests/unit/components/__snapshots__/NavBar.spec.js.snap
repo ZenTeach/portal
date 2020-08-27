@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NavBar.vue renders component 1`] = `
+<v-app-bar-stub height="88" tag="header" extensionheight="48" flat="true" src="" value="true" app="true" clippedright="true" id="core-bar-app">
+  <v-toolbar-title-stub class="tertiary--text font-weight-light align-self-center">
+    <!---->
+
+  </v-toolbar-title-stub>
+  <v-spacer-stub></v-spacer-stub>
+  <v-toolbar-items-stub>
+    <v-row-stub tag="div" align="center" class="mx-0">
+      <v-btn-stub tag="button" activeclass="" to="/" icon="true" type="button">
+        <v-icon-stub color="tertiary">mdi-view-dashboard</v-icon-stub>
+      </v-btn-stub>
+      <v-btn-stub tag="button" activeclass="" to="/user-profile" icon="true" type="button">
+        <v-icon-stub color="tertiary">mdi-account</v-icon-stub>
+      </v-btn-stub>
+      <v-btn-stub tag="button" activeclass="" depressed="true" icon="true" text="true" type="button">
+        <v-icon-stub right="">exit_to_app</v-icon-stub>
+      </v-btn-stub>
+    </v-row-stub>
+  </v-toolbar-items-stub>
+</v-app-bar-stub>
+`;

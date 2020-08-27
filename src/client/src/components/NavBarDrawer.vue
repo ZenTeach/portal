@@ -36,6 +36,16 @@
           <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+
+      <v-list-item active-class="primary white--text" @click.capture.stop="toggleInviteUserDialog">
+        <v-list-item-icon>
+          <v-icon>mdi-email</v-icon>
+        </v-list-item-icon>
+
+        <v-list-item-content>
+          <v-list-item-title>Invite</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
     </v-list>
 
     <template v-slot:append>
@@ -64,7 +74,7 @@ export default {
       drawerMinified: 'app/getDrawerMinified'
     })
   },
-  data () {
+  data: function () {
     return {
       items: [
         {
@@ -89,6 +99,10 @@ export default {
     ...mapMutations(['TOGGLE_APP_DRAWER_MINIFIED']),
     toggleMiniview () {
       this.$store.commit('app/TOGGLE_APP_DRAWER_MINIFIED')
+    },
+    toggleInviteUserDialog () {
+      console.log('In toggleInviteUserDialog')
+      this.$store.commit('app/TOGGLE_APP_INVITE_MODAL')
     }
   }
 }

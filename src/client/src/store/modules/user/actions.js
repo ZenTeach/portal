@@ -5,7 +5,8 @@ import {
   getCurrentUser,
   sendAccountRecovery,
   changePassword,
-  confirmAccount
+  confirmAccount,
+  userInvite
 } from '../../../service/user_auth'
 import router from '@/router'
 import Vue from 'vue'
@@ -89,6 +90,20 @@ const CONFIRMNEWACCOUNT = ({ commit }, token) => {
   )
 }
 
+const SENDUSERINVITE = ({ commit }, email) => {
+  userInvite(email).then(
+    _data => {
+      // commit('app/')
+      console.log('succeeded!')
+      commit('app/TOGGLE_APP_INVITE_MODAL', false, { root: true })
+    },
+    error => {
+      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      commit('app/TOGGLE_APP_INVITE_MODAL', false, { root: true })
+    }
+  )
+}
+
 export default {
   LOGIN_USER,
   SIGNOUT_USER,
@@ -96,5 +111,6 @@ export default {
   FETCHCURRENTUSER,
   SENDACCOUNTRECOVERY,
   UPDATEUSERPASSWORD,
-  CONFIRMNEWACCOUNT
+  CONFIRMNEWACCOUNT,
+  SENDUSERINVITE
 }

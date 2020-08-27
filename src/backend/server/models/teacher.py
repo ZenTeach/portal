@@ -1,5 +1,6 @@
 import random
 import string
+from typing import Optional
 from uuid import uuid4
 
 from server import bcrypt, db
@@ -14,6 +15,12 @@ from sqlalchemy.dialects.postgresql import UUID
 def randomString(stringLength=8):
     letters = string.ascii_lowercase
     return "".join(random.choice(letters) for i in range(stringLength))  # nosec
+
+
+def unique_uuid4(x: Optional[UUID] = None) -> UUID:
+    if x is None:
+        x = uuid4()
+    return x
 
 
 class Teacher(BaseModelMixin, db.Model, Confirmable, Recoverable):
@@ -45,7 +52,7 @@ class Teacher(BaseModelMixin, db.Model, Confirmable, Recoverable):
         classes=[],
         password=None,
         role="Teacher",
-        uuid=uuid4(),
+        uuid=None
     ):
         self.firstname = firstname
         self.lastname = lastname
@@ -56,7 +63,12 @@ class Teacher(BaseModelMixin, db.Model, Confirmable, Recoverable):
             self.password = bcrypt.generate_password_hash(
                 password).decode("utf-8")
         self.role = role
-        self.uuid = uuid
+
+        if self.uuid is None:
+            self.uuid = unique_uuid4()
+        else:
+            self.uuid = uuid
+
         self.classes = classes
         self.date_of_birth = date_of_birth
 

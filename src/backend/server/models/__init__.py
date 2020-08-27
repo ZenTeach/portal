@@ -16,6 +16,7 @@ from .admin import Admin
 from .question_choice import QuestionChoice
 from .questions import Questions, QuestionTypeEnum
 from .migrations.seeds import run_seed
+from .invitations import Invitations
 
 __all__ = [
     "ClassQuiz",
@@ -37,6 +38,7 @@ __all__ = [
     "Questions",
     "QuestionTypeEnum",
     "QuestionChoice",
+    "Invitations",
     "QuestionsSchema",
     "run_seed",
 ]

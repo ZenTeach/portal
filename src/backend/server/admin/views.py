@@ -354,3 +354,9 @@ class ClassQuizView(BaseView):
         "quiz_session",
         "student_quiz_grade",
     ]
+
+
+class UserInvitationView(BaseView):
+    can_create = False
+    can_edit = False
+    column_exclude_list = ["invite_sent_at"]

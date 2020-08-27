@@ -16,6 +16,9 @@ export default {
   TOGGLE_APP_DRAWER_MINIFIED (state, _payload) {
     state.drawerMinified = !state.drawerMinified
   },
+  TOGGLE_APP_INVITE_MODAL (state, _payload) {
+    state.inviteModalVisible = !state.inviteModalVisible
+  },
   RESET_QUESTION_SEARCH (state, _payload) {
     state.questionSearch = []
   },

@@ -7,6 +7,7 @@ const state = {
   loading: false,
   drawer: true,
   drawerMinified: false,
+  inviteModalVisible: false,
   error: {},
   questionSearch: [],
   knowledgeItems: [],

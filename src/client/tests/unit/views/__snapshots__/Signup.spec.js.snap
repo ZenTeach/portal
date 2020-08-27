@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Signup.vue Tests renders a Signup form 1`] = `
+<v-main-stub tag="main">
+  <v-container-stub tag="div" fluid="true" fill-height="">
+    <v-layout-stub tag="div" align-center="" justify-center="">
+      <v-flex-stub tag="div" xs12="" sm10="" md6="">
+        <validationobserver-stub tag="span" vid="obs_0"></validationobserver-stub>
+      </v-flex-stub>
+    </v-layout-stub>
+  </v-container-stub>
+</v-main-stub>
+`;
