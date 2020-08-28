@@ -21,20 +21,20 @@ s3_client = client('s3')
 bucket = s3.Bucket(BUCKET)
 
 
+def get_image_key(image_file_name):
+    image_name, image_ext = image_file_name.split('.')
+    return "{}_{}.{}".format(
+        image_name, md5(image_name.encode('utf-8')).hexdigest(), image_ext  # nosec
+    )
+
+
 @celery.task(bind=True)
-def upload_image_to_s3(self, image_location):
+def upload_image_to_s3(self, image_location: str) -> str:
     image_path = Path(image_location)
     if not image_path.exists():
         raise Exception("Image file not found.")
-    image_name = image_path.name
-    key = "{}_{}".format(image_name, md5(image_path.name.encode('utf-8')).hexdigest())  # nosec
-    # mimeinfo = guess_type(image_path, strict=True)
-    # res = s3.Bucket(BUCKET).put_object(  # noqa
-    #             ACL='public-read',
-    #             Body=image_path.read_bytes(),
-    #             Key=key,
-    #             ContentType=mimeinfo[0])
-    s3_client.upload_file(image_path, BUCKET, key, ExtraArgs={'ACL': 'public-read'})
+    key = get_image_key(image_path.name)
+    s3_client.upload_file(str(image_path), BUCKET, key, ExtraArgs={'ACL': 'public-read'})
 
     url = "https://{}.s3.{}.amazonaws.com/{}".format(BUCKET, REGION, key)
     return url

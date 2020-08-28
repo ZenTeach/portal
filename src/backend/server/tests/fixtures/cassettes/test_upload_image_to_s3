@@ -424,37 +424,33 @@ interactions:
     headers:
       Authorization:
       - !!binary |
-        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPUFLSUFYR1A2RVc1U0EySVdXT1pNLzIwMjAwODA1
-        L2V1LXdlc3QtMi9zMy9hd3M0X3JlcXVlc3QsIFNpZ25lZEhlYWRlcnM9Y29udGVudC1tZDU7Y29u
-        dGVudC10eXBlO2hvc3Q7eC1hbXotYWNsO3gtYW16LWNvbnRlbnQtc2hhMjU2O3gtYW16LWRhdGUs
-        IFNpZ25hdHVyZT0wYmMyZmNlYmJlYmMzMTIzNTUwYzUxODM5YWRkZDEwMzZiNmIwZTZjYWQwYzhm
-        MjEyMTljNjBjNWY3NDU0OGIz
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPUFLSUFYR1A2RVc1U0EySVdXT1pNLzIwMjAwODI4
+        L2V1LXdlc3QtMi9zMy9hd3M0X3JlcXVlc3QsIFNpZ25lZEhlYWRlcnM9Y29udGVudC1tZDU7aG9z
+        dDt4LWFtei1hY2w7eC1hbXotY29udGVudC1zaGEyNTY7eC1hbXotZGF0ZSwgU2lnbmF0dXJlPWQ0
+        NzVmOTkyZmM2N2M5YzEyZjczNDFjOGQwNWYwY2Y0NmE5NmI1M2QxNGFjOTg3NGY3YjU0OTMxMmQy
+        NmU0MWY=
       Content-Length:
       - '23698'
       Content-MD5:
       - !!binary |
         QnBEVE01QVRWd25GWlVZTk9JQnErQT09
-      Content-Type:
-      - !!binary |
-        aW1hZ2UvanBlZw==
       Expect:
       - !!binary |
         MTAwLWNvbnRpbnVl
       User-Agent:
       - !!binary |
         Qm90bzMvMS4xMC4zNCBQeXRob24vMy43LjUgRGFyd2luLzE5LjQuMCBCb3RvY29yZS8xLjEzLjM0
-        IFJlc291cmNl
       X-Amz-Content-SHA256:
       - !!binary |
         VU5TSUdORUQtUEFZTE9BRA==
       X-Amz-Date:
       - !!binary |
-        MjAyMDA4MDVUMjAxNjE4Wg==
+        MjAyMDA4MjhUMjAyMTM3Wg==
       x-amz-acl:
       - !!binary |
         cHVibGljLXJlYWQ=
     method: PUT
-    uri: https://stage-question-assets-bucket.s3.eu-west-2.amazonaws.com/test_question_image.jpeg_10991443cc42fcac84ac3e16f2ad3788
+    uri: https://stage-question-assets-bucket.s3.eu-west-2.amazonaws.com/test_question_image_8b500d6b96e7deaf5bd1bfd255a990cf.jpeg
   response:
     body:
       string: ''
@@ -462,17 +458,17 @@ interactions:
       Content-Length:
       - '0'
       Date:
-      - Wed, 05 Aug 2020 20:16:19 GMT
+      - Fri, 28 Aug 2020 20:21:38 GMT
       ETag:
       - '"0690d33390135709c565460d38806af8"'
       Server:
       - AmazonS3
       x-amz-id-2:
-      - t6vz0R4AueGSMZEtiwqnd8jG4pSutGC7uH+2We92wTzrtfi04+6IWCcLfR9xUC3E6yhwywgoyw8=
+      - R9XhxNlUrt0rEfawLdtKpz9LkcoL8t8ENvxr07kHfP1enBLzweQQ3dGVFnE5q1dbPp6DRQvOKro=
       x-amz-request-id:
-      - 305DE42813B04C02
+      - 453394944040E777
       x-amz-version-id:
-      - 0XMIHB47MCmGl9niBXxxG4vCaC71TeaR
+      - mgy4H6WgucLmdAUoMO3vtZKb8lah1SPY
     status:
       code: 200
       message: OK

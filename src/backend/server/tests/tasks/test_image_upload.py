@@ -1,9 +1,11 @@
 import os
 import re
 
+import pytest
 from faker import Faker
 from faker.providers import internet, lorem
 from server.tasks import delete_image_from_s3, upload_image_to_s3
+from server.tasks.image_upload import get_image_key
 from vcr import VCR
 
 fake = Faker()
@@ -26,6 +28,18 @@ class TestImageUpload:
     @classmethod
     def teardown_class(cls):
         pass
+
+    @pytest.mark.parametrize(
+        "filename, regex",
+        [
+            pytest.param('cats.jpeg', r'^cats_(.*)\.jpeg$'),
+            pytest.param('cat_and_dogs.png', r'^cat_and_dogs_(.*)\.png$'),
+            pytest.param('pigs-in-a-sty.jpeg', r'^pigs-in-a-sty_(.*)\.jpeg')
+        ]
+    )
+    def test_get_image_key(self, filename, regex):
+        key = get_image_key(filename)
+        assert re.match(regex, key)
 
     @vcr.use_cassette()
     def test_upload_image_to_s3(self, file_fixture_dir):
