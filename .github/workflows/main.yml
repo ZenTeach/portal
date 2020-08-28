@@ -54,13 +54,15 @@ jobs:
         run: pipenv install
 
       - name: Run migrations
-        run: python manage.py db upgrade
+        run: pipenv run python manage.py db upgrade
         env:
+          FLASK_ENV: test
           DATABASE_TEST_URL: postgres://zenteach:cipass@localhost:5432/zenteach
 
       - name: Run db configuration
-        run: python manage.py db_conf
+        run: pipenv run python manage.py db_conf
         env:
+          FLASK_ENV: test
           DATABASE_TEST_URL: postgres://zenteach:cipass@localhost:5432/zenteach
 
       - name: Run tests
