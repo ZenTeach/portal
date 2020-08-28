@@ -10,22 +10,18 @@ jobs:
   backend-container-job:
     runs-on: self-hosted
     container: python:3.7.5-slim-stretch
-    env:
-      DATABASE_TEST_URL=postgres://zenteach:cipass@localhost:5432/zenteach
-      FLASK_ENV=test
-      APP_SETTINGS=server.config.TestingConfig
-      FLASK_ENV=test
-      TESTING=True
-      AUTHLIB_INSECURE_TRANSPORT=true
-      TMP_DIR=/tmp
     defaults:
       run:
         working-directory: src/backend
     services:
       redis:
         image: redis:5.0.7-alpine
+        ports:
+          - 6379:6379
       postgres:
         image: postgres
+        ports:
+          - 5432:5432
         env:
           POSTGRES_DB: zenteach
           POSTGRES_USER: zenteach
@@ -56,5 +52,13 @@ jobs:
 
       - name: Install dependencies
         run: pipenv install
+        env:
+          DATABASE_TEST_URL: postgres://zenteach:cipass@${{ job.services.postgres.ports['5432'] }}/zenteach
+          FLASK_ENV: test
+          APP_SETTINGS: server.config.TestingConfig
+          TESTING: True
+          REDIS_URL: redis://${{ job.services.redis.ports['6379'] }}/app
+          AUTHLIB_INSECURE_TRANSPORT: true
+          TMP_DIR: /tmp
       - name: Run tests
         run: pytest --cov=server/
