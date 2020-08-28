@@ -150,6 +150,7 @@ pytest-sugar = "*"
 pytest-xdist = "*"
 pytest-html = "*"
 pytest-icdiff = "*"
+pytest-timeout = "*"
 
 [requires]
 python_version = "3.7"
