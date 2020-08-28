@@ -1,12 +1,12 @@
+import server.models as models
 from flask_mail import Message
 from server import celery
-from server.models import Invitations, Teacher
 from server.tasks.commons import send_mail_with_html
 
 
 @celery.task
 def send_confirmation_instructions(teacher_id):
-    teacher = Teacher.query.filter_by(id=teacher_id).first()
+    teacher = models.Teacher.query.filter_by(id=teacher_id).first()
     confirmation_link = teacher.generate_confirmation_link()
 
     message = Message(subject="Confirm your account")
@@ -19,7 +19,7 @@ def send_confirmation_instructions(teacher_id):
 
 @celery.task
 def send_account_recovery_instructions(email):
-    teacher = Teacher.query.filter_by(email=email).first()
+    teacher = models.Teacher.query.filter_by(email=email).first()
     try:
         recovery_link = teacher.get_reset_link()
 
@@ -36,7 +36,7 @@ def send_account_recovery_instructions(email):
 
 @celery.task
 def send_user_invite(invite_email):
-    invite = Invitations.query.filter_by(email=invite_email, active=True).first()
+    invite = models.Invitations.query.filter_by(email=invite_email, active=True).first()
 
     try:
         message = Message(subject="Your invite is here!")
