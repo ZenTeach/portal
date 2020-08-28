@@ -1,4 +1,4 @@
-name: CI
+name: Backend test CI
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  backend-container-job:
+  backend:
     runs-on: self-hosted
     container: python:3.7.5-slim-stretch
     env:
