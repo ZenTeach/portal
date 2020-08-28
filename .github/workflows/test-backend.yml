@@ -16,6 +16,7 @@ jobs:
       APP_SETTINGS: server.config.TestingConfig
       REDIS_URL: redis://redis:6379/app
       AUTHLIB_INSECURE_TRANSPORT: true
+      CLIENT_URL: http://localhost:8080
       TMP_DIR: /tmp
     defaults:
       run:
