@@ -68,4 +68,4 @@ jobs:
         run: pipenv run python manage.py db_conf
 
       - name: Run tests
-        run: pipenv run pytest --cov=server/
+        run: pipenv run pytest
