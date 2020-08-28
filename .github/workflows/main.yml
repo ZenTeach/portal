@@ -52,6 +52,8 @@ jobs:
 
       - name: Install dependencies
         run: pipenv install
+      - name: Run tests
+        run: pipenv run pytest --cov=server/
         env:
           DATABASE_TEST_URL: postgres://zenteach:cipass@${{ job.services.postgres.ports['5432'] }}/zenteach
           FLASK_ENV: test
@@ -60,5 +62,3 @@ jobs:
           REDIS_URL: redis://${{ job.services.redis.ports['6379'] }}/app
           AUTHLIB_INSECURE_TRANSPORT: true
           TMP_DIR: /tmp
-      - name: Run tests
-        run: pytest --cov=server/
