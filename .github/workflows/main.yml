@@ -10,6 +10,14 @@ jobs:
   backend-container-job:
     runs-on: self-hosted
     container: python:3.7.5-slim-stretch
+    env:
+      DATABASE_TEST_URL: postgres://zenteach:cipass@localhost:5432/zenteach
+      FLASK_ENV: test
+      APP_SETTINGS: server.config.TestingConfig
+      TESTING: True
+      REDIS_URL: redis://localhost:6379/app
+      AUTHLIB_INSECURE_TRANSPORT: true
+      TMP_DIR: /tmp
     defaults:
       run:
         working-directory: src/backend
@@ -55,23 +63,9 @@ jobs:
 
       - name: Run migrations
         run: pipenv run python manage.py db upgrade
-        env:
-          FLASK_ENV: test
-          DATABASE_TEST_URL: postgres://zenteach:cipass@localhost:5432/zenteach
 
       - name: Run db configuration
         run: pipenv run python manage.py db_conf
-        env:
-          FLASK_ENV: test
-          DATABASE_TEST_URL: postgres://zenteach:cipass@localhost:5432/zenteach
 
       - name: Run tests
         run: pipenv run pytest --cov=server/
-        env:
-          DATABASE_TEST_URL: postgres://zenteach:cipass@localhost:5432/zenteach
-          FLASK_ENV: test
-          APP_SETTINGS: server.config.TestingConfig
-          TESTING: True
-          REDIS_URL: redis://${{ job.services.redis.ports['6379'] }}/app
-          AUTHLIB_INSECURE_TRANSPORT: true
-          TMP_DIR: /tmp
