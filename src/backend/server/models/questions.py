@@ -1,14 +1,23 @@
 import enum
+import logging
+from operator import itemgetter
+from secrets import token_hex
 from uuid import uuid4
 
 from flask_sqlalchemy import BaseQuery
 from marshmallow import INCLUDE, Schema, ValidationError, fields
 from server import db
+from server.lib import LocalImageStore
 from server.models import QuestionChoice
 from server.models.base_model import BaseModelMixin
+from server.tasks import upload_image_to_s3
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.event import listens_for
 from sqlalchemy_searchable import SearchQueryMixin
 from sqlalchemy_utils.types import TSVectorType
+from werkzeug.utils import secure_filename
+
+logger = logging.getLogger('model::question')
 
 
 class QuestionsQuery(BaseQuery, SearchQueryMixin):
@@ -39,6 +48,7 @@ class Questions(BaseModelMixin, db.Model):
     uuid = db.Column(UUID(as_uuid=True), unique=True,
                      nullable=False, default=uuid4())
     image_url = db.Column(db.Text, nullable=True)
+    image = None
     question = db.Column(db.Text, nullable=False)
     question_type = db.Column(
         db.Enum(QuestionTypeEnum),
@@ -64,6 +74,7 @@ class Questions(BaseModelMixin, db.Model):
         correct_choice_id,
         uuid=uuid4(),
         choices=[],
+        image_url=""
     ):
         if question_type == QuestionTypeEnum.multiple_choice:
             try:
@@ -80,6 +91,7 @@ class Questions(BaseModelMixin, db.Model):
         self.uuid = uuid
         self.correct_choice_id = correct_choice_id
         self.choices = choices
+        self.image_url = image_url
 
     @classmethod
     def create_from_admin_form(cls, data):
@@ -90,9 +102,27 @@ class Questions(BaseModelMixin, db.Model):
                 choice["value"], choice["feedback"], choice["weight"], uuid4()
             )
             interim.save()
-            if choice["is_correct_choice"] and correct_choice_id is None:
+            if "is_correct_choice" in choice and correct_choice_id is None:
                 correct_choice_id = interim.id
             created_choice.append(interim)
+
+        image_name = None
+        if 'image_url' in data and data['image_url'] is not None:
+            image_file = data['image_url']
+            file_parts = image_file.filename.rsplit('.', 1)
+            secure_name = secure_filename("{}-{}.{}".format(
+                file_parts[0].lower(),
+                token_hex(6),
+                file_parts[1].lower()
+            ))
+            _, abs_filepath = itemgetter('url', 'abs_filepath')(LocalImageStore.save(image_file, secure_name))  # noqa
+            logger.info("Image absolute location: {}".format(abs_filepath))
+            # image_name = image_loc
+            # image_file.save(image_tmp_location)
+            # fp = open(image_name, 'wb')
+            # fp.write(image_file.stream.read())
+            # fp.close()
+
         instance = cls(
             data["question"],
             data["question_type"],
@@ -103,6 +133,7 @@ class Questions(BaseModelMixin, db.Model):
             correct_choice_id,
             uuid=uuid4(),
             choices=created_choice,
+            image_url=image_name
         )
         instance.save()
         # instance.set_correct_choice()
@@ -113,3 +144,15 @@ class Questions(BaseModelMixin, db.Model):
 
     def copy_image_to_tmp(self):
         pass
+
+
+@listens_for(Questions, 'before_insert')
+def save_image_to_s3(mapper, connection, target):
+    # import pdb; pdb.set_trace()
+    if target.image_url is None or target.image_url == '':
+        return
+    print("Inside after_insert hook")
+    job_result = upload_image_to_s3.apply_async(args=[target.image_url])
+    url = job_result.get()
+    target.image_url = url
+    # target.save()

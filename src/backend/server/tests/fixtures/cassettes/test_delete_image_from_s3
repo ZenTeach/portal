@@ -1,0 +1,52 @@
+interactions:
+- request:
+    body: <Delete xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Object><Key>10991443cc42fcac84ac3e16f2ad3788</Key></Object></Delete>
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPUFLSUFYR1A2RVc1U0EySVdXT1pNLzIwMjAwODAz
+        L2V1LXdlc3QtMi9zMy9hd3M0X3JlcXVlc3QsIFNpZ25lZEhlYWRlcnM9Y29udGVudC1tZDU7aG9z
+        dDt4LWFtei1jb250ZW50LXNoYTI1Njt4LWFtei1kYXRlLCBTaWduYXR1cmU9NTQ3ZDkwMTk4N2My
+        NTE0OGM0M2VhMzUyZTkwZDNkZWQ5MjEzNGY0ZjZmMTY5YTZlYjUxODZkMDY2N2VmYzg2OA==
+      Content-Length:
+      - '125'
+      Content-MD5:
+      - !!binary |
+        OFZkSW94V1MydUNsR0M1RW5zazVsZz09
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS4xMC4zNCBQeXRob24vMy43LjUgRGFyd2luLzE5LjQuMCBCb3RvY29yZS8xLjEzLjUw
+        IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        MmRhYWI2Y2UyZjhlMDE4MGU5YjdlMTY0ZDRhZTk0MmJjYWU0ZTc4OTI1MmE0YjkyN2JhNTIwZTg0
+        YTY1ZjkxNQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyMDA4MDNUMDY0ODMwWg==
+    method: POST
+    uri: https://stage-question-assets-bucket.s3.eu-west-2.amazonaws.com/?delete
+  response:
+    body:
+      string: '<?xml version="1.0" encoding="UTF-8"?>
+
+        <DeleteResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Deleted><Key>10991443cc42fcac84ac3e16f2ad3788</Key><DeleteMarker>true</DeleteMarker><DeleteMarkerVersionId>krWRhpnnZFeXbSsdl3j4lKCq8sZMgKzj</DeleteMarkerVersionId></Deleted></DeleteResult>'
+    headers:
+      Connection:
+      - close
+      Content-Type:
+      - application/xml
+      Date:
+      - Mon, 03 Aug 2020 06:48:32 GMT
+      Server:
+      - AmazonS3
+      Transfer-Encoding:
+      - chunked
+      x-amz-id-2:
+      - Gwx6+HOLzpb1VlUGFr6zfiKpXa1fLJZOxV+b8Q2BHwb/YTJdAiNQk5WG3xu7OWfHaTgo3DYcmDM=
+      x-amz-request-id:
+      - 1N3R8JBPAW4H7P0P
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -152,6 +152,8 @@ pytest-html = "*"
 pytest-icdiff = "*"
 pytest-timeout = "*"
 idna-ssl = "*"
+vcrpy = "*"
+boto = "*"
 
 [requires]
 python_version = "3.7"

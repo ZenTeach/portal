@@ -4,8 +4,9 @@ from collections import namedtuple
 from typing import Dict, List, Optional
 from uuid import UUID
 
-from server.models import (ClassQuiz, ClassQuizStatus, QuestionChoice,
-                           Questions, QuizGrade, QuizSession)
+# from server.models import (ClassQuiz, ClassQuizStatus, QuestionChoice,
+#                            Questions, QuizGrade, QuizSession)
+import server.models as smodels
 from sqlalchemy import and_
 
 CorrectChoice = namedtuple("CorrectChoice", ["id", "correct_choice"])
@@ -29,8 +30,8 @@ class Feedback(object):
 
     def build_from_question_id(self, questionID: int, choiceID: UUID) -> None:
         _tuple = (
-            Questions.query.with_entities(
-                Questions.topic, Questions.knowledge_item)
+            smodels.Questions.query.with_entities(
+                smodels.Questions.topic, smodels.Questions.knowledge_item)
             .filter_by(id=questionID)
             .first()
         )
@@ -58,9 +59,9 @@ class Feedback(object):
             ),
             None)
 
-    def _get_feedback_for_choice(self, choice_id: UUID) -> str:
-        choice = QuestionChoice.query.filter_by(uuid=choice_id).first()
-        return choice.feedback
+    def _get_feedback_for_choice(self, choice_id):
+        choice = smodels.QuestionChoice.query.filter_by(uuid=choice_id).first()
+        return choice.feedback.content
 
     def add_ki_to_topic(self, topic: str, ki: str) -> None:
         if not self._topic_exist_in_feedback(topic):
@@ -98,7 +99,7 @@ class Grader(object):
     @classmethod
     def from_quiz_session(cls, quiz_session_id: UUID) -> None:
         # Get submission from session
-        session = QuizSession.query.filter_by(uuid=quiz_session_id).first()
+        session = smodels.QuizSession.query.filter_by(uuid=quiz_session_id).first()
         if not session:
             raise Exception("Quiz session not found")
 
@@ -111,18 +112,18 @@ class Grader(object):
         if self.class_quiz:
             administered_quiz_list = [self.class_quiz]
         else:
-            administered_quiz_list = ClassQuiz.query.filter(
+            administered_quiz_list = smodels.ClassQuiz.query.filter(
                 and_(
-                    ClassQuiz.status == ClassQuizStatus.administered.name,
-                    ClassQuiz.class_id == self.school_class_id,
+                    smodels.ClassQuiz.status == smodels.ClassQuizStatus.administered.name,
+                    smodels.ClassQuiz.class_id == self.school_class_id,
                 )
             ).all()
 
         logger.info(f"Found {len(administered_quiz_list)} administered quizzes!")
         for quiz in administered_quiz_list:
-            res = QuizGrade.query.filter(
-                QuizGrade.class_quiz_id == quiz.id).all()
-            logger.info(f"Found {len(res)} submissions for quiz with id {quiz.id}")
+            res = smodels.QuizGrade.query.filter(
+                smodels.QuizGrade.class_quiz_id == quiz.id).all()
+            print(f"Found {len(res)} submissions for quiz with id {quiz.id}")
             self._score_quiz(res, quiz)
 
     def _score_quiz(self, quiz_submissions, quiz) -> None:
@@ -136,11 +137,10 @@ class Grader(object):
             quiz_questions_id = list(map(lambda x: x["id"], quiz.questions))
 
             correct_choices_resultset = (
-                Questions.query.with_entities(Questions.id, QuestionChoice.uuid)
-                               .filter(and_(Questions.correct_choice_id == QuestionChoice.id,
-                                            Questions.id.in_(quiz_questions_id)))
-                               .order_by(Questions.id)
-                               .all()
+                smodels.Questions.query.with_entities(
+                    smodels.Questions.id, smodels.Questions.correct_choice)
+                .filter(smodels.Questions.id.in_(quiz_questions_id))
+                .all()
             )
 
             correct_choices = [

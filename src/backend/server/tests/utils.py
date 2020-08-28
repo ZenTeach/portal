@@ -1,3 +1,4 @@
+import sqlalchemy
 from flask import current_app, jsonify
 
 
@@ -28,3 +29,16 @@ class LoggedInUserMixin(object):
         url = "api/v1/{}/login".format(type)
         self.client.post(url, json=login_details)
         # return make_response(jsonify(response), 200)
+
+
+class SQlAlchemyEventListener(object):
+    def __init__(self, class_, event, callable_):
+        self.class_ = class_
+        self.event = event
+        self.callable_ = callable_
+
+    def __enter__(self):
+        sqlalchemy.event.remove(self.class_, self.event, self.callable_)
+
+    def __exit__(self, type_, value, tb):
+        sqlalchemy.event.listen(self.class_, self.event, self.callable_)

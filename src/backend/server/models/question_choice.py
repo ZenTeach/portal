@@ -16,10 +16,13 @@ class QuestionChoice(db.Model, BaseModelMixin):
     uuid = db.Column(UUID(as_uuid=True), unique=True,
                      nullable=False, default=uuid4())
 
-    def __init__(self, value, feedback, weight=0, uuid=uuid4()):
+    def __init__(self, value, feedback, weight=0, uuid=''):
         self.value = value
         self.weight = weight
-        self.uuid = uuid
+        if uuid == '':
+            self.uuid = uuid4()
+        else:
+            self.uuid = uuid
         self.feedback = feedback
 
     @property

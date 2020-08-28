@@ -325,3 +325,4 @@ gradle-app.setting
 **/build/
 students.csv
 -h
+**/static/uploaded/**
