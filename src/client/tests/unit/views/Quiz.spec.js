@@ -38,6 +38,7 @@ describe('Quiz.vue', () => {
   })
 
   it('matches snapshot', () => {
+    mockStore.getters.uuid = jest.fn()
     const wrapper = shallowMount(Quiz, { store, localVue, vuetify, router, mocks: { $store: mockStore } })
     expect(wrapper).toMatchSnapshot()
   })

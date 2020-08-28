@@ -1,0 +1,18 @@
+name: Client test CI
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  client:
+    runs-on: self-hosted
+    container: node:13.13-alpine
+    defaults:
+      run:
+        working-directory: src/client
+    steps:
+      - name: Install dependencies
+        run: yarn install
+      - name: Run unit test
+        run: yarn test:unit

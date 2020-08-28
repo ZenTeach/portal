@@ -143,9 +143,9 @@ export default {
     this.$store.dispatch('quiz/FETCH_GRADEDQUIZZES', this.$route.params.id)
   },
   computed: {
-    // quiz_id () {
-    //   return this.$route.params.id
-    // }
+    quiz_id () {
+      return this.$route.params.id
+    },
     ...mapGetters({
       subject: 'quiz/subject',
       uuid: 'quiz/uuid',
