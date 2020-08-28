@@ -43,7 +43,8 @@ def test_teacher_login_endpoint(client, teacher, email, password, message, statu
     assert data == message
 
 
-def test_teacher_registration_endpoint(client, teacher):
+def test_teacher_registration_endpoint(client, teacher, mocker):
+    mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions')
     new_teacher = build(dict, FACTORY_CLASS=TeacherFactory, with_invite_code=True)
     response = client.post(
         '/api/v1/teacher/registration',
@@ -135,4 +136,22 @@ def test_teacher_user_invite(client, teacher, mocker, monkeypatch):
             }
         )
         send_user_invite_delay.assert_called_with(invite_email)
+        assert response.status_code == 200
+
+
+def test_teacher_token_refresh(client, teacher, mocker):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.teacher_auth_api.jwt_refresh_token_required')
+
+    @mocker.patch('server.api.teacher_auth_api.get_jwt_identity')
+    def mock_identity():
+        return {
+            'email': teacher.email
+        }
+
+    @mocker.patch('server.api.teacher_auth_api.redis_store')
+    def test_success(redis_store):
+        response = client.post('/api/v1/teacher/token/refresh')
+
+        redis_store.assert_called_once()
         assert response.status_code == 200

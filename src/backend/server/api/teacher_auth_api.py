@@ -121,7 +121,8 @@ class TeacherLogout(Resource):
 class TokenRefresh(Resource):
     @jwt_refresh_token_required
     def post(self):
-        current_user = get_jwt_identity()
+        current_identity = get_jwt_identity()["identity"]
+        current_user = Teacher.query.filter_by(email=current_identity["email"]).first()
         access_token = create_access_token(identity=current_user)
 
         access_jti = get_jti(encoded_token=access_token)
@@ -144,24 +145,16 @@ class CurrentUser(Resource):
     @jwt_required
     def get(self):
         teacher = get_jwt_identity()["identity"]
-        t = Teacher.query.filter_by(email=teacher["email"]).first()
         try:
+            t = Teacher.query.filter_by(email=teacher["email"]).first()
             identity = jsonify({"user": dumper.dump(t)})
             return make_response(identity, 200)
         except Exception as e:
             from server.api import api_logger
 
             api_logger.debug(e)
+            api_logger.debug(teacher)
             return make_response("User not logged in", 400)
-
-
-@api.resource("/student/auth/refresh_revoke")
-class StudentAuthRefreshRevoke(Resource):
-    @jwt_refresh_token_required
-    def delete(self):
-        jti = get_raw_jwt()["jti"]
-        redis_store.set(jti, "true", REFRESH_EXPIRES * 1.2)
-        return jsonify({"msg": "Refresh token revoked"}), 200
 
 
 class GAuth(Resource):
