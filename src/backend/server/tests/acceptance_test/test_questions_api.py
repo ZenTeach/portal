@@ -28,7 +28,7 @@ class TestQuestionsAPI:
             .all()
         kis = [value for (value,) in kis]
 
-        assert response.status, 200
+        assert response.status_code == 200
         assert data == kis
 
     def test_topic_filter(self, client, mocker):
@@ -45,5 +45,5 @@ class TestQuestionsAPI:
             .all()
         topics = [value for (value,) in topics]
 
-        assert response.status, 200
+        assert response.status_code == 200
         assert data == topics
