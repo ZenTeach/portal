@@ -2,8 +2,8 @@
 from flask import Blueprint, abort, jsonify, make_response, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Api, Resource
-from pandas import read_csv
 from server import db
+from server.api import api_logger
 from server.decorators import with_required_roles
 from server.models import SchoolClass as SchoolClassModel
 from server.models import SchoolClassSchema, Student
@@ -20,7 +20,7 @@ class SchoolClass(Resource):
         error_response = jsonify({"message": "Class room doesn't exist"})
         try:
             class_room = SchoolClassModel.query.filter_by(
-                id=int(school_class_id)
+                id=school_class_id
             ).first()
             if not class_room:
                 return make_response(error_response, 404)
@@ -33,10 +33,33 @@ class SchoolClass(Resource):
         except ValueError:
             return make_response(error_response, 404)
 
+    @jwt_required
+    def delete(self, school_class_id):
+        try:
+            class_room = SchoolClassModel.query.filter_by(id=school_class_id).first()
+
+            if not class_room:
+                return make_response(jsonify({
+                    'status': 'failure',
+                    'message': 'Classroom not found'
+                }), 404)
+
+            db.session.delete(class_room)
+            db.session.commit()
+            return make_response(jsonify({
+                'status': 'success',
+                'message': 'Classroom was successfully deleted.'
+            }), 204)
+        except Exception as e:
+            api_logger.error(e)
+            return make_response(jsonify({
+                'status': 'success',
+                'message': 'Encountered an error while deleting classroom.'
+            }), 500)
+
 
 class SchoolClassList(Resource):
     @jwt_required
-    @with_required_roles(["Admin"])
     def get(self):
         response_object = jsonify(
             {
@@ -52,7 +75,6 @@ class SchoolClassList(Resource):
         return make_response(response_object, 200)
 
     @jwt_required
-    @with_required_roles(["Teacher", "Admin"])
     def post(self):
         post_data = request.get_json()
         error_object = jsonify(
@@ -176,68 +198,11 @@ class SchoolClassInviteStudent(Resource):
             )
 
 
-class SchoolClassInviteFromCSVStudent(Resource):
-    allowed_extenstions = ["csv"]
-
-    def allowed_file(self, filename):
-        return (
-            "." in filename and filename
-            .rsplit(".", 1)[1].lower() in self.allowed_extenstions
-        )
-
-    @jwt_required
-    def post(self, class_id):
-        school_class = SchoolClassModel.query.filter_by(id=class_id).first()
-        if not school_class:
-            abort(404, "School class room doesn't exist")
-
-        csv_file = request.files["files"]
-        print(csv_file)
-
-        if csv_file.filename == "":
-            abort(404, "No selected file")
-        students = []
-        if csv_file and self.allowed_file(csv_file.filename):
-            df = read_csv(csv_file, header=0, names=[
-                          "firstname", "lastname", "email"])
-
-            for it in df.values.tolist():
-                print(it)
-                students.append(
-                    {"firstname": it[0], "lastname": it[1], "email": it[2]})
-
-            print(students)
-
-        result = None
-        try:
-            result = Student.create_from_list(students)
-            errs = result[0]
-            all_students = result[1]
-        except Exception as e:
-            print("Got an exception", e)
-            abort(404, "The file is not valid.")
-
-        if len(all_students) != 0:
-            for student in all_students:
-                school_class.add_student(student)
-                school_class.save()
-
-        if len(errs) == 0:
-            return make_response("Students were added", 200)
-        else:
-            print(errs)
-            return make_response("Got some errors adding student", 404)
-
-
 api.add_resource(SchoolClassPing, "/school_class/ping")
-api.add_resource(SchoolClass, "/school_class/<school_class_id>")
+api.add_resource(SchoolClass, "/school_class/<int:school_class_id>")
 api.add_resource(SchoolClassOwned, "/school_class/owned/<teacher_id>")
 api.add_resource(TeacherOwnedClass, "/school_class/owned")
 api.add_resource(SchoolClassList, "/school_class")
 api.add_resource(
     SchoolClassInviteStudent, "/school_class/<int:class_id>/student/invite"
-)
-api.add_resource(
-    SchoolClassInviteFromCSVStudent,
-    "/school_class/<int:class_id>/student/inviteFromCSV",
 )
