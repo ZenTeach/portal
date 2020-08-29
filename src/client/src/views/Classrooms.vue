@@ -18,6 +18,14 @@
                 <template v-slot:item.name="props">
                   <a :href="'/classroom/' + props.item.id">{{ props.item.name }}</a>
                 </template>
+                <template v-slot:item.actions="{ item }">
+                  <v-icon
+                    small
+                    @click="deleteItem(item)"
+                  >
+                    mdi-delete
+                  </v-icon>
+                </template>
                 <template v-slot:footer>
                   <v-dialog v-model="dialog" max-width="500px" max-height="450px">
                     <template v-slot:activator="{ on }">
@@ -123,7 +131,8 @@ export default {
           value: 'name'
         },
         { text: 'Subject', sortable: true, value: 'subject' },
-        { text: 'Starts', sortable: false, value: 'start_date' }
+        { text: 'Starts', sortable: false, value: 'start_date' },
+        { text: '', sortable: false, value: 'actions' }
       ],
       subjects: ['Physics', 'Chemistry', 'Biology'],
       dialog: false,
@@ -158,7 +167,8 @@ export default {
 
       this.$store.dispatch('classrooms/CREATECLASS', payload)
       this.close()
-    }
+    },
+    deleteItem (item) {}
   }
 }
 </script>
