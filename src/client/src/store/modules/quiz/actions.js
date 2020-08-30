@@ -29,7 +29,6 @@ export default {
   FETCH_REPORTCARD ({ commit }, gradeId) {
     fetchReportCard(gradeId).then(
       data => {
-        console.log(data)
         commit('UNSET_REPORTCARD')
         commit('app/TOGGLE_APP_LOADING', true, { root: true })
         commit('SET_REPORTCARD', data)

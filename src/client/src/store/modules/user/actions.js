@@ -93,8 +93,6 @@ const CONFIRMNEWACCOUNT = ({ commit }, token) => {
 const SENDUSERINVITE = ({ commit }, email) => {
   userInvite(email).then(
     _data => {
-      // commit('app/')
-      console.log('succeeded!')
       commit('app/TOGGLE_APP_INVITE_MODAL', false, { root: true })
     },
     error => {

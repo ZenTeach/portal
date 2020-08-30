@@ -29,39 +29,6 @@
                             required
                           ></v-text-field>
                         </ValidationProvider>
-
-                        <v-menu
-                          ref="menu"
-                          v-model="menu"
-                          :close-on-content-click="false"
-                          :return-value.sync="date_of_birth"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="290px"
-                        >
-                          <template v-slot:activator="{ on }">
-                            <ValidationProvider rules="required" name="Date of birth" v-slot="{ errors }">
-                              <v-text-field
-                                v-model="date_of_birth"
-                                label="Date of birth"
-                                :error-messages="errors"
-                                prepend-icon="event"
-                                readonly
-                                v-on="on"
-                                outlined
-                              ></v-text-field>
-                            </ValidationProvider>
-                          </template>
-                          <v-date-picker v-model="date_of_birth" no-title scrollable>
-                            <div class="flex-grow-1"></div>
-                            <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
-                            <v-btn
-                              text
-                              color="primary"
-                              @click="$refs.menu.save(date_of_birth)"
-                            >OK</v-btn>
-                          </v-date-picker>
-                        </v-menu>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -111,19 +78,17 @@ export default {
     menu: false,
     firstname: '',
     lastname: '',
-    email: '',
-    date_of_birth: new Date().toISOString().substr(0, 10)
+    email: ''
   }),
   methods: {
-    async inviteStudent () {
+    inviteStudent () {
       const payload = {
         classId: this.classId,
         firstname: this.firstname,
         lastname: this.lastname,
-        email: this.email,
-        date_of_birth: this.date_of_birth
+        email: this.email
       }
-      await this.$store.dispatch('classrooms/INVITE_STUDENT', payload, { root: true })
+      this.$store.dispatch('classrooms/INVITE_STUDENT', payload, { root: true })
       this.eventBus.$emit('toggle-invite-dialog', false)
     },
     closeDialog () {

@@ -4,6 +4,7 @@ from flask import jsonify, make_response
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 
 
+# TODO: Properly mock this in pytest
 def with_required_roles(group=[]):
     def decorator(fn):
         @wraps(fn)

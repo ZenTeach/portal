@@ -18,6 +18,14 @@
                 <template v-slot:item.name="props">
                   <a :href="'/classroom/' + props.item.id">{{ props.item.name }}</a>
                 </template>
+                <template v-slot:item.actions="{ item }">
+                  <v-icon
+                    large
+                    @click="deleteItem(item)"
+                  >
+                    mdi-trash-can-outline
+                  </v-icon>
+                </template>
                 <template v-slot:footer>
                   <v-dialog v-model="dialog" max-width="500px" max-height="450px">
                     <template v-slot:activator="{ on }">
@@ -106,7 +114,7 @@ import {
   ValidationProvider
 } from 'vee-validate'
 
-const { mapGetters } = createNamespacedHelpers('classrooms')
+const { mapGetters, mapActions } = createNamespacedHelpers('classrooms')
 export default {
   name: 'Classrooms',
   components: {
@@ -123,7 +131,8 @@ export default {
           value: 'name'
         },
         { text: 'Subject', sortable: true, value: 'subject' },
-        { text: 'Starts', sortable: false, value: 'start_date' }
+        { text: 'Starts', sortable: false, value: 'start_date' },
+        { text: '', sortable: false, value: 'actions' }
       ],
       subjects: ['Physics', 'Chemistry', 'Biology'],
       dialog: false,
@@ -134,7 +143,7 @@ export default {
     }
   },
   mounted: function () {
-    this.$store.dispatch('classrooms/GETCLASSES', {}, { root: true })
+    this.fetchClasses()
   },
   computed: {
     ...mapGetters({
@@ -142,6 +151,11 @@ export default {
     })
   },
   methods: {
+    ...mapActions({
+      fetchClasses: 'GETCLASSES',
+      createClass: 'CREATECLASS',
+      deleteClass: 'DELETECLASSROOM'
+    }),
     close () {
       this.dialog = false
       setTimeout(() => {
@@ -156,8 +170,11 @@ export default {
         start_data: this.start_date
       }
 
-      this.$store.dispatch('classrooms/CREATECLASS', payload)
+      this.createClass(payload)
       this.close()
+    },
+    deleteItem (item) {
+      this.deleteClass(item.id)
     }
   }
 }

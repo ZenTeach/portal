@@ -21,7 +21,7 @@
                 <v-list-item-content>
                   <v-edit-dialog
                     :return-value.sync="item.question"
-                    @save="save"
+                    @save="save()"
                     ref="questionEditBox">
                   {{ item.question }}
                     <template v-slot:input>
@@ -73,7 +73,6 @@ export default {
       return types[type]
     },
     debug (item) {
-      console.log(item)
     },
     addToSelectedQuestions (item, cb) {
       this.$store.commit('app/ADD_SELECTED_QUESTIONS', item, { root: true })
@@ -82,7 +81,8 @@ export default {
     removeFromSelectedQuestions (item, cb) {
       this.$store.commit('app/REMOVE_SELECTED_QUESTIONS', item, { root: true })
       cb()
-    }
+    },
+    save () {}
   }
 }
 </script>

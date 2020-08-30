@@ -156,17 +156,13 @@ export default {
 
   methods: {
     handleGFormExport () {
-      console.log(this.$gAuth)
       this.$gAuth.getAuthCode()
         .then(authCode => {
-          console.log(authCode)
           return Api.post('/teacher/auth/google', { authCode: authCode })
-          // on success
         }).then(response => {
           Api.post(`/class_quiz/${this.quiz_id}/generate`, {
             type: 'gform'
           }).then(response => {
-            console.log(response)
             // TODO: Set app to loading state
             if (response.status === 200) {
               this.dialog = true
@@ -179,15 +175,11 @@ export default {
     executeGAppsScript () {
       Api.get(`/class_quiz/${this.quiz_id}/${this.script_id}/generate/execute`)
         .then((response) => {
-          console.log(response)
         })
     },
     handlePDFGeneration () {
       Api.post(`/class_quiz/${this.quiz_id}/generate`, {
         type: 'pdf'
-      }).then((response) => {
-        // TODO: show success/error message
-        console.log(response)
       })
     }
   }
