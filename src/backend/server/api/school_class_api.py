@@ -1,7 +1,7 @@
 
 from flask import Blueprint, abort, jsonify, make_response, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource, reqparse
 from server import db
 from server.api import api_logger
 from server.decorators import with_required_roles
@@ -198,13 +198,18 @@ class SchoolClassStudent(Resource):
 
     @jwt_required
     def delete(self, class_id):
+        parser = reqparse.RequestParser()
+        parser.add_argument("student_id", required=True,
+                            help="Student id missing.")
+        args = parser.parse_args()
         school_class = SchoolClassModel.query.filter_by(id=class_id).first()
         if not school_class:
             abort(404, "School class room doesn't exist")
 
-        data = request.get_json()
+        # data = request.get_json()
+        api_logger.info(f'Got payload {args}')
         try:
-            school_class.remove_student(data["id"])
+            school_class.remove_student(args["student_id"])
         except Exception as e:  # noqa
             api_logger.error(e)
             abort(500, "Server got an error.")

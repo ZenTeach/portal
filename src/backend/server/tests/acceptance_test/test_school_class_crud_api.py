@@ -105,11 +105,7 @@ def test_remove_student_from_school_class(client, mocker, school_class, student)
     assert len(school_class.students) != 0
 
     response = client.delete(
-        f'/api/v1/school_class/{school_class.id}/student',
-        json={
-            'id': student.id
-        }
-    )
+        f'/api/v1/school_class/{school_class.id}/student?student_id={student.id}')
 
     assert response.status_code == 204
     assert len(school_class.students) == 0
