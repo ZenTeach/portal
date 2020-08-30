@@ -7,6 +7,9 @@ branch = true
 parallel = true
 source =
     tests
+omit=
+    server/models/migrations/*
+    server/tests/*
 
 [report]
 show_missing = true
