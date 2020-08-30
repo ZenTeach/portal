@@ -68,7 +68,7 @@ import MaterialChartCard from '@/components/ChartCard'
 import StudentList from '@/components/StudentList'
 import QuizCreator from '@/components/QuizCreator'
 import { createNamespacedHelpers } from 'vuex'
-const { mapState } = createNamespacedHelpers('classrooms')
+const { mapState, mapGetters } = createNamespacedHelpers('classrooms')
 
 export default {
   name: 'Classroom',
@@ -81,7 +81,10 @@ export default {
     this.$store.dispatch('classrooms/GETCURRENTCLASS', this.$route.params.id, { root: true })
   },
   computed: {
-    ...mapState(['current_class'])
+    ...mapGetters({
+      current_class: 'GETCURRENTCLASS'
+    })
+    // ...mapState(['current_class'])
   },
   data () {
     return {

@@ -38,8 +38,7 @@ export function deleteClassroom (classId) {
 }
 
 export function removeStudent (classId, studentId) {
-  return Api.remove(`/school_class/${classId}/student`, {
-    id: studentId
-  }).then(handleResponse)
+  return Api.remove(`/school_class/${classId}/student?student_id=${studentId}`)
+    .then(handleResponse)
     .then(data => data)
 }

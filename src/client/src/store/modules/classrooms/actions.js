@@ -3,7 +3,8 @@ import {
   addNewClass,
   fetchCurrentClass,
   inviteStudent,
-  deleteClassroom
+  deleteClassroom,
+  removeStudent
 } from '../../../service/classrooms'
 
 const GETCLASSES = ({ commit }) => {
@@ -63,10 +64,24 @@ const DELETECLASSROOM = ({ commit, dispatch }, classId) => {
       })
 }
 
+const REMOVESTUDENTFROMCLASS = ({ commit, dispatch }, payload) => {
+  const { classId, studentId } = payload
+  console.log('classId, ', classId, ' studentId, ', studentId)
+  removeStudent(classId, studentId)
+    .then(
+      _data => {
+        dispatch('GETCURRENTCLASS', classId)
+      },
+      error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      })
+}
+
 export default {
   GETCLASSES,
   CREATECLASS,
   GETCURRENTCLASS,
   DELETECLASSROOM,
-  INVITE_STUDENT
+  INVITE_STUDENT,
+  REMOVESTUDENTFROMCLASS
 }

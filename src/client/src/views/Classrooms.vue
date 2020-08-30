@@ -20,10 +20,10 @@
                 </template>
                 <template v-slot:item.actions="{ item }">
                   <v-icon
-                    small
+                    large
                     @click="deleteItem(item)"
                   >
-                    mdi-delete
+                    mdi-trash-can-outline
                   </v-icon>
                 </template>
                 <template v-slot:footer>
@@ -114,7 +114,7 @@ import {
   ValidationProvider
 } from 'vee-validate'
 
-const { mapGetters } = createNamespacedHelpers('classrooms')
+const { mapGetters, mapActions } = createNamespacedHelpers('classrooms')
 export default {
   name: 'Classrooms',
   components: {
@@ -143,7 +143,8 @@ export default {
     }
   },
   mounted: function () {
-    this.$store.dispatch('classrooms/GETCLASSES', {}, { root: true })
+    // this.$store.dispatch('classrooms/GETCLASSES', {}, { root: true })
+    this.fetchClasses()
   },
   computed: {
     ...mapGetters({
@@ -151,6 +152,11 @@ export default {
     })
   },
   methods: {
+    ...mapActions({
+      fetchClasses: 'GETCLASSES',
+      createClass: 'CREATECLASS',
+      deleteClass: 'DELETECLASSROOM'
+    }),
     close () {
       this.dialog = false
       setTimeout(() => {
@@ -165,10 +171,14 @@ export default {
         start_data: this.start_date
       }
 
-      this.$store.dispatch('classrooms/CREATECLASS', payload)
+      // this.$store.dispatch('classrooms/CREATECLASS', payload)
+      this.createClass(payload)
       this.close()
     },
-    deleteItem (item) {}
+    deleteItem (item) {
+      // this.$store.dispatch('classrooms/DELETECLASSROOM')
+      this.deleteClass(item.id)
+    }
   }
 }
 </script>
