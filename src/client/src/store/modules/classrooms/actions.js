@@ -66,7 +66,6 @@ const DELETECLASSROOM = ({ commit, dispatch }, classId) => {
 
 const REMOVESTUDENTFROMCLASS = ({ commit, dispatch }, payload) => {
   const { classId, studentId } = payload
-  console.log('classId, ', classId, ' studentId, ', studentId)
   removeStudent(classId, studentId)
     .then(
       _data => {

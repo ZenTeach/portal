@@ -143,7 +143,6 @@ export default {
     }
   },
   mounted: function () {
-    // this.$store.dispatch('classrooms/GETCLASSES', {}, { root: true })
     this.fetchClasses()
   },
   computed: {
@@ -171,12 +170,10 @@ export default {
         start_data: this.start_date
       }
 
-      // this.$store.dispatch('classrooms/CREATECLASS', payload)
       this.createClass(payload)
       this.close()
     },
     deleteItem (item) {
-      // this.$store.dispatch('classrooms/DELETECLASSROOM')
       this.deleteClass(item.id)
     }
   }

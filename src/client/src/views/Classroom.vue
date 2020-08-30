@@ -68,7 +68,9 @@ import MaterialChartCard from '@/components/ChartCard'
 import StudentList from '@/components/StudentList'
 import QuizCreator from '@/components/QuizCreator'
 import { createNamespacedHelpers } from 'vuex'
-const { mapState, mapGetters } = createNamespacedHelpers('classrooms')
+
+const { mapGetters, mapActions } = createNamespacedHelpers('classrooms')
+const { mapMutations } = createNamespacedHelpers('app')
 
 export default {
   name: 'Classroom',
@@ -78,13 +80,12 @@ export default {
     QuizCreator
   },
   mounted () {
-    this.$store.dispatch('classrooms/GETCURRENTCLASS', this.$route.params.id, { root: true })
+    this.getCurrentClass(this.$route.params.id)
   },
   computed: {
     ...mapGetters({
       current_class: 'GETCURRENTCLASS'
     })
-    // ...mapState(['current_class'])
   },
   data () {
     return {
@@ -147,10 +148,16 @@ export default {
     }
   },
   methods: {
+    ...mapActions({
+      getCurrentClass: 'GETCURRENTCLASS'
+    }),
+    ...mapMutations({
+      resetQuestionSearch: 'RESET_QUESTION_SEARCH'
+    }),
     closeQuizCreatorDialog () {
       this.dialog = false
-      this.$store.commit('app/RESET_QUESTION_SEARCH', {}, { root: true })
-      this.$store.dispatch('classrooms/GETCURRENTCLASS', this.$route.params.id, { root: true })
+      this.resetQuestionSearch()
+      this.getCurrentClass(this.$route.params.id)
     }
   }
 }

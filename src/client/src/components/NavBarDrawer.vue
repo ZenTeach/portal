@@ -101,7 +101,6 @@ export default {
       this.$store.commit('app/TOGGLE_APP_DRAWER_MINIFIED')
     },
     toggleInviteUserDialog () {
-      console.log('In toggleInviteUserDialog')
       this.$store.commit('app/TOGGLE_APP_INVITE_MODAL')
     }
   }

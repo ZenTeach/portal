@@ -16,9 +16,6 @@ class ApiService {
     this.session = axios.create(serviceConfig)
 
     const silentRefreshLogic = failedRequest => {
-      console.log('In Auth-Refresher')
-      console.log('Encountered an error', failedRequest.config.url)
-      console.log(failedRequest.config.url)
       return new Promise((resolve, reject) => {
         if (failedRequest.status === 400 || failedRequest.status === 404) {
           const { message } = failedRequest.response.data
@@ -27,11 +24,9 @@ class ApiService {
           router.push({ name: 'login' })
           resolve()
         } else {
-          console.log('Refreshing...')
           this.post('/teacher/token/refresh')
             .then(response => {
               if (response.status === 200) {
-                console.log('Session Refreshed!')
                 resolve(response)
               }
             })

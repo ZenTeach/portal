@@ -94,12 +94,10 @@ export default {
       this.dialog = true
     },
     deleteItem (item) {
-      console.log(item.id)
       this.removeStudent({
-        classId: this.classId, 
+        classId: this.classId,
         studentId: item.id
       })
-      // this.$store.dispatch('classrooms/REMOVESTUDENTFROMCLASS', [this.classId, item.id], {root: true})
     }
   }
 }
