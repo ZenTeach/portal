@@ -26,8 +26,20 @@ export function fetchQuizPDF (quizId) {
 }
 
 export function inviteStudent (classId, payload) {
-  console.log('inviteStudent', classId, payload)
-  return Api.post(`/school_class/${classId}/student/invite`, payload)
+  return Api.post(`/school_class/${classId}/student`, payload)
     .then(handleResponse)
+    .then(data => data)
+}
+
+export function deleteClassroom (classId) {
+  return Api.remove(`/school_class/${classId}`)
+    .then(handleResponse)
+    .then(data => data)
+}
+
+export function removeStudent (classId, studentId) {
+  return Api.remove(`/school_class/${classId}/student`, {
+    id: studentId
+  }).then(handleResponse)
     .then(data => data)
 }

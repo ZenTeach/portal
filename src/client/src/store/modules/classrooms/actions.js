@@ -2,43 +2,42 @@ import {
   fetchClasses,
   addNewClass,
   fetchCurrentClass,
-  inviteStudent
+  inviteStudent,
+  deleteClassroom
 } from '../../../service/classrooms'
 
 const GETCLASSES = ({ commit }) => {
   fetchClasses()
-    .then(response => {
-      if (response.status === 'success') {
-        commit('CLASSLIST_UPDATED', response.data)
-      }
-    })
-    .catch(error => {
-      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-    })
+    .then(
+      data => {
+        commit('CLASSLIST_UPDATED', data.data)
+      },
+      error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      })
 }
 
-const INVITE_STUDENT = ({ commit }, payload) => {
-  console.log(payload)
+const INVITE_STUDENT = ({ commit, dispatch }, payload) => {
   const { classId, ...studentData } = payload
-  console.log(classId, studentData)
   inviteStudent(classId, studentData)
-    .then(data => {
-      console.log(data)
+    .then(_data => {
+      dispatch('GETCURRENTCLASS')
     },
     error => {
       commit('app/TOGGLE_ERROR', error.response.data, { root: true })
     })
 }
-const CREATECLASS = ({ commit }, payload) => {
+
+const CREATECLASS = ({ commit, dispatch }, payload) => {
   addNewClass(payload)
-    .then(response => {
-      if (response.status === 'success') {
+    .then(
+      _data => {
         commit('CLASSLIST_ADDED', payload)
-      }
-    })
-    .catch(error => {
-      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-    })
+        dispatch('GETCLASSES')
+      },
+      error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      })
 }
 
 const GETCURRENTCLASS = ({ commit }, payload) => {
@@ -53,9 +52,21 @@ const GETCURRENTCLASS = ({ commit }, payload) => {
     })
 }
 
+const DELETECLASSROOM = ({ commit, dispatch }, classId) => {
+  deleteClassroom(classId)
+    .then(
+      _data => {
+        dispatch('GETCLASSES')
+      },
+      error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      })
+}
+
 export default {
   GETCLASSES,
   CREATECLASS,
   GETCURRENTCLASS,
+  DELETECLASSROOM,
   INVITE_STUDENT
 }
