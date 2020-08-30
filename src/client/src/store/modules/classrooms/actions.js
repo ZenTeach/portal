@@ -22,7 +22,7 @@ const INVITE_STUDENT = ({ commit, dispatch }, payload) => {
   const { classId, ...studentData } = payload
   inviteStudent(classId, studentData)
     .then(_data => {
-      dispatch('GETCURRENTCLASS')
+      dispatch('GETCURRENTCLASS', classId)
     },
     error => {
       commit('app/TOGGLE_ERROR', error.response.data, { root: true })
