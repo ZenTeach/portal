@@ -44,8 +44,7 @@ class SchoolClass(Resource):
                     'message': 'Classroom not found'
                 }), 404)
 
-            db.session.delete(class_room)
-            db.session.commit()
+            SchoolClassModel.remove_classroom(class_room)
             return make_response(jsonify({
                 'status': 'success',
                 'message': 'Classroom was successfully deleted.'
@@ -169,7 +168,7 @@ class SchoolClassPing(Resource):
         )
 
 
-class SchoolClassInviteStudent(Resource):
+class SchoolClassStudent(Resource):
     @jwt_required
     def post(self, class_id):
         school_class = SchoolClassModel.query.filter_by(id=class_id).first()
@@ -197,6 +196,29 @@ class SchoolClassInviteStudent(Resource):
                 201,
             )
 
+    @jwt_required
+    def delete(self, class_id):
+        school_class = SchoolClassModel.query.filter_by(id=class_id).first()
+        if not school_class:
+            abort(404, "School class room doesn't exist")
+
+        data = request.get_json()
+        try:
+            school_class.remove_student(data["id"])
+        except Exception as e:  # noqa
+            api_logger.error(e)
+            abort(500, "Server got an error.")
+        else:
+            return make_response(
+                jsonify(
+                    {
+                        "message": "Student removed.",
+                        "status": "success",
+                    }
+                ),
+                204,
+            )
+
 
 api.add_resource(SchoolClassPing, "/school_class/ping")
 api.add_resource(SchoolClass, "/school_class/<int:school_class_id>")
@@ -204,5 +226,5 @@ api.add_resource(SchoolClassOwned, "/school_class/owned/<teacher_id>")
 api.add_resource(TeacherOwnedClass, "/school_class/owned")
 api.add_resource(SchoolClassList, "/school_class")
 api.add_resource(
-    SchoolClassInviteStudent, "/school_class/<int:class_id>/student/invite"
+    SchoolClassStudent, "/school_class/<int:class_id>/student"
 )

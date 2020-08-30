@@ -78,3 +78,38 @@ def test_delete_school_class(client, mocker, school_class):
     response = client.delete(f'/api/v1/school_class/{school_class.id}')
 
     assert response.status_code == 204
+
+
+def test_add_student_to_school_class(client, mocker, school_class):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    student_payload = {
+        'firstname': 'Michael',
+        'lastname': 'Scott',
+        'email': 'mscott@dunder-mifflin.com'
+    }
+
+    response = client.post(
+        f'/api/v1/school_class/{school_class.id}/student',
+        json=student_payload
+    )
+
+    assert len(school_class.students) == 1
+    assert response.status_code == 201
+
+
+def test_remove_student_from_school_class(client, mocker, school_class, student):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+
+    school_class.add_student(student)
+
+    assert len(school_class.students) != 0
+
+    response = client.delete(
+        f'/api/v1/school_class/{school_class.id}/student',
+        json={
+            'id': student.id
+        }
+    )
+
+    assert response.status_code == 204
+    assert len(school_class.students) == 0

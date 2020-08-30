@@ -22,7 +22,10 @@ class SchoolClass(BaseModelMixin, db.Model):
         "Student", secondary="student_attended_class", viewonly=True
     )
 
-    quizzes = db.relationship("ClassQuiz", backref="school_class", lazy=True)
+    quizzes = db.relationship("ClassQuiz",
+                              backref="school_class",
+                              cascade="all, delete",
+                              lazy=True)
 
     def __repr__(self):
         return "<Classroom: %r>" % self.name
@@ -33,3 +36,22 @@ class SchoolClass(BaseModelMixin, db.Model):
         self.student_attended_classes.append(
             StudentAttendedClass(student=student, school_class=self)
         )
+
+    def remove_student(self, student_id):
+        from .student_school_class import StudentAttendedClass
+        assoc_ = StudentAttendedClass.query\
+                                     .filter_by(school_class=self,
+                                                student_id=student_id)\
+                                     .first()
+        db.session.delete(assoc_)
+        db.session.commit()
+
+    @classmethod
+    def remove_classroom(cls, _class: 'SchoolClass'):
+        db.engine.execute(
+            "DELETE FROM student_attended_class WHERE school_class_id=%s",
+            _class.id,
+        )
+
+        db.session.delete(_class)
+        db.session.commit()
