@@ -12,11 +12,10 @@ export FLASK_ENV='production'
 
 # Run migrations before booting up the app
 cd $FLASKDIR/zenteach
+
+pipenv sync
 pip install -r requirements.txt
 
 python manage.py db upgrade
 
 python manage.py db_conf
-
-celery multi start worker1 \
-    -A celery_worker.celery -l info

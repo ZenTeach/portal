@@ -7,11 +7,11 @@ include app.py
 # include celery_worker.py
 include celery_worker.py
 
+# include Pipfile
+include Pipfile Pipfile.lock
+
 # entrypoint
 include entrypoint_prod.sh
-
-# requirements.txt
-include requirements.txt
 
 # wsgi
 include wsgi.py

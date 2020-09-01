@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9e748d9a5499c4539c52e2c7c048694bd7e9e65f75e33fddebbead7d079380bf"
+            "sha256": "ad65d2392304ed0b66216d0b17f965477a02d191cfd3c3e84a075a4af67326b0"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -732,11 +732,11 @@
         },
         "identify": {
             "hashes": [
-                "sha256:9f5fcf22b665eaece583bd395b103c2769772a0f646ffabb5b1f155901b07de2",
-                "sha256:b1aa2e05863dc80242610d46a7b49105e2eafe00ef0c8ff311c1828680760c76"
+                "sha256:e105a62fd3a496c701fd1bc4e24eb695455b5efb97e722816d5bd988c3344311",
+                "sha256:f9f84a4ff44e29b9cc23c4012c2c8954089860723f80ce63d760393e5f197108"
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
-            "version": "==1.4.29"
+            "version": "==1.4.30"
         },
         "idna": {
             "hashes": [
@@ -745,6 +745,13 @@
             ],
             "index": "pypi",
             "version": "==2.8"
+        },
+        "idna-ssl": {
+            "hashes": [
+                "sha256:a933e3bb13da54383f9e8f35dc4f9cb9eb9b3b78c6b36f311254d6d0d92c6c7c"
+            ],
+            "index": "pypi",
+            "version": "==1.1.0"
         },
         "importlib-metadata": {
             "hashes": [
