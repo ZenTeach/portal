@@ -25,7 +25,7 @@ FOLDERNAME=$(echo $DISTRO | tr '.' '\n' | head -n 1)
 
 for server in '5.1.10.218' '5.1.10.158' '5.1.10.32'; do
     echo "\n Copying distro $DISTRO to $server"
-    scp -v -r -i $REMOTE_KEYS -o ProxyCommand="ssh -i $JUMPHOST_KEYS -W %h:%p -q $REMOTE_USER@$JUMPHOST" ../dist/$DISTRO $REMOTE_USER@$server:/tmp
+    scp -r -i $REMOTE_KEYS -o ProxyCommand="ssh -i $JUMPHOST_KEYS -W %h:%p -q $REMOTE_USER@$JUMPHOST" ../dist/$DISTRO $REMOTE_USER@$server:/tmp
 
     echo "Unzipping $FOLDERNAME"
     ssh -i $REMOTE_KEYS $REMOTE_USER@$server \

@@ -24,7 +24,7 @@ FOLDERNAME=$(echo $DISTRO | tr '.' '\n' | head -n 1)
 
 for server in '35.176.160.133'; do
     echo "\n Copying distro $DISTRO to $server"
-    scp -v -r -i $REMOTE_KEYS ../dist/$DISTRO $REMOTE_USER@$server:/tmp
+    scp -r -i $REMOTE_KEYS ../dist/$DISTRO $REMOTE_USER@$server:/tmp
 
     echo "Unzipping $FOLDERNAME"
     ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
