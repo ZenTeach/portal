@@ -6,7 +6,7 @@ on:
 jobs:
   deploy_frontend:
     runs-on: [self-hosted, production, deployment]
-    container: node:13.13-alpine
+    container: node:13.13-stretch
     defaults:
       run:
         working-directory: src/client
@@ -57,4 +57,4 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Execute deploy script
-        run: ./scripts/deploy-to-prod.sh
+        run: cd scripts/ && ./deploy-to-prod.sh
