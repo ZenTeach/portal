@@ -1,0 +1,60 @@
+name: Deploy to production
+
+on:
+  deployment
+
+jobs:
+  deploy_frontend:
+    runs-on: [self-hosted, production, deployment]
+    container: node:13.13-alpine
+    defaults:
+      run:
+        working-directory: src/client
+    env:
+      VUE_APP_API_ENDPOINT: https://service.portal.zenteach.co.uk/api/v1
+      VUE_APP_SENTRY_DSN: https://3c7a596433924f84b8fa85ac03b07f63@o328466.ingest.sentry.io/1841821 
+      JUMPHOST_KEYS: ../../backend/scripts/fabric_bastion_host_connection
+      JUMPHOST: 18.132.248.142
+      REMOTE_HOST_KEYS: ../../backend/scripts/fabric_deploy_keys
+      REMOTE_HOST1: 5.1.10.158
+      REMOTE_HOST2: 5.1.10.218
+      REMOTE_HOST3: 5.1.10.32
+      REMOTE_USER: ubuntu
+      REMOTE_DEST: /var/www/portal.zenteach.co.uk
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build distro
+        run: yarn build
+
+      - name: Copy files with SSH to Host {{env.REMOTE_HOST1}}
+        run: |
+         scp -r -i $REMOTE_HOST_KEYS -o ProxyCommand="ssh -i $JUMPHOST_KEYS -W %h:%p -q $REMOTE_USER@$JUMPHOST" ./dist $REMOTE_USER@$REMOTE_HOST1:$REMOTE_DEST
+
+      - name: Copy files with SSH to Host {{env.REMOTE_HOST2}}
+        run: |
+         scp -r -i $REMOTE_HOST_KEYS -o ProxyCommand="ssh -i $JUMPHOST_KEYS -W %h:%p -q $REMOTE_USER@$JUMPHOST" ./dist $REMOTE_USER@$REMOTE_HOST2:$REMOTE_DEST
+
+      - name: Copy files with SSH to Host {{env.REMOTE_HOST3}}
+        run: |
+         scp -r -i $REMOTE_HOST_KEYS -o ProxyCommand="ssh -i $JUMPHOST_KEYS -W %h:%p -q $REMOTE_USER@$JUMPHOST" ./dist $REMOTE_USER@$REMOTE_HOST3:$REMOTE_DEST
+
+
+  deploy_backend:
+    runs-on: [self-hosted, production, deployment]
+    container: python:3.7.5-slim-stretch
+    defaults:
+      run:
+        working-directory: src/backend
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Execute deploy script
+        run: ./scripts/deploy-to-prod.sh

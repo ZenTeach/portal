@@ -151,6 +151,7 @@ pytest-xdist = "*"
 pytest-html = "*"
 pytest-icdiff = "*"
 pytest-timeout = "*"
+idna-ssl = "*"
 
 [requires]
 python_version = "3.7"

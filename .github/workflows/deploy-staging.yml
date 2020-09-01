@@ -1,0 +1,49 @@
+name: Deploy to staging
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy_frontend:
+    runs-on: self-hosted 
+    container: node:13.13-alpine
+    defaults:
+      run:
+        working-directory: src/client
+    env:
+      VUE_APP_API_ENDPOINT: https://service.stage.portal.zenteach.co.uk/api/v1
+      VUE_APP_SENTRY_DSN: https://57d2692e63644741b5f061d9ba9e54c6@o328466.ingest.sentry.io/5372591
+      REMOTE_HOST_KEYS: ../../backend/scripts/fabric_deploy_keys
+      REMOTE_HOST: 35.176.160.133
+      REMOTE_USER: ubuntu
+      REMOTE_DEST: /var/www/stage.portal.zenteach.co.uk
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build distro
+        run: yarn build
+
+      - name: Copy files with SSH
+        run: |
+         scp -r -i $REMOTE_HOST_KEYS ./dist $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST
+
+  deploy_backend:
+    runs-on: [self-hosted, production, deployment]
+    container: python:3.7.5-slim-stretch
+    defaults:
+      run:
+        working-directory: src/backend
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Execute deploy script
+        run: ./scripts/deploy-to-stage.sh
