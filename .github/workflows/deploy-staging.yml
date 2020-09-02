@@ -32,7 +32,7 @@ jobs:
 
       - name: Copy files with SSH
         run: |
-         scp -r -i $REMOTE_HOST_KEYS ./dist $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST
+         chmod 400 $REMOTE_HOST_KEYS && scp -v -r -i $REMOTE_HOST_KEYS -o StrictHostKeyChecking=no ./dist $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST
 
   deploy_backend:
     runs-on: [self-hosted, production, deployment]
@@ -46,4 +46,4 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Execute deploy script
-        run: cd scripts/ && ./deploy-to-stage.sh
+        run: cd scripts/ && chmod 400 fabric_deploy_keys && ./deploy-to-stage.sh
