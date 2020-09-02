@@ -32,11 +32,11 @@ jobs:
       - name: Build distro
         run: yarn build
 
-      - name: Copy files with SSH to Host {{env.REMOTE_HOST1}}
+      - name: Copy files with SSH to Host ${{ env.REMOTE_HOST1 }}
         run: |
          chmod 400 $REMOTE_HOST_KEYS && chmod 400 $JUMPHOST_KEYS && scp -v -r -i $REMOTE_HOST_KEYS -o ProxyCommand="ssh -i $JUMPHOST_KEYS -W %h:%p -q $REMOTE_USER@$JUMPHOST" StrictHostKeyChecking=no ./dist $REMOTE_USER@$REMOTE_HOST1:$REMOTE_DEST
 
-      - name: Copy files with SSH to Host {{env.REMOTE_HOST2}}
+      - name: Copy files with SSH to Host ${{ env.REMOTE_HOST2 }}
         run: |
          chmod 400 $REMOTE_HOST_KEYS && chmod 400 $JUMPHOST_KEYS && scp -v -r -i $REMOTE_HOST_KEYS -o ProxyCommand="ssh -i $JUMPHOST_KEYS -W %h:%p -q $REMOTE_USER@$JUMPHOST" StrictHostKeyChecking=no ./dist $REMOTE_USER@$REMOTE_HOST2:$REMOTE_DEST
 
