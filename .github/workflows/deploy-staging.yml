@@ -32,7 +32,7 @@ jobs:
 
       - name: Copy files with SSH
         run: |
-         scp -r -i $REMOTE_HOST_KEYS ./dist $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST
+         scp -v -r -i $REMOTE_HOST_KEYS ./dist $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST
 
   deploy_backend:
     runs-on: [self-hosted, production, deployment]
