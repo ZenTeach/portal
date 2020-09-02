@@ -47,7 +47,7 @@ jobs:
 
   deploy_backend:
     runs-on: [self-hosted, production, deployment]
-    container: python:3.7.5-slim-stretch
+    container: python:3.7.5-stretch
     defaults:
       run:
         working-directory: src/backend
