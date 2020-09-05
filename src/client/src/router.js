@@ -71,7 +71,7 @@ const router = new Router({
       path: '/report_card/:uuid',
       name: 'Student Report Card',
       component: () =>
-        import(/* webpackChunkName: "QuizView" */ './views/ReportCard'),
+        import(/* webpackChunkName: "ReportCard" */ './views/ReportCard'),
       meta: {
         requiresAuth: true
       }
@@ -104,7 +104,7 @@ const router = new Router({
       path: '/confirm_account',
       name: 'Confirm Account',
       component: () =>
-        import(/** webpackChunkName: "ConfirmAccountView" */ './views/AccountConfirmation')
+        import(/* webpackChunkName: "ConfirmAccountView" */ './views/AccountConfirmation')
     },
     {
       path: '/user-profile',
