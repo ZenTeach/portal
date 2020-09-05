@@ -2,13 +2,14 @@ import enum
 import json
 import os
 from datetime import datetime
+from typing import Optional
 from uuid import uuid4
 
 from server import db
 from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import JSON, UUID
 
-from .base_model import BaseModelMixin
+from .base_model import BaseModelMixin, unique_uuid4
 
 __all__ = ["ClassQuizStatus", "ClassQuiz"]
 
@@ -53,12 +54,14 @@ class ClassQuiz(BaseModelMixin, db.Model):
 
     def __init__(
         self,
-        subject,
-        max_score,
-        variants,
-        class_id,
-        questions=None,
-        status=ClassQuizStatus.created,
+        subject: str,
+        max_score: int,
+        variants: int,
+        class_id: int,
+        questions: Optional[JSON] = None,
+        status: 'ClassQuizStatus' = ClassQuizStatus.created,
+        url: Optional[str] = None,
+        uuid: Optional[UUID] = None,
         **kwargs
     ):
         self.subject = subject
@@ -67,7 +70,10 @@ class ClassQuiz(BaseModelMixin, db.Model):
         self.status = status
         self.class_id = class_id
         self.questions = questions
-        self.uuid = uuid4()
+        if self.uuid is None:
+            self.uuid = unique_uuid4()
+        else:
+            self.uuid = uuid
 
     def __repr__(self):
         return "<ClassQuiz %r>" % self.id
