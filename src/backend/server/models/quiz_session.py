@@ -40,7 +40,7 @@ class QuizSession(BaseModelMixin, db.Model):
 
     def __repr__(self):
         return "<QuizSession {}>".format(
-            self.class_quiz.subject + " " + self.student.full_name()
+            self.class_quiz.subject + " " + self.student.full_name
         )
 
     def update_status(self, new_status):

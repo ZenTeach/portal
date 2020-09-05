@@ -1,7 +1,8 @@
 from datetime import datetime
+from typing import Optional
 
 from server import db
-from server.models.base_model import BaseModelMixin
+from server.models.base_model import BaseModelMixin, unique_uuid4
 from sqlalchemy.dialects.postgresql import UUID
 
 
@@ -26,6 +27,25 @@ class SchoolClass(BaseModelMixin, db.Model):
                               backref="school_class",
                               cascade="all, delete",
                               lazy=True)
+
+    def __init__(self,
+                 id: int,
+                 name: str,
+                 subject: str,
+                 start_date: Optional['datetime'] = datetime.now(),
+                 teacher_id: Optional[int] = None,
+                 uuid: Optional[UUID] = None
+                 ):
+
+        self.id = id
+        self.name = name
+        self.subject = subject
+        self.start_date = start_date
+        self.teacher_id = teacher_id
+        if self.uuid is None:
+            self.uuid = unique_uuid4()
+        else:
+            self.uuid = uuid
 
     def __repr__(self):
         return "<Classroom: %r>" % self.name

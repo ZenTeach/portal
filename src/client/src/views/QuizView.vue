@@ -94,7 +94,10 @@ export default {
       quiz_questions: 'quizQuestions',
       quizTitle: 'subject',
       hasSubmitted: 'hasSubmitted'
-    })
+    }),
+    routeId: function () {
+      return this.$route.params.id
+    }
   },
   methods: {
     appendToSelection (event) {
@@ -105,7 +108,7 @@ export default {
       this.$store.dispatch('quiz/SUBMIT_QUIZ', payload, { root: true })
 
       if (this.hasSubmitted) {
-        this.completedModal = true // show modal
+        this.completedModal = true
       }
     },
     _collect_submission () {
@@ -126,12 +129,20 @@ export default {
       }
     },
     startQuizSession () {
+      let qid = null
+      if (this.quizUUID == null) {
+        qid = this.quizUUID
+      } else {
+        qid = this.routeId
+      }
+
       this.$store.dispatch('quiz/START_QUIZ', {
         studentEmail: this.studentEmail,
-        quizUUID: this.quizUUID
+        quizUUID: qid
       }, { root: true })
 
-      this.dialog = this.dialog ^ true
+      this.dialog = !this.dialog
+      this.$store.dispatch('quiz/LOAD_QUIZ', qid, { root: true })
     }
   },
   beforeDestroy: function () {

@@ -1,10 +1,8 @@
 import random
 import string
-from typing import Optional
-from uuid import uuid4
 
 from server import bcrypt, db
-from server.models.base_model import BaseModelMixin
+from server.models.base_model import BaseModelMixin, unique_uuid4
 from server.models.user_account.confirmable import Confirmable
 from server.models.user_account.recoverable import Recoverable
 from sqlalchemy import event
@@ -15,12 +13,6 @@ from sqlalchemy.dialects.postgresql import UUID
 def randomString(stringLength=8):
     letters = string.ascii_lowercase
     return "".join(random.choice(letters) for i in range(stringLength))  # nosec
-
-
-def unique_uuid4(x: Optional[UUID] = None) -> UUID:
-    if x is None:
-        x = uuid4()
-    return x
 
 
 class Teacher(BaseModelMixin, db.Model, Confirmable, Recoverable):

@@ -19,12 +19,11 @@ students_dumper = StudentSchema(many=True)
 
 
 class ClassQuiz(Resource):
-    @jwt_required
     def get(self, class_quiz_id):
         error_response = {"message": "No Class Quiz found."}
         try:
             class_quiz = ClassQuizModel.query.filter_by(
-                id=class_quiz_id).first()
+                uuid=class_quiz_id).first()
             if not class_quiz:
                 return make_response(error_response, 404)
             else:
@@ -105,14 +104,6 @@ class ClassQuizList(Resource):
                 "status": "failed",
                 "message": "Quiz couldn't be created!"
             }), 400)
-
-
-class ClassQuizPing(Resource):
-    def get(self):
-        return make_response({
-            "status": "success",
-            "message": "Pinged Class Quiz"},
-            200)
 
 
 @api.resource("/class_quiz/pdf_view/<class_quiz_id>")
@@ -232,8 +223,7 @@ class QuizAttendedStudents(Resource):
         return make_response(jsonify(responses))
 
 
-api.add_resource(ClassQuizPing, "/class_quiz/ping")
-api.add_resource(ClassQuiz, "/class_quiz/<int:class_quiz_id>")
+api.add_resource(ClassQuiz, "/class_quiz/<string:class_quiz_id>")
 api.add_resource(ClassQuizGenerator,
                  "/class_quiz/<int:class_quiz_id>/generate")
 api.add_resource(ClassQuizList, "/class_quiz")
