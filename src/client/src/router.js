@@ -114,6 +114,12 @@ const router = new Router({
       meta: {
         requiresAuth: true
       }
+    },
+    {
+      path: '*',
+      name: 'NotFound',
+      component: () =>
+        import(/* webpackChunkName: 'NotFoundView' */ './views/NotFound')
     }
   ]
 })
