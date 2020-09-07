@@ -12,10 +12,11 @@
     app
   >
     <v-list-item two-line>
-      <v-toolbar-title class="text-uppercase align-self-center">
+      <v-toolbar-title v-if="!drawerMinified" class="text-uppercase align-self-center">
         <span class="font-weight-light">Zen</span>
         <span>Teach</span>
       </v-toolbar-title>
+      <v-img v-else src='../assets/icon.png' height="32" width="40" class="grey darken-1" aspect-ratio="1" contain></v-img>
     </v-list-item>
 
     <v-divider class="mx-3 mb-3" />
@@ -86,11 +87,6 @@ export default {
           title: 'Classrooms',
           icon: 'mdi-book-minus-multiple',
           to: '/classrooms'
-        },
-        {
-          title: 'Students',
-          icon: 'mdi-account-group-outline',
-          to: '/students'
         }
       ]
     }

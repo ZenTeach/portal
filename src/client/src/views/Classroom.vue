@@ -1,35 +1,6 @@
 <template>
   <v-container>
     <v-layout row column wrap justify-center>
-      <v-flex sm-8 md-5 lg-3 class="ma-6">
-        <v-col cols="12" lg="4">
-        <material-chart-card
-          :data="emailsSubscriptionChart.data"
-          :options="emailsSubscriptionChart.options"
-          :responsive-options="emailsSubscriptionChart.responsiveOptions"
-          color="blue"
-          type="Bar"
-        >
-          <h4 class="title font-weight-light">
-            Class Grade Distribution
-          </h4>
-          <p class="category d-inline-flex font-weight-light">
-            Median Grade
-          </p>
-
-          <template v-slot:actions>
-            <v-icon
-              class="mr-2"
-              small
-            >
-              mdi-clock-outline
-            </v-icon>
-            <span class="caption grey--text font-weight-light">updated 10 minutes ago</span>
-          </template>
-        </material-chart-card>
-        </v-col>
-      </v-flex>
-
       <v-flex sm-8 md-10 lg-10 class="ma-6">
         <v-data-table
           :headers="headers"
