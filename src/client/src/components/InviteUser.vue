@@ -4,10 +4,10 @@
     >
       <ValidationObserver ref="observer" v-slot="{ invalid, validated }">
         <div class="px-3" color="primary">
-          <h4 class="title font-weight-light mb-2">
+          <h4 class="title font-weight-bold mb-2">
               Send an Invite
           </h4>
-          <p class="category font-weight-thin mb-0">
+          <p class="category font-weight-light mb-0">
               Tell your friends about Zenteach
           </p>
         </div>

@@ -13,7 +13,6 @@
               icon="mdi-bell-plus"
               max-width="350px"
               mode="fade"
-              dismissible
             >
               {{ errorMessage }}
             </material-notification>
