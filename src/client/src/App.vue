@@ -5,6 +5,19 @@
     <v-content class="grey lighten-3">
       <div id="core-view">
         <v-container fluid>
+          <v-fade-transition mode="in-out">
+            <material-notification
+              v-if="this.hasError"
+              :color="this.notificationColorFromStatus()"
+              class="mb-3"
+              icon="mdi-bell-plus"
+              max-width="350px"
+              mode="fade"
+              dismissible
+            >
+              {{ errorMessage }}
+            </material-notification>
+          </v-fade-transition>
           <v-fade-transition mode="out-in">
             <router-view />
           </v-fade-transition>
@@ -18,27 +31,6 @@
           >
             <invite-user/>
           </v-dialog>
-            <!-- <material-notification
-              color="error"
-              class="mb-3"
-              icon="mdi-bell-plus"
-              max-width="350px"
-              dismissible
-            >
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores porro id ipsum iure repellat sit tenetur quia!
-            </material-notification> -->
-          <v-snackbar
-            v-model="this.hasError"
-                :color="errorColor"
-                :right="true"
-                :top="true"
-                :timeout="0"
-          >
-            {{ errorMessage }}
-            <v-btn dark text @click="closeErrorBar">
-              Close
-            </v-btn>
-          </v-snackbar>
         </v-container>
       </div>
     </v-content>
@@ -51,7 +43,7 @@ import NavBarDrawer from '@/components/NavBarDrawer'
 import MaterialNotification from '@/components/Notification'
 import InviteUser from '@/components/InviteUser'
 import { createNamespacedHelpers } from 'vuex'
-const { mapState } = createNamespacedHelpers('app')
+const { mapState, mapGetters } = createNamespacedHelpers('app')
 
 export default {
   components: {
@@ -69,6 +61,9 @@ export default {
         return Object.keys(state.error).length > 0 &&
           state.error.constructor === Object
       }
+    }),
+    ...mapGetters({
+      appStatus: 'statusText'
     }),
     errorMessage () {
       return this.error.message || ''
@@ -90,6 +85,16 @@ export default {
     }
   },
   methods: {
+    notificationColorFromStatus () {
+      switch (this.appStatus) {
+        case 'error':
+          return 'error'
+        case 'success':
+          return 'success'
+        default:
+          return 'info'
+      }
+    },
     closeErrorBar () {
       this.$store.dispatch('app/TOGGLE_ERROR', {}, { root: true })
     }
