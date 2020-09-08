@@ -9,6 +9,7 @@ const state = {
   drawerMinified: false,
   inviteModalVisible: false,
   error: {},
+  status: '',
   questionSearch: [],
   knowledgeItems: [],
   topics: [],

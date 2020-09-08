@@ -1,7 +1,7 @@
 import { submitQuiz, startQuiz, fetchQuiz, fetchReportCard, fetchGradedReportCards } from '@/service/quiz_service'
 
 export default {
-  START_QUIZ ({ commit }, payload) {
+  START_QUIZ ({ commit, dispatch }, payload) {
     const { studentEmail, quizUUID } = payload
     startQuiz(studentEmail, quizUUID).then(
       data => {
@@ -9,11 +9,12 @@ export default {
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       }
     )
   },
 
-  LOAD_QUIZ ({ commit }, payload) {
+  LOAD_QUIZ ({ commit, dispatch }, payload) {
     fetchQuiz(payload).then(
       data => {
         const { uuid, questions, subject } = data.data
@@ -23,10 +24,11 @@ export default {
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       }
     )
   },
-  FETCH_REPORTCARD ({ commit }, gradeId) {
+  FETCH_REPORTCARD ({ commit, dispatch }, gradeId) {
     fetchReportCard(gradeId).then(
       data => {
         commit('UNSET_REPORTCARD')
@@ -36,10 +38,11 @@ export default {
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       }
     )
   },
-  SUBMIT_QUIZ ({ commit }, payload) {
+  SUBMIT_QUIZ ({ commit, dispatch }, payload) {
     submitQuiz(payload).then(
       data => {
         commit('UNSET_QUIZ_SESSION')
@@ -47,14 +50,17 @@ export default {
         commit('UNSET_QUIZ_UUID')
         commit('UNSET_QUIZ_SUBJECT')
         commit('TOGGLE_QUIZ_QUESTIONS', {})
+        dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+        dispatch('app/TOGGLE_ERROR', { message: 'Quiz submitted!' }, { root: true })
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       }
     )
   },
 
-  FETCH_GRADEDQUIZZES ({ commit }, classQuizId) {
+  FETCH_GRADEDQUIZZES ({ commit, dispatch }, classQuizId) {
     fetchGradedReportCards(classQuizId).then(
       data => {
         const graded = data.reduce((accumulator, x) => {
@@ -73,6 +79,7 @@ export default {
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       }
     )
   }

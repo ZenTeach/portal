@@ -29,6 +29,14 @@ export default {
       type: Boolean,
       default: true
     }
+  },
+  mounted: function () {
+    window.setTimeout(this.toggleOffError, 10000)
+  },
+  methods: {
+    toggleOffError () {
+      this.$store.dispatch('app/TOGGLE_ERROR', {}, { root: true })
+    }
   }
 }
 </script>

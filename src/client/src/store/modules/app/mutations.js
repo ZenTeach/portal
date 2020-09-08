@@ -19,6 +19,9 @@ export default {
   TOGGLE_APP_INVITE_MODAL (state, _payload) {
     state.inviteModalVisible = !state.inviteModalVisible
   },
+  TOGGLE_APP_STATUS (state, status) {
+    state.status = status
+  },
   RESET_QUESTION_SEARCH (state, _payload) {
     state.questionSearch = []
   },

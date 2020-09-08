@@ -20,6 +20,7 @@ class ApiService {
         if (failedRequest.status === 400 || failedRequest.status === 404) {
           const { message } = failedRequest.response.data
           store.dispatch('app/TOGGLE_ERROR', message, { root: true })
+          store.dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
           store.dispatch('user/SIGNOUT_USER', {}, { root: true })
           router.push({ name: 'login' })
           resolve()
@@ -34,6 +35,7 @@ class ApiService {
               store.dispatch('app/TOGGLE_ERROR', error.response.data, {
                 root: true
               })
+              store.dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
               store.dispatch('user/SIGNOUT_USER', {}, { root: true })
               router.push({ name: 'login' })
               reject(error)

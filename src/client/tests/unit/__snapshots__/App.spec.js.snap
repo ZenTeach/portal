@@ -7,18 +7,15 @@ exports[`App.vue matches snapshot 1`] = `
   <v-content-stub tag="main" class="grey lighten-3">
     <div id="core-view">
       <v-container-stub tag="div" fluid="true">
+        <v-fade-transition-stub mode="in-out" origin="top center 0">
+          <!---->
+        </v-fade-transition-stub>
         <v-fade-transition-stub mode="out-in" origin="top center 0">
           <router-view-stub name="default"></router-view-stub>
         </v-fade-transition-stub>
         <v-dialog-stub opendelay="0" closedelay="0" contentclass="" maxwidth="500px" origin="center center" persistent="true" retainfocus="true" scrollable="true" transition="dialog-transition" width="auto">
           <invite-user-stub></invite-user-stub>
         </v-dialog-stub>
-        <v-snackbar-stub color="error" tag="div" right="true" top="true" contentclass="" timeout="0" transition="v-snack-transition">
-
-          <v-btn-stub dark="true" tag="button" activeclass="" text="true" type="button">
-            Close
-          </v-btn-stub>
-        </v-snackbar-stub>
       </v-container-stub>
     </div>
   </v-content-stub>

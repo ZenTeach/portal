@@ -22,5 +22,8 @@ export default {
   },
   getKis (state) {
     return state.knowledgeItems
+  },
+  statusText (state) {
+    return state.status
   }
 }

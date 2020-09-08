@@ -7,7 +7,7 @@ import {
   removeStudent
 } from '../../../service/classrooms'
 
-const GETCLASSES = ({ commit }) => {
+const GETCLASSES = ({ commit, dispatch }) => {
   fetchClasses()
     .then(
       data => {
@@ -15,17 +15,22 @@ const GETCLASSES = ({ commit }) => {
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       })
 }
 
 const INVITE_STUDENT = ({ commit, dispatch }, payload) => {
   const { classId, ...studentData } = payload
+  const inviteMessage = { message: 'Invite sent!' }
   inviteStudent(classId, studentData)
     .then(_data => {
+      dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+      dispatch('app/TOGGLE_ERROR', inviteMessage, { root: true })
       dispatch('GETCURRENTCLASS', classId)
     },
     error => {
       commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
     })
 }
 
@@ -34,14 +39,17 @@ const CREATECLASS = ({ commit, dispatch }, payload) => {
     .then(
       _data => {
         commit('CLASSLIST_ADDED', payload)
+        dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+        dispatch('app/TOGGLE_ERROR', { message: 'Class created successfully!' }, { root: true })
         dispatch('GETCLASSES')
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       })
 }
 
-const GETCURRENTCLASS = ({ commit }, payload) => {
+const GETCURRENTCLASS = ({ commit, dispatch }, payload) => {
   fetchCurrentClass(payload)
     .then(response => {
       if (response.status === 'success') {
@@ -50,6 +58,7 @@ const GETCURRENTCLASS = ({ commit }, payload) => {
     })
     .catch(error => {
       commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
     })
 }
 
@@ -57,10 +66,13 @@ const DELETECLASSROOM = ({ commit, dispatch }, classId) => {
   deleteClassroom(classId)
     .then(
       _data => {
+        dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+        dispatch('app/TOGGLE_ERROR', { message: 'Classroom deleted successfully' }, { root: true })
         dispatch('GETCLASSES')
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       })
 }
 
@@ -69,10 +81,13 @@ const REMOVESTUDENTFROMCLASS = ({ commit, dispatch }, payload) => {
   removeStudent(classId, studentId)
     .then(
       _data => {
+        dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+        dispatch('app/TOGGLE_ERROR', { message: 'Student removed!' }, { root: true })
         dispatch('GETCURRENTCLASS', classId)
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       })
 }
 
