@@ -14,6 +14,9 @@
           <template v-slot:item.status="{ item }">
             <v-chip :color="statusToColor[item.status]">{{ item.status }}</v-chip>
           </template>
+          <template v-slot:item.created_at="{item}">
+            {{ item.created_at | formatDate }}
+          </template>
           <template v-slot:footer>
             <v-dialog v-model="dialog" max-width="1000px" persistent>
               <template v-slot:activator="{ on }">
@@ -72,9 +75,10 @@ export default {
           sortable: false,
           value: 'status'
         },
+        // TODO: Use actual proctored date
         {
           text: 'Proctored at',
-          value: 'held_on'
+          value: 'created_at'
         }
       ],
       quizzes: [],

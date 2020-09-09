@@ -6,11 +6,18 @@ import '@/plugins'
 import App from '@/App.vue'
 import router from './src/router'
 import store from '@/store'
+import moment from 'moment'
 
 Vue.config.productionTip = true
 Vue.use(VueCookies)
 
 const unsync = sync(store, router)
+
+Vue.filter('formatDate', function(value) {
+  if (value) {
+    return moment(String(value)).format('DD/MM/YYYY')
+  }
+});
 
 var vm = new Vue({
   router,
