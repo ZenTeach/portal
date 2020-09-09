@@ -56,10 +56,10 @@ const FETCHCURRENTUSER = ({ commit, dispatch }) => {
 const SENDACCOUNTRECOVERY = ({ commit, dispatch }, email) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
   sendAccountRecovery(email).then(result => {
-    // TODO: store message
     commit('app/TOGGLE_APP_LOADING', false, { root: true })
-    router.push('/')
+    dispatch('app/TOGGLE_ERROR', result, { root: true })
     dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+    router.push('/')
   })
 }
 
@@ -69,6 +69,8 @@ const UPDATEUSERPASSWORD = ({ commit, dispatch }, payload) => {
     .then(
       data => {
         commit('app/TOGGLE_APP_LOADING', false, { root: true })
+        dispatch('app/TOGGLE_ERROR', data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
         router.push('/')
       },
       error => {
