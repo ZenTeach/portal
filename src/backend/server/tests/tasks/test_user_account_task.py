@@ -56,7 +56,7 @@ def test_send_account_recovery_instructions(client, teacher, mocker):
         message.recipients = ["{}".format(teacher.email)]
 
         send_mail_with_html.assert_called_with(message,
-                                               'account_confirmation.html.j2',
+                                               'account_recovery.html.j2',
                                                recovery_link=teacher.get_reset_link())
 
     @mocker.patch('server.tasks.user_account_tasks.send_mail_with_html')

@@ -27,7 +27,7 @@ def send_account_recovery_instructions(email):
         message.recipients = ["{}".format(teacher.email)]
 
         send_mail_with_html(message,
-                            'account_confirmation.html.j2',
+                            'account_recovery.html.j2',
                             recovery_link=recovery_link)
     except Exception:
         # Ignore non-existing email addresses
