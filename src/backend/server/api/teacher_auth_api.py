@@ -237,7 +237,7 @@ class ResetAccount(Resource):
             abort(404, "Encountered an error. Invalid token.")
 
         if not teacher.reset_account(token, password):
-            abort(400, "Account already confirmed.")
+            abort(400, "Account token not recognized.")
 
         return make_response(jsonify({
             "status": "Success",
