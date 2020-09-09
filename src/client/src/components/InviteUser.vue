@@ -59,6 +59,7 @@ export default {
       return this.$refs.observer.validate()
     },
     closeInviteDialog () {
+      this.email = ''
       this.$store.commit('app/TOGGLE_APP_INVITE_MODAL')
     },
     processInvite () {

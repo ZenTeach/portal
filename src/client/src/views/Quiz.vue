@@ -37,41 +37,7 @@
           </template>
         </v-col>
       </v-row>
-      <v-dialog
-        v-model="dialog"
-        scrollable
-        persistent :overlay="false"
-        max-width="500px"
-        transition="dialog-transition"
-      >
-        <v-card>
-          <v-card-title primary-title>
-            Google Form generation underway
-          </v-card-title>
-          <v-card-text>
-            Google Form Quiz generation is underway. We need your help configuring the project.
-            Please add the following code to the project.
 
-            Steps:
-              1. Open the Google Apps Script by following this link
-              <span>
-                <v-btn fab dark small color="primary" :href=script_url>
-                  <v-icon dark>open-in-new</v-icon>
-                </v-btn>
-              </span>
-              2. Head to Resources > Cloud Platform project...
-              3. Enter "SomeProjectCode" in the input field and press "SetProject".
-              Hit "Confirm".
-              4. Finally, press Close to close the dialog.
-              When done with the steps, Press the Generate button below and the quiz link will be sent to your email.
-          </v-card-text>
-
-          <v-card-action>
-            <v-btn color="success" @click="executeGAppsScript">Generate</v-btn>
-            <v-btn color="" @click='dialog = false'>Close</v-btn>
-          </v-card-action>
-        </v-card>
-      </v-dialog>
       <v-row>
       </v-row>
       <v-divider></v-divider>
@@ -122,10 +88,6 @@ export default {
       gFormExportLoading: false,
       exportableLinks: [
         {
-          title: 'Google Form',
-          action: () => this.handleGFormExport()
-        },
-        {
           title: 'PDF',
           action: () => this.handlePDFGeneration()
         }
@@ -155,28 +117,6 @@ export default {
   },
 
   methods: {
-    handleGFormExport () {
-      this.$gAuth.getAuthCode()
-        .then(authCode => {
-          return Api.post('/teacher/auth/google', { authCode: authCode })
-        }).then(response => {
-          Api.post(`/class_quiz/${this.quiz_id}/generate`, {
-            type: 'gform'
-          }).then(response => {
-            // TODO: Set app to loading state
-            if (response.status === 200) {
-              this.dialog = true
-              this.script_id = response.data.ScriptId
-              this.script_url = `https://script.google.com/d/${this.script_id}/edit`
-            }
-          })
-        })
-    },
-    executeGAppsScript () {
-      Api.get(`/class_quiz/${this.quiz_id}/${this.script_id}/generate/execute`)
-        .then((response) => {
-        })
-    },
     handlePDFGeneration () {
       Api.post(`/class_quiz/${this.quiz_id}/generate`, {
         type: 'pdf'
