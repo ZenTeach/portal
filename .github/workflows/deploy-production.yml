@@ -6,7 +6,6 @@ on:
 jobs:
   deploy_frontend:
     runs-on: [self-hosted, production, deployment]
-    container: node:13.13-stretch
     defaults:
       run:
         working-directory: src/client
@@ -26,6 +25,11 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
 
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '13.13'
+
       - name: Install dependencies
         run: yarn install
 
@@ -40,21 +44,27 @@ jobs:
         run: |
          chmod 400 $REMOTE_HOST_KEYS && chmod 400 $JUMPHOST_KEYS && scp -v -r -i $REMOTE_HOST_KEYS -o ProxyCommand="ssh -i $JUMPHOST_KEYS -W %h:%p -q $REMOTE_USER@$JUMPHOST" -o "StrictHostKeyChecking=no" ./dist $REMOTE_USER@$REMOTE_HOST2:$REMOTE_DEST
 
-      - name: Copy files with SSH to Host {{env.REMOTE_HOST3}}
+      - name: Copy files with SSH to Host ${{ env.REMOTE_HOST3 }}
         run: |
          chmod 400 $REMOTE_HOST_KEYS && chmod 400 $JUMPHOST_KEYS && scp -v -r -i $REMOTE_HOST_KEYS -o ProxyCommand="ssh -i $JUMPHOST_KEYS -W %h:%p -q $REMOTE_USER@$JUMPHOST" -o "StrictHostKeyChecking=no" ./dist $REMOTE_USER@$REMOTE_HOST3:$REMOTE_DEST
 
 
   deploy_backend:
     runs-on: [self-hosted, production, deployment]
-    container: python:3.7.5-stretch
     defaults:
       run:
         working-directory: src/backend
+    env:
+      PYTHON-VERSION: 3.7.5
 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
+
+      - name: Set up Python ${{ env.PYTHON-VERSION }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON-VERSION }}
 
       - name: Execute deploy script
         run: cd scripts/ && ./deploy-to-prod.sh
