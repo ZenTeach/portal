@@ -215,6 +215,14 @@ class QuestionView(BaseView):
     create_template = "admin/question_create.html"
     edit_template = "admin/question_edit.html"
     form_overrides = {"subject": SelectField, "question_type": SelectField}
+    form_create_rules = ('subject',
+                         'topic',
+                         'knowledge_item',
+                         'tag',
+                         'question_type',
+                         'question',
+                         'choices')
+
     form_args = {
         "subject": dict(
             choices=[
