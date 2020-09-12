@@ -42,6 +42,7 @@ def seeds():
     class_student = Student.query.first()
     class_teacher_id = Teacher.query.filter_by(role="Teacher").first().id
     s = SchoolClass(
+        id=1,
         name="Atoms",
         subject="Chemistry",
         start_date=datetime.date.today(),
