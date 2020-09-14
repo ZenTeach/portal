@@ -76,12 +76,11 @@ def create_app():
     app = Flask(__name__, template_folder="templates")
 
     if os.environ.get("FLASK_ENV") == "production":
-        app.config.from_pyfile("/var/www/zenteach_be/application.cfg")
-        # app_settings = os.getenv('APP_SETTINGS')
-        import pprint
-
-        with open("output.txt", "wt") as out:
-            pprint.pprint(dict(app.config), stream=out)
+        if os.path.exists("/var/www/zenteach_be/application.cfg"):
+            app.config.from_pyfile("/var/www/zenteach_be/application.cfg")
+        else:
+            app_settings = os.getenv("APP_SETTINGS")
+            app.config.from_object(app_settings)
     else:
         app_settings = os.getenv("APP_SETTINGS")
         app.config.from_object(app_settings)
@@ -186,7 +185,8 @@ def create_app():
     app.register_blueprint(question_blueprint, url_prefix="/api/v1")
     app.register_blueprint(statistics_view_blueprint, url_prefix="/api/v1")
     app.register_blueprint(quiz_submit_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(root_api)
+    if os.environ.get('FLASK_ENV') == 'development':
+        app.register_blueprint(root_api)
 
     default_handler.setFormatter(formatter)
 
