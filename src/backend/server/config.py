@@ -51,8 +51,14 @@ class TestingConfig(BaseConfig):
 
 
 class ProductionConfig(BaseConfig):
-    SECRET_KEY = token_urlsafe()
+    BROKER_TRANSPORT_OPTIONS = {
+        'region': os.environ.get('AWS_REGION'),
+        'polling_interval': 20,
+        'visibility_timeout': 10800,
+        'task_default_queue': os.environ.get('CELERY_DEFAULT_QUEUE'),
+    }
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ("access", "refresh")
     JWT_COOKIE_SECURE = True
     JWT_COOKIE_DOMAIN = os.environ.get('JWT_COOKIE_DOMAIN', None)
+    SECRET_KEY = token_urlsafe()
