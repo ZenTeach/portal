@@ -16,6 +16,7 @@ from flask_login import current_user, login_user, logout_user
 from flask_wtf.csrf import _FlaskFormCSRF
 from jinja2 import Markup
 from server import db as sdb
+# from server import globalConfig
 from server.models import Admin, QuestionChoice, Questions, Student, Teacher
 from werkzeug.security import check_password_hash
 from wtforms import (BooleanField, IntegerField, SelectField, StringField,
@@ -237,7 +238,6 @@ class CustomImageUploadInputWidget(object):
                 url = field.data
             else:
                 url = self.get_url(field)
-
             args['image'] = html_params(src=url)
 
             template = self.data_template
@@ -273,6 +273,7 @@ class QuestionView(BaseView):
                          'tag',
                          'question_type',
                          'question',
+                         'image_url',
                          'choices')
 
     form_args = {
@@ -291,7 +292,6 @@ class QuestionView(BaseView):
             ]
         ),
     }
-
     # TODO: Fix this
     form_extra_fields = {
         # 'image_url': ImageUploadField('Image')
@@ -315,7 +315,10 @@ class QuestionView(BaseView):
         return edit_form
 
     def create_model(self, form):
+        # import pdb; pdb.set_trace()
         try:
+            # import pdb
+            # pdb.set_trace()
             one_correct_choice_validator(form.data, "is_correct_choice")
             has_choice_for_multiple_choice_type(form.data)
             Questions.create_from_admin_form(form.data)

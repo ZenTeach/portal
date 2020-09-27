@@ -21,11 +21,12 @@ class LocalImageStore(object):
         file_ext = image_file.filename.rsplit(file_sep, 1)[1].lower()
         if (file_sep in image_file.filename and
                 file_ext in globalConfig.get('IMAGE_ALLOWED_EXTENSIONS')):
-            # extension = image_file.filename.rsplit(file_sep, 1)[1].lower()
+
+            filename = image_file.filename
+
             if public_id is not None:
-                filename = "{0}.{1}".format(public_id, file_ext)
-            else:
-                filename = image_file.filename
+                filename = public_id
+
             file_path_all = os.path.join(globalConfig.get('UPLOAD_FOLDER'), filename)
             image_file.save(file_path_all)
             result = {'url': "/static/uploaded/" + filename, 'abs_filepath': file_path_all}

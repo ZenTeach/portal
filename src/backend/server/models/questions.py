@@ -1,6 +1,7 @@
 import enum
 import logging
 from operator import itemgetter
+from secrets import token_hex
 from uuid import uuid4
 
 from flask_sqlalchemy import BaseQuery
@@ -14,8 +15,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.event import listens_for
 from sqlalchemy_searchable import SearchQueryMixin
 from sqlalchemy_utils.types import TSVectorType
-
-# from werkzeug.utils import secure_filename
+from werkzeug.utils import secure_filename
 
 logger = logging.getLogger('model::question')
 
@@ -109,15 +109,17 @@ class Questions(BaseModelMixin, db.Model):
         image_name = None
         if 'image_url' in data and data['image_url'] is not None:
             image_file = data['image_url']
-            # file_parts = image_file.filename.rsplit('.', 1)
-            # secure_name = secure_filename("{}-{}.{}".format(
-            #     file_parts[0].lower(),
-            #     token_hex(6),
-            #     file_parts[1].lower()
-            # ))
-            _, abs_filepath = itemgetter('url', 'abs_filepath')(LocalImageStore.save(image_file, None))  # noqa
+            # import pdb
+            # pdb.set_trace()
+            file_parts = image_file.filename.rsplit('.', 1)
+            secure_name = secure_filename("{}-{}.{}".format(
+                file_parts[0].lower(),
+                token_hex(6),
+                file_parts[1].lower()
+            ))
+            _, abs_filepath = itemgetter('url', 'abs_filepath')(LocalImageStore.save(image_file, secure_name))  # noqa
             logger.info("Image absolute location: {}".format(abs_filepath))
-            image_name = abs_filepath
+            # image_name = image_loc
             # image_file.save(image_tmp_location)
             # fp = open(image_name, 'wb')
             # fp.write(image_file.stream.read())
