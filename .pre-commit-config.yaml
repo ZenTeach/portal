@@ -35,7 +35,7 @@ repos:
     -   id: python-bandit-vulnerability-check
         files: ^src/backend/
         args: [--skip, "B101,B311"]
-        exclude: ^src/client/
+        exclude: ^client/
 
 -   repo: https://gitlab.com/pycqa/flake8
     rev: master
@@ -43,7 +43,7 @@ repos:
     -   id: flake8
         args: [--config, src/backend/tox.ini]
         files: ^src/backend/
-        exclude: ^src/client/
+        exclude: ^client/
 
 
 # Frontend hooks
@@ -55,4 +55,4 @@ repos:
 #         language: node
 #         entry: yarn run test:unit
 #         pass_filenames: false
-#         files: ^src/client/
+#         files: ^client/

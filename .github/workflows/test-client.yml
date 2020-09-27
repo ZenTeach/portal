@@ -10,7 +10,7 @@ jobs:
     container: node:13.13-alpine
     defaults:
       run:
-        working-directory: src/client
+        working-directory: client/
     steps:
       - name: Install dependencies
         run: yarn install

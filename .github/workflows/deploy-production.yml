@@ -8,7 +8,7 @@ jobs:
     runs-on: [self-hosted, production, deployment]
     defaults:
       run:
-        working-directory: src/client
+        working-directory: client/
     env:
       VUE_APP_API_ENDPOINT: https://service.portal.zenteach.co.uk/api/v1
       VUE_APP_SENTRY_DSN: https://6474c2d922534f9a9acc9a83b1553a5b@o328466.ingest.sentry.io/5417325

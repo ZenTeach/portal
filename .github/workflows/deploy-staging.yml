@@ -11,7 +11,7 @@ jobs:
     container: node:13.13-stretch
     defaults:
       run:
-        working-directory: src/client
+        working-directory: client/
     env:
       VUE_APP_API_ENDPOINT: https://service.stage.portal.zenteach.co.uk/api/v1
       VUE_APP_SENTRY_DSN: https://57d2692e63644741b5f061d9ba9e54c6@o328466.ingest.sentry.io/5372591

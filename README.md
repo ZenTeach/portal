@@ -67,7 +67,7 @@ After installing node.js and npm, install [yarn](https://yarnpkg.com/) with `npm
 
 - Copy the `.env.example` in the client source. No need to change this now.
 
-- Then run the following in `src/client` to start the frontend dev server.
+- Then run the following in `client` to start the frontend dev server.
 
 ```
 yarn install && yarn serve
