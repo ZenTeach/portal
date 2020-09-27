@@ -20,7 +20,7 @@ jobs:
       TMP_DIR: /tmp
     defaults:
       run:
-        working-directory: src/backend
+        working-directory: backend
     services:
       redis:
         image: redis:5.0.7-alpine

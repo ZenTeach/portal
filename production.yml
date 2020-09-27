@@ -20,12 +20,12 @@ services:
   zenteach_be:
     restart: always
     build:
-      context: ./src/backend
+      context: ./backend
       dockerfile: Dockerfile.prod
     env_file:
-      - './src/backend/.env.production'
+      - './backend/.env.production'
     volumes:
-      - "./src/backend:/home/flask/server"
+      - "./backend:/home/flask/server"
     ports:
       - 5001:5000
     environment:

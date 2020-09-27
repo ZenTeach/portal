@@ -18,12 +18,12 @@ services:
   zenteach_be:
     restart: always
     build:
-      context: ./src/backend
+      context: ./backend
       dockerfile: Dockerfile
     env_file:
-      - './src/backend/.env.docker'
+      - './backend/.env.docker'
     volumes:
-      - "./src/backend:/home/flask/server"
+      - "./backend:/home/flask/server"
     ports:
       - 5000:5000
     environment:
@@ -51,7 +51,7 @@ services:
       - "rabbitmq_broker"
   zenteach_db:
     build:
-      context: ./src/backend/db
+      context: ./backend/db
       dockerfile: Dockerfile
     ports:
       - 5432:5432

@@ -27,13 +27,13 @@ repos:
     rev: v1.5.2
     hooks:
     -   id: autopep8
-        files: ^src/backend/
+        files: ^backend/
 
 -   repo: https://github.com/Lucas-C/pre-commit-hooks-bandit
     sha: v1.0.4
     hooks:
     -   id: python-bandit-vulnerability-check
-        files: ^src/backend/
+        files: ^backend/
         args: [--skip, "B101,B311"]
         exclude: ^client/
 
@@ -41,8 +41,8 @@ repos:
     rev: master
     hooks:
     -   id: flake8
-        args: [--config, src/backend/tox.ini]
-        files: ^src/backend/
+        args: [--config, backend/tox.ini]
+        files: ^backend/
         exclude: ^client/
 
 

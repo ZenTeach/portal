@@ -53,7 +53,7 @@ jobs:
     runs-on: [self-hosted, production, deployment]
     defaults:
       run:
-        working-directory: src/backend
+        working-directory: backend
     env:
       PYTHON-VERSION: 3.7.5
 

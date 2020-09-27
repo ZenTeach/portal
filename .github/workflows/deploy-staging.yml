@@ -39,7 +39,7 @@ jobs:
     container: python:3.7.5-stretch
     defaults:
       run:
-        working-directory: src/backend
+        working-directory: backend
 
     steps:
       - name: Check out repository code

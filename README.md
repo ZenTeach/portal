@@ -11,7 +11,7 @@
 > ⚠️ **These commands were only tested on *nix like systems, please advise when running it on windows. It's advised tp use docker & docker-compose on windows.**
 
 ### Backend
-The backend is a flask app written in python. `src/backend` contains all the backend code including models and apis. Copy the `.env.example` to `.env` and change these files.
+The backend is a flask app written in python. `backend` contains all the backend code including models and apis. Copy the `.env.example` to `.env` and change these files.
 
 #### Database setup
 Project needs `zenteach` user in postgres. To create a user, run the following:
@@ -104,5 +104,5 @@ CELERY_BROKER_URL=amqp://zenteach:zenteach_broker@localhost:5672/jobs
 CELERY_RESULT_BACKEND=redis://localhost:6379/0
 REDIS_URL=redis://localhost:6379/app
 PYTHONUNBUFFERED=TRUE
-PRECOMMIT_CONFIG=./src/backend/.pre-commit-config.yaml
+PRECOMMIT_CONFIG=./backend/.pre-commit-config.yaml
 ```

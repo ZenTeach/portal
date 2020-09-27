@@ -13,7 +13,7 @@ instance/*
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
 **/__pycache__/**
-src/backend/__pycache__
+backend/__pycache__
 *.py[cod]
 *$py.class
 
@@ -303,6 +303,6 @@ Dockerfile-prod
 
 token.pickle
 
-src/backend/server/lib/interfaces/client_id.json
+backend/server/lib/interfaces/client_id.json
 
 students.csv
