@@ -55,7 +55,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
         var content = node.__quill.getContents()
         inputHiddenElement.value = JSON.stringify(content["ops"])
     })
-    
+
 })
 
 function initializeQuill(){
@@ -66,22 +66,22 @@ function initializeQuill(){
         var editorKey = editor.id
         if (!editorExists(editorKey) && editorKey !== undefined) {
             var editorContent = ""
-            if (editor.children && 
+            if (editor.children &&
                 editor.children.length > 0 &&
-                editor.children[0].innerText.length > 0){    
-                
-                editorContent = editor.children[0].innerText 
+                editor.children[0].innerText.length > 0){
+
+                editorContent = editor.children[0].innerText
             }
 
             var quillInstance = new Quill(editor, options)
-            
+
             try {
                 var c = JSON.parse(editorContent)
                 quillInstance.setContents(c)
             } catch (error) {
                 quillInstance.setText(editorContent + "\n")
             }
-            
+
             storeEditor(editorKey, quillInstance)
         }
     }
