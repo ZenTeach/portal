@@ -11,7 +11,7 @@
 > ⚠️ **These commands were only tested on *nix like systems, please advise when running it on windows. It's advised tp use docker & docker-compose on windows.**
 
 ### Backend
-The backend is a flask app written in python. `src/backend` contains all the backend code including models and apis. Copy the `.env.example` to `.env` and change these files.
+The backend is a flask app written in python. `backend` contains all the backend code including models and apis. Copy the `.env.example` to `.env` and change these files.
 
 #### Database setup
 Project needs `zenteach` user in postgres. To create a user, run the following:
@@ -67,7 +67,7 @@ After installing node.js and npm, install [yarn](https://yarnpkg.com/) with `npm
 
 - Copy the `.env.example` in the client source. No need to change this now.
 
-- Then run the following in `src/client` to start the frontend dev server.
+- Then run the following in `client` to start the frontend dev server.
 
 ```
 yarn install && yarn serve
@@ -104,5 +104,5 @@ CELERY_BROKER_URL=amqp://zenteach:zenteach_broker@localhost:5672/jobs
 CELERY_RESULT_BACKEND=redis://localhost:6379/0
 REDIS_URL=redis://localhost:6379/app
 PYTHONUNBUFFERED=TRUE
-PRECOMMIT_CONFIG=./src/backend/.pre-commit-config.yaml
+PRECOMMIT_CONFIG=./backend/.pre-commit-config.yaml
 ```
