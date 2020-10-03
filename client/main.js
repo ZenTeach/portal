@@ -13,11 +13,11 @@ Vue.use(VueCookies)
 
 const unsync = sync(store, router)
 
-Vue.filter('formatDate', function(value) {
+Vue.filter('formatDate', function (value) {
   if (value) {
     return moment(String(value)).format('DD/MM/YYYY')
   }
-});
+})
 
 var vm = new Vue({
   router,
