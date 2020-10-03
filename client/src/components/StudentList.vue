@@ -16,7 +16,7 @@
         <template v-slot:item.actions="{ item }">
             <v-icon
               large
-              @click="deleteItem(item)"
+              @click="showConfirmItemDelete(item)"
             >
               mdi-trash-can-outline
             </v-icon>
@@ -39,6 +39,32 @@
         </template>
 
       </v-data-table>
+      <v-dialog
+        v-model="deleteConfirmationModal"
+        persistent :overlay="false"
+        max-width="500px"
+        transition="dialog-transition"
+      >
+        <v-card class="d-flex flex-column align-left pa-3">
+          <v-card-title primary-title>
+            <h3 class="title font-weight-bold mb-2">
+              Confirm student deletion
+            </h3>
+          </v-card-title>
+          <!-- <div class="px-3" color="primary">
+          </div> -->
+          <v-card-text>
+            <p class="font-weight-medium body-1 ">
+              This action will remove the student from the classroom and in effect remove all
+              quiz performance data. Are you sure to delete a student from your classroom?
+            </p>
+        </v-card-text>
+        <v-card-actions class="justify-space-between px-5">
+            <v-btn color="error" @click="deleteItem(studentToBeDeleted)" class="mr-4" >Delete</v-btn>
+            <v-btn color="secondary" outlined class="mr-4" @click.native.prevent="hideConfirmItemDelete()">Cancel</v-btn>
+        </v-card-actions>
+        </v-card>
+      </v-dialog>
   </div>
 </template>
 
@@ -73,6 +99,8 @@ export default {
   data: () => ({
     expand: false,
     selectedFile: null,
+    deleteConfirmationModal: false,
+    studentToBeDeleted: null,
     headers: [
       { text: 'First name', align: 'left', value: 'firstname', width: 20 },
       { text: 'Last Name', align: 'left', value: 'lastname', width: 20 },
@@ -93,11 +121,20 @@ export default {
     toggleManualInviteDialog () {
       this.dialog = true
     },
+    showConfirmItemDelete (item) {
+      this.deleteConfirmationModal = true
+      this.studentToBeDeleted = item.id
+    },
+    hideConfirmItemDelete (item) {
+      this.deleteConfirmationModal = false
+    },
     deleteItem (item) {
       this.removeStudent({
         classId: this.classId,
-        studentId: item.id
+        studentId: item
       })
+      this.deleteConfirmationModal = false
+      this.studentToBeDeleted = null
     }
   }
 }

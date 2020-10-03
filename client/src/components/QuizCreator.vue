@@ -138,7 +138,7 @@ export default {
         variantsSelected: 1
       }
     },
-    async createQuiz () {
+    createQuiz () {
       const payload = {
         subject: 'Chemistry',
         max_score: this.quizMaxScore,
@@ -146,12 +146,12 @@ export default {
         variants: this.variantsSelected,
         questions: this.questionList
       }
-      await Api.post(
+      Api.post(
         '/class_quiz',
         payload
-      )
-
-      this.closeDialog()
+      ).then(() => {
+        this.closeDialog()
+      })
     },
     closeDialog () {
       this.$emit('update:quizCreatorDialog', false)
