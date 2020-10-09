@@ -26,6 +26,11 @@ DISTRO=$(ls -t $DIST | head -n 1)
 FOLDERNAME=$(echo $DISTRO | tr '.' '\n' | head -n 1)
 
 for server in '5.1.10.218' '5.1.10.158' '5.1.10.32'; do
+    echo "Performing clean up. Leaving only last 5 builds."
+    ssh -i $REMOTE_KEYS $REMOTE_USER@$server -o StrictHostKeyChecking=no \
+    "ls -lt /var/www/zenteach_be/ | grep -E 'zenteach-build-*' | tail -n +7 | awk '{print \$9}' | xargs -I {} rm -fr /var/www/zenteach_be/{}"
+
+
     echo "\n Copying distro $DISTRO to $server"
     scp -r -i $REMOTE_KEYS -o "StrictHostKeyChecking=no" ../dist/$DISTRO $REMOTE_USER@$server:/tmp
 
