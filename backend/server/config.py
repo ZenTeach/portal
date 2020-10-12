@@ -51,12 +51,18 @@ class TestingConfig(BaseConfig):
 
 
 class ProductionConfig(BaseConfig):
+    BROKER_TRANSPORT = os.environ.get('BROKER_TRANSPORT')
     BROKER_TRANSPORT_OPTIONS = {
         'region': os.environ.get('AWS_REGION'),
         'polling_interval': 20,
         'visibility_timeout': 10800,
-        'task_default_queue': os.environ.get('CELERY_DEFAULT_QUEUE'),
+        'task_default_queue': os.environ.get('CELERY_DEFAULT_QUEUE')
     }
+    BROKER_USER = os.getenv('BROKER_USER')
+    BROKER_PASSWORD = os.getenv('BROKER_PASSWORD')
+    CELERY_DEFAULT_QUEUE = os.environ.get('CELERY_DEFAULT_QUEUE')
+    CELERY_ENABLE_REMOTE_CONTROL = False
+    CELERY_SEND_EVENTS = False
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ("access", "refresh")
     JWT_COOKIE_SECURE = True
