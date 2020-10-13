@@ -16,7 +16,7 @@
                 hide-default-footer
               >
                 <template v-slot:item.name="props">
-                  <a :href="'/classroom/' + props.item.id">{{ props.item.name }}</a>
+                  <a :href="'/classroom/' + props.item.uuid">{{ props.item.name }}</a>
                 </template>
                 <template v-slot:item.actions="{ item }">
                   <v-icon
