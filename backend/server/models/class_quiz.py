@@ -1,10 +1,10 @@
 import enum
 import json
-import os
 from datetime import datetime
 from typing import Optional
 from uuid import uuid4
 
+from flask import current_app
 from server import db
 from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import JSON, UUID
@@ -98,5 +98,5 @@ class ClassQuiz(BaseModelMixin, db.Model):
 
 @event.listens_for(ClassQuiz, 'before_insert')
 def receive_init(target, args, kwargs):
-    quiz_url = "{}/quiz_view/{}".format(os.environ.get('CLIENT_URL'), kwargs.uuid)
+    quiz_url = "{}/quiz_view/{}".format(current_app.config.get('CLIENT_URL'), kwargs.uuid)
     kwargs.url = quiz_url

@@ -38,7 +38,7 @@ def test_send_confirmation_instructions(client, teacher, mocker):
     @mocker.patch('server.tasks.user_account_tasks.send_mail_with_html')
     def test_success(send_mail_with_html):
         send_confirmation_instructions(teacher.id)
-        message = Message(subject="Hi! Your Quiz have arrived.")
+        message = Message(subject="Confirm your account!")
         message.recipients = ["{}".format(teacher.email)]
 
         send_mail_with_html.assert_called_with(message,
