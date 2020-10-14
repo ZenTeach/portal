@@ -25,6 +25,7 @@ class BaseConfig:
     CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
+    CLIENT_URL = os.environ.get('CLIENT_URL')
 
 
 class DevelopmentConfig(BaseConfig):
