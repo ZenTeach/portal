@@ -19,11 +19,11 @@ students_dumper = StudentSchema(many=True)
 
 
 class ClassQuiz(Resource):
-    def get(self, class_quiz_id):
+    def get(self, class_quiz_uuid):
         error_response = {"message": "No Class Quiz found."}
         try:
             class_quiz = ClassQuizModel.query.filter_by(
-                uuid=class_quiz_id).first()
+                uuid=class_quiz_uuid).first()
             if not class_quiz:
                 return make_response(error_response, 404)
             else:
@@ -133,7 +133,7 @@ def output_pdf(data, code, headers=None):
 
 class ClassQuizGenerator(Resource):
     @jwt_required
-    def post(self, class_quiz_id):
+    def post(self, class_quiz_uuid):
         """
             Args:
                 :type - generated document form
@@ -143,12 +143,12 @@ class ClassQuizGenerator(Resource):
                         "message": "Failed to generate quiz"}
 
         teacher = get_jwt_identity()["identity"]
-        # quiz = ClassQuizModel.query.filter_by(id=class_quiz_id).first()
+        quiz_id = ClassQuizModel.query.filter_by(uuid=class_quiz_uuid).first().id
         req_data = request.get_json()
         if req_data["type"] == "pdf":
             generated_file_name = None
             try:
-                generated = generate_pdf.delay(class_quiz_id)
+                generated = generate_pdf.delay(quiz_id)
                 generated_file_name = generated.get()
                 send_quiz_pdf.apply_async(
                     args=[teacher["email"], generated_file_name])
@@ -198,7 +198,8 @@ class QuizReportCard(Resource):
 
 class GradedQuizzes(Resource):
     @jwt_required
-    def get(self, quizId):
+    def get(self, quizUUId):
+        quizId = ClassQuizModel.query.filter_by(uuid=quizUUId).first().id
         graded_quizzes = QuizGrade.query.filter_by(class_quiz_id=quizId, graded=True).all()
         if not graded_quizzes or len(graded_quizzes) == 0:
             abort(404, "No Quiz grading found!")
@@ -210,9 +211,9 @@ class GradedQuizzes(Resource):
 
 class QuizAttendedStudents(Resource):
     @jwt_required
-    def get(self, class_quiz_id):
+    def get(self, class_quiz_uuid):
         quiz = ClassQuizModel.query.filter_by(
-            id=class_quiz_id, status=ClassQuizStatus.administered
+            uuid=class_quiz_uuid, status=ClassQuizStatus.administered
         ).first()
         if len(quiz.student_quiz_grades) == 0:
             abort(404, "Student or quiz don't exist.")
@@ -223,12 +224,12 @@ class QuizAttendedStudents(Resource):
         return make_response(jsonify(responses))
 
 
-api.add_resource(ClassQuiz, "/class_quiz/<string:class_quiz_id>")
+api.add_resource(ClassQuiz, "/class_quiz/<string:class_quiz_uuid>")
 api.add_resource(ClassQuizGenerator,
-                 "/class_quiz/<int:class_quiz_id>/generate")
+                 "/class_quiz/<string:class_quiz_uuid>/generate")
 api.add_resource(ClassQuizList, "/class_quiz")
 api.add_resource(QuizReportCard, "/class_quiz/report_card/<string:uuid>")
 api.add_resource(
-    QuizAttendedStudents, "/class_quiz/<int:class_quiz_id>/attended_students"
+    QuizAttendedStudents, "/class_quiz/<string:class_quiz_uuid>/attended_students"
 )
-api.add_resource(GradedQuizzes, "/class_quiz/<int:quizId>/graded")
+api.add_resource(GradedQuizzes, "/class_quiz/<string:quizUUId>/graded")

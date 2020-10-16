@@ -45,7 +45,7 @@ const router = new Router({
       }
     },
     {
-      path: '/quiz/:id',
+      path: '/quiz/:uuid',
       name: 'Quiz',
       component: () => import(/* webpackChunkName: "Quiz" */ './views/Quiz'),
       meta: {
