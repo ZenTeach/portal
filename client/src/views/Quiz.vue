@@ -101,12 +101,12 @@ export default {
   mounted: function () {
     // TODO: Finalize loading and rendering the quiz
     // then move to making the session get request.
-    this.$store.dispatch('quiz/LOAD_QUIZ', this.$route.params.id)
-    this.$store.dispatch('quiz/FETCH_GRADEDQUIZZES', this.$route.params.id)
+    this.$store.dispatch('quiz/LOAD_QUIZ', this.$route.params.uuid)
+    this.$store.dispatch('quiz/FETCH_GRADEDQUIZZES', this.$route.params.uuid)
   },
   computed: {
-    quiz_id () {
-      return this.$route.params.id
+    quiz_uuid () {
+      return this.$route.params.uuid
     },
     ...mapGetters({
       subject: 'quiz/subject',
@@ -118,7 +118,7 @@ export default {
 
   methods: {
     handlePDFGeneration () {
-      Api.post(`/class_quiz/${this.quiz_id}/generate`, {
+      Api.post(`/class_quiz/${this.quiz_uuid}/generate`, {
         type: 'pdf'
       })
     }
