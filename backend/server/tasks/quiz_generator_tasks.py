@@ -1,6 +1,5 @@
 
 import os
-from pathlib import Path
 
 from celery.utils.log import get_task_logger
 from flask_mail import Message
@@ -17,8 +16,7 @@ logger = get_task_logger(__name__)
 def generate_pdf(self, quiz_id):
     generator = None
     try:
-        template_directory = Path(os.getenv('TEMPLATE_DIR'))\
-            .joinpath('/api')
+        template_directory = f"{os.getenv('TEMPLATE_DIR')}/api"
         generator = QuizGenerator(
             "{}".format(template_directory),
             "demo.html",

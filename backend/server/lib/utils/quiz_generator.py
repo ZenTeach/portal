@@ -23,7 +23,7 @@ class QuizGenerator:
 
     def generate(self, quiz_id):
         if not self.check_directories(self.template_dir):
-            raise OSError("Directories don't exist")
+            raise OSError(f"Directory {self.template_dir} doesn't exist")
 
         quiz = ClassQuizModel.query.filter_by(id=quiz_id).first()
         if not quiz:
