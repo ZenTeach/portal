@@ -306,3 +306,4 @@ token.pickle
 backend/server/lib/interfaces/client_id.json
 
 students.csv
+**/static/uploaded/**
