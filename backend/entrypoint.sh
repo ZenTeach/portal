@@ -19,9 +19,9 @@ pre-commit install -c $PRECOMMIT_CONFIG
 if [[ "$1" == "init" ]] ;then
     echo "Deleting database schema"
     python manage.py truncate_tables
+    python manage.py seed
 fi
 
-python manage.py seed
 
 celery multi start worker1 \
     -A celery_worker.celery -B -l info
