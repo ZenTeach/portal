@@ -51,6 +51,7 @@ class Questions(BaseModelMixin, db.Model):
     choices = db.relationship("QuestionChoice", backref="question")
     knowledge_item = db.Column(db.String(256), nullable=False)
     search_vector = db.Column(TSVectorType("question"))
+    image_url = db.Column(db.Text, nullable=True)
 
     def __init__(
         self,
@@ -63,6 +64,7 @@ class Questions(BaseModelMixin, db.Model):
         correct_choice_id,
         uuid=uuid4(),
         choices=[],
+        image_url=""
     ):
         if question_type == QuestionTypeEnum.multiple_choice:
             try:
@@ -79,6 +81,7 @@ class Questions(BaseModelMixin, db.Model):
         self.uuid = uuid
         self.correct_choice_id = correct_choice_id
         self.choices = choices
+        self.image_url = image_url
 
     @classmethod
     def create_from_admin_form(cls, data):
