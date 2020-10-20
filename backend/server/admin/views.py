@@ -1,13 +1,16 @@
 import json
+import os
+import re
 from functools import reduce
 from html import escape
+from pathlib import Path
 
 import flask_admin as admin
 from flask import current_app, flash, redirect, request, session, url_for
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.contrib.sqla.fields import InlineModelFormList
 from flask_admin.contrib.sqla.form import InlineModelConverter
-from flask_admin.form import RenderTemplateWidget, SecureForm
+from flask_admin.form import ImageUploadField, RenderTemplateWidget, SecureForm
 from flask_admin.model.form import InlineFormAdmin
 from flask_login import current_user, login_user, logout_user
 from flask_wtf.csrf import _FlaskFormCSRF
@@ -205,8 +208,56 @@ def selected_correct_choice(form_data, field):
     return [int(x["id"]) for x in form_data["choices"] if x.get(field) == True][0]  # noqa
 
 
+class CustomImageUploadInputWidget(object):
+    empty_template = ('<input %(file)s>')
+
+    data_template = ('<div class="image-thumbnail">'
+                     ' <img %(image)s>'
+                     ' <input type="checkbox" name="%(marker)s">Delete</input>'
+                     ' <input %(text)s>'
+                     '</div>'
+                     '<input %(file)s>')
+
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        kwargs.setdefault('name', field.name)
+
+        args = {
+            'text': html_params(type='hidden',
+                                value=field.data,
+                                name=field.name),
+            'file': html_params(type='file',
+                                **kwargs),
+            'marker': '_%s-delete' % field.name
+        }
+
+        url_re = r'^https:\/\/*'
+        if field.data and isinstance(field.data, str):
+            if re.match(url_re, field.data):
+                url = field.data
+            else:
+                url = self.get_url(field)
+            args['image'] = html_params(src=url)
+
+            template = self.data_template
+        else:
+            template = self.empty_template
+
+        return Markup(template % args)
+
+    def get_local_url(self, data):
+        pass
+
+
+class CustomImageUploadField(ImageUploadField):
+    widget = CustomImageUploadInputWidget()
+
+
+file_path = str(Path(os.environ.get('TMP_DIR')).resolve())
+
+
 class QuestionView(BaseView):
-    column_exclude_list = ["search_vector", "uuid"]
+    column_exclude_list = ["search_vector", "uuid", "image_url"]
     column_filters = ("topic", "question_type", "subject", "knowledge_item")
     column_formatters = {
         "choices": json_formatter,
@@ -221,6 +272,7 @@ class QuestionView(BaseView):
                          'tag',
                          'question_type',
                          'question',
+                         'image_url',
                          'choices')
 
     form_args = {
@@ -239,8 +291,14 @@ class QuestionView(BaseView):
             ]
         ),
     }
+
     form_excluded_columns = ["uuid", "choices",
                              "correct_choice", "correct_choice_id"]
+
+    form_extra_fields = {
+        'image_url': CustomImageUploadField('Image')
+    }
+
     detail_modal = True
     inline_model_form_converter = CustomInlineModelConverter
     inline_models = (QuestionChoiceInlineModelForm(),)
