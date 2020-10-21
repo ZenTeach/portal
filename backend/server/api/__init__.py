@@ -29,8 +29,3 @@ def site_map():
 @root_api.route("/ping")
 def ping():
     return "pong", 200
-
-
-@root_api.route("/debug-sentry")
-def debug():
-    return 1 / 0
