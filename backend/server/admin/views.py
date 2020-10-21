@@ -1,9 +1,7 @@
 import json
-import os
 import re
 from functools import reduce
 from html import escape
-from pathlib import Path
 
 import flask_admin as admin
 from flask import current_app, flash, redirect, request, session, url_for
@@ -251,9 +249,6 @@ class CustomImageUploadInputWidget(object):
 
 class CustomImageUploadField(ImageUploadField):
     widget = CustomImageUploadInputWidget()
-
-
-file_path = str(Path(os.environ.get('TMP_DIR')).resolve())
 
 
 class QuestionView(BaseView):
