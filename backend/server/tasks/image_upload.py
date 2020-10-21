@@ -18,7 +18,6 @@ REGION = "eu-west-2"
 logger = get_task_logger(__name__)
 s3 = boto3.resource('s3')
 s3_client = client('s3')
-bucket = s3.Bucket(BUCKET)
 
 
 def get_image_key(image_file_name):
