@@ -25,7 +25,7 @@ class BaseConfig:
     CELERY_TRACK_STARTED = True
     CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
-    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
+    DEFAULT_MAIL_SENDER = os.environ.get("DEFAULT_MAIL_SENDER")
     TMP_DIR = str(Path(os.environ.get('TMP_DIR')).resolve())
     CLIENT_URL = os.environ.get('CLIENT_URL')
 
