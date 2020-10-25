@@ -50,7 +50,7 @@ class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_TEST_URL")
     JWT_SECRET_KEY = token_urlsafe()
     JWT_BLACKLIST_ENABLED = False
-    MAIL_DEFAULT_SENDER = "no-reply@tester.com"
+    MAIL_DEFAULT_SENDER = os.environ.get('no-reply@tester.com')
 
 
 class ProductionConfig(BaseConfig):
