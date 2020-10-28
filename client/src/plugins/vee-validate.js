@@ -18,7 +18,7 @@ extend('min', {
 
 extend('confirmed', {
   ...confirmed,
-  message: 'This {_field_} should not be different from {_target_}.'
+  message: 'This {_field_} should not be different.'
 })
 
 extend('email', {
