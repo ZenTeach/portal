@@ -75,7 +75,7 @@
                 ></v-text-field>
                 </ValidationProvider>
 
-                <ValidationProvider rules="required|confirmed:password" name="passwordConfirmation" v-slot="{errors}">
+                <ValidationProvider rules="required|confirmed:password" name="Password Confirmation" v-slot="{errors}">
                 <v-text-field
                   id="password-confirmation"
                   v-model="passwordConfirmation"
