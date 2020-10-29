@@ -154,6 +154,7 @@ pytest-timeout = "*"
 idna-ssl = "*"
 boto = "*"
 vcrpy = "*"
+pytest-recording = "*"
 
 [requires]
 python_version = "3.7"
