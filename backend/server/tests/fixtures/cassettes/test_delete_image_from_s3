@@ -4,10 +4,10 @@ interactions:
     headers:
       Authorization:
       - !!binary |
-        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPUFLSUFYR1A2RVc1U0EySVdXT1pNLzIwMjAxMDIw
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPUFLSUFYR1A2RVc1U0EySVdXT1pNLzIwMjAxMDI5
         L2V1LXdlc3QtMi9zMy9hd3M0X3JlcXVlc3QsIFNpZ25lZEhlYWRlcnM9Y29udGVudC1tZDU7aG9z
-        dDt4LWFtei1jb250ZW50LXNoYTI1Njt4LWFtei1kYXRlLCBTaWduYXR1cmU9Yzg2MjBhZjVkYTNj
-        Zjk4NjgzYTMxZDZlZDQ3YzExNzhmZTkzNWNhN2E5YzQxZTQzN2M5MjE3ZDZkZGY2ZmUyYg==
+        dDt4LWFtei1jb250ZW50LXNoYTI1Njt4LWFtei1kYXRlLCBTaWduYXR1cmU9M2U5ZDdkOTk1M2I1
+        ZGE4ZTAyNmE0NmUxMTRiOGViNTZiZjc2ZjVkZTU2ZTcyODVhNTU1MjdiNzZhMGUzMmYyZg==
       Content-Length:
       - '125'
       Content-MD5:
@@ -23,29 +23,29 @@ interactions:
         YTY1ZjkxNQ==
       X-Amz-Date:
       - !!binary |
-        MjAyMDEwMjBUMjExNTA1Wg==
+        MjAyMDEwMjlUMTgzMzQxWg==
     method: POST
-    uri: https://stage-question-assets-bucket.s3.eu-west-2.amazonaws.com/?delete
+    uri: https://test-question-assets-bucket.s3.eu-west-2.amazonaws.com/?delete
   response:
     body:
       string: '<?xml version="1.0" encoding="UTF-8"?>
 
-        <DeleteResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Deleted><Key>10991443cc42fcac84ac3e16f2ad3788</Key><DeleteMarker>true</DeleteMarker><DeleteMarkerVersionId>d4XaYlWadlFE4YfoYU73k6enpXteAGuw</DeleteMarkerVersionId></Deleted></DeleteResult>'
+        <DeleteResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Deleted><Key>10991443cc42fcac84ac3e16f2ad3788</Key></Deleted></DeleteResult>'
     headers:
       Connection:
       - close
       Content-Type:
       - application/xml
       Date:
-      - Tue, 20 Oct 2020 21:15:06 GMT
+      - Thu, 29 Oct 2020 18:33:43 GMT
       Server:
       - AmazonS3
       Transfer-Encoding:
       - chunked
       x-amz-id-2:
-      - VXiOjZdf0+n4q99mvvQBH1/1rBUn3A8Q8HB4k3FbrPoai/5dcimYcPET9zgJv1vx135juupuLbo=
+      - nohwbJ4Irm7bAs2hs8E+LWG4R4Prq3MAot20/2tiBH1V0SYURrg0GV6LYv9+pGlHcWb+wFIOO4k=
       x-amz-request-id:
-      - 653D9CB47CF5CCBB
+      - ABF2905B91D86A97
     status:
       code: 200
       message: OK

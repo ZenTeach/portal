@@ -41,6 +41,8 @@ class TestImageUpload:
         key = get_image_key(filename)
         assert re.match(regex, key)
 
+    @pytest.mark.vcr
+    @pytest.mark.block_network(allowed_hosts=["localhost"])
     @vcr.use_cassette()
     def test_upload_image_to_s3(self, file_fixture_dir):
         image_location = os.path.join(file_fixture_dir, "test_question_image.jpeg")
@@ -49,6 +51,8 @@ class TestImageUpload:
         assert url is not None
         assert re.match(url_regex, url)
 
+    @pytest.mark.vcr
+    @pytest.mark.block_network(allowed_hosts=["localhost"])
     @vcr.use_cassette()
     def test_delete_image_from_s3(self):
         o_id = '10991443cc42fcac84ac3e16f2ad3788'

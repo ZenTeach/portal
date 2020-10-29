@@ -424,11 +424,11 @@ interactions:
     headers:
       Authorization:
       - !!binary |
-        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPUFLSUFYR1A2RVc1U0EySVdXT1pNLzIwMjAxMDIw
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPUFLSUFYR1A2RVc1U0EySVdXT1pNLzIwMjAxMDI5
         L2V1LXdlc3QtMi9zMy9hd3M0X3JlcXVlc3QsIFNpZ25lZEhlYWRlcnM9Y29udGVudC1tZDU7aG9z
-        dDt4LWFtei1hY2w7eC1hbXotY29udGVudC1zaGEyNTY7eC1hbXotZGF0ZSwgU2lnbmF0dXJlPTcw
-        ZGJiMjVmMjlmODJhNzM3NzA0ZDg0YjI0MmJjMDE1ODI1ZGRjYzVkZTUwMTliNDViOTE5MTQ1YzZh
-        YmYyNTQ=
+        dDt4LWFtei1hY2w7eC1hbXotY29udGVudC1zaGEyNTY7eC1hbXotZGF0ZSwgU2lnbmF0dXJlPTlj
+        MDNjMDMzNDg5NTNkYjQxZTRhZWZkNjM3YjMyMTgyZmMxMzVhNjhjMGYwOWRiZjliNDI1Y2I4ZWQ0
+        Nzg5OGU=
       Content-Length:
       - '23698'
       Content-MD5:
@@ -445,12 +445,12 @@ interactions:
         VU5TSUdORUQtUEFZTE9BRA==
       X-Amz-Date:
       - !!binary |
-        MjAyMDEwMjBUMjExNTAzWg==
+        MjAyMDEwMjlUMTgzMzQxWg==
       x-amz-acl:
       - !!binary |
         cHVibGljLXJlYWQ=
     method: PUT
-    uri: https://stage-question-assets-bucket.s3.eu-west-2.amazonaws.com/test_question_image_8b500d6b96e7deaf5bd1bfd255a990cf.jpeg
+    uri: https://test-question-assets-bucket.s3.eu-west-2.amazonaws.com/test_question_image_8b500d6b96e7deaf5bd1bfd255a990cf.jpeg
   response:
     body:
       string: ''
@@ -458,17 +458,15 @@ interactions:
       Content-Length:
       - '0'
       Date:
-      - Tue, 20 Oct 2020 21:15:05 GMT
+      - Thu, 29 Oct 2020 18:33:42 GMT
       ETag:
       - '"0690d33390135709c565460d38806af8"'
       Server:
       - AmazonS3
       x-amz-id-2:
-      - tRZ3hU5FXYfkSN9zUSuHh1vJCBETq9HoTm42x11dg9ccS+xsHthT8N1uTsXkZl74IRWGIoJ0gB0=
+      - DHHtnQyWoJniryRi1PJRNWrmAu06bMlyR0KQPK9/FLoeqC2jkbi/m6+qimG3Zpa0ExOUFRDRtgE=
       x-amz-request-id:
-      - 4B55A5898C063405
-      x-amz-version-id:
-      - P53gUCyTxv4hPovXWqYCgawHuQRl3UQP
+      - EB54A988B1A5E9F1
     status:
       code: 200
       message: OK
