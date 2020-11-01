@@ -13,7 +13,7 @@ from server import celery
 BUCKET = os.environ.get('AWS_QUESTIONS_BUCKET')
 AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-REGION = "eu-west-2"
+REGION = os.environ.get('AWS_REGION', 'eu-west-2')
 
 logger = get_task_logger(__name__)
 s3 = boto3.resource('s3')
@@ -62,7 +62,3 @@ def delete_from_tmp_image_directory(dir):
 @celery.task(bind=True)
 def refresh_image_to_s3(image_dir, image_url):
     pass
-
-# @celery.task(bind=True)
-# def upload_image_to_s3(image_dir):
-#     pass

@@ -51,7 +51,6 @@ def dbsession(engine):
 
 @pytest.fixture(autouse=True)
 def after_each_cleanup(mocker):
-    # import pdb; pdb.set_trace()
     mocker.resetall()
 
 
