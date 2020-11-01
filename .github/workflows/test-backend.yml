@@ -19,6 +19,8 @@ jobs:
       CLIENT_URL: http://localhost:8080
       TMP_DIR: /tmp
       AWS_QUESTIONS_BUCKET: test-question-assets-bucket
+      AWS_ACCESS_KEY_ID: ""
+      AWS_SECRET_ACCESS_KEY: ""
     defaults:
       run:
         working-directory: backend
