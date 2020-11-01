@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import pytest
 from pytest_factoryboy import register
@@ -50,5 +51,9 @@ def dbsession(engine):
 
 @pytest.fixture(autouse=True)
 def after_each_cleanup(mocker):
-    # import pdb; pdb.set_trace()
     mocker.resetall()
+
+
+@pytest.fixture(autouse=True)
+def file_fixture_dir():
+    return Path.joinpath(Path(__file__).parent, 'fixtures/files').as_posix()
