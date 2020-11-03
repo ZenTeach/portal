@@ -28,6 +28,8 @@ class BaseConfig:
     DEFAULT_MAIL_SENDER = os.environ.get("DEFAULT_MAIL_SENDER")
     TMP_DIR = str(Path(os.environ.get('TMP_DIR')).resolve())
     CLIENT_URL = os.environ.get('CLIENT_URL')
+    IMAGE_ALLOWED_EXTENSIONS = ['png', 'jpeg', 'jpg']
+    UPLOAD_FOLDER = '/tmp'  # nosec
 
 
 class DevelopmentConfig(BaseConfig):
@@ -43,6 +45,7 @@ class DevelopmentConfig(BaseConfig):
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ("access", "refresh")
     WTF_CSRF_TIME_LIMIT = 3600
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'server/static/uploaded')
 
 
 class TestingConfig(BaseConfig):
@@ -72,3 +75,4 @@ class ProductionConfig(BaseConfig):
     JWT_COOKIE_DOMAIN = os.environ.get('JWT_COOKIE_DOMAIN', None)
     PROPAGATE_EXCEPTIONS = True
     SECRET_KEY = token_urlsafe()
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'server/static/uploaded')

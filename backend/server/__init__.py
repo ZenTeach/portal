@@ -2,7 +2,8 @@ import logging
 import os
 
 from celery import Celery
-from flask import Flask, has_request_context, jsonify, make_response, request
+from flask import (Flask, current_app, has_request_context, jsonify,
+                   make_response, request)
 from flask.logging import default_handler
 from flask_admin import Admin
 from flask_bcrypt import Bcrypt
@@ -16,6 +17,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from sqlalchemy.pool import Pool
 from sqlalchemy_searchable import make_searchable
+from werkzeug import LocalProxy
 
 
 def configure_logging():
@@ -54,6 +56,7 @@ mail = Mail()
 celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
 app = None
+globalConfig = LocalProxy(lambda: current_app.config)
 
 
 @event.listens_for(Pool, "checkout")
@@ -196,6 +199,6 @@ def create_app():
 
     @app.shell_context_processor
     def ctx():
-        return {"app": app, "db": db}
+        return {"app": app, "db": db, "globalConfig": globalConfig}
 
     return app
