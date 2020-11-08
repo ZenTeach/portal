@@ -13,9 +13,9 @@ from flask_admin.model.form import InlineFormAdmin
 from flask_login import current_user, login_user, logout_user
 from flask_wtf.csrf import _FlaskFormCSRF
 from jinja2 import Markup
+from server import bcrypt
 from server import db as sdb
 from server.models import Admin, QuestionChoice, Questions, Student, Teacher
-from werkzeug.security import check_password_hash
 from wtforms import (BooleanField, IntegerField, SelectField, StringField,
                      TextField, fields, form, validators)
 from wtforms.compat import text_type
@@ -78,9 +78,7 @@ class LoginForm(form.Form):
             raise validators.ValidationError("Invalid user")
 
         # we're comparing the plaintext pw with the the hash from the sdb
-        if not check_password_hash(user.password, self.password.data):
-            # to compare plain text passwords use
-            # if user.password != self.password.data:
+        if not bcrypt.check_password_hash(user.password, self.password.data.encode('utf-8')):
             raise validators.ValidationError("Invalid password")
 
     def get_user(self):
