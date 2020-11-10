@@ -1,6 +1,7 @@
 import datetime
 from uuid import uuid4
 
+from flask_bcrypt import generate_password_hash
 from server.models import Admin, SchoolClass, Student, Teacher
 
 from .questions import question_seeds
@@ -24,7 +25,7 @@ def seeds():
         lastname="doe",
         email="john.doe+2@example.com",
         date_of_birth="04-04-1975",
-        password=password,
+        password=generate_password_hash(password, 12).decode('utf-8'),
         role="Admin",
         uuid=uuid4(),
     ).save()

@@ -47,6 +47,10 @@ div.fill {
 	border-radius: 0;
 }
 
+.has-error {
+	color: red;
+}
+
 .nav-pills li > a {
 	border-radius: 0;
 }
