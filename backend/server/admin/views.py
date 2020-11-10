@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from functools import reduce
 from html import escape
@@ -21,6 +22,8 @@ from wtforms import (BooleanField, IntegerField, SelectField, StringField,
 from wtforms.compat import text_type
 from wtforms.meta import DefaultMeta
 from wtforms.widgets import HTMLString, TextInput, html_params
+
+logger = logging.getLogger('admin::view')
 
 
 class CustomSecureForm(SecureForm):
@@ -71,15 +74,24 @@ class LoginForm(form.Form):
         render_kw={"placeholder": "password"}
     )
 
-    def validate_login(self, field):
+    def validate(self):
+        return self.validate_login()
+
+    def validate_login(self):
         user = self.get_user()
 
         if user is None:
-            raise validators.ValidationError("Invalid user")
+            self.email.errors = "User not found"
+            return False
 
         # we're comparing the plaintext pw with the the hash from the sdb
         if not bcrypt.check_password_hash(user.password, self.password.data.encode('utf-8')):
-            raise validators.ValidationError("Invalid password")
+            self.password.errors = "Incorrect password"
+            return False
+
+        logger.info('Password accepted')
+
+        return True
 
     def get_user(self):
         return sdb.session.query(Admin).filter_by(email=self.email.data).first()

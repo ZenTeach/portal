@@ -17,11 +17,7 @@
 					<!-- {{ f.label }} -->
 					{{ f }}
 					{% if f.errors %}
-					<ul>
-						{% for e in f.errors %}
-						<li>{{ e }}</li>
-						{% endfor %}
-					</ul>
+					<p class="has-error"> {{ f.errors }}</p>
 					{% endif %}
             	</div>
             {% endfor %}
