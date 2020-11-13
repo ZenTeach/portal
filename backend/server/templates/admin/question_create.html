@@ -6,8 +6,9 @@
 	<hr>
   {% call lib.form_tag(form) %}
       {{ lib.render_form_fields(form, form_opts=form_opts) }}
-      <div class="form-buttons">
-        {{ lib.render_form_buttons(return_url, extra()) }}
+      <div class="col-md-offset-2 col-md-10 submit-row">
+        <input type="submit" class="btn btn-primary" value="{{ _gettext('Save') }}" />
+        <input type="button" class="btn btn-danger" onclick="window.location='{{ return_url }}'" value="cancel"/>
       </div>
   {% endcall %}
 {% endblock %}
