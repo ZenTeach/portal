@@ -25,8 +25,9 @@ def configure_logging():
     logging.getLogger("werkzeug").setLevel(logging.INFO)
 
 
-mpl_logger = logging.getLogger("matplotlib")
-mpl_logger.setLevel(logging.WARNING)
+logging.getLogger("matplotlib").setLevel(logging.WARNING)
+logging.getLogger("botocore").setLevel(logging.WARNING)
+logging.getLogger('boto3').setLevel(logging.WARNING)
 
 
 class RequestFormatter(logging.Formatter):
