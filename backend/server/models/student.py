@@ -47,15 +47,16 @@ class Student(BaseModelMixin, db.Model):
             self.password = bcrypt.generate_password_hash(
                 password).decode("utf-8")
         self.role = role
+        self.classes = classes
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<Student %s>" % (self.firstname + " " + self.lastname)
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         return "{} {}".format(self.firstname, self.lastname)
 
-    def add_quiz_score(self, quiz, response):
+    def add_quiz_score(self, quiz, response) -> None:
         from .quiz_grade import QuizGrade
 
         self.quiz_grade.append(
@@ -63,7 +64,7 @@ class Student(BaseModelMixin, db.Model):
         )
 
     @classmethod
-    def create_from_list(cls, lst):
+    def create_from_list(cls, lst) -> None:
         if len(lst) == 0:
             return
         errors = []
@@ -82,7 +83,11 @@ class Student(BaseModelMixin, db.Model):
 
 @event.listens_for(Student.classes, "append")
 def student_class_append_listener(target, value, initiator):
-    value.add_student(target)
+    if isinstance(value, list):
+        [item.add_student(target) for item in value]
+    else:
+        value.add_student(target)
+
     target.save()
 
 
@@ -92,4 +97,12 @@ def student_class_remove_listener(target, value, initiator):
         "DELETE FROM student_attended_class WHERE school_class_id=%s AND student_id=%s",
         value.id,
         target.id,
+    )
+
+
+@event.listens_for(Student.classes, 'dispose_collection')
+def delete_student_classes(target, collection, collection_adapter):
+    db.engine.execute(
+        "DELETE FROM student_attended_class WHERE student_id=%s",
+        target.id
     )
