@@ -28,6 +28,19 @@ def engine():
     return create_engine(os.environ.get("DATABASE_TEST_URL"))
 
 
+@pytest.fixture
+def app():
+    app = create_app()
+    return app
+
+
+@pytest.fixture
+def selenium(selenium):
+    selenium.implicitly_wait(10)
+    selenium.maximize_window()
+    return selenium
+
+
 @pytest.fixture(scope="function")
 def client():
     app = create_app()
@@ -60,3 +73,9 @@ def after_each_cleanup(mocker):
 @pytest.fixture(autouse=True)
 def file_fixture_dir():
     return Path.joinpath(Path(__file__).parent, 'fixtures/files').as_posix()
+
+
+@pytest.fixture
+def chrome_options(chrome_options):
+    chrome_options.add_argument('--headless')
+    return chrome_options
