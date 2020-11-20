@@ -49,7 +49,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - name: Check out repository code
         uses: actions/checkout@v2
-      - name: install packages
+      - name: Install packages
         run: |
           echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list && \
           echo "deb http://deb.debian.org/debian stretch-backports main" >> /etc/apt/sources.list.d/sources.list && \
@@ -57,7 +57,7 @@ jobs:
           apt-get install -y build-essential python3-dev python3-pip python3-setuptools python3-wheel python3-cffi && \
           apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 && \
           apt-get install -y libgdk-pixbuf2.0-0 libffi-dev shared-mime-info &&  \
-          apt-get install -y gfortran wget zlib1g zlib1g-dev && \
+          apt-get install -y gfortran wget unzip curl zlib1g zlib1g-dev && \
           apt-get install -y libfreetype6 libfreetype6-dev libpng-dev libopenblas-dev && \
           apt-get install -y netcat-openbsd libssl-dev python3-scipy libcurl4-openssl-dev python-pycurl && \
           apt-get install -y shared-mime-info libjpeg-dev fonts-open-sans
@@ -67,8 +67,8 @@ jobs:
       - name: Install chromedriver
         run: |
            cd /tmp && wget https://chromedriver.storage.googleapis.com/87.0.4280.20/chromedriver_linux64.zip && \
-           unzip chromedriver_linux64.zip && sudo mv chromedriver /usr/local/bin && \
-           sudo chmod +x /usr/local/bin/chromedriver
+           unzip chromedriver_linux64.zip && mv chromedriver /usr/local/bin && \
+           chmod +x /usr/local/bin/chromedriver
 
       - name: Install dependencies
         run: pipenv install
