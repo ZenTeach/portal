@@ -1,4 +1,5 @@
 import os
+from logging import CRITICAL, getLogger
 from pathlib import Path
 
 import pytest
@@ -18,6 +19,8 @@ register(QuizGradeFactory, "quiz_grade")
 register(QuizSessionFactory, "quiz_session")
 register(StudentFactory, "student")
 register(QuestionChoiceFactory)
+
+getLogger('factory').setLevel(CRITICAL)
 
 
 @pytest.fixture(scope="session")
