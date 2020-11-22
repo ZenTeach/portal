@@ -56,13 +56,18 @@ jobs:
           apt-get update && \
           apt-get install -y build-essential sudo python3-dev python3-pip python3-setuptools python3-wheel python3-cffi && \
           apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 && \
-          apt-get install -y libgdk-pixbuf2.0-0 libffi-dev shared-mime-info libnss3-dev &&  \
+          apt-get install -y libgdk-pixbuf2.0-0 libffi-dev shared-mime-info libnss3-dev libx11-xcb1 &&  \
           apt-get install -y gfortran wget unzip curl zlib1g zlib1g-dev && \
           apt-get install -y libfreetype6 libfreetype6-dev libpng-dev libopenblas-dev && \
           apt-get install -y netcat-openbsd libssl-dev python3-scipy libcurl4-openssl-dev python-pycurl && \
           apt-get install -y shared-mime-info libjpeg-dev fonts-open-sans
           wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
           apt-get update && apt-get install -y libpq-dev && pip install pipenv
+
+      - name: Install Google Chrome Binary
+        run: |
+          cd /tmp && wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+          apt-get install -y ./google-chrome-stable_current_amd64.deb
 
       - name: Setup Chromedriver
         uses: nanasess/setup-chromedriver@master
@@ -86,5 +91,4 @@ jobs:
 
       - name: Run tests
         run: |
-          echo "chromedriver installed is $(chromedriver --version)"
           pipenv run pytest --timeout 600 --cov=server/ --driver Chrome

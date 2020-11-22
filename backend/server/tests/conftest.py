@@ -77,5 +77,8 @@ def file_fixture_dir():
 
 @pytest.fixture
 def chrome_options(chrome_options):
+    chrome_options.binary_location = '/usr/bin/google-chrome'
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--headless')
     return chrome_options
