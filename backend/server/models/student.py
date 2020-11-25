@@ -79,6 +79,22 @@ class Student(BaseModelMixin, db.Model):
             QuizGrade(student=self, class_quiz=quiz, responses=response)
         )
 
+    def remove_class(self, class_: SchoolClass) -> None:
+        class_attended: StudentAttendedClass = StudentAttendedClass.query\
+            .filter_by(student_id=self.id, school_class_id=class_.id).first()
+        class_attended.delete()
+
+    @classmethod
+    def remove_model(cls, model: 'Student') -> None:
+        classes: List[StudentAttendedClass] = StudentAttendedClass.query.filter_by(
+            student_id=model.id).all()
+
+        if len(classes) > 0:
+            for _class in classes:
+                _class.delete()
+
+        model.delete()
+
     @classmethod
     def create_from_list(cls, lst) -> None:
         if len(lst) == 0:
@@ -113,12 +129,4 @@ def student_class_remove_listener(target, value, initiator):
         "DELETE FROM student_attended_class WHERE school_class_id=%s AND student_id=%s",
         value.id,
         target.id,
-    )
-
-
-@event.listens_for(Student.classes, 'dispose_collection')
-def delete_student_classes(target, collection, collection_adapter):
-    db.engine.execute(
-        "DELETE FROM student_attended_class WHERE student_id=%s",
-        target.id
     )
