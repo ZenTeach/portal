@@ -12,6 +12,10 @@ class BaseModelMixin(object):
         db.session.add(self)
         db.session.commit()
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
 
 def unique_uuid4(x: Optional[UUID] = None) -> UUID:
     if x is None:

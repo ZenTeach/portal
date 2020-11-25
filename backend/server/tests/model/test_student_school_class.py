@@ -56,3 +56,12 @@ def test_school_class_with_multiple_students(client, classroom_, students_):
         obj.save()
 
     assert classroom_.students == students_
+
+
+def test_student_attended_class_deletion(client, student_: 'Student', classrooms_):
+    for class_ in classrooms_:
+        student_.add_to_class(class_)
+
+    [_sac.delete() for _sac in StudentAttendedClass.query.filter_by(student_id=student_.id).all()]
+
+    assert StudentAttendedClass.query.filter_by(student_id=student_.id).count() == 0
