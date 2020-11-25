@@ -1,4 +1,5 @@
 import datetime
+from random import choice
 from uuid import uuid4
 
 from flask_bcrypt import generate_password_hash
@@ -51,9 +52,16 @@ def seeds():
         uuid=uuid4(),
     )
 
-    # interim = StudentAttendedClass()
-    # interim.school_class_association = s
-    # interim.student_association = class_student
+    # classrooms
+    for i in range(2, 6):
+        SchoolClass(
+            id=i,
+            name=f"Atoms-{i}",
+            subject=choice(["Chemistry", "Biology", "Physics"]),
+            start_date=datetime.date.today(),
+            teacher_id=class_teacher_id,
+            uuid=uuid4(),
+        ).save()
 
     # Add Quiz
     # _class = SchoolClass.query.first()
@@ -64,7 +72,6 @@ def seeds():
     #                 variants=3,
     #                 questions=)
     s.add_student(class_student)
-    s.save()
 
 
 def run_seed():

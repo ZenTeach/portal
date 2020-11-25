@@ -53,9 +53,7 @@ class SchoolClass(BaseModelMixin, db.Model):
     def add_student(self, student):
         from .student_school_class import StudentAttendedClass
 
-        self.student_attended_classes.append(
-            StudentAttendedClass(student=student, school_class=self)
-        )
+        StudentAttendedClass(student=student, school_class=self).save()
 
     def remove_student(self, student_id):
         from .student_school_class import StudentAttendedClass

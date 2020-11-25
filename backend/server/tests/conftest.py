@@ -1,6 +1,7 @@
 import os
 from logging import CRITICAL, getLogger
 from pathlib import Path
+from shutil import which
 
 import pytest
 from pytest_factoryboy import register
@@ -75,9 +76,17 @@ def file_fixture_dir():
     return Path.joinpath(Path(__file__).parent, 'fixtures/files').as_posix()
 
 
+def chrome_like_binary() -> str:
+    chromium_binary = which('chromium')
+    if chromium_binary is None:
+        chromium_binary = which('google-chrome')
+
+    return chromium_binary
+
+
 @pytest.fixture
 def chrome_options(chrome_options):
-    chrome_options.binary_location = '/usr/bin/google-chrome'
+    chrome_options.binary_location = f"{chrome_like_binary()}"
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--headless')

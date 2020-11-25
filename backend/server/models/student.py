@@ -1,7 +1,9 @@
 import random
 import string
+from typing import List, Union
 
 from server import bcrypt, db
+from server.models import SchoolClass, StudentAttendedClass
 from server.models.base_model import BaseModelMixin
 from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import UUID
@@ -47,7 +49,8 @@ class Student(BaseModelMixin, db.Model):
             self.password = bcrypt.generate_password_hash(
                 password).decode("utf-8")
         self.role = role
-        self.classes = classes
+        # Note to self: Setting class like this doesn't work for some reason
+        # self.classes = classes
 
     def __repr__(self) -> str:
         return "<Student %s>" % (self.firstname + " " + self.lastname)
@@ -55,6 +58,19 @@ class Student(BaseModelMixin, db.Model):
     @property
     def full_name(self) -> str:
         return "{} {}".format(self.firstname, self.lastname)
+
+    def add_to_class(self, classroom: SchoolClass) -> None:
+        """
+            Adds student to class.
+            e.g student.add_to_class(class)
+        """
+        StudentAttendedClass(self, classroom).save()
+
+    def add_from_class_list(self, classrooms: List[SchoolClass]) -> None:
+        """
+            Adds classes to a student
+        """
+        [self.add_to_class(_class) for _class in classrooms]
 
     def add_quiz_score(self, quiz, response) -> None:
         from .quiz_grade import QuizGrade
@@ -82,13 +98,13 @@ class Student(BaseModelMixin, db.Model):
 
 
 @event.listens_for(Student.classes, "append")
-def student_class_append_listener(target, value, initiator):
+def student_class_append_listener(target: Student,
+                                  value: Union[List[SchoolClass], SchoolClass],
+                                  initiator):
     if isinstance(value, list):
-        [item.add_student(target) for item in value]
+        [target.add_to_class(item) for item in value]
     else:
-        value.add_student(target)
-
-    target.save()
+        target.add_to_class(value)
 
 
 @event.listens_for(Student.classes, "remove")
