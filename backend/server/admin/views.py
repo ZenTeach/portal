@@ -373,6 +373,14 @@ class StudentView(BaseView):
         except Exception as e:
             flash("Failed to create record: {}".format(str(e)), "error")
 
+    def delete_model(self, model):
+        try:
+            Student.remove_model(model)
+            flash("Successfully deleted student", "success")
+        except Exception as e:
+            logger.error("Failed to delete record: {}".format(str(e)))
+            flash("Failed to delete record: {}".format(str(e)), "error")
+
 
 class TeacherView(BaseView):
     column_exclude_list = ["password",
