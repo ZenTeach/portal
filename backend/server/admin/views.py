@@ -362,9 +362,13 @@ class StudentView(BaseView):
     def create_model(self, form):
         try:
             instance = Student(
-                form.data["firstname"], form.data["lastname"], form.data["email"]
+                form.data["firstname"],
+                form.data["lastname"],
+                form.data["email"]
             )
+
             instance.save()
+            instance.add_from_class_list(form.data["classes"])
             return redirect(url_for("admin.student.index_view"))
         except Exception as e:
             flash("Failed to create record: {}".format(str(e)), "error")

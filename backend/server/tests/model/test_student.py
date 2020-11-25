@@ -40,13 +40,24 @@ def test_student_model_is_saved(client, student_):
     assert st.role == "Student"
 
 
-@pytest.mark.skip
-def test_student_save_with_class(client, student_, classrooms_):
-    st = Student(**student_, classes=classrooms_)
+def test_student_add_to_class(client, student_, classroom_):
+    st = Student(**student_)
     st.save()
 
+    st.add_to_class(classroom_)
+
+    assert len(st.classes) != 0
+    assert st.classes[0] == classroom_
+
+
+def test_student_save_with_class(client, student_, classroom_):
+    st = Student(**student_)
+    st.save()
+
+    st.add_to_class(classroom_)
+
     assert st.id is not None
-    assert st.classes == classrooms_
+    assert st.classes[0] == classroom_
 
 
 @pytest.mark.skip
@@ -60,10 +71,11 @@ def test_student_class_remove(client, student_, classroom_):
     assert st.classes == []
 
 
-@pytest.mark.skip("Skipped until fixing primary key contraints for student_attended_class")
 def test_student_class_append(client, student_, classrooms_, classroom_):
     st = Student(**student_, classes=classrooms_)
     st.save()
+
+    st.add_from_class_list(classrooms_)
 
     assert len(st.classes) == 5
 
