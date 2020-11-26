@@ -2,7 +2,6 @@ from typing import List
 
 import pytest
 from factory import build
-from server import db
 from server.models import SchoolClass, Student, StudentAttendedClass, Teacher
 from server.tests.factories import (SchoolClassFactory, StudentFactory,
                                     TeacherFactory)
@@ -60,14 +59,14 @@ def test_student_save_with_class(client, student_, classroom_):
     assert st.classes[0] == classroom_
 
 
-@pytest.mark.skip
 def test_student_class_remove(client, student_, classroom_):
-    st = Student(**student_, classes=[classroom_])
+    st = Student(**student_)
     st.save()
 
-    del st.classes[0]
+    st.add_to_class(classroom_)
+    assert len(st.classes) > 0
 
-    assert st.id is not None
+    st.remove_class(classroom_)
     assert st.classes == []
 
 
@@ -84,12 +83,13 @@ def test_student_class_append(client, student_, classrooms_, classroom_):
     assert len(st.classes) == 6
 
 
-@pytest.mark.skip("Skipped until fixing primary key contraints for student_attended_class")
 def test_student_remove(client, student_, classrooms_):
-    st = Student(**student_, classes=classrooms_)
-    # st.save()
-    db.session.refresh(st)
+    st = Student(**student_)
+    st.save()
+    st.add_from_class_list(classrooms_)
 
+    assert Student.query.count() == 1
     assert StudentAttendedClass.query.filter_by(student_id=st.id).count() == 5
 
+    Student.remove_model(st)
     assert StudentAttendedClass.query.filter_by(student_id=st.id).count() == 0
