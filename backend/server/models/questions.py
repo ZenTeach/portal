@@ -1,4 +1,6 @@
 import enum
+from enum import Enum
+from typing import List, Optional
 from uuid import uuid4
 
 from flask_sqlalchemy import BaseQuery
@@ -9,6 +11,8 @@ from server.models.base_model import BaseModelMixin
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy_searchable import SearchQueryMixin
 from sqlalchemy_utils.types import TSVectorType
+
+from .base_model import unique_uuid4
 
 
 class QuestionsQuery(BaseQuery, SearchQueryMixin):
@@ -55,16 +59,16 @@ class Questions(BaseModelMixin, db.Model):
 
     def __init__(
         self,
-        question,
-        question_type,
-        subject,
-        topic,
-        tag,
-        knowledge_item,
-        correct_choice_id,
-        uuid=uuid4(),
-        choices=[],
-        image_url=""
+        question: str,
+        question_type: 'Enum',
+        subject: str,
+        topic: str,
+        tag: str,
+        knowledge_item: str,
+        correct_choice_id: int,
+        uuid: Optional[UUID] = None,
+        choices: Optional[List[QuestionChoice]] = [],
+        image_url: str = ""
     ):
         if question_type == QuestionTypeEnum.multiple_choice:
             try:
@@ -78,7 +82,10 @@ class Questions(BaseModelMixin, db.Model):
         self.topic = topic
         self.tag = tag
         self.knowledge_item = knowledge_item
-        self.uuid = uuid
+        if uuid is None:
+            self.uuid = unique_uuid4()
+
+        # self.uuid = uuid
         self.correct_choice_id = correct_choice_id
         self.choices = choices
         self.image_url = image_url

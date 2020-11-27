@@ -18,9 +18,7 @@ parser.add_argument("subject", required=True,
 
 
 class QuestionList(Resource):
-    method_decorators = [jwt_required]
-
-    @with_required_roles(["Teacher", "Admin"])
+    @jwt_required
     def get(self):
         args = parser.parse_args()
         question_list = Questions.query.filter_by(
@@ -30,7 +28,7 @@ class QuestionList(Resource):
                            for question in question_list]}, 200
         )
 
-    @with_required_roles(["Teacher", "Admin"])
+    @jwt_required
     def post(self):
         data = request.get_json()
         error_object = jsonify(
