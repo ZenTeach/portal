@@ -1,5 +1,4 @@
 from random import choice
-from uuid import uuid4
 
 from factory import RelatedFactoryList, Trait
 from factory.alchemy import SQLAlchemyModelFactory
@@ -27,7 +26,6 @@ class QuestionsFactory(SQLAlchemyModelFactory):
             choices=RelatedFactoryList('server.tests.factories.QuestionChoiceFactory',
                                        size=4)
         )
-    uuid = uuid4()
     question = fake.sentence()
     knowledge_item = fake.words()
     tag = fake.words()

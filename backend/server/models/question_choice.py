@@ -1,9 +1,11 @@
+from typing import Optional
 from uuid import uuid4
 
 from server import db
-# from server.models import ChoiceFeedback as FeedbackModel
 from server.models.base_model import BaseModelMixin
 from sqlalchemy.dialects.postgresql import UUID
+
+from .base_model import unique_uuid4
 
 
 class QuestionChoice(db.Model, BaseModelMixin):
@@ -16,10 +18,11 @@ class QuestionChoice(db.Model, BaseModelMixin):
     uuid = db.Column(UUID(as_uuid=True), unique=True,
                      nullable=False, default=uuid4())
 
-    def __init__(self, value, feedback, weight=0, uuid=uuid4()):
+    def __init__(self, value: str, feedback: str, weight: int = 0, uuid: Optional[UUID] = None):
         self.value = value
         self.weight = weight
-        self.uuid = uuid
+        if uuid is None:
+            self.uuid = unique_uuid4()
         self.feedback = feedback
 
     @property
