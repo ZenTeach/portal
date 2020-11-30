@@ -6,7 +6,7 @@ from server import db
 from server.api import api_logger
 from server.decorators import with_required_roles
 from server.models import Questions, QuestionsSchema, QuestionTypeEnum
-from sqlalchemy import exc
+from sqlalchemy import bindparam, exc, text
 
 question_blueprint = Blueprint("question", __name__)
 api = Api(question_blueprint)
@@ -163,14 +163,12 @@ class QuestionKIFilter(Resource):
 
 class QuestionTopicFilter(Resource):
     @jwt_required
-    def get(self, subject):
-        if len(subject) == 0:
-            abort(404, "Topic is not given.")
-        topics = (
-            Questions.query.with_entities(Questions.topic)
-            .filter_by(subject=subject)
-            .all()
-        )
+    def get(self, subject: str):
+        topics_query = text("SELECT topic FROM questions WHERE subject ~* :subject")
+        topics_query = topics_query.bindparams(bindparam('subject'))
+        result = db.session.execute(topics_query, {'subject': subject.lower()})
+        topics = result.fetchall()
+
         response = [x for (x,) in topics]
         return make_response(jsonify(response), 200)
 

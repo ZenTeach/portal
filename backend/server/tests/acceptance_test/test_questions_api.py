@@ -43,22 +43,28 @@ def test_knowledge_item_filter(client: FlaskClient, mocker: MockFixture):
     assert len(data) == kis
 
 
-def test_topic_filter(client: FlaskClient, mocker: MockFixture):
+@pytest.mark.parametrize('param,status_code,topics',
+                         [pytest.param('chemistry', 200, 10),
+                          pytest.param('canjas', 200, 0)])
+def test_topic_filter(client: FlaskClient,
+                      mocker: MockFixture,
+                      param: str,
+                      status_code: int,
+                      topics: int):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    response = client.get("/api/v1/question/filter/topic/Chemistry")
+    response = client.get(f"/api/v1/question/filter/topic/{param}")
     data = json.loads(response.data)
-    topic_count = Questions.query.with_entities(Questions.topic)\
-        .filter_by(subject="Chemistry")\
-        .count()
 
-    assert response.status_code == 200
-    assert len(data) == topic_count
+    assert response.status_code == status_code
+    assert len(data) == topics
 
 
-@pytest.mark.xfail(reason="Api param normalization not implemented yet")
-def test_topic_filters_with_case_normalization(client: FlaskClient, mocker: MockFixture):
+@pytest.mark.parametrize('subject', ['chemistry', 'Chemistry'])
+def test_topic_filters_with_case_normalization(client: FlaskClient,
+                                               mocker: MockFixture,
+                                               subject: str):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    response = client.get("/api/v1/question/filter/topic/Chemistry")
+    response = client.get(f"/api/v1/question/filter/topic/{subject}")
 
     data = json.loads(response.data)
 
