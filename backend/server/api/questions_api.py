@@ -1,5 +1,5 @@
 
-from flask import Blueprint, abort, jsonify, make_response, request
+from flask import Blueprint, jsonify, make_response, request
 from flask_jwt_extended import jwt_required
 from flask_restful import Api, Resource, reqparse
 from server import db
@@ -149,14 +149,30 @@ class QuestionSearch(Resource):
 
 class QuestionKIFilter(Resource):
     @jwt_required
-    def get(self, topic):
-        if len(topic) == 0:
-            abort(404, "Topic is not given.")
+    def post(self):
+        """
+            POST /api/v1/question/filter/ki
+            payload:
+                {
+                    topics_selected: [topic_1, topic_2]
+                }
+        """
+        data = request.get_json()
+
+        topics_selected = data.get("topics_selected")
+
+        if topics_selected is None:
+            return make_response("Please select topics first.", 400)
+
+        if len(topics_selected) == 0:
+            return make_response("", 404)
+
         kis = (
             Questions.query.with_entities(Questions.knowledge_item)
-            .filter_by(topic=topic)
+            .filter(Questions.topic.in_(topics_selected))
             .all()
         )
+
         response = [x for (x,) in kis]
         return make_response(jsonify(response), 200)
 
@@ -177,5 +193,5 @@ api.add_resource(QuestionPing, "/question/ping")
 api.add_resource(Question, "/question/<question_id>")
 api.add_resource(QuestionList, "/question")
 api.add_resource(QuestionSearch, "/question/search")
-api.add_resource(QuestionKIFilter, "/question/filter/ki/<string:topic>")
+api.add_resource(QuestionKIFilter, "/question/filter/ki")
 api.add_resource(QuestionTopicFilter, "/question/filter/topic/<string:subject>")
