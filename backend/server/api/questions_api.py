@@ -1,4 +1,3 @@
-
 from flask import Blueprint, jsonify, make_response, request
 from flask_jwt_extended import jwt_required
 from flask_restful import Api, Resource, reqparse
@@ -6,7 +5,7 @@ from server import db
 from server.api import api_logger
 from server.decorators import with_required_roles
 from server.models import Questions, QuestionsSchema, QuestionTypeEnum
-from sqlalchemy import bindparam, exc, text
+from sqlalchemy import exc
 
 question_blueprint = Blueprint("question", __name__)
 api = Api(question_blueprint)
@@ -21,8 +20,13 @@ class QuestionList(Resource):
     @jwt_required
     def get(self):
         args = parser.parse_args()
-        question_list = Questions.query.filter_by(
-            subject=args["subject"]).all()
+        question_list = None
+        if args["subject"] == "":
+            question_list = []
+        else:
+            question_list = Questions.query.filter(
+                Questions.subject.op('~*')(args["subject"])).all()
+
         return make_response(
             {"questions": [dumper.dump(question)
                            for question in question_list]}, 200
@@ -41,6 +45,8 @@ class QuestionList(Resource):
         question_type = QuestionTypeEnum(data.get("question_type"))
         subject = data.get("subject")
         topic = data.get("topic")
+        knowledge_item = data.get("knowledge_item")
+        correct_choice_id = data.get("correct_choice_id")
         tag = data.get("tag")
         choices = data.get("choices")
         try:
@@ -48,38 +54,39 @@ class QuestionList(Resource):
                 subject=subject, tag=tag, question=question
             ).first()
             if not question_entry:
-                db.session.add(
-                    Questions(
-                        question=question,
-                        question_type=question_type,
-                        subject=subject,
-                        topic=topic,
-                        tag=tag,
-                        choices=choices,
-                    )
-                )
-                db.session.commit()
+                Questions(
+                    question=question,
+                    question_type=question_type,
+                    subject=subject,
+                    topic=topic,
+                    tag=tag,
+                    knowledge_item=knowledge_item,
+                    correct_choice_id=correct_choice_id,
+                    choices=choices,
+                ).save()
+
                 response_object = jsonify(
                     {"status": "success", "message": "Question was added!"}
                 )
                 return make_response(response_object, 201)
             else:
-                error_object["message"] = "Question already exists."
-                return make_response(error_object, 400)
-        except exc.IntegrityError:
+                return make_response(jsonify({
+                    "status": "fail",
+                    "message": "Question already exists."
+                }), 400)
+        except Exception as e:
             db.session.rollback()
+            api_logger.error(e)
             return make_response(error_object, 500)
 
 
 class Question(Resource):
     method_decorators = [jwt_required]
 
-    @with_required_roles(["Teacher", "Admin"])
     def get(self, question_id):
         question = Questions.query.filter_by(id=question_id).first()
         return make_response({"question": dumper.dump(question)}, 200)
 
-    @with_required_roles(["Admin"])
     def delete(self, question_id):
         try:
             question = Questions.query.filter_by(id=question_id).first()
@@ -94,8 +101,9 @@ class Question(Resource):
             return make_response(
                 jsonify({
                     "message": "Deleted question {}".format(question.id)
-                }), 200)
-        except exc.IntegrityError:
+                }), 204)
+        except exc.IntegrityError as e:
+            api_logger.error(e)
             db.session.rollback()
             return make_response(
                 jsonify({
@@ -109,29 +117,18 @@ class Question(Resource):
         pass
 
 
-class QuestionPing(Resource):
-    def get(self):
-        return make_response(
-            {"status": "success", "message": "Pinged Questions API"}, 200
-        )
-
-
 class QuestionSearch(Resource):
     @jwt_required
     def post(self):
         query_params = request.get_json()
-        api_logger.debug(f"query_params: {query_params}")
         try:
-            result_set = (
-                Questions.query.search(query_params["query"])
-                .filter_by(
-                    subject=query_params["subject"],
-                    topic=query_params["topic"])
-                .filter(Questions
-                        .knowledge_item
-                        .in_(query_params["knowledge_item"]))
-                .all()
-            )
+            result_set = Questions.query.search(query_params["query"]).filter_by(
+                subject=query_params["subject"]
+            ).filter(
+                Questions.topic.in_(query_params["topic"])
+            ).filter(
+                Questions.knowledge_item.in_(query_params["knowledge_item"])
+            ).all()
 
             api_logger.debug(f"Result set length: {len(result_set)}")
             if len(result_set) != 0:
@@ -142,7 +139,7 @@ class QuestionSearch(Resource):
                 response = {"message": "No result found"}
                 return make_response(jsonify(response), 200)
         except Exception as e:
-            api_logger.debug(e)
+            api_logger.error(e)
             error_object = {"message": "Error processing request"}
             return make_response(jsonify(error_object), 500)
 
@@ -180,16 +177,12 @@ class QuestionKIFilter(Resource):
 class QuestionTopicFilter(Resource):
     @jwt_required
     def get(self, subject: str):
-        topics_query = text("SELECT topic FROM questions WHERE subject ~* :subject")
-        topics_query = topics_query.bindparams(bindparam('subject'))
-        result = db.session.execute(topics_query, {'subject': subject.lower()})
-        topics = result.fetchall()
-
+        topics = Questions.query.with_entities(Questions.topic)\
+            .filter(Questions.subject.op('~*')(subject)).all()
         response = [x for (x,) in topics]
         return make_response(jsonify(response), 200)
 
 
-api.add_resource(QuestionPing, "/question/ping")
 api.add_resource(Question, "/question/<question_id>")
 api.add_resource(QuestionList, "/question")
 api.add_resource(QuestionSearch, "/question/search")

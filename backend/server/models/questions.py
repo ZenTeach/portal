@@ -1,5 +1,4 @@
 import enum
-from enum import Enum
 from typing import List, Optional
 from uuid import uuid4
 
@@ -60,7 +59,7 @@ class Questions(BaseModelMixin, db.Model):
     def __init__(
         self,
         question: str,
-        question_type: 'Enum',
+        question_type: 'enum.Enum',
         subject: str,
         topic: str,
         tag: str,

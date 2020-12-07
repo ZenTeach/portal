@@ -1,9 +1,12 @@
 import json
+from random import choice
 from typing import List, Union
 
 import pytest
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
+from server.models import QuestionsSchema
+from server.models.questions import Questions
 from server.tests.factories import QuestionsFactory
 
 
@@ -17,20 +20,36 @@ def populate_questions(client: FlaskClient):
     QuestionsFactory.create_batch(5, subject="chemistry", multiple_choice_question_type=True)
 
 
+@pytest.fixture
+def question_payload():
+    built_question = QuestionsFactory.build(multiple_choice_question_type=True)
+    return QuestionsSchema().dump(built_question)
+
+
 def mock_get_jwt_identity():
     return {
         "role": "Teacher"
     }
 
 
-def test_question_list_get(client: FlaskClient, mocker: MockFixture):
+@pytest.mark.parametrize("subject,count,status", [
+    pytest.param("Chemistry", 13, 200),
+    pytest.param("chemistry", 13, 200),
+    pytest.param("bcahsj", 0, 200),
+    pytest.param("", 0, 200)
+])
+def test_question_list_get(client: FlaskClient,
+                           mocker: MockFixture,
+                           subject: str,
+                           count: int,
+                           status: int):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    response = client.get("api/v1/question?subject=Chemistry")
+    response = client.get(f"api/v1/question?subject={subject}")
 
-    assert response.status_code == 200
+    assert response.status_code == status
 
     data = json.loads(response.data)
-    assert len(data["questions"]) == 8
+    assert len(data["questions"]) == count
 
 
 @pytest.mark.parametrize("topics,topic_count,status_code",
@@ -100,3 +119,81 @@ def test_topic_filters_with_case_normalization(client: FlaskClient,
 
     assert response.status_code == 200
     assert len(data) == 13
+
+
+def test_question_create_api(client: FlaskClient,
+                             question_payload: dict,
+                             mocker: MockFixture):
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    question_payload['correct_choice_id'] = choice([1, 2, 3, 4])
+    response = client.post("/api/v1/question",
+                           json=question_payload)
+
+    assert response.status_code == 201
+
+
+def test_question_create_api_question_already_existing(client: FlaskClient,
+                                                       question_payload: dict,
+                                                       mocker: MockFixture):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    existing_question = Questions.query.first()
+    question_payload['subject'] = existing_question.subject
+    question_payload['tag'] = existing_question.tag
+    question_payload['question'] = existing_question.question
+
+    response = client.post("/api/v1/question", json=question_payload)
+
+    assert response.status_code == 400
+
+
+def test_question_create_api_empty_data(client: FlaskClient, mocker: MockFixture):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    response = client.post("/api/v1/question")
+
+    assert response.status_code == 400
+
+
+def test_question_create_api_exception_handling(client: FlaskClient,
+                                                question_payload: dict,
+                                                mocker: MockFixture):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    question_payload["correct_choice_id"] = None
+    response = client.post("/api/v1/question", json=question_payload)
+    assert response.status_code == 500
+
+
+def test_question_get_item(client: FlaskClient, mocker: MockFixture):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    question = Questions.query.first()
+    response = client.get(f"/api/v1/question/{question.id}")
+
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert data["question"]["id"] == question.id
+
+
+def test_question_delete_api(client: FlaskClient, mocker: MockFixture):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    question = Questions.query.first()
+    response = client.delete(f"/api/v1/question/{question.id}")
+
+    assert response.status_code == 204
+
+
+def test_question_delete_api_not_existing_id(client: FlaskClient, mocker: MockFixture):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    question_id = 10000
+    response = client.delete(f"/api/v1/question/{question_id}")
+
+    assert response.status_code == 400
+
+
+@pytest.mark.xfail(reason="Broken mock")
+def test_question_delete_api_exception_handling(client: FlaskClient, mocker: MockFixture):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch("server.db.session.delete", lambda e: Exception(""))
+    question_id = Questions.query.first().id
+    response = client.delete(f"/api/v1/question/{question_id}")
+
+    assert response.status_code == 500
