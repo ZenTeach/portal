@@ -16,7 +16,7 @@ export default {
   name: 'QuestionSearch',
   props: {
     subject: String,
-    topic: String,
+    topics: Array,
     knowledge_items: Array
   },
   data () {
@@ -29,7 +29,7 @@ export default {
       this.$store.dispatch('app/QUERY_QUESTIONS', {
         query: this.searchInput,
         subject: this.subject,
-        topic: this.topic,
+        topic: this.topics,
         knowledge_item: this.knowledge_items
       }, { root: true })
 

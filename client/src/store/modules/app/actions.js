@@ -13,8 +13,8 @@ export default {
       })
   },
 
-  FETCH_KIS ({ commit, dispatch }, topic) {
-    fetchKis(topic)
+  FETCH_KIS ({ commit, dispatch }, topics) {
+    fetchKis(topics)
       .then(result => {
         commit('app/UPDATE_KIS', result, { root: true })
       })

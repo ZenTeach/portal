@@ -18,12 +18,19 @@ class QuestionChoice(db.Model, BaseModelMixin):
     uuid = db.Column(UUID(as_uuid=True), unique=True,
                      nullable=False, default=uuid4())
 
-    def __init__(self, value: str, feedback: str, weight: int = 0, uuid: Optional[UUID] = None):
+    def __init__(self,
+                 value: str,
+                 feedback: str,
+                 weight: int = 0,
+                 uuid: Optional[UUID] = None,
+                 question_id: Optional[int] = None):
         self.value = value
         self.weight = weight
         if uuid is None:
             self.uuid = unique_uuid4()
         self.feedback = feedback
+        if question_id is not None:
+            self.question_id = question_id
 
     @property
     def is_correct_choice(self):
