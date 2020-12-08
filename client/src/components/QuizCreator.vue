@@ -26,10 +26,12 @@
             <v-select
               :items="questionTopics"
               required
+              multiple
+              chips
               @change="fetch_KIs()"
               label="Topic: "
-              v-model="topicSelected"
-              :rules="[() => topicSelected.length > 0 || 'You must choose at least one']"
+              v-model="topicsSelected"
+              :rules="[() => topicsSelected.length > 0 || 'You must choose at least one']"
             ></v-select>
 
             <v-spacer class="ma-3 mb-3"></v-spacer>
@@ -54,7 +56,7 @@
         <v-card color="grey lighten-4" class="mx-auto">
           <v-card-title>Search for Questions</v-card-title>
           <v-card-text>
-            <question-search v-bind:subject="subject" v-bind:topic="topicSelected" v-bind:knowledge_items="selectedKnowledgeItems" v-on:update:searchResult="populateSearchResult"/>
+            <question-search v-bind:subject="subject" v-bind:topics="topicsSelected" v-bind:knowledge_items="selectedKnowledgeItems" v-on:update:searchResult="populateSearchResult"/>
             <question-search-result v-bind:resultSet="questionSearch" v-show="hasSearchResult"/>
           </v-card-text>
           <v-card-actions>
@@ -129,7 +131,7 @@ export default {
         quizMaxScore: 0,
         questionSearchResult: [],
         hasSearchResult: false,
-        topicSelected: '',
+        topicsSelected: [],
         questionKnowledgeItems: {
           'Atomic Structure': ['DEFINITION ATOM', 'ELECTRON MASS AND CHARGE', 'DEFINITION ELEMENT'],
           'Chemical Bonds': ['DEFINITION MIXTURE', 'DEFINITION COMPOUND']
@@ -161,7 +163,10 @@ export default {
       this.hasSearchResult = e
     },
     fetch_KIs () {
-      this.$store.dispatch('app/FETCH_KIS', this.topicSelected, { root: true })
+      const payload = {
+        topics_selected: this.topicsSelected
+      }
+      this.$store.dispatch('app/FETCH_KIS', payload, { root: true })
     }
     // fetchTopic () {
     //   this.$store.dispatch('app/FETCH_TOPICS', this.topicSelected, { root: true })

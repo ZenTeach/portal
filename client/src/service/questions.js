@@ -7,8 +7,8 @@ export function fetchQuestions (searchPayload) {
     .then(data => data)
 }
 
-export function fetchKis (topic) {
-  return Api.get(`/question/filter/ki/${topic}`)
+export function fetchKis (topics) {
+  return Api.post('/question/filter/ki', topics)
     .then(handleResponse)
     .then(data => data)
 }
