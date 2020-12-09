@@ -144,6 +144,32 @@ class QuestionSearch(Resource):
             return make_response(jsonify(error_object), 500)
 
 
+class QuestionFromKIsAndTopics(Resource):
+    @jwt_required
+    def post(self):
+        json_payload = request.get_json()
+        topics = json_payload.get("topics", [])
+        kis = json_payload.get("kis", [])
+        query = Questions.query
+
+        if len(topics) == 0 and len(kis) == 0:
+            return make_response(jsonify({
+                'message': 'Topic and Knowledge Items not set'
+            }), 400)
+
+        if len(topics) != 0:
+            query = query.filter(Questions.topic.in_(topics))
+        if len(kis) != 0:
+            query = query.filter(Questions.knowledge_item.in_(kis))
+
+        questions = query.all()
+
+        response = {"data": [dumper.dump(
+                    question) for question in questions]}
+
+        return make_response(response, 200)
+
+
 class QuestionKIFilter(Resource):
     @jwt_required
     def post(self):
@@ -199,3 +225,4 @@ api.add_resource(QuestionList, "/question")
 api.add_resource(QuestionSearch, "/question/search")
 api.add_resource(QuestionKIFilter, "/question/filter/ki")
 api.add_resource(QuestionTopicFilter, "/question/filter/topic/<string:subject>")
+api.add_resource(QuestionFromKIsAndTopics, "/question/fetch")

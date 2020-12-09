@@ -14,6 +14,9 @@ from server.tests.factories import QuestionsFactory
 def populate_questions(client: FlaskClient):
     QuestionsFactory.create_batch(5, subject="Physics", topic="testKI",
                                   multiple_choice_question_type=True)
+    QuestionsFactory.create_batch(5, subject="Physics", topic="testKI",
+                                  knowledge_item="Testing value",
+                                  multiple_choice_question_type=True)
     QuestionsFactory.create_batch(3, subject="Chemistry", topic="anotherKI",
                                   multiple_choice_question_type=True)
     QuestionsFactory.create_batch(5, subject="Chemistry", multiple_choice_question_type=True)
@@ -53,8 +56,8 @@ def test_question_list_get(client: FlaskClient,
 
 
 @pytest.mark.parametrize("topics,topic_count,status_code",
-                         [pytest.param(["testKI"], 5, 200),
-                          pytest.param(["testKI", "anotherKI"], 8, 200)])
+                         [pytest.param(["testKI"], 10, 200),
+                          pytest.param(["testKI", "anotherKI"], 13, 200)])
 def test_knowledge_item_filter(client: FlaskClient,
                                mocker: MockFixture,
                                topics: List[str],
@@ -197,3 +200,50 @@ def test_question_delete_api_exception_handling(client: FlaskClient, mocker: Moc
     response = client.delete(f"/api/v1/question/{question_id}")
 
     assert response.status_code == 500
+
+
+@pytest.mark.parametrize('payload,count', [
+    pytest.param({
+        "topics": ["testKI"],
+        "kis": ["Testing value"]
+    }, 5),
+    pytest.param({
+        "topics": ["testKI"]
+    }, 10),
+    pytest.param({
+        "kis": ["Testing value"]
+    }, 5)
+])
+def test_question_filter_by_topics_kis(client: FlaskClient,
+                                       mocker: MockFixture,
+                                       payload: dict,
+                                       count: int):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+
+    response = client.post(
+        "/api/v1/question/fetch",
+        json=payload)
+
+    data = json.loads(response.data)
+    data = data['data']
+
+    assert response.status_code == 200
+    assert len(data) == count
+
+
+@pytest.mark.parametrize("payload", [
+    pytest.param({
+        "topics": [],
+        "kis": []
+    }),
+    pytest.param({})
+])
+def test_question_filter_by_topics_kis_error(client: FlaskClient,
+                                             mocker: MockFixture,
+                                             payload: dict):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    response = client.post(
+        "/api/v1/question/fetch",
+        json=payload)
+
+    assert response.status_code == 400
