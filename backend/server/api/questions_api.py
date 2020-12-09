@@ -163,24 +163,35 @@ class QuestionKIFilter(Resource):
 
         if len(topics_selected) == 0:
             return make_response("", 404)
+        try:
+            kis = (
+                Questions.query.with_entities(Questions.knowledge_item)
+                .filter(Questions.topic.in_(topics_selected))
+                .all()
+            )
 
-        kis = (
-            Questions.query.with_entities(Questions.knowledge_item)
-            .filter(Questions.topic.in_(topics_selected))
-            .all()
-        )
-
-        response = [x for (x,) in kis]
-        return make_response(jsonify(response), 200)
+            response = [x for (x,) in kis]
+            return make_response(jsonify(response), 200)
+        except Exception as e:
+            api_logger.error(e)
+            return make_response(jsonify({
+                "message": "Error filtering Knowledge Items"
+            }), 500)
 
 
 class QuestionTopicFilter(Resource):
     @jwt_required
     def get(self, subject: str):
-        topics = Questions.query.with_entities(Questions.topic)\
-            .filter(Questions.subject.op('~*')(subject)).all()
-        response = [x for (x,) in topics]
-        return make_response(jsonify(response), 200)
+        try:
+            topics = Questions.query.with_entities(Questions.topic)\
+                .filter(Questions.subject.op('~*')(subject)).all()
+            response = [x for (x,) in topics]
+            return make_response(jsonify(response), 200)
+        except Exception as e:
+            api_logger.error(e)
+            return make_response(jsonify({
+                'message': 'Error filtering topics'
+            }), 500)
 
 
 api.add_resource(Question, "/question/<question_id>")
