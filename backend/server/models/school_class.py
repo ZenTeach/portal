@@ -23,6 +23,8 @@ class SchoolClass(BaseModelMixin, db.Model):
         "Student", secondary="student_attended_class", viewonly=True
     )
 
+    year_group = db.Column(db.String(256), nullable=True)
+
     quizzes = db.relationship("ClassQuiz",
                               backref="school_class",
                               cascade="all, delete",
@@ -34,6 +36,7 @@ class SchoolClass(BaseModelMixin, db.Model):
                  subject: str,
                  start_date: Optional['datetime'] = datetime.now(),
                  teacher_id: Optional[int] = None,
+                 year_group: Optional[str] = None,
                  uuid: Optional[UUID] = None
                  ):
 
@@ -42,6 +45,7 @@ class SchoolClass(BaseModelMixin, db.Model):
         self.subject = subject
         self.start_date = start_date
         self.teacher_id = teacher_id
+        self.year_group = year_group
         if self.uuid is None:
             self.uuid = unique_uuid4()
         else:
@@ -71,5 +75,4 @@ class SchoolClass(BaseModelMixin, db.Model):
             _class.id,
         )
 
-        db.session.delete(_class)
-        db.session.commit()
+        _class.delete()
