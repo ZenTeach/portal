@@ -18,3 +18,12 @@ export function fetchTopics (subject) {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function fetchQuestionsFromTopicsAndKIs (topics, kis) {
+  return Api.post('/question/fetch', {
+    topics: topics,
+    kis: kis
+  })
+    .then(handleResponse)
+    .then(data => data)
+}

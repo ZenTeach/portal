@@ -46,9 +46,12 @@
               v-model="selectedKnowledgeItems"
             ></v-select>
           </v-card-text>
-          <v-card-actions>
-            <v-btn color="primary" @click="curator = 2">Continue</v-btn>
-            <v-btn @click.native.prevent="closeDialog()">Cancel</v-btn>
+          <v-card-actions class="justify-space-between px-5">
+            <div>
+              <v-btn color="primary" class="mr-2" @click="curator = 2">Continue</v-btn>
+              <v-btn color="success" @click="createQuizFastTracked()">Finish</v-btn>
+            </div>
+            <v-btn @click.native.prevent="closeDialog()" class="float-left error">Cancel</v-btn>
           </v-card-actions>
         </v-card>
       </v-stepper-content>
@@ -59,9 +62,9 @@
             <question-search v-bind:subject="subject" v-bind:topics="topicsSelected" v-bind:knowledge_items="selectedKnowledgeItems" v-on:update:searchResult="populateSearchResult"/>
             <question-search-result v-bind:resultSet="questionSearch" v-show="hasSearchResult"/>
           </v-card-text>
-          <v-card-actions>
+          <v-card-actions class="justify-space-between px-5">
             <v-btn color="primary" @click="curator = 3">Continue</v-btn>
-            <v-btn @click.native.prevent="closeDialog()">Cancel</v-btn>
+            <v-btn @click.native.prevent="closeDialog()" class="float-left error">Cancel</v-btn>
           </v-card-actions>
         </v-card>
       </v-stepper-content>
@@ -75,9 +78,9 @@
               label="Variants"
             ></v-select>
             </v-card-text>
-            <v-card-actions>
+            <v-card-actions class="justify-space-between px-5">
               <v-btn color="primary" @click="createQuiz()">Continue</v-btn>
-              <v-btn @click.native.prevent="closeDialog()">Cancel</v-btn>
+              <v-btn @click.native.prevent="closeDialog()" class="float-left error">Cancel</v-btn>
             </v-card-actions>
           </v-card>
         </v-stepper-content>
@@ -91,7 +94,7 @@ import QuestionSearchResult from '@/components/QuestionSearchResult'
 import Api from '@/service/Api'
 
 import { createNamespacedHelpers } from 'vuex'
-const { mapState } = createNamespacedHelpers('app')
+const { mapState, mapActions } = createNamespacedHelpers('app')
 
 export default {
   name: 'QuizCreator',
@@ -114,9 +117,6 @@ export default {
       })
       return filtered.subject
     }
-    // async filteredKnowledgeItems () {
-    //   const filterKey = this.topicSelected
-    // }
   },
   mounted: function () {
     this.$store.dispatch('app/FETCH_TOPICS', this.subject, { root: true })
@@ -125,6 +125,9 @@ export default {
     return this.initial()
   },
   methods: {
+    ...mapActions({
+      fetchQuestionsFastTracked: 'FETCH_QUESTIONS_FASTTRACKED'
+    }),
     initial () {
       return {
         curator: 1,
@@ -142,7 +145,7 @@ export default {
     },
     createQuiz () {
       const payload = {
-        subject: 'Chemistry',
+        subject: this.subject,
         max_score: this.quizMaxScore,
         class_id: this.$route.params.id,
         variants: this.variantsSelected,
@@ -154,6 +157,13 @@ export default {
       ).then(() => {
         this.closeDialog()
       })
+    },
+    createQuizFastTracked () {
+      this.fetchQuestionsFastTracked(this.topicsSelected, this.selectedKnowledgeItems)
+        .then(() => {
+          this.hasSearchResult = true
+          this.curator = 3
+        })
     },
     closeDialog () {
       this.$emit('update:quizCreatorDialog', false)
@@ -168,9 +178,6 @@ export default {
       }
       this.$store.dispatch('app/FETCH_KIS', payload, { root: true })
     }
-    // fetchTopic () {
-    //   this.$store.dispatch('app/FETCH_TOPICS', this.topicSelected, { root: true })
-    // }
   }
 }
 </script>

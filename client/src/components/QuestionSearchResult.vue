@@ -19,7 +19,7 @@
                 </v-list-item-action>
 
                 <v-list-item-content>
-                  <v-edit-dialog
+                  <!-- <v-edit-dialog
                     :return-value.sync="item.question"
                     @save="save()"
                     ref="questionEditBox">
@@ -33,8 +33,8 @@
                         counter
                       ></v-text-field>
                     </template>
-                  </v-edit-dialog>
-
+                  </v-edit-dialog> -->
+                  <h3>{{item.question}}</h3>
                   <v-list-item-subtitle v-text="questionTypeMapping(item.question_type)"></v-list-item-subtitle>
                 </v-list-item-content>
               </template>
@@ -72,8 +72,6 @@ export default {
       }
       return types[type]
     },
-    debug (item) {
-    },
     addToSelectedQuestions (item, cb) {
       this.$store.commit('app/ADD_SELECTED_QUESTIONS', item, { root: true })
       cb()
@@ -81,8 +79,7 @@ export default {
     removeFromSelectedQuestions (item, cb) {
       this.$store.commit('app/REMOVE_SELECTED_QUESTIONS', item, { root: true })
       cb()
-    },
-    save () {}
+    }
   }
 }
 </script>
