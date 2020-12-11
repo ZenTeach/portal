@@ -31,7 +31,6 @@ class SchoolClass(BaseModelMixin, db.Model):
                               lazy=True)
 
     def __init__(self,
-                 id: int,
                  name: str,
                  subject: str,
                  start_date: Optional['datetime'] = datetime.now(),
@@ -39,8 +38,6 @@ class SchoolClass(BaseModelMixin, db.Model):
                  year_group: Optional[str] = None,
                  uuid: Optional[UUID] = None
                  ):
-
-        self.id = id
         self.name = name
         self.subject = subject
         self.start_date = start_date

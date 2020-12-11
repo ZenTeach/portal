@@ -56,6 +56,27 @@ class SchoolClass(Resource):
                 'message': 'Encountered an error while deleting classroom.'
             }), 500)
 
+    @jwt_required
+    def put(self, school_class_id):
+        update_data = request.get_json()
+        error_response = jsonify({"message": "Class room doesn't exist"})
+        class_room = SchoolClassModel.query.filter_by(
+            id=school_class_id).first()
+
+        if not class_room:
+            return make_response(error_response, 404)
+
+        try:
+            class_room.update_from_dict(update_data)
+            return make_response(jsonify({
+                'message': 'Update classroom succeeded!'
+            }), 200)
+        except Exception as e:
+            api_logger.error(e)
+            return make_response(jsonify({
+                'message': str(e)
+            }), 500)
+
 
 class SchoolClassList(Resource):
     @jwt_required
@@ -84,6 +105,7 @@ class SchoolClassList(Resource):
         name = post_data.get("name")
         subject = post_data.get("subject")
         start_date = post_data.get("start_date")
+        year_group = post_data.get("year_group")
         teacher_id = teacher["id"]
         try:
             school_class = SchoolClassModel.query.filter_by(name=name).first()
@@ -93,6 +115,7 @@ class SchoolClassList(Resource):
                     subject=subject,
                     start_date=start_date,
                     teacher_id=teacher_id,
+                    year_group=year_group
                 )
                 school_class.save()
                 response_object = jsonify(
@@ -161,13 +184,6 @@ class TeacherOwnedClass(Resource):
             return make_response(jsonify(error_object), 500)
 
 
-class SchoolClassPing(Resource):
-    def get(self):
-        return make_response(
-            jsonify({"status": "success", "message": "Pinged school class"})
-        )
-
-
 class SchoolClassStudent(Resource):
     @jwt_required
     def post(self, class_id):
@@ -225,7 +241,6 @@ class SchoolClassStudent(Resource):
             )
 
 
-api.add_resource(SchoolClassPing, "/school_class/ping")
 api.add_resource(SchoolClass, "/school_class/<int:school_class_id>")
 api.add_resource(SchoolClassOwned, "/school_class/owned/<teacher_id>")
 api.add_resource(TeacherOwnedClass, "/school_class/owned")
