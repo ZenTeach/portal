@@ -1,7 +1,6 @@
 from random import choice, randint
 
-from factory import (RelatedFactory, RelatedFactoryList, SelfAttribute,
-                     Sequence, Trait)
+from factory import RelatedFactory, RelatedFactoryList, SelfAttribute, Trait
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc, person
@@ -21,8 +20,6 @@ class SchoolClassFactory(SQLAlchemyModelFactory):
         model = SchoolClass
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
-
-    id = Sequence(lambda n: n)
 
     class Params:
         with_students = Trait(
