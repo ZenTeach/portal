@@ -16,6 +16,19 @@ class BaseModelMixin(object):
         db.session.delete(self)
         db.session.commit()
 
+    def reload(self):
+        db.session.refresh(self)
+
+    def update_from_dict(self, payload: dict) -> None:
+        """
+            update_from_dict
+        """
+        for item, value in payload.items():
+            if not hasattr(self, item):
+                raise Exception(f"Payload key {item} not found on model")
+
+            self.__setattr__(item, value)
+
 
 def unique_uuid4(x: Optional[UUID] = None) -> UUID:
     if x is None:
