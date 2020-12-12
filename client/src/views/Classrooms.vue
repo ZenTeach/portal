@@ -13,7 +13,6 @@
                 :items="classList"
                 :items-per-page="5"
                 class="elevation-1"
-                hide-default-footer
               >
                 <template v-slot:item.name="props">
                   <a :href="'/classroom/' + props.item.id">{{ props.item.name }}</a>
@@ -50,6 +49,10 @@
 
                               <ValidationProvider rules="required" name="subject">
                               <v-select :items="subjects" label="Subject" v-model="subject" outlined></v-select>
+                              </ValidationProvider>
+
+                              <ValidationProvider rules="required" name="Year group">
+                              <v-select :items="yearGroupSelection" label="Year Group" v-model="yearGroup" outlined></v-select>
                               </ValidationProvider>
 
                               <v-menu
@@ -135,6 +138,8 @@ export default {
         { text: '', sortable: false, value: 'actions' }
       ],
       subjects: ['Physics', 'Chemistry', 'Biology'],
+      yearGroupSelection: ['Year 7', 'Year 8', 'Year 9', 'Year 10', 'Year 11', 'Year 12', 'Year 13'],
+      yearGroup: '',
       dialog: false,
       start_date: new Date().toISOString().substr(0, 10),
       menu: false,
@@ -167,7 +172,8 @@ export default {
       const payload = {
         name: this.classname,
         subject: this.subject,
-        start_data: this.start_date
+        start_data: this.start_date,
+        year_group: this.yearGroup
       }
 
       this.createClass(payload)
