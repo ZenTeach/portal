@@ -22,11 +22,13 @@ def teacher_(client):
 
 
 class TestSchoolClassUI:
+    @pytest.mark.e2e
     def test_school_class_ui_is_visible(self, live_server, selenium):
         selenium.get(live_server.url('/admin/admin.class'))
         el = selenium.find_element_by_xpath('//*[@id="brand"]')
         assert el.text == 'School class list'
 
+    @pytest.mark.e2e
     def test_school_class_create_form_succeeds(self, live_server, selenium, teacher_: Teacher):
         selenium.get(live_server.url('/admin/admin.class'))
         sleep(1)

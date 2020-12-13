@@ -24,11 +24,13 @@ def create_objects(client):
 
 
 class TestAdminStudentUI:
+    @pytest.mark.e2e
     def test_student_ui_is_visible(self, live_server, selenium):
         selenium.get(live_server.url('/admin/admin.student'))
         el = selenium.find_element_by_xpath('//*[@id="brand"]')
         assert el.text == 'Student list'
 
+    @pytest.mark.e2e
     def test_student_delete_does_not_raise(self, live_server, selenium):
         selenium.get(live_server.url('/admin/admin.student'))
         delete_button = selenium.find_element_by_xpath(
@@ -43,6 +45,7 @@ class TestAdminStudentUI:
 
         assert '/admin/admin.student' in selenium.current_url
 
+    @pytest.mark.e2e
     @pytest.mark.xfail(reason="mocker patch is broken")
     def test_student_delete_flashes_message(self, live_server, selenium, mocker):
         mocker.patch('server.admin.views.Student.remove_model',

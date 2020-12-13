@@ -102,6 +102,9 @@ def pytest_runtest_makereport(item, call):
     if report.when == 'call':
         feature_request = item.funcargs['request']
         screenshot_dir = make_screenshot_dir()
+        markers = [marker.name for marker in item.own_markers]
+        if 'e2e' not in markers:
+            return
         driver = feature_request.getfixturevalue('selenium')
 
         # always add url to report
