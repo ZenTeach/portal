@@ -112,8 +112,8 @@ def pytest_runtest_makereport(item, call):
 
 
 def make_screenshot_dir() -> str:
-    path = os.path.join(os.getcwd(), "tmp", "selenium")
-    if not os.path.exists(path):
-        os.mkdir(path)
+    path = Path(f"{os.getcwd()}/tmp/selenium")  # nosec
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
 
-    return path
+    return str(path)
