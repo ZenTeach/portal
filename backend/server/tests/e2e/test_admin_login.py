@@ -15,6 +15,7 @@ def admin_(client):
 
 
 class TestAdmin:
+    @pytest.mark.e2e
     def test_admin_smoketest(self, live_server, selenium):
         assert live_server._process
         assert live_server._process.is_alive()
@@ -35,6 +36,7 @@ class TestAdmin:
         selenium.find_element_by_id("password").send_keys(admin_password)
         selenium.find_element_by_class_name("fourth").click()
 
+    @pytest.mark.e2e
     @pytest.mark.parametrize("admin_pass,expectation",
                              [
                                  pytest.param("", False),
