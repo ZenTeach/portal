@@ -344,6 +344,28 @@ class SchoolClassView(BaseView):
     form_excluded_columns = [
         "uuid", "student_attended_classes", "students", "quizzes"]
 
+    form_overrides = {"subject": SelectField, "year_group": SelectField}
+    form_args = {
+        "subject": dict(
+            choices=[
+                ("chemistry", "Chemistry"),
+                ("biology", "Biology"),
+                ("physics", "Physics"),
+            ]
+        ),
+        "year_group": dict(
+            choices=[
+                ("Year 7", "Year 7"),
+                ("Year 8", "Year 8"),
+                ("Year 9", "Year 9"),
+                ("Year 10", "Year 10"),
+                ("Year 11", "Year 11"),
+                ("Year 12", "Year 12"),
+                ("Year 13", "Year 13")
+            ]
+        )
+    }
+
 
 class StudentView(BaseView):
     column_exclude_list = ["password", "role", "uuid", "password"]
