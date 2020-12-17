@@ -1,11 +1,13 @@
 import enum
 import json
 from datetime import datetime
+from functools import reduce
 from typing import Optional
 from uuid import uuid4
 
 from flask import current_app
 from server import db
+from server.models import Questions
 from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import JSON, UUID
 
@@ -29,7 +31,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
     uuid = db.Column(UUID(as_uuid=True), unique=True,
                      nullable=True, default=uuid4())
     subject = db.Column(db.String(256), nullable=False)
-    max_score = db.Column(db.Integer, nullable=False)
+    max_score = db.Column(db.Integer, nullable=True)
     variants = db.Column(db.Integer, nullable=True, default=1)
     status = db.Column(
         db.Enum(ClassQuizStatus), nullable=False, default=ClassQuizStatus.created
@@ -55,9 +57,9 @@ class ClassQuiz(BaseModelMixin, db.Model):
     def __init__(
         self,
         subject: str,
-        max_score: int,
-        variants: int,
         class_id: int,
+        max_score: Optional[int] = None,
+        variants: Optional[int] = 0,
         questions: Optional[JSON] = None,
         status: 'ClassQuizStatus' = ClassQuizStatus.created,
         url: Optional[str] = None,
@@ -70,6 +72,10 @@ class ClassQuiz(BaseModelMixin, db.Model):
         self.status = status
         self.class_id = class_id
         self.questions = questions
+        if max_score is None:
+            self.max_score = self.set_maxscore()
+        else:
+            self.max_score = max_score
         if self.uuid is None:
             self.uuid = unique_uuid4()
         else:
@@ -94,6 +100,21 @@ class ClassQuiz(BaseModelMixin, db.Model):
 
         self.student_quiz_sessions.append(
             QuizSession(student=student, class_quiz=self))
+
+    def set_maxscore(self):
+        if self.questions is not None and len(self.questions) != 0:
+            # import pdb; pdb.set_trace()
+            try:
+                q_ids = [q["id"] for q in self.questions]
+                questions = Questions.query.filter(Questions.id.in_(q_ids)).all()
+                weights = [question.correct_choice().weight for question in questions]
+                score = reduce(lambda x, y: x + y, weights, 0)
+                self.max_score = score
+                self.save()
+            except Exception as e:
+                self.max_score = 0
+                self.save()
+                raise e
 
 
 @event.listens_for(ClassQuiz, 'before_insert')

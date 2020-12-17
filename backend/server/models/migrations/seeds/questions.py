@@ -44,3 +44,4 @@ def question_seeds():
             choices.append(choice_d)
 
             q.correct_choice_id = choice([x.id for x in choices])
+            q.save()

@@ -81,7 +81,6 @@ class ClassQuizList(Resource):
         subject = post_data.get("subject")
         max_score = post_data.get("max_score")
         class_id = post_data.get("class_id")
-        variants = post_data.get("variants")
         # TODO: Validate if questions exist in db
         questions = post_data.get("questions")
         try:
@@ -89,10 +88,9 @@ class ClassQuizList(Resource):
                 subject=subject,
                 max_score=max_score,
                 class_id=class_id,
-                variants=variants,
                 questions=questions,
             )
-            quiz.save()
+            quiz.set_maxscore()
             response_object = {"status": "success",
                                "message": "Quiz was added!"}
             send_quiz_generation_email.apply_async(args=[teacher_email, quiz.id])

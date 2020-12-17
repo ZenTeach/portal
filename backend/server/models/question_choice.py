@@ -45,3 +45,7 @@ class QuestionChoice(db.Model, BaseModelMixin):
 
     def __repr__(self):
         return "Choice: {}".format(self.value)
+
+    @classmethod
+    def empty_instance(cls):
+        return cls(value="")

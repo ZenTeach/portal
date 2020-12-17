@@ -5,6 +5,8 @@
 from marshmallow_enum import EnumField
 from server import ma
 
+from .question_choice import QuestionChoice
+from .questions import Questions, QuestionTypeEnum
 from .quiz_session import QuizSession, QuizSessionStatus
 from .quiz_grade import QuizGrade
 from .class_quiz import ClassQuiz, ClassQuizStatus
@@ -13,8 +15,6 @@ from .school_class import SchoolClass
 from .student import Student
 from .teacher import Teacher
 from .admin import Admin
-from .question_choice import QuestionChoice
-from .questions import Questions, QuestionTypeEnum
 from .migrations.seeds import run_seed
 from .invitations import Invitations
 

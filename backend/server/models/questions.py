@@ -119,3 +119,12 @@ class Questions(BaseModelMixin, db.Model):
     @classmethod
     def empty_instance(cls):
         return cls()
+
+    def correct_choice(self) -> QuestionChoice:
+        if self.correct_choice_id is None:
+            return None
+        choice = QuestionChoice.query.filter_by(id=self.correct_choice_id).first()
+        if choice is None:
+            choice = QuestionChoice.empty_instance()
+
+        return choice
