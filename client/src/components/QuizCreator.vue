@@ -9,7 +9,7 @@
 
       <v-divider></v-divider>
 
-      <v-stepper-step step="3" editable :complete="curator > 3">Select variants & finalize quiz</v-stepper-step>
+      <v-stepper-step step="3" editable :complete="curator > 3">Finalize quiz</v-stepper-step>
     </v-stepper-header>
 
     <v-stepper-items>
@@ -17,12 +17,6 @@
         <v-card color="grey lighten-4" class="mx-auto">
           <v-card-title>Select topics and knowledge items</v-card-title>
           <v-card-text>
-            <v-text-field
-              name="max_score"
-              label="Maximum Score"
-              outline
-              v-model="quizMaxScore"
-            ></v-text-field>
             <v-select
               :items="questionTopics"
               required
@@ -70,13 +64,26 @@
       </v-stepper-content>
       <v-stepper-content step="3">
         <v-card color="grey lighten-4" class="mx-auto">
-          <v-card-title>Select quiz variants</v-card-title>
-          <v-card-text>
-            <v-select
-              :items="Array.of(1,2,3,4)"
-              v-model="variantsSelected"
-              label="Variants"
-            ></v-select>
+          <v-card-title>Finalize Quiz</v-card-title>
+            <v-card-text>
+              <h4 class="text-subtitle-1">Selected topics & knowledge items</h4>
+              <v-list>
+                <v-list-group v-for="topic in topicsSelected" :key="topic">
+                    <v-icon :key="topic">
+                      mdi-checkbox
+                    </v-icon>
+                    <template v-slot:activator>
+                      <v-list-item-title>{{topic}}</v-list-item-title>
+                    </template>
+                    <!-- <p class="text-subtitle-1">Selected Knowledge Items:</p> -->
+                    <v-list-item v-for="kis in selectedKnowledgeItems" :key="kis">
+                      <v-list-item-title v-text="kis"></v-list-item-title>
+                      <v-list-item-icon>
+                        <v-icon>mdi-checkbox-marked-circle</v-icon>
+                      </v-list-item-icon>
+                    </v-list-item>
+                </v-list-group>
+              </v-list>
             </v-card-text>
             <v-card-actions class="justify-space-between px-5">
               <v-btn color="primary" @click="createQuiz()">Continue</v-btn>
@@ -131,24 +138,16 @@ export default {
     initial () {
       return {
         curator: 1,
-        quizMaxScore: 0,
         questionSearchResult: [],
         hasSearchResult: false,
         topicsSelected: [],
-        questionKnowledgeItems: {
-          'Atomic Structure': ['DEFINITION ATOM', 'ELECTRON MASS AND CHARGE', 'DEFINITION ELEMENT'],
-          'Chemical Bonds': ['DEFINITION MIXTURE', 'DEFINITION COMPOUND']
-        },
-        selectedKnowledgeItems: [],
-        variantsSelected: 1
+        selectedKnowledgeItems: []
       }
     },
     createQuiz () {
       const payload = {
         subject: this.subject,
-        max_score: this.quizMaxScore,
         class_id: this.$route.params.id,
-        variants: this.variantsSelected,
         questions: this.questionList
       }
       Api.post(
