@@ -1,5 +1,4 @@
 import enum
-import json
 from datetime import datetime
 from functools import reduce
 from typing import Optional
@@ -88,13 +87,6 @@ class ClassQuiz(BaseModelMixin, db.Model):
         self.status = new_status
         self.save()
 
-    def update_gform_id(self, project_id, deployment_id, version_number):
-        d = {"pid": project_id, "dep_id": deployment_id, "version": version_number}
-
-        self.gform_id = json.dumps(d)
-
-        self.save()
-
     def add_student_session(self, student):
         from .quiz_session import QuizSession
 
@@ -103,7 +95,6 @@ class ClassQuiz(BaseModelMixin, db.Model):
 
     def set_maxscore(self):
         if self.questions is not None and len(self.questions) != 0:
-            # import pdb; pdb.set_trace()
             try:
                 q_ids = [q["id"] for q in self.questions]
                 questions = Questions.query.filter(Questions.id.in_(q_ids)).all()
