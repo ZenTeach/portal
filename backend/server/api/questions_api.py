@@ -193,6 +193,7 @@ class QuestionKIFilter(Resource):
             kis = (
                 Questions.query.with_entities(Questions.knowledge_item)
                 .filter(Questions.topic.in_(topics_selected))
+                .filter(Questions.knowledge_item.isnot(None))
                 .all()
             )
 
@@ -210,7 +211,8 @@ class QuestionTopicFilter(Resource):
     def get(self, subject: str):
         try:
             topics = Questions.query.with_entities(Questions.topic)\
-                .filter(Questions.subject.op('~*')(subject)).all()
+                .filter(Questions.subject.op('~*')(subject))\
+                .filter(Questions.topic.isnot(None)).all()
             response = [x for (x,) in topics]
             return make_response(jsonify(response), 200)
         except Exception as e:

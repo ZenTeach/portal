@@ -19,6 +19,8 @@ def populate_questions(client: FlaskClient):
                                   multiple_choice_question_type=True)
     QuestionsFactory.create_batch(3, subject="Chemistry", topic="anotherKI",
                                   multiple_choice_question_type=True)
+    QuestionsFactory.create_batch(3, subject="Chemistry", topic=None,
+                                  multiple_choice_question_type=True)
     QuestionsFactory.create_batch(5, subject="Chemistry", multiple_choice_question_type=True)
     QuestionsFactory.create_batch(5, subject="chemistry", multiple_choice_question_type=True)
 
@@ -36,8 +38,8 @@ def mock_get_jwt_identity():
 
 
 @pytest.mark.parametrize("subject,count,status", [
-    pytest.param("Chemistry", 13, 200),
-    pytest.param("chemistry", 13, 200),
+    pytest.param("Chemistry", 16, 200),
+    pytest.param("chemistry", 16, 200),
     pytest.param("bcahsj", 0, 200),
     pytest.param("", 0, 200)
 ])
