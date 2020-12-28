@@ -1,4 +1,3 @@
-import logging
 from datetime import timedelta
 
 from flask import Blueprint, current_app, jsonify, make_response, request
@@ -9,10 +8,10 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 set_refresh_cookies)
 from flask_restful import Api, Resource
 from server import bcrypt, jwt, redis_store
+from server.api import logger
 from server.models import Student, StudentSchema
 
 student_auth_blueprint = Blueprint("student_auth", __name__)
-student_auth_api_logger = logging.getLogger(__name__)
 api = Api(student_auth_blueprint)
 dumper = StudentSchema()
 ACCESS_EXPIRES = timedelta(days=1)
@@ -126,7 +125,7 @@ class CurrentUser(Resource):
             identity = jsonify({"user": get_jwt_identity()})
             return make_response(identity, 200)
         except Exception as e:
-            student_auth_api_logger.error(
+            logger.error(
                 "Got an error fetching current user", e)
             return make_response("User not logged in", 400)
 

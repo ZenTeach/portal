@@ -5,9 +5,9 @@ from flask import Blueprint, current_app, jsonify, url_for
 root_api = Blueprint("root", __name__)
 
 if current_app:
-    api_logger = current_app.logger
+    logger = current_app.logger
 else:
-    api_logger = logging.getLogger(__name__)
+    logger = logging.getLogger(__name__)
 
 
 def has_no_empty_params(rule):
