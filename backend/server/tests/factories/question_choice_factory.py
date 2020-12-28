@@ -1,4 +1,4 @@
-from random import randint
+from random import choice
 
 from factory import post_generation
 from factory.alchemy import SQLAlchemyModelFactory
@@ -20,7 +20,7 @@ class QuestionChoiceFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
 
-    weight = randint(1, 10)
+    weight = choice([1, 0, 0, 0])
     value = fake.sentence()
     feedback = fake.sentence()
 
@@ -29,9 +29,3 @@ class QuestionChoiceFactory(SQLAlchemyModelFactory):
         if not create:
             return
         obj.question_id = extracted
-
-    @post_generation
-    def is_correct_choice(obj, create, extracted, **kwargs):
-        if not create:
-            return
-        obj.referenced_question = extracted

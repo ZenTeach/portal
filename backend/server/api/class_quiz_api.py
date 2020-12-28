@@ -3,7 +3,7 @@ from flask import Blueprint, abort, jsonify, make_response, request, send_file
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Api, Resource
 from server import db
-from server.api import api_logger
+from server.api import logger
 from server.decorators import with_required_roles
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizSchema, ClassQuizStatus, QuizGrade,
@@ -90,14 +90,14 @@ class ClassQuizList(Resource):
                 class_id=class_id,
                 questions=questions,
             )
-            quiz.set_maxscore()
+            quiz.save()
             response_object = {"status": "success",
                                "message": "Quiz was added!"}
             send_quiz_generation_email.apply_async(args=[teacher_email, quiz.id])
             return make_response(response_object, 201)
         except exc.IntegrityError as e:
             db.session.rollback()
-            api_logger.error(e)
+            logger.error(e)
             return make_response(jsonify({
                 "status": "failed",
                 "message": "Quiz couldn't be created!"
@@ -117,7 +117,7 @@ class ClassQuizPDFView(Resource):
         try:
             generated_file_name = generate_pdf.delay(quiz)
         except Exception as e:
-            api_logger.exception(e)
+            logger.exception(e)
             error_object["message"] = "Error generating quiz pdf"
             return make_response(error_object, 500)
 
@@ -151,7 +151,7 @@ class ClassQuizGenerator(Resource):
                 send_quiz_pdf.apply_async(
                     args=[teacher["email"], generated_file_name])
             except Exception as e:
-                api_logger.exception(e)
+                logger.exception(e)
                 error_object["message"] = "Error generating quiz pdf"
                 return make_response(error_object, 500)
             return make_response(
@@ -167,7 +167,7 @@ class ClassQuizGenerator(Resource):
             try:
                 pass
             except Exception as e:
-                api_logger.exception(e)
+                logger.exception(e)
                 error_object["message"] = "Error generating Google Form"
                 return make_response(error_object, 500)
             return make_response(

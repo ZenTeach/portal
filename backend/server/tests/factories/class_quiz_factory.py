@@ -1,11 +1,12 @@
 from random import choice, randrange
 
-from factory import SelfAttribute, SubFactory, Trait, post_generation
+from factory import post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc, person
 from server import db
-from server.models import ClassQuiz
+from server.models import ClassQuiz, QuestionsSchema
+from server.tests.factories.question_factory import QuestionsFactory
 
 fake = Faker()
 fake.add_provider(person)
@@ -21,77 +22,17 @@ class ClassQuizFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
 
-    class Params:
-
-        # TODO: Finish this
-        with_school_class = Trait(
-            _class=SubFactory('server.tests.factories.SchoolClassFactory'),
-            class_id=SelfAttribute('_class.id')
-            # school_class=SubFactory('server.tests.factories.SchoolClassFactory')
-        )
-
     subject = choice(["Chemistry", "Biology", "Physics"])
     max_score = randrange(5, 9)
     variants = randrange(1, 4)
     school_class = None
-    # # class_id = 0
-    # _class = SubFactory('server.tests.factories.SchoolClassFactory'),
-    # class_id = SelfAttribute('_class.id')
 
     @post_generation
-    def school_class(obj, create, extracted, **kwargs):
-        if not create:
-            return
-        obj.class_id = extracted
-
-    # student_quiz_sessions = RelatedFactoryList(QuizSessionFactory,
-    #                           'student_quiz_sessions', size=4)
-    # student_quiz_grades = RelatedFactoryList(QuizGradeFactory,
-    #                           'student_quiz_sessions', size=4)
-    questions = [
-        {
-            "choices": {
-                "a": "The smallest piece of an element that can exist.",
-                "b": "A particle that cannot be broken down any further.",
-                "c": "Multiple compounds chemically bonded to each other.",
-                "d": "A particle that has no mass.",
-            },
-            "id": 10,
-            "knowledge_item": "DEFINITION ATOM",
-            "question": "What is an atom?",
-            "question_type": 1,
-            "subject": "Chemistry",
-            "tag": "6",
-            "topic": "Atomic Structure",
-        },
-        {
-            "choices": {
-                "a": "Matter made of at least two types of atoms.",
-                "b": "",
-                "c": "Matter that is only made of one type of atom.",
-                "d": "",
-            },
-            "id": 11,
-            "knowledge_item": "DEFINITION ELEMENT",
-            "question": "What is an element?",
-            "question_type": 1,
-            "subject": "Chemistry",
-            "tag": "7",
-            "topic": "Atomic Structure",
-        },
-        {
-            "choices": {
-                "a": "Electrons have a mass of 1 and a negative charge.",
-                "b": "Electrons have a mass of 0 and a negative charge.",
-                "c": "Electrons have a mass of 0 and a positive charge.",
-                "d": "Electrons have a mass of 0 and a neutral charge.",
-            },
-            "id": 6,
-            "knowledge_item": "ELECTRON MASS AND CHARGE",
-            "question": "Which statements about electrons are correct?",
-            "question_type": 1,
-            "subject": "Chemistry",
-            "tag": "3",
-            "topic": "Atomic Structure",
-        },
-    ]
+    def with_multiple_choice_questions(obj, create, extracted, **kwargs):
+        if create:
+            question_count = extracted or 5
+            questions = QuestionsFactory.create_batch(question_count,
+                                                      multiple_choice_question_type=True,
+                                                      with_choices=4)
+            dumper = QuestionsSchema()
+            obj.questions = [dumper.dump(question) for question in questions]

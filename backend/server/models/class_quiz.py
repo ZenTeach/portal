@@ -1,5 +1,4 @@
 import enum
-import json
 from datetime import datetime
 from functools import reduce
 from typing import Optional
@@ -8,7 +7,7 @@ from uuid import uuid4
 from flask import current_app
 from server import db
 from server.models import Questions
-from sqlalchemy import event
+from sqlalchemy import event, text
 from sqlalchemy.dialects.postgresql import JSON, UUID
 
 from .base_model import BaseModelMixin, unique_uuid4
@@ -76,7 +75,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
             self.max_score = self.set_maxscore()
         else:
             self.max_score = max_score
-        if self.uuid is None:
+        if uuid is None:
             self.uuid = unique_uuid4()
         else:
             self.uuid = uuid
@@ -88,13 +87,6 @@ class ClassQuiz(BaseModelMixin, db.Model):
         self.status = new_status
         self.save()
 
-    def update_gform_id(self, project_id, deployment_id, version_number):
-        d = {"pid": project_id, "dep_id": deployment_id, "version": version_number}
-
-        self.gform_id = json.dumps(d)
-
-        self.save()
-
     def add_student_session(self, student):
         from .quiz_session import QuizSession
 
@@ -103,7 +95,6 @@ class ClassQuiz(BaseModelMixin, db.Model):
 
     def set_maxscore(self):
         if self.questions is not None and len(self.questions) != 0:
-            # import pdb; pdb.set_trace()
             try:
                 q_ids = [q["id"] for q in self.questions]
                 questions = Questions.query.filter(Questions.id.in_(q_ids)).all()
@@ -117,7 +108,11 @@ class ClassQuiz(BaseModelMixin, db.Model):
                 raise e
 
 
-@event.listens_for(ClassQuiz, 'before_insert')
-def receive_init(target, args, kwargs):
-    quiz_url = "{}/quiz_view/{}".format(current_app.config.get('CLIENT_URL'), kwargs.uuid)
-    kwargs.url = quiz_url
+@event.listens_for(ClassQuiz, 'after_insert')
+def receive_after_insert(mapper, connection, target):
+    quiz_url = "{}/quiz_view/{}".format(current_app.config.get('CLIENT_URL'), target.uuid)
+
+    update_stmt = text("UPDATE class_quiz SET url=:url WHERE id=:id")
+    update_stmt = update_stmt.bindparams(id=target.id, url=quiz_url)
+
+    connection.execute(update_stmt)

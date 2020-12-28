@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, make_response, request
 from flask_jwt_extended import jwt_required
 from flask_restful import Api, Resource, reqparse
 from server import db
-from server.api import api_logger
+from server.api import logger
 from server.decorators import with_required_roles
 from server.models import Questions, QuestionsSchema, QuestionTypeEnum
 from sqlalchemy import exc
@@ -76,7 +76,7 @@ class QuestionList(Resource):
                 }), 400)
         except Exception as e:
             db.session.rollback()
-            api_logger.error(e)
+            logger.error(e)
             return make_response(error_object, 500)
 
 
@@ -103,7 +103,7 @@ class Question(Resource):
                     "message": "Deleted question {}".format(question.id)
                 }), 204)
         except exc.IntegrityError as e:
-            api_logger.error(e)
+            logger.error(e)
             db.session.rollback()
             return make_response(
                 jsonify({
@@ -130,7 +130,7 @@ class QuestionSearch(Resource):
                 Questions.knowledge_item.in_(query_params["knowledge_item"])
             ).all()
 
-            api_logger.debug(f"Result set length: {len(result_set)}")
+            logger.debug(f"Result set length: {len(result_set)}")
             if len(result_set) != 0:
                 response = {"data": [dumper.dump(
                     result) for result in result_set]}
@@ -139,7 +139,7 @@ class QuestionSearch(Resource):
                 response = {"message": "No result found"}
                 return make_response(jsonify(response), 200)
         except Exception as e:
-            api_logger.error(e)
+            logger.error(e)
             error_object = {"message": "Error processing request"}
             return make_response(jsonify(error_object), 500)
 
@@ -199,7 +199,7 @@ class QuestionKIFilter(Resource):
             response = [x for (x,) in kis]
             return make_response(jsonify(response), 200)
         except Exception as e:
-            api_logger.error(e)
+            logger.error(e)
             return make_response(jsonify({
                 "message": "Error filtering Knowledge Items"
             }), 500)
@@ -214,7 +214,7 @@ class QuestionTopicFilter(Resource):
             response = [x for (x,) in topics]
             return make_response(jsonify(response), 200)
         except Exception as e:
-            api_logger.error(e)
+            logger.error(e)
             return make_response(jsonify({
                 'message': 'Error filtering topics'
             }), 500)

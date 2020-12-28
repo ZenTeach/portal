@@ -2,6 +2,7 @@ import json
 
 import pytest
 from factory import build
+from server.models import ClassQuiz
 from server.tests.factories import ClassQuizFactory
 
 
@@ -40,6 +41,9 @@ def test_classquiz_create_api(client, classquiz_params, mocker, monkeypatch):
     )
 
     assert response.status_code == 201
+    cq = ClassQuiz.query.first()
+
+    assert cq.url is not None
 
 
 def test_classquiz_get_api(client, classquiz_, school_class):

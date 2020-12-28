@@ -8,7 +8,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 set_access_cookies, set_refresh_cookies)
 from flask_restful import Api, Resource, reqparse
 from server import bcrypt, jwt, redis_store
-from server.api import api_logger
+from server.api import logger
 from server.models import Invitations, Teacher, TeacherSchema
 from server.tasks import (send_account_recovery_instructions,
                           send_confirmation_instructions, send_user_invite)
@@ -70,7 +70,7 @@ class TeacherRegistration(Resource):
 
             return make_response(response, 200)
         except Exception as e:
-            api_logger.error(e)
+            logger.error(e)
             return make_response(
                 jsonify({
                     "message": "Something went wrong"
@@ -150,10 +150,10 @@ class CurrentUser(Resource):
             identity = jsonify({"user": dumper.dump(t)})
             return make_response(identity, 200)
         except Exception as e:
-            from server.api import api_logger
+            from server.api import logger
 
-            api_logger.debug(e)
-            api_logger.debug(teacher)
+            logger.debug(e)
+            logger.debug(teacher)
             return make_response("User not logged in", 400)
 
 
@@ -262,7 +262,7 @@ class InviteTeacher(Resource):
                 'message': 'Invite Sent!'
             }))
         except Exception as e:
-            api_logger.error(e)
+            logger.error(e)
             return make_response(jsonify({
                 'status': 'error',
                 'message': 'Encountered an error.'
