@@ -7,9 +7,12 @@ import App from '@/App.vue'
 import router from './src/router'
 import store from '@/store'
 import moment from 'moment'
+import VueLodash from 'vue-lodash'
+import lodash from 'lodash'
 
 Vue.config.productionTip = true
 Vue.use(VueCookies)
+Vue.use(VueLodash, { name: 'custom', lodash: lodash })
 
 const unsync = sync(store, router)
 

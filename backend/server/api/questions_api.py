@@ -191,14 +191,13 @@ class QuestionKIFilter(Resource):
             return make_response("", 404)
         try:
             kis = (
-                Questions.query.with_entities(Questions.knowledge_item)
+                Questions.query.with_entities(Questions.topic, Questions.knowledge_item)
                 .filter(Questions.topic.in_(topics_selected))
                 .filter(Questions.knowledge_item.isnot(None))
-                .all()
+                .filter(Questions.knowledge_item != '').all()
             )
 
-            response = [x for (x,) in kis]
-            return make_response(jsonify(response), 200)
+            return make_response(jsonify(kis), 200)
         except Exception as e:
             logger.error(e)
             return make_response(jsonify({
@@ -212,7 +211,8 @@ class QuestionTopicFilter(Resource):
         try:
             topics = Questions.query.with_entities(Questions.topic)\
                 .filter(Questions.subject.op('~*')(subject))\
-                .filter(Questions.topic.isnot(None)).all()
+                .filter(Questions.topic.isnot(None))\
+                .filter(Questions.topic != '').distinct(Questions.topic).all()
             response = [x for (x,) in topics]
             return make_response(jsonify(response), 200)
         except Exception as e:

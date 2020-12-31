@@ -19,6 +19,7 @@
           <v-card-text>
             <v-select
               :items="questionTopics"
+              ref="topicSelection"
               required
               multiple
               chips
@@ -33,6 +34,7 @@
             <v-select
               label="Knowledge Items: "
               multiple
+              ref="kiSelection"
               chips
               required
               :items="knowledgeItems"
@@ -68,16 +70,15 @@
             <v-card-text>
               <h4 class="text-subtitle-1">Selected topics & knowledge items</h4>
               <v-list>
-                <v-list-group v-for="topic in topicsSelected" :key="topic">
+                <v-list-group v-for="[topic, kis] in Object.entries(this.fetchedKIsfromTopic())" :key="topic">
                     <v-icon :key="topic">
                       mdi-checkbox
                     </v-icon>
                     <template v-slot:activator>
                       <v-list-item-title>{{topic}}</v-list-item-title>
                     </template>
-                    <!-- <p class="text-subtitle-1">Selected Knowledge Items:</p> -->
-                    <v-list-item v-for="kis in selectedKnowledgeItems" :key="kis">
-                      <v-list-item-title v-text="kis"></v-list-item-title>
+                    <v-list-item v-for="ki in kis" :key="ki">
+                      <v-list-item-title v-text="ki"></v-list-item-title>
                       <v-list-item-icon>
                         <v-icon>mdi-checkbox-marked-circle</v-icon>
                       </v-list-item-icon>
@@ -101,7 +102,7 @@ import QuestionSearchResult from '@/components/QuestionSearchResult'
 import Api from '@/service/Api'
 
 import { createNamespacedHelpers } from 'vuex'
-const { mapState, mapActions } = createNamespacedHelpers('app')
+const { mapState, mapActions, mapGetters } = createNamespacedHelpers('app')
 
 export default {
   name: 'QuizCreator',
@@ -110,10 +111,12 @@ export default {
     QuestionSearchResult
   },
   computed: {
+    ...mapGetters({
+      getKis: 'getKis'
+    }),
     ...mapState({
       questionSearch: state => state.questionSearch,
       questionList: state => state.questionList,
-      knowledgeItems: state => state.knowledgeItems,
       questionTopics: state => state.topics
     }),
     subject () {
@@ -125,11 +128,14 @@ export default {
       return filtered.subject
     }
   },
-  mounted: function () {
-    this.$store.dispatch('app/FETCH_TOPICS', this.subject, { root: true })
-  },
   data () {
     return this.initial()
+  },
+  watch: {
+    getKis: function (val) {
+      this.knowledgeItems = []
+      this.knowledgeItems = this._.flatten(this._.values(this.getKis))
+    }
   },
   methods: {
     ...mapActions({
@@ -141,6 +147,7 @@ export default {
         questionSearchResult: [],
         hasSearchResult: false,
         topicsSelected: [],
+        knowledgeItems: [],
         selectedKnowledgeItems: []
       }
     },
@@ -165,8 +172,11 @@ export default {
         })
     },
     closeDialog () {
-      this.$emit('update:quizCreatorDialog', false)
+      this.$store.commit('app/RESET_QUIZ_CREATOR', { root: true })
       Object.assign(this.$data, this.initial())
+      this.$refs.topicSelection.reset()
+      this.$refs.kiSelection.reset()
+      this.$emit('update:quizCreatorDialog', false)
     },
     populateSearchResult (e) {
       this.hasSearchResult = e
@@ -176,6 +186,16 @@ export default {
         topics_selected: this.topicsSelected
       }
       this.$store.dispatch('app/FETCH_KIS', payload, { root: true })
+    },
+    fetchedKIsfromTopic () {
+      const kis = this.getKis
+      const copy = {}
+      for (const key in kis) {
+        const kiCopy = kis[key]
+        copy[key] = this._.intersection(kiCopy, this.selectedKnowledgeItems)
+      }
+
+      return copy
     }
   }
 }

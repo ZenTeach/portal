@@ -98,7 +98,7 @@ def test_knowledge_item_filter_errors(client: FlaskClient,
 
 
 @pytest.mark.parametrize('param,status_code,topics',
-                         [pytest.param('chemistry', 200, 13),
+                         [pytest.param('chemistry', 200, 2),
                           pytest.param('canjas', 200, 0)])
 def test_topic_filter(client: FlaskClient,
                       mocker: MockFixture,
@@ -123,7 +123,7 @@ def test_topic_filters_with_case_normalization(client: FlaskClient,
     data = json.loads(response.data)
 
     assert response.status_code == 200
-    assert len(data) == 13
+    assert len(data) == 2
 
 
 def test_question_create_api(client: FlaskClient,

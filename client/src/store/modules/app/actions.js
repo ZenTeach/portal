@@ -6,7 +6,7 @@ import {
 } from '../../../service/questions'
 
 export default {
-  QUERY_QUESTIONS ({ commit, dispatch }, payload) {
+  QUERY_QUESTIONS ({ commit }, payload) {
     fetchQuestions(payload)
       .then(result => {
         const { data: questions } = result
@@ -14,28 +14,28 @@ export default {
       })
       .catch(error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-        dispatch('app/TOGGLE_APP_STATUS', 'error')
+        commit('TOGGLE_APP_STATUS', 'error')
       })
   },
 
-  FETCH_KIS ({ commit, dispatch }, topics) {
+  FETCH_KIS ({ commit }, topics) {
     fetchKis(topics)
       .then(result => {
         commit('app/UPDATE_KIS', result, { root: true })
       })
       .catch(error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-        dispatch('app/TOGGLE_APP_STATUS', 'error')
+        commit('TOGGLE_APP_STATUS', 'error')
       })
   },
-  FETCH_TOPICS ({ commit, dispatch }, subject) {
+  FETCH_TOPICS ({ commit }, subject) {
     fetchTopics(subject)
       .then(result => {
         commit('app/UPDATE_TOPICS', result, { root: true })
       })
       .catch(error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-        dispatch('app/TOGGLE_APP_STATUS', 'error')
+        commit('TOGGLE_APP_STATUS', 'error')
       })
   },
   TOGGLE_ERROR ({ commit }, payload = {}) {
@@ -44,7 +44,7 @@ export default {
   TOGGLE_APP_STATUS ({ commit }, payload = '') {
     commit('TOGGLE_APP_STATUS', payload)
   },
-  FETCH_QUESTIONS_FASTTRACKED ({ commit, dispatch }, topics, kis) {
+  FETCH_QUESTIONS_FASTTRACKED ({ commit }, topics, kis) {
     fetchQuestionsFromTopicsAndKIs(topics, kis)
       .then(data => {
         const questions = data.data
@@ -53,7 +53,7 @@ export default {
       })
       .catch(error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-        dispatch('app/TOGGLE_APP_STATUS', 'error')
+        commit('TOGGLE_APP_STATUS', 'error')
       })
   }
 }

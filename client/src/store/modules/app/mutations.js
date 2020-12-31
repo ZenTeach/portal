@@ -1,6 +1,13 @@
-const existsInList = (iterable, id) => {
+import Vue from 'vue'
+
+const idExistsInList = (iterable, id) => {
   if (iterable.length === 0) return false
   return iterable.find(x => x.id === id) || false
+}
+
+const existsInList = (iterable, item) => {
+  if (iterable.length === 0) return false
+  return iterable.find(x => x === item) || false
 }
 
 export default {
@@ -29,8 +36,7 @@ export default {
     state.questionSearch = [...state.questionSearch, ...payload]
   },
   ADD_SELECTED_QUESTIONS (state, payload) {
-    // state.questionList = [...state.questionList, ...payload];
-    if (!existsInList(state.questionList, payload.id)) {
+    if (!idExistsInList(state.questionList, payload.id)) {
       state.questionList.push(payload)
     }
   },
@@ -43,19 +49,35 @@ export default {
     state.questionList.splice(deleteIdx, 1)
   },
   UPDATE_KIS (state, kis) {
-    state.knowledgeItems = []
+    const newobj = {}
     kis.forEach(ki => {
-      if (!existsInList(state.knowledgeItems, ki) && ki !== '') {
-        state.knowledgeItems.push(ki)
+      const topic = ki[0]
+      const knowledgeItem = ki[1]
+      if (topic in newobj) {
+        if (!existsInList(newobj[topic], knowledgeItem)) {
+          newobj[topic].push(knowledgeItem)
+        }
+      } else {
+        newobj[topic] = []
+        newobj[topic].push(knowledgeItem)
       }
     })
+    // state.knowledgeItems = newobj
+    Vue.set(state, 'knowledgeItems', newobj)
   },
   UPDATE_TOPICS (state, topics) {
     state.topics = []
     topics.forEach(topic => {
-      if (!existsInList(state.topics, topic) && topic !== '') {
+      if (!existsInList(state.topics, topic)) {
         state.topics.push(topic)
       }
     })
+  },
+  RESET_QUIZ_CREATOR (state) {
+    state.questionSearch = []
+    delete state.knowledgeItems
+    state.knowledgeItems = {}
+    state.topics = []
+    state.questionList = []
   }
 }
