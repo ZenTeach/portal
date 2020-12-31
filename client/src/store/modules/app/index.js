@@ -11,7 +11,7 @@ const state = {
   error: {},
   status: '',
   questionSearch: [],
-  knowledgeItems: [],
+  knowledgeItems: {},
   topics: [],
   questionList: []
 }
