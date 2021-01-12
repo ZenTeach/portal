@@ -1,4 +1,4 @@
-from random import choice, randrange
+from random import choice
 
 from factory import post_generation
 from factory.alchemy import SQLAlchemyModelFactory
@@ -23,9 +23,6 @@ class ClassQuizFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     subject = choice(["Chemistry", "Biology", "Physics"])
-    max_score = randrange(5, 9)
-    variants = randrange(1, 4)
-    school_class = None
 
     @post_generation
     def with_multiple_choice_questions(obj, create, extracted, **kwargs):

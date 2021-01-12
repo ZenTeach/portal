@@ -2,6 +2,7 @@
 from flask import Blueprint, abort, jsonify, make_response, request, send_file
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Api, Resource
+from marshmallow import INCLUDE, Schema, ValidationError, fields
 from server import db
 from server.api import logger
 from server.decorators import with_required_roles
@@ -16,6 +17,37 @@ class_quiz_blueprint = Blueprint("class_quiz", __name__)
 api = Api(class_quiz_blueprint)
 dumper = ClassQuizSchema()
 students_dumper = StudentSchema(many=True)
+
+
+class ClassQuizCreateQuestionChoicesSchema(Schema):
+    class Meta:
+        unknown = INCLUDE
+
+    uuid = fields.Str(required=True)
+    value = fields.Str(required=True)
+
+
+class ClassQuizCreateQuestionsSchema(Schema):
+    class Meta:
+        unknown = INCLUDE
+
+    knowledge_item = fields.Str(required=True)
+    question_type = fields.Int(required=True)
+    choices = fields.Nested(ClassQuizCreateQuestionChoicesSchema, many=True, required=True)
+    topic = fields.Str(required=True)
+    subject = fields.Str(required=True)
+    tag = fields.Str(required=True)
+    question = fields.Str(required=True)
+    id = fields.Int(required=True)
+
+
+class ClassQuizCreateSchema(Schema):
+    class Meta:
+        unknown = INCLUDE
+
+    subject = fields.Str(required=True)
+    class_id = fields.Int(required=True)
+    questions = fields.Nested(ClassQuizCreateQuestionsSchema, many=True, required=True)
 
 
 class ClassQuiz(Resource):
@@ -75,33 +107,45 @@ class ClassQuizList(Resource):
     def post(self):
         post_data = request.get_json()
         teacher_email = get_jwt_identity()['identity']["email"]
-        error_object = {"status": "Failed", "message": "Invalid payload."}
+        error_object = {"status": "Failed", "message": "Quiz data not given."}
         if not post_data:
             return make_response(error_object, 400)
-        subject = post_data.get("subject")
-        max_score = post_data.get("max_score")
-        class_id = post_data.get("class_id")
-        # TODO: Validate if questions exist in db
-        questions = post_data.get("questions")
+        validation_errors = None
         try:
+            validation_errors = ClassQuizCreateSchema().validate(data=post_data)
+
+            if validation_errors is not None and len(validation_errors) != 0:
+                raise ValidationError("Malformed data")
+
+            subject = post_data.get("subject")
+            class_id = post_data.get("class_id")
+            # TODO: Validate if questions exist in db
+            questions = post_data.get("questions")
+
             quiz = ClassQuizModel(
                 subject=subject,
-                max_score=max_score,
                 class_id=class_id,
                 questions=questions,
             )
+
             quiz.save()
             response_object = {"status": "success",
                                "message": "Quiz was added!"}
             send_quiz_generation_email.apply_async(args=[teacher_email, quiz.id])
             return make_response(response_object, 201)
+        except ValidationError:
+            # "message": [i for x in  validation_errors.values() for i in x] # flatten errors
+            return make_response(jsonify({
+                "status": "failed",
+                "message": validation_errors
+            }), 400)
         except exc.IntegrityError as e:
             db.session.rollback()
             logger.error(e)
             return make_response(jsonify({
                 "status": "failed",
                 "message": "Quiz couldn't be created!"
-            }), 400)
+            }), 500)
 
 
 @api.resource("/class_quiz/pdf_view/<class_quiz_id>")
