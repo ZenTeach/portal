@@ -1,5 +1,8 @@
 
+from typing import Dict
+
 from flask import Blueprint, abort, jsonify, make_response, request, send_file
+from flask.wrappers import Response
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Api, Resource
 from marshmallow import INCLUDE, Schema, ValidationError, fields
@@ -104,8 +107,8 @@ class ClassQuizList(Resource):
         )
 
     @jwt_required
-    def post(self):
-        post_data = request.get_json()
+    def post(self) -> Response:
+        post_data: Dict = request.get_json()
         teacher_email = get_jwt_identity()['identity']["email"]
         error_object = {"status": "Failed", "message": "Quiz data not given."}
         if not post_data:
