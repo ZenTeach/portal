@@ -75,6 +75,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
             self.max_score = self.set_maxscore()
         else:
             self.max_score = max_score
+
         if uuid is None:
             self.uuid = unique_uuid4()
         else:
@@ -93,19 +94,16 @@ class ClassQuiz(BaseModelMixin, db.Model):
         self.student_quiz_sessions.append(
             QuizSession(student=student, class_quiz=self))
 
-    def set_maxscore(self):
+    def set_maxscore(self) -> int:
         if self.questions is not None and len(self.questions) != 0:
             try:
                 q_ids = [q["id"] for q in self.questions]
                 questions = Questions.query.filter(Questions.id.in_(q_ids)).all()
                 weights = [question.correct_choice().weight for question in questions]
                 score = reduce(lambda x, y: x + y, weights, 0)
-                self.max_score = score
-                self.save()
-            except Exception as e:
-                self.max_score = 0
-                self.save()
-                raise e
+                return score
+            except Exception:
+                return 0
 
 
 @event.listens_for(ClassQuiz, 'after_insert')

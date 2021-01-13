@@ -38,4 +38,5 @@ class QuestionsFactory(SQLAlchemyModelFactory):
     def with_choices(obj, create, extracted, **kwargs):
         if create:
             choice_count = extracted or 4
-            QuestionChoiceFactory.create_batch(choice_count, question=obj.id)
+            choice_weight = kwargs.get('weight', 1)
+            QuestionChoiceFactory.create_batch(choice_count, question=obj.id, weight=choice_weight)
