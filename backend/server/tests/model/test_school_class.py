@@ -17,8 +17,8 @@ def student_() -> Student:
 
 
 @pytest.fixture
-def schoolclass_params(client: FlaskClient, teacher: Teacher) -> dict:
-    return build(dict, FACTORY_CLASS=SchoolClassFactory, teacher_id=teacher.id)
+def schoolclass_params(client: FlaskClient, teacher_: Teacher) -> dict:
+    return build(dict, FACTORY_CLASS=SchoolClassFactory, teacher_id=teacher_.id)
 
 
 def test_model_is_saved(client: FlaskClient, schoolclass_params: dict):

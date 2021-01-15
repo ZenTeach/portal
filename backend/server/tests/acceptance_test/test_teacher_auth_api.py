@@ -2,14 +2,16 @@ import json
 
 import pytest
 from factory import build
+from flask.testing import FlaskClient
+from pytest_mock import MockFixture
+from server.models import Teacher
 from server.tests.factories import InvitationFactory, TeacherFactory
 
 
 @pytest.fixture
-def teacher():
-    teacher = TeacherFactory(with_school_class=True,  # nosec
-                             email="joemama@example.com", password="Asdfgh12!")
-    return teacher
+def teacher_(client: FlaskClient) -> Teacher:
+    return TeacherFactory(with_school_class=True,  # nosec
+                          email="joemama@example.com", password="Asdfgh12!")
 
 
 @pytest.mark.parametrize(
@@ -30,7 +32,12 @@ def teacher():
         )
     ],
 )
-def test_teacher_login_endpoint(client, teacher, email, password, message, status_code):
+def test_teacher_login_endpoint(client: FlaskClient,
+                                teacher_: Teacher,
+                                email: str,
+                                password: str,
+                                message: str,
+                                status_code: int):
     response = client.post(
         '/api/v1/teacher/login',
         json={
@@ -43,7 +50,9 @@ def test_teacher_login_endpoint(client, teacher, email, password, message, statu
     assert data == message
 
 
-def test_teacher_registration_endpoint(client, teacher, mocker):
+def test_teacher_registration_endpoint(client: FlaskClient,
+                                       teacher_: Teacher,
+                                       mocker: MockFixture):
     mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions')
     new_teacher = build(dict, FACTORY_CLASS=TeacherFactory, with_invite_code=True)
     response = client.post(
@@ -53,7 +62,7 @@ def test_teacher_registration_endpoint(client, teacher, mocker):
 
     assert response.status_code == 400
 
-    invite = InvitationFactory.create(invitation_from_id=teacher.id)
+    invite = InvitationFactory.create(invitation_from_id=teacher_.id)
     valid_teacher_payload = build(dict,
                                   FACTORY_CLASS=TeacherFactory,
                                   email=invite.email,
@@ -67,8 +76,8 @@ def test_teacher_registration_endpoint(client, teacher, mocker):
     assert success_response.status_code == 200
 
 
-def test_teacher_account_confirmation(client, teacher):
-    token = teacher.generate_confirmation_token()
+def test_teacher_account_confirmation(client: FlaskClient, teacher_: Teacher):
+    token = teacher_.generate_confirmation_token()
 
     response = client.post(
         '/api/v1/teacher/confirm',
@@ -78,38 +87,40 @@ def test_teacher_account_confirmation(client, teacher):
     )
 
     assert response.status_code == 200
-    assert teacher.confirmed
+    assert teacher_.confirmed
 
 
-def test_teacher_account_recovery(client, teacher, mocker):
-    token = teacher.get_reset_token()
+def test_teacher_account_recovery(client: FlaskClient,
+                                  teacher_: Teacher,
+                                  mocker: MockFixture):
+    token = teacher_.get_reset_token()
     new_psswd = "FooPassword"
 
     @mocker.patch('server.api.teacher_auth_api.send_account_recovery_instructions.delay')
     def test_reset_get(send_account_recovery_instructions_delay):
         response = client.get(
-            f'/api/v1/teacher/reset-password?email={teacher.email}'
+            f'/api/v1/teacher/reset-password?email={teacher_.email}'
         )
 
-        send_account_recovery_instructions_delay.assert_called_with(teacher.email)
+        send_account_recovery_instructions_delay.assert_called_with(teacher_.email)
         assert response.status_code == 200
 
     response = client.post(
         '/api/v1/teacher/reset-password',
         json={
-            "email": teacher.email,
+            "email": teacher_.email,
             "password": new_psswd,
             "token": token
         }
     )
 
     assert response.status_code == 200
-    assert teacher.password != new_psswd
+    assert teacher_.password != new_psswd
 
     relogin_response = client.post(
         '/api/v1/teacher/login',
         json={
-            "email": teacher.email,
+            "email": teacher_.email,
             "password": new_psswd
         }
     )
@@ -117,14 +128,16 @@ def test_teacher_account_recovery(client, teacher, mocker):
     assert relogin_response.status_code == 200
 
 
-def test_teacher_user_invite(client, teacher, mocker, monkeypatch):
+def test_teacher_user_invite(client: FlaskClient,
+                             teacher_: Teacher,
+                             mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     invite_email = "invitee@someevent.com"
 
     @mocker.patch('server.api.teacher_auth_api.get_jwt_identity')
     def mock_identity():
         return {
-            'email': teacher.email
+            'email': teacher_.email
         }
 
     @mocker.patch('server.api.teacher_auth_api.send_user_invite.delay')
@@ -139,14 +152,16 @@ def test_teacher_user_invite(client, teacher, mocker, monkeypatch):
         assert response.status_code == 200
 
 
-def test_teacher_token_refresh(client, teacher, mocker):
+def test_teacher_token_refresh(client: FlaskClient,
+                               teacher_: Teacher,
+                               mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.teacher_auth_api.jwt_refresh_token_required')
 
     @mocker.patch('server.api.teacher_auth_api.get_jwt_identity')
     def mock_identity():
         return {
-            'email': teacher.email
+            'email': teacher_.email
         }
 
     @mocker.patch('server.api.teacher_auth_api.redis_store')

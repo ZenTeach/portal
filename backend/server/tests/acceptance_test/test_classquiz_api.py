@@ -5,8 +5,19 @@ import pytest
 from factory import build
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
-from server.models import ClassQuiz, QuestionsSchema, SchoolClass
-from server.tests.factories import ClassQuizFactory, QuestionsFactory
+from server.models import ClassQuiz, QuestionsSchema, SchoolClass, Teacher
+from server.tests.factories import (ClassQuizFactory, QuestionsFactory,
+                                    SchoolClassFactory, TeacherFactory)
+
+
+@pytest.fixture
+def teacher_() -> Teacher:
+    return TeacherFactory.create()
+
+
+@pytest.fixture
+def school_class(teacher_: Teacher) -> SchoolClass:
+    return SchoolClassFactory.create(teacher_id=teacher_.id)
 
 
 @pytest.fixture
