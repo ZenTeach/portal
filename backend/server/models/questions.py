@@ -1,5 +1,5 @@
 import enum
-from typing import List, Optional
+from typing import Dict, List, Optional
 from uuid import uuid4
 
 from flask_sqlalchemy import BaseQuery
@@ -91,13 +91,12 @@ class Questions(BaseModelMixin, db.Model):
         self.image_url = image_url
 
     @classmethod
-    def create_from_admin_form(cls, data):
-        # create choices
+    def create_from_admin_form(cls, data: Dict):
         created_choice = []
         correct_choice_id = None
         for choice in data["choices"]:
             interim = QuestionChoice(
-                choice["value"], choice["feedback"], choice["weight"], uuid4()
+                choice["value"], choice["feedback"], choice["weight"]
             )
             interim.save()
             if choice["is_correct_choice"] and correct_choice_id is None:
@@ -115,17 +114,14 @@ class Questions(BaseModelMixin, db.Model):
             choices=created_choice,
         )
         instance.save()
-        # instance.set_correct_choice()
+        return instance
 
-    @classmethod
-    def empty_instance(cls):
-        return cls()
-
-    def correct_choice(self) -> QuestionChoice:
+    def correct_choice(self) -> Optional[QuestionChoice]:
         if self.correct_choice_id is None:
             return None
         choice = QuestionChoice.query.filter_by(id=self.correct_choice_id).first()
+
         if choice is None:
-            choice = QuestionChoice.empty_instance()
+            return None
 
         return choice

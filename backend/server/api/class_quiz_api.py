@@ -7,7 +7,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Api, Resource
 from marshmallow import INCLUDE, Schema, ValidationError, fields
 from server import db
-from server.api import logger
+from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizSchema, ClassQuizStatus, QuizGrade,
@@ -145,6 +145,7 @@ class ClassQuizList(Resource):
         except exc.IntegrityError as e:
             db.session.rollback()
             logger.error(e)
+            report_5xx_error(e)
             return make_response(jsonify({
                 "status": "failed",
                 "message": "Quiz couldn't be created!"
@@ -165,6 +166,7 @@ class ClassQuizPDFView(Resource):
             generated_file_name = generate_pdf.delay(quiz)
         except Exception as e:
             logger.exception(e)
+            report_5xx_error(e)
             error_object["message"] = "Error generating quiz pdf"
             return make_response(error_object, 500)
 
@@ -200,6 +202,7 @@ class ClassQuizGenerator(Resource):
             except Exception as e:
                 logger.exception(e)
                 error_object["message"] = "Error generating quiz pdf"
+                report_5xx_error(e)
                 return make_response(error_object, 500)
             return make_response(
                 jsonify({
@@ -216,6 +219,7 @@ class ClassQuizGenerator(Resource):
             except Exception as e:
                 logger.exception(e)
                 error_object["message"] = "Error generating Google Form"
+                report_5xx_error(e)
                 return make_response(error_object, 500)
             return make_response(
                 jsonify(

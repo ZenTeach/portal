@@ -8,7 +8,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 set_refresh_cookies)
 from flask_restful import Api, Resource
 from server import bcrypt, jwt, redis_store
-from server.api import logger
+from server.api import logger, report_5xx_error
 from server.models import Student, StudentSchema
 
 student_auth_blueprint = Blueprint("student_auth", __name__)
@@ -61,6 +61,7 @@ class StudentRegistration(Resource):
             return make_response(response, 200)
         except Exception as e:
             current_app.logger.error(e)
+            report_5xx_error(e)
             return make_response(
                 jsonify({"message": "Something went wrong"}),
                 500)
