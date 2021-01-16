@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import re
 from functools import reduce
 from html import escape
@@ -24,6 +25,13 @@ from wtforms.meta import DefaultMeta
 from wtforms.widgets import HTMLString, TextInput, html_params
 
 logger = logging.getLogger('admin::view')
+
+
+def report_5xx_error(exception: Exception):
+    sentry_dsn_key = os.environ.get("SENTRY_DSN")
+    from sentry_sdk import init, capture_exception
+    init(sentry_dsn_key)
+    capture_exception(exception)
 
 
 class CustomSecureForm(SecureForm):
@@ -325,6 +333,7 @@ class QuestionView(BaseView):
             Questions.create_from_admin_form(form.data)
             return redirect(url_for("admin.question.index_view"))
         except Exception as e:
+            report_5xx_error(e)
             flash("Failed to create record: {error}s".format(error=str(e)), "error")
 
     def on_model_change(self, form, model, is_created):
@@ -393,6 +402,7 @@ class StudentView(BaseView):
             instance.add_from_class_list(form.data["classes"])
             return redirect(url_for("admin.student.index_view"))
         except Exception as e:
+            report_5xx_error(e)
             flash("Failed to create record: {}".format(str(e)), "error")
 
     def delete_model(self, model):
@@ -400,6 +410,7 @@ class StudentView(BaseView):
             Student.remove_model(model)
             flash("Successfully deleted student", "success")
         except Exception as e:
+            report_5xx_error(e)
             logger.error("Failed to delete record: {}".format(str(e)))
             flash("Failed to delete record: {}".format(str(e)), "error")
 
@@ -438,6 +449,7 @@ class TeacherView(BaseView):
             instance.save()
             return redirect(url_for("admin.teacher.index_view"))
         except Exception as e:
+            report_5xx_error(e)
             flash("Failed to create record: {}".format(str(e)), "error")
 
 
