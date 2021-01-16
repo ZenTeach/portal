@@ -3,7 +3,7 @@ from flask import Blueprint, abort, jsonify, make_response, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Api, Resource, reqparse
 from server import db
-from server.api import logger
+from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
 from server.models import SchoolClass as SchoolClassModel
 from server.models import SchoolClassSchema, Student
@@ -51,6 +51,7 @@ class SchoolClass(Resource):
             }), 204)
         except Exception as e:
             logger.error(e)
+            report_5xx_error(e)
             return make_response(jsonify({
                 'status': 'success',
                 'message': 'Encountered an error while deleting classroom.'
@@ -73,6 +74,7 @@ class SchoolClass(Resource):
             }), 200)
         except Exception as e:
             logger.error(e)
+            report_5xx_error(e)
             return make_response(jsonify({
                 'message': str(e)
             }), 500)
@@ -128,6 +130,7 @@ class SchoolClassList(Resource):
                 return make_response(error_object, 400)
         except exc.IntegrityError as err:  # noqa
             db.session.rollback()
+            report_5xx_error(err)
             return make_response(error_object, 500)
 
 
@@ -178,7 +181,7 @@ class TeacherOwnedClass(Resource):
                 return make_response(response_object, 200)
         except Exception as e:
             from server.api import logger
-
+            report_5xx_error(e)
             logger.debug(e)
             error_object["message"] = "Error processing request"
             return make_response(jsonify(error_object), 500)
@@ -200,6 +203,7 @@ class SchoolClassStudent(Resource):
         except exc.IntegrityError:
             abort(400, "Student missing required data.")
         except exc.DatabaseError as e:  # noqa
+            report_5xx_error(e)
             abort(500, "Server got an error.")
         else:
             return make_response(
@@ -228,6 +232,7 @@ class SchoolClassStudent(Resource):
             school_class.remove_student(args["student_id"])
         except Exception as e:  # noqa
             logger.error(e)
+            report_5xx_error(e)
             abort(500, "Server got an error.")
         else:
             return make_response(

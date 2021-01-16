@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, make_response, request
 from flask_jwt_extended import jwt_required
 from flask_restful import Api, Resource, reqparse
 from server import db
-from server.api import logger
+from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
 from server.models import Questions, QuestionsSchema, QuestionTypeEnum
 from sqlalchemy import exc
@@ -77,6 +77,7 @@ class QuestionList(Resource):
         except Exception as e:
             db.session.rollback()
             logger.error(e)
+            report_5xx_error(e)
             return make_response(error_object, 500)
 
 
@@ -105,6 +106,7 @@ class Question(Resource):
         except exc.IntegrityError as e:
             logger.error(e)
             db.session.rollback()
+            report_5xx_error(e)
             return make_response(
                 jsonify({
                     "message": "Error while deleteing \
@@ -140,6 +142,7 @@ class QuestionSearch(Resource):
                 return make_response(jsonify(response), 200)
         except Exception as e:
             logger.error(e)
+            report_5xx_error(e)
             error_object = {"message": "Error processing request"}
             return make_response(jsonify(error_object), 500)
 
@@ -200,6 +203,7 @@ class QuestionKIFilter(Resource):
             return make_response(jsonify(kis), 200)
         except Exception as e:
             logger.error(e)
+            report_5xx_error(e)
             return make_response(jsonify({
                 "message": "Error filtering Knowledge Items"
             }), 500)
@@ -217,6 +221,7 @@ class QuestionTopicFilter(Resource):
             return make_response(jsonify(response), 200)
         except Exception as e:
             logger.error(e)
+            report_5xx_error(e)
             return make_response(jsonify({
                 'message': 'Error filtering topics'
             }), 500)

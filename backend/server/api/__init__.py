@@ -1,6 +1,8 @@
 import logging
+import os
 
 from flask import Blueprint, current_app, jsonify, url_for
+from flask.helpers import make_response
 
 root_api = Blueprint("root", __name__)
 
@@ -29,6 +31,19 @@ def site_map():
     return jsonify(links)
 
 
+@root_api.errorhandler(500)
+def root_api_exception_handler(e):
+    report_5xx_error(e)
+    return
+
+
 @root_api.route("/ping")
 def ping():
-    return "pong", 200
+    return make_response("pong", 500)
+
+
+def report_5xx_error(exception: Exception):
+    sentry_dsn_key = os.environ.get("SENTRY_DSN")
+    from sentry_sdk import init, capture_exception
+    init(sentry_dsn_key)
+    capture_exception(exception)
