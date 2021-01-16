@@ -1,5 +1,3 @@
-from random import choice
-
 from factory import post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
@@ -20,7 +18,6 @@ class QuestionChoiceFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
 
-    weight = choice([1, 0, 0, 0])
     value = fake.sentence()
     feedback = fake.sentence()
 

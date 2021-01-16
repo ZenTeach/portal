@@ -5,22 +5,9 @@ from pathlib import Path
 from shutil import which
 
 import pytest
-from pytest_factoryboy import register
 from server import create_app, db
-from server.tests.factories import (ClassQuizFactory, QuestionChoiceFactory,
-                                    QuizGradeFactory, QuizSessionFactory,
-                                    SchoolClassFactory, StudentFactory,
-                                    TeacherFactory)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-
-register(ClassQuizFactory, "class_quiz")
-register(SchoolClassFactory, "school_class")
-register(TeacherFactory, "teacher")
-register(QuizGradeFactory, "quiz_grade")
-register(QuizSessionFactory, "quiz_session")
-register(StudentFactory, "student")
-register(QuestionChoiceFactory)
 
 getLogger('factory').setLevel(CRITICAL)
 

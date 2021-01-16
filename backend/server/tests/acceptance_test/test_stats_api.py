@@ -1,6 +1,13 @@
 import json
 
 import pytest
+from server.models import Teacher
+from server.tests.factories import TeacherFactory
+
+
+@pytest.fixture
+def teacher_() -> Teacher:
+    return TeacherFactory.create()
 
 
 def test_stats_api_ping(client):
@@ -14,11 +21,11 @@ def test_stats_api_ping(client):
 # TODO: Finalize this
 
 
-def get_jwt_identity_mock(mock_, teacher):
+def get_jwt_identity_mock(mock_, teacher_):
     from server.models import TeacherSchema
 
     dumper = TeacherSchema()
-    return {"identity": dumper.dump(teacher)}
+    return {"identity": dumper.dump(teacher_)}
 
 
 def jwt_required_mocker():

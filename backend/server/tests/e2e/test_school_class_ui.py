@@ -4,8 +4,7 @@ import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from server.models import Teacher
-from server.models.school_class import SchoolClass
+from server.models import SchoolClass, Teacher
 from server.tests.e2e.commons import (click_button, enter_text_field,
                                       select_option)
 from server.tests.factories import AdminFactory, TeacherFactory

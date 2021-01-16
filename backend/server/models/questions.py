@@ -67,7 +67,8 @@ class Questions(BaseModelMixin, db.Model):
         correct_choice_id: int,
         uuid: Optional[UUID] = None,
         choices: Optional[List[QuestionChoice]] = [],
-        image_url: str = ""
+        image_url: str = "",
+        **kwargs
     ):
         if question_type == QuestionTypeEnum.multiple_choice:
             try:

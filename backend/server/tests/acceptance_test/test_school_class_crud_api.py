@@ -6,12 +6,18 @@ from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import SchoolClass, Teacher
 from server.models.student import Student
-from server.tests.factories import SchoolClassFactory, TeacherFactory
+from server.tests.factories import (SchoolClassFactory, StudentFactory,
+                                    TeacherFactory)
 
 
 @pytest.fixture
 def teacher_() -> Teacher:
     return TeacherFactory.create()
+
+
+@pytest.fixture
+def student() -> Student:
+    return StudentFactory.create()
 
 
 @pytest.fixture
@@ -25,11 +31,11 @@ def school_class_param(teacher_: Teacher) -> dict:
 
 
 @pytest.fixture
-def mock_identity(teacher: Teacher) -> dict:
+def mock_identity(teacher_: Teacher) -> dict:
     return {
         'identity': {
-            'id': teacher.id,
-            'email': teacher.email
+            'id': teacher_.id,
+            'email': teacher_.email
         }
     }
 
