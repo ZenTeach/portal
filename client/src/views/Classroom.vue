@@ -5,9 +5,15 @@
         <v-data-table
           :headers="headers"
           :items="current_class.quizzes"
-          :items-per-page="3"
+          :items-per-page="5"
           class="elevation-1"
-          hide-default-footer >
+          :footer-props="{
+              showFirstLastPage: true,
+              firstIcon: 'mdi-arrow-collapse-left',
+              lastIcon: 'mdi-arrow-collapse-right',
+              prevIcon: 'mdi-minus',
+              nextIcon: 'mdi-plus'
+            }" >
           <template v-slot:item.name="props">
             <a :href="'/quiz/' +  props.item.uuid">Quiz {{ props.item.name }}</a>
           </template>
