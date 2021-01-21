@@ -96,7 +96,9 @@ def create_app():
     ma.init_app(app)
     mail.init_app(app)
     redis_store.init_app(app)
-    make_searchable(db.metadata)
+    make_searchable(db.metadata, options={
+        'regconfig': 'pg_catalog.simple'
+    })
 
     login_manager.init_app(app)
 
