@@ -1,11 +1,13 @@
 from random import choice, randint
 
-from factory import RelatedFactory, RelatedFactoryList, SelfAttribute, Trait
+from factory import RelatedFactoryList, Trait, post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc, person
 from server import db
 from server.models import SchoolClass
+from server.models.class_quiz import ClassQuizStatus
+from server.tests.factories import ClassQuizFactory
 
 fake = Faker()
 fake.add_provider(person)
@@ -28,13 +30,6 @@ class SchoolClassFactory(SQLAlchemyModelFactory):
                 size=lambda: randint(5, 10)
             )
         )
-        with_classquiz = Trait(
-            class_quiz=RelatedFactory(
-                "server.tests.factories.ClassQuizFactory",
-                "school_class",
-                class_id=SelfAttribute("..id"),
-            )
-        )
 
     name = fake.sentence(
         nb_words=3, variable_nb_words=True, ext_word_list=None)
@@ -42,3 +37,13 @@ class SchoolClassFactory(SQLAlchemyModelFactory):
     start_date = fake.date_time_between(
         start_date="-1y", end_date="now", tzinfo=None)
     year_group = choice(["Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13"])
+
+    @post_generation
+    def with_classquiz(obj, create, extracted, **kwargs):
+        if create:
+            status = extracted
+
+            if not isinstance(extracted, ClassQuizStatus):
+                status = ClassQuizStatus.created
+
+            ClassQuizFactory(class_id=obj.id, with_multiple_choice_questions=4, status=status)
