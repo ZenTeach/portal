@@ -1,11 +1,18 @@
+from random import choice
+from typing import Dict, List, Optional
+from uuid import uuid4
+
 import pytest
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.api.class_quiz_api import ClassQuiz
 from server.lib import Grader
-from server.models import QuizSession, SchoolClass, Student, Teacher
-from server.tests.factories import (ClassQuizFactory, SchoolClassFactory,
-                                    StudentFactory, TeacherFactory)
+from server.lib.grader import CorrectChoice
+from server.models import (ClassQuizStatus, QuizGrade, QuizSession,
+                           SchoolClass, Student, Teacher)
+from server.tests.factories import (QuizGradeFactory, QuizSessionFactory,
+                                    SchoolClassFactory, StudentFactory,
+                                    TeacherFactory)
 
 
 @pytest.fixture
@@ -15,24 +22,53 @@ def teacher_() -> Teacher:
 
 @pytest.fixture
 def school_class(teacher_: Teacher) -> SchoolClass:
-    return SchoolClassFactory.create(teacher_id=teacher_.id)
+    return SchoolClassFactory(teacher_id=teacher_.id, with_classquiz=ClassQuizStatus.administered)
 
 
 @pytest.fixture
 def student(school_class: SchoolClass) -> Student:
-    st: Student = StudentFactory.create(classes=[school_class])
+    st: Student = StudentFactory(classes=[school_class])
     st.add_to_class(school_class)
     return st
 
 
-@pytest.fixture(scope='function')
-def quiz_session(school_class: SchoolClass, student: Student) -> QuizSession:
-    quiz = ClassQuizFactory.build(class_id=school_class.id)
-    quiz.save()
+@pytest.fixture
+def classquiz_(school_class: SchoolClass) -> ClassQuiz:
+    return school_class.quizzes[0]
 
 
-def quiz_submission():
-    pass
+@pytest.fixture
+def quiz_session(student: Student, classquiz_: ClassQuiz) -> QuizSession:
+    # quiz = ClassQuizFactory.build(class_id=school_class.id)
+    # quiz.save()
+    return QuizSessionFactory(student_id=student.id,
+                              class_quiz_id=classquiz_.id)
+
+
+@pytest.fixture
+def quizgrade_(student: Student, classquiz_: ClassQuiz) -> QuizGrade:
+    return QuizGradeFactory(student_id=student.id,
+                            class_quiz_id=classquiz_.id, score=None)
+
+
+@pytest.fixture
+def response(classquiz_: ClassQuiz) -> List[Dict]:
+    """
+        QuizGrade.response is an array of dict
+
+        [{
+            questionID: qId,
+            Choice_answer: a
+        }]
+    """
+
+    return [
+        {
+            'questionID': question['id'],
+            'Choice_answer': choice(question['choices'])['uuid']
+        }
+        for question in classquiz_.questions
+    ]
 
 
 class TestQuizGrader(object):
@@ -44,12 +80,10 @@ class TestQuizGrader(object):
     def teardown_class(cls):
         pass
 
-    @pytest.mark.skip
     def test_from_quiz_session(self, client: FlaskClient,
                                quiz_session: QuizSession,
-                               school_class: SchoolClass,
                                mocker: MockFixture):
-        def _mock_grader_init(school_class_id: int, class_quiz: ClassQuiz):
+        def _mock_grader_init(school_class_id: int, class_quiz: ClassQuiz, *args):
             assert school_class_id is not None
             assert class_quiz is not None
 
@@ -59,8 +93,137 @@ class TestQuizGrader(object):
 
         Grader.from_quiz_session(quiz_session.uuid)
 
-    def test_quiz_grading(self, client: FlaskClient,
-                          quiz_session: QuizSession,
-                          school_class: SchoolClass,
-                          mocker: MockFixture):
-        pass
+    def test_from_quiz_session_without_session_raise_exception(self,
+                                                               client: FlaskClient,
+                                                               mocker: MockFixture
+                                                               ):
+
+        mocker.patch('server.lib.grader.Grader.start_grading')
+        mocker.patch('server.lib.grader.Feedback')
+
+        with pytest.raises(Exception):
+            Grader.from_quiz_session(uuid4())
+
+    def test_start_grading(self, client: FlaskClient,
+                           quiz_session: QuizSession,
+                           quizgrade_: QuizGrade,
+                           classquiz_: ClassQuiz,
+                           response: List[Dict],
+                           mocker: MockFixture):
+
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        mocker.patch('server.lib.grader.Feedback')
+
+        @mocker.patch('server.lib.grader.Grader._score_quiz')
+        def start_grading_assertions(_score_quiz):
+            Grader.from_quiz_session(quiz_session.uuid)
+
+            _score_quiz.assert_called_with(response, classquiz_)
+
+    def test__score_quiz(self, client: FlaskClient,
+                         quiz_session: QuizSession,
+                         quizgrade_: QuizGrade,
+                         classquiz_: ClassQuiz,
+                         response: List[Dict],
+                         mocker: MockFixture):
+
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        mocker.patch('server.lib.grader.Feedback')
+
+        @mocker.patch('server.lib.grader.Grader._score_quiz')
+        def start_grading_assertions(_score_quiz):
+            Grader.from_quiz_session(quiz_session.uuid)
+
+            _score_quiz.assert_called_with(response, classquiz_)
+
+    def test__score_quiz_call_arguments(self, client: FlaskClient,
+                                        quiz_session: QuizSession,
+                                        quizgrade_: QuizGrade,
+                                        classquiz_: ClassQuiz,
+                                        response: List[Dict],
+                                        mocker: MockFixture):
+
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        mocker.patch('server.lib.grader.Feedback')
+
+        @mocker.patch('server.lib.grader.Grader._score_quiz')
+        def _mock__score_quiz(quiz_submissions: List[QuizGrade], class_quiz: ClassQuiz):
+            assert isinstance(quiz_submissions[0], QuizGrade)
+            assert quiz_submissions[0] == quizgrade_
+            assert class_quiz is not None
+            assert class_quiz == classquiz_
+        Grader.from_quiz_session(quiz_session.uuid)
+
+    def test__score_quiz_score_calculation_and_updates(self, client: FlaskClient,
+                                                       quiz_session: QuizSession,
+                                                       quizgrade_: QuizGrade,
+                                                       classquiz_: ClassQuiz,
+                                                       response: List[Dict],
+                                                       mocker: MockFixture):
+
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        def _calculate_score_mock(instance,
+                                  correct_responses: List['CorrectChoice'],
+                                  submitted_response: List[Dict]):
+            assert isinstance(correct_responses, list)
+            assert isinstance(correct_responses[0], CorrectChoice)
+            assert isinstance(submitted_response, list)
+            assert isinstance(submitted_response[0], dict)
+
+        mocker.patch('server.lib.grader.Feedback')
+        mocker.patch('server.lib.grader.Feedback.build_from_question_id')
+        mocker.patch('server.lib.grader.Grader._get_correct_choice_by_question_id')
+        mocker.patch('server.lib.grader.Grader._calculate_score', _calculate_score_mock)
+        mocker.patch('server.models.quiz_grade.QuizGrade.update_score')
+        mocker.patch('server.models.quiz_grade.QuizGrade.is_graded')
+        mocker.patch('server.models.quiz_grade.QuizGrade.update_grade_breakdown')
+
+        Grader.from_quiz_session(quiz_session.uuid)
+
+    def test__calculate_score(self, client: FlaskClient,
+                              quiz_session: QuizSession,
+                              quizgrade_: QuizGrade,
+                              classquiz_: ClassQuiz,
+                              response: List[Dict],
+                              mocker: MockFixture):
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        def _mock_get_correct_choice_by_question_id(instance,
+                                                    target: str,
+                                                    stack: Optional[List[CorrectChoice]]):
+            assert target
+            assert stack
+
+        mocker.patch('server.lib.grader.Feedback')
+        mocker.patch('server.lib.grader.Feedback.build_from_question_id')
+        mocker.patch('server.lib.grader.Grader._get_correct_choice_by_question_id')
+        mocker.patch('server.lib.grader.Grader._calculate_score',
+                     _mock_get_correct_choice_by_question_id)
+        mocker.patch('server.models.quiz_grade.QuizGrade.update_score')
+        mocker.patch('server.models.quiz_grade.QuizGrade.is_graded')
+        mocker.patch('server.models.quiz_grade.QuizGrade.update_grade_breakdown')
+
+        Grader.from_quiz_session(quiz_session.uuid)
+
+    def test_grading_with_valid_response(self, client: FlaskClient,
+                                         quiz_session: QuizSession,
+                                         quizgrade_: QuizGrade,
+                                         classquiz_: ClassQuiz,
+                                         response: List[Dict],
+                                         mocker: MockFixture):
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        Grader.from_quiz_session(quiz_session.uuid)
+        assert quizgrade_.score is not None or quizgrade_.score != 0
+        assert quizgrade_.graded
+        assert quizgrade_.grade_breakdown is not None and len(quizgrade_.grade_breakdown) != 0
