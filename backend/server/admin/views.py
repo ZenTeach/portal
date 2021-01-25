@@ -308,9 +308,9 @@ class QuestionView(BaseView):
     form_excluded_columns = ["uuid", "choices",
                              "correct_choice", "correct_choice_id"]
 
-    form_extra_fields = {
-        'image_url': CustomImageUploadField('Image')
-    }
+    # form_extra_fields = {
+    #     'image_url': CustomImageUploadField('Image')
+    # }
 
     detail_modal = True
     inline_model_form_converter = CustomInlineModelConverter

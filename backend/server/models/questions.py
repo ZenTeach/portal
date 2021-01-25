@@ -24,6 +24,31 @@ class QuestionTypeEnum(enum.Enum):
     long_answer = 3
 
 
+class AdminQuestionChoiceValidator(Schema):
+    class Meta:
+        unknown = INCLUDE
+
+    value = fields.Str(required=True)
+    feedback = fields.Str(required=True)
+    weight = fields.Int()
+    is_correct_choice = fields.Bool()
+
+# Server side validation
+
+
+class AdminFormValidator(Schema):
+    class Meta:
+        unknown = INCLUDE
+
+    question = fields.Str(required=True)
+    question_type = fields.Int(required=True)
+    choices = fields.Nested(AdminQuestionChoiceValidator, required=True, many=True)
+    subject = fields.Str(required=True)
+    topic = fields.Str(required=True)
+    tag = fields.Str(required=True)
+    knowledge_item = fields.Str(required=True)
+
+
 class MultipleChoiceSchema(Schema):
     class Meta:
         unknown = INCLUDE
@@ -92,6 +117,11 @@ class Questions(BaseModelMixin, db.Model):
 
     @classmethod
     def create_from_admin_form(cls, data: Dict):
+
+        validation_errors = AdminFormValidator().validate(data=data)
+        if validation_errors is not None and len(validation_errors) != 0:
+            raise ValidationError(
+                "Error creating question. Make sure that you have filled in all the required fields.")  # noqa
         created_choice = []
         correct_choice_id = None
         for choice in data["choices"]:
