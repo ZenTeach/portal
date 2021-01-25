@@ -110,7 +110,6 @@ class Questions(BaseModelMixin, db.Model):
             data["tag"],
             data["knowledge_item"],
             correct_choice_id,
-            uuid=uuid4(),
             choices=created_choice,
         )
         instance.save()
