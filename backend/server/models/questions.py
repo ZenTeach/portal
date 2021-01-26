@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from flask_sqlalchemy import BaseQuery
 from marshmallow import INCLUDE, Schema, ValidationError, fields
+from marshmallow_enum import EnumField
 from server import db
 from server.models import QuestionChoice
 from server.models.base_model import BaseModelMixin
@@ -41,7 +42,7 @@ class AdminFormValidator(Schema):
         unknown = INCLUDE
 
     question = fields.Str(required=True)
-    question_type = fields.Int(required=True)
+    question_type = EnumField(QuestionTypeEnum, by_value=True, required=True)
     choices = fields.Nested(AdminQuestionChoiceValidator, required=True, many=True)
     subject = fields.Str(required=True)
     topic = fields.Str(required=True)
@@ -121,7 +122,7 @@ class Questions(BaseModelMixin, db.Model):
         validation_errors = AdminFormValidator().validate(data=data)
         if validation_errors is not None and len(validation_errors) != 0:
             raise ValidationError(
-                "Error creating question. Make sure that you have filled in all the required fields.")  # noqa
+                "Error creating question. Make sure that you have filled in all the required fields.", validation_errors)  # noqa
         created_choice = []
         correct_choice_id = None
         for choice in data["choices"]:

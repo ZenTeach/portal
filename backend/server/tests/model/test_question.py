@@ -3,6 +3,7 @@ from typing import Dict
 import pytest
 from factory import build
 from flask.testing import FlaskClient
+from marshmallow import ValidationError
 from server.models import Questions, QuestionTypeEnum
 from server.tests.factories import QuestionsFactory
 from server.tests.factories.question_choice_factory import \
@@ -29,7 +30,22 @@ def test_question_creation_with_multiple_choices(client: FlaskClient) -> None:
     assert len(question.choices) == 4
 
 
-def test_question_create_from_admin_form(client: FlaskClient) -> None:
+def test_question_create_from_admin_form_succeeds(client: FlaskClient) -> None:
+    choices = [build(dict, FACTORY_CLASS=QuestionChoiceFactory,
+                     weight=1, is_correct_choice=True) for _ in range(4)]
+    question_payload = build(dict, FACTORY_CLASS=QuestionsFactory,
+                             multiple_choice_question_type=True)
+
+    question_payload['choices'] = choices
+    # del question_payload['correct_choice_id']
+
+    q = Questions.create_from_admin_form(question_payload)
+
+    assert q
+    assert q.correct_choice
+
+
+def test_question_create_from_admin_form_raises_error(client: FlaskClient) -> None:
     choices = [build(dict, FACTORY_CLASS=QuestionChoiceFactory,
                      weight=1, is_correct_choice=True) for _ in range(4)]
     question_payload = build(dict, FACTORY_CLASS=QuestionsFactory,
@@ -38,10 +54,8 @@ def test_question_create_from_admin_form(client: FlaskClient) -> None:
     question_payload['choices'] = choices
     del question_payload['correct_choice_id']
 
-    q = Questions.create_from_admin_form(question_payload)
-
-    assert q
-    assert q.correct_choice
+    with pytest.raises(ValidationError):
+        Questions.create_from_admin_form(question_payload)
 
 
 def test_question_correct_choice(client: FlaskClient, question_param: Dict) -> None:
