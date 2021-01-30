@@ -3,11 +3,14 @@ from random import choice
 from typing import List, Union
 
 import pytest
+from faker import Faker
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import QuestionsSchema
-from server.models.questions import Questions
+from server.models.questions import Questions, QuestionTypeEnum
 from server.tests.factories import QuestionsFactory
+
+fake = Faker()
 
 
 @pytest.fixture(autouse=True)
@@ -28,6 +31,7 @@ def populate_questions(client: FlaskClient):
 @pytest.fixture
 def question_payload():
     built_question = QuestionsFactory.build(multiple_choice_question_type=True)
+    built_question.question_type = getattr(QuestionTypeEnum, built_question.question_type)
     return QuestionsSchema().dump(built_question)
 
 
@@ -132,6 +136,8 @@ def test_question_create_api(client: FlaskClient,
 
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     question_payload['correct_choice_id'] = choice([1, 2, 3, 4])
+    question_payload['question'] = fake.sentence()
+
     response = client.post("/api/v1/question",
                            json=question_payload)
 
@@ -164,6 +170,8 @@ def test_question_create_api_exception_handling(client: FlaskClient,
                                                 mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     question_payload["correct_choice_id"] = None
+    question_payload['question'] = fake.sentence()
+
     response = client.post("/api/v1/question", json=question_payload)
     assert response.status_code == 500
 

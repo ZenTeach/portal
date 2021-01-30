@@ -4,7 +4,7 @@ import pytest
 from factory import build
 from flask.testing import FlaskClient
 from marshmallow import ValidationError
-from server.models import Questions, QuestionTypeEnum
+from server.models import Questions
 from server.tests.factories import QuestionsFactory
 from server.tests.factories.question_choice_factory import \
     QuestionChoiceFactory
@@ -13,14 +13,6 @@ from server.tests.factories.question_choice_factory import \
 @pytest.fixture
 def question_param(client: FlaskClient) -> Dict:
     return build(dict, FACTORY_CLASS=QuestionsFactory, multiple_choice_question_type=True)
-
-
-def test_questions_model(client: FlaskClient) -> None:
-    """
-        Smoke test
-    """
-    question = QuestionsFactory.build(multiple_choice_question_type=True)
-    assert question.question_type == QuestionTypeEnum.multiple_choice
 
 
 def test_question_creation_with_multiple_choices(client: FlaskClient) -> None:
@@ -37,8 +29,7 @@ def test_question_create_from_admin_form_succeeds(client: FlaskClient) -> None:
                              multiple_choice_question_type=True)
 
     question_payload['choices'] = choices
-    # del question_payload['correct_choice_id']
-
+    # import pdb; pdb.set_trace();
     q = Questions.create_from_admin_form(question_payload)
 
     assert q
@@ -52,7 +43,7 @@ def test_question_create_from_admin_form_raises_error(client: FlaskClient) -> No
                              multiple_choice_question_type=True)
 
     question_payload['choices'] = choices
-    del question_payload['correct_choice_id']
+    del question_payload['question']
 
     with pytest.raises(ValidationError):
         Questions.create_from_admin_form(question_payload)
