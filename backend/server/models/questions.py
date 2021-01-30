@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from flask_sqlalchemy import BaseQuery
 from marshmallow import INCLUDE, Schema, ValidationError, fields
+from marshmallow_enum import EnumField
 from server import db
 from server.models import QuestionChoice
 from server.models.base_model import BaseModelMixin
@@ -22,6 +23,31 @@ class QuestionTypeEnum(enum.Enum):
     multiple_choice = 1
     short_answer = 2
     long_answer = 3
+
+
+class AdminQuestionChoiceValidator(Schema):
+    class Meta:
+        unknown = INCLUDE
+
+    value = fields.Str(required=True)
+    feedback = fields.Str(required=True)
+    weight = fields.Int()
+    is_correct_choice = fields.Bool()
+
+# Server side validation
+
+
+class AdminFormValidator(Schema):
+    class Meta:
+        unknown = INCLUDE
+
+    question = fields.Str(required=True)
+    question_type = EnumField(QuestionTypeEnum, required=True)
+    choices = fields.Nested(AdminQuestionChoiceValidator, required=True, many=True)
+    subject = fields.Str(required=True)
+    topic = fields.Str(required=True)
+    tag = fields.Str(required=True)
+    knowledge_item = fields.Str(required=True)
 
 
 class MultipleChoiceSchema(Schema):
@@ -92,6 +118,10 @@ class Questions(BaseModelMixin, db.Model):
 
     @classmethod
     def create_from_admin_form(cls, data: Dict):
+        validation_errors = AdminFormValidator().validate(data=data)
+        if validation_errors is not None and len(validation_errors) != 0:
+            raise ValidationError(
+                "Error creating question. Make sure that you have filled in all the required fields.", validation_errors)  # noqa
         created_choice = []
         correct_choice_id = None
         for choice in data["choices"]:
@@ -110,7 +140,6 @@ class Questions(BaseModelMixin, db.Model):
             data["tag"],
             data["knowledge_item"],
             correct_choice_id,
-            uuid=uuid4(),
             choices=created_choice,
         )
         instance.save()

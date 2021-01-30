@@ -6,7 +6,7 @@ from factory.helpers import post_generation
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc
 from server import db
-from server.models import Questions, QuestionTypeEnum
+from server.models import Questions
 from server.tests.factories.question_choice_factory import \
     QuestionChoiceFactory
 
@@ -25,11 +25,11 @@ class QuestionsFactory(SQLAlchemyModelFactory):
 
     class Params:
         multiple_choice_question_type = Trait(
-            question_type=QuestionTypeEnum.multiple_choice
+            question_type="multiple_choice"
         )
     question = fake.sentence()
-    knowledge_item = fake.words()
-    tag = fake.words()
+    knowledge_item = fake.word()
+    tag = fake.word()
     topic = fake.word()
     correct_choice_id = choice([1, 2, 3, 4])
     subject = choice(["Chemistry", "Biology", "Physics"])
