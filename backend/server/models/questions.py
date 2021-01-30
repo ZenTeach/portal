@@ -42,7 +42,7 @@ class AdminFormValidator(Schema):
         unknown = INCLUDE
 
     question = fields.Str(required=True)
-    question_type = EnumField(QuestionTypeEnum, by_value=True, required=True)
+    question_type = EnumField(QuestionTypeEnum, required=True)
     choices = fields.Nested(AdminQuestionChoiceValidator, required=True, many=True)
     subject = fields.Str(required=True)
     topic = fields.Str(required=True)
@@ -118,7 +118,6 @@ class Questions(BaseModelMixin, db.Model):
 
     @classmethod
     def create_from_admin_form(cls, data: Dict):
-
         validation_errors = AdminFormValidator().validate(data=data)
         if validation_errors is not None and len(validation_errors) != 0:
             raise ValidationError(

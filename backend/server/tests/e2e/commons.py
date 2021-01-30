@@ -43,6 +43,10 @@ def is_el_present(driver, selector, selector_type="xpath"):
         return False
 
 
+def click_checkbox(driver, selector, selector_type):
+    get_el(driver, selector, selector_type).click()
+
+
 def click_button(driver, selector, selector_type):
     get_el(driver, selector, selector_type).click()
 
@@ -78,3 +82,10 @@ def is_option_selected(driver, selector, selector_type, value):
         if option.is_selected() != (value == option.get_attribute('value')):
             return False
     return True
+
+
+def fill_content_editable_field(driver, selector, selector_type, value):
+    div_editable = get_el(driver, selector, selector_type)
+    is_editable = div_editable.get_attribute('contenteditable')
+    if is_editable and div_editable:
+        driver.execute_script(f"arguments[0].setAttribute('textContent', '{value}')", div_editable)
