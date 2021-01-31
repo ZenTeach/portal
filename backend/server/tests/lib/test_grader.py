@@ -16,29 +16,29 @@ from server.tests.factories import (QuizGradeFactory, QuizSessionFactory,
 
 
 @pytest.fixture
-def teacher_() -> Teacher:
+def teacher_(client: FlaskClient) -> Teacher:
     return TeacherFactory.create()
 
 
 @pytest.fixture
-def school_class(teacher_: Teacher) -> SchoolClass:
+def school_class(teacher_: Teacher, client: FlaskClient) -> SchoolClass:
     return SchoolClassFactory(teacher_id=teacher_.id, with_classquiz=ClassQuizStatus.administered)
 
 
 @pytest.fixture
-def student(school_class: SchoolClass) -> Student:
+def student(school_class: SchoolClass, client: FlaskClient) -> Student:
     st: Student = StudentFactory(classes=[school_class])
     st.add_to_class(school_class)
     return st
 
 
 @pytest.fixture
-def classquiz_(school_class: SchoolClass) -> ClassQuiz:
+def classquiz_(school_class: SchoolClass, client: FlaskClient) -> ClassQuiz:
     return school_class.quizzes[0]
 
 
 @pytest.fixture
-def quiz_session(student: Student, classquiz_: ClassQuiz) -> QuizSession:
+def quiz_session(student: Student, classquiz_: ClassQuiz, client: FlaskClient) -> QuizSession:
     # quiz = ClassQuizFactory.build(class_id=school_class.id)
     # quiz.save()
     return QuizSessionFactory(student_id=student.id,
@@ -46,13 +46,13 @@ def quiz_session(student: Student, classquiz_: ClassQuiz) -> QuizSession:
 
 
 @pytest.fixture
-def quizgrade_(student: Student, classquiz_: ClassQuiz) -> QuizGrade:
+def quizgrade_(student: Student, classquiz_: ClassQuiz, client: FlaskClient) -> QuizGrade:
     return QuizGradeFactory(student_id=student.id,
                             class_quiz_id=classquiz_.id, score=None)
 
 
 @pytest.fixture
-def response(classquiz_: ClassQuiz) -> List[Dict]:
+def response(classquiz_: ClassQuiz, client: FlaskClient) -> List[Dict]:
     """
         QuizGrade.response is an array of dict
 
@@ -80,7 +80,7 @@ class TestQuizGrader(object):
     def teardown_class(cls):
         pass
 
-    def test_from_quiz_session(self, client: FlaskClient,
+    def test_from_quiz_session(self,
                                quiz_session: QuizSession,
                                mocker: MockFixture):
         def _mock_grader_init(school_class_id: int, class_quiz: ClassQuiz, *args):
@@ -104,7 +104,7 @@ class TestQuizGrader(object):
         with pytest.raises(Exception):
             Grader.from_quiz_session(uuid4())
 
-    def test_start_grading(self, client: FlaskClient,
+    def test_start_grading(self,
                            quiz_session: QuizSession,
                            quizgrade_: QuizGrade,
                            classquiz_: ClassQuiz,
@@ -122,7 +122,7 @@ class TestQuizGrader(object):
 
             _score_quiz.assert_called_with(response, classquiz_)
 
-    def test__score_quiz(self, client: FlaskClient,
+    def test__score_quiz(self,
                          quiz_session: QuizSession,
                          quizgrade_: QuizGrade,
                          classquiz_: ClassQuiz,
@@ -140,7 +140,7 @@ class TestQuizGrader(object):
 
             _score_quiz.assert_called_with(response, classquiz_)
 
-    def test__score_quiz_call_arguments(self, client: FlaskClient,
+    def test__score_quiz_call_arguments(self,
                                         quiz_session: QuizSession,
                                         quizgrade_: QuizGrade,
                                         classquiz_: ClassQuiz,
@@ -160,7 +160,7 @@ class TestQuizGrader(object):
             assert class_quiz == classquiz_
         Grader.from_quiz_session(quiz_session.uuid)
 
-    def test__score_quiz_score_calculation_and_updates(self, client: FlaskClient,
+    def test__score_quiz_score_calculation_and_updates(self,
                                                        quiz_session: QuizSession,
                                                        quizgrade_: QuizGrade,
                                                        classquiz_: ClassQuiz,
@@ -188,7 +188,7 @@ class TestQuizGrader(object):
 
         Grader.from_quiz_session(quiz_session.uuid)
 
-    def test__calculate_score(self, client: FlaskClient,
+    def test__calculate_score(self,
                               quiz_session: QuizSession,
                               quizgrade_: QuizGrade,
                               classquiz_: ClassQuiz,
@@ -214,7 +214,7 @@ class TestQuizGrader(object):
 
         Grader.from_quiz_session(quiz_session.uuid)
 
-    def test_grading_with_valid_response(self, client: FlaskClient,
+    def test_grading_with_valid_response(self,
                                          quiz_session: QuizSession,
                                          quizgrade_: QuizGrade,
                                          classquiz_: ClassQuiz,
