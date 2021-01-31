@@ -34,6 +34,7 @@ jobs:
           POSTGRES_DB: zenteach
           POSTGRES_USER: zenteach
           POSTGRES_PASSWORD: cipass
+        command: 'postgres -c shared_buffers=256MB -c max_connections=300'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
