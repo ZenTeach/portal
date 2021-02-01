@@ -6,13 +6,14 @@ import pytest
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.api.class_quiz_api import ClassQuiz
+from server.api.questions_api import Question
 from server.lib import Grader
-from server.lib.grader import CorrectChoice
+from server.lib.grader import CorrectChoice, Feedback
 from server.models import (ClassQuizStatus, QuizGrade, QuizSession,
                            SchoolClass, Student, Teacher)
-from server.tests.factories import (QuizGradeFactory, QuizSessionFactory,
-                                    SchoolClassFactory, StudentFactory,
-                                    TeacherFactory)
+from server.tests.factories import (QuestionsFactory, QuizGradeFactory,
+                                    QuizSessionFactory, SchoolClassFactory,
+                                    StudentFactory, TeacherFactory)
 
 
 @pytest.fixture
@@ -49,6 +50,11 @@ def quiz_session(student: Student, classquiz_: ClassQuiz, client: FlaskClient) -
 def quizgrade_(student: Student, classquiz_: ClassQuiz, client: FlaskClient) -> QuizGrade:
     return QuizGradeFactory(student_id=student.id,
                             class_quiz_id=classquiz_.id, score=None)
+
+
+@pytest.fixture
+def question_(client: FlaskClient) -> Question:
+    return QuestionsFactory.create(multiple_choice_question_type=True, with_choices=4)
 
 
 @pytest.fixture
@@ -227,3 +233,67 @@ class TestQuizGrader(object):
         assert quizgrade_.score is not None or quizgrade_.score != 0
         assert quizgrade_.graded
         assert quizgrade_.grade_breakdown is not None and len(quizgrade_.grade_breakdown) != 0
+
+
+class TestFeedbackBuilder(object):
+    @classmethod
+    def setup_class(cls):
+        pass
+
+    @classmethod
+    def teardown_class(cls):
+        pass
+
+    def test_build_from_question_id(self, question_: Question) -> None:
+        builder = Feedback()
+        for _choice in question_.choices:
+            builder.build_from_question_id(question_.id, _choice.uuid)
+
+        assert len(builder.feedback) == 1
+        assert len(builder.feedback[0].keys()) == 4
+        assert [*builder.feedback[0]] == ['topic', 'knowledge_item', 'progress', 'feedback']
+
+    def test__get_topic_breakdown(self, question_: Question, mocker: MockFixture) -> None:
+        builder = Feedback()
+
+        @mocker.patch('server.lib.grader.Feedback._get_topic_breakdown')
+        def _mock_get_topic_breakdown(self, topic):
+            assert topic == question_.topic
+
+        builder.build_from_question_id(question_.id, question_.choices[0].uuid)
+
+    def test_compute_progress_for_topic(self, question_: Question, mocker: MockFixture) -> None:
+        builder = Feedback()
+
+        @mocker.patch('server.lib.grader.Feedback.compute_progress_for_topic')
+        def _mock_compute_progress_for_topic(self, topic):
+            assert topic == question_.topic
+
+            assert self._get_topic_breakdown(topic)
+        builder.build_from_question_id(question_.id, question_.choices[0].uuid)
+
+    def test_compute_progress_for_topic_sets_progress(self,
+                                                      question_: Question,
+                                                      mocker: MockFixture) -> None:
+        builder = Feedback()
+
+        mocker.patch('server.lib.grader.Feedback.add_ki_to_topic')
+        mocker.patch('server.lib.grader.Feedback.add_feedback_to_topic')
+        builder.build_from_question_id(question_.id, question_.choices[0].uuid)
+
+        # TODO: Add more cases here
+        assert builder.feedback[0]['progress'] == ['0/1']
+
+    def test_compute_progress_for_topic_exception(self,
+                                                  question_: Question,
+                                                  mocker: MockFixture) -> None:
+        builder = Feedback()
+        mocker.patch('server.lib.grader.Feedback._get_topic_breakdown', return_value=None)
+
+        @mocker.patch('server.lib.grader.Feedback.compute_progress_for_topic')
+        def _mock_compute_progress_for_topic(self, topic):
+            assert topic == question_.topic
+
+            assert self._get_topic_breakdown(topic)
+
+        builder.build_from_question_id(question_.id, question_.choices[0].uuid)
