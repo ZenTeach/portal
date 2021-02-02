@@ -1,7 +1,7 @@
 <template>
  <v-container>
   <v-layout row column wrap justify-center>
-    <report-card-component v-bind:reports="reports" />
+    <report-card-component v-bind:reports="reports || []" />
   </v-layout>
  </v-container>
 </template>

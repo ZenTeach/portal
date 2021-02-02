@@ -69,6 +69,6 @@ describe('ReportCardComponent.vue Test', () => {
     }
     const wrapper = shallowMount(ReportCardComponent, { localVue, vuetify, propsData: emptyProps })
     const elem = wrapper.find('h3')
-    expect(elem.text()).toEqual('Report card not processed yet!')
+    expect(elem.text()).toEqual('Report card has not been processed yet!')
   })
 })

@@ -29,15 +29,9 @@ class QuizGrade(BaseModelMixin, db.Model):
     grade_breakdown = db.Column(JSON)
     responses = db.Column(JSON)
 
-    def __init__(self, student=None, class_quiz=None, responses=None, graded=False):
-        self.student = student
-        self.class_quiz = class_quiz
-        self.responses = responses
-        self.graded = graded
-
     def __repr__(self):
         return "<QuizGrade {}>".format(
-            self.class_quiz.subject + " " + self.student.full_name()
+            self.class_quiz.subject + " " + self.student.full_name
         )
 
     def update_score(self, new_score):
