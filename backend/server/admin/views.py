@@ -285,7 +285,6 @@ class QuestionView(BaseView):
                          'tag',
                          'question_type',
                          'question',
-                         'image_url',
                          'choices')
 
     form_args = {
@@ -305,7 +304,7 @@ class QuestionView(BaseView):
         ),
     }
 
-    form_excluded_columns = ["uuid", "choices",
+    form_excluded_columns = ["uuid", "choices", "image_url",
                              "correct_choice", "correct_choice_id"]
 
     # form_extra_fields = {
