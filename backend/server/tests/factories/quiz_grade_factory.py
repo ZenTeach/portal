@@ -1,7 +1,5 @@
-from random import randrange
 from uuid import uuid4
 
-from factory import RelatedFactory, SubFactory
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc, person
@@ -23,10 +21,5 @@ class QuizGradeFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     uuid = uuid4()
-    student_id = RelatedFactory("server.tests.factories.StudentFactory")
-    class_quiz_id = RelatedFactory("server.tests.factories.ClassQuizFactory")
-    student = SubFactory("server.tests.factories.StudentFactory")
-    class_quiz = SubFactory("server.tests.factories.ClassQuizFactory")
-    score = randrange(5, 9)
     grade_breakdown = {}
-    responses = {}
+    responses = []

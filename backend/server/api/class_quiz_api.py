@@ -1,4 +1,5 @@
 
+import re
 from typing import Dict
 
 from flask import Blueprint, abort, jsonify, make_response, request, send_file
@@ -238,6 +239,17 @@ class ClassQuizGenerator(Resource):
 class QuizReportCard(Resource):
     @jwt_required
     def get(self, uuid):
+        # Validate the UUID string
+        # Taken from https://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+        validator = re.compile(
+            r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$')
+        if validator.match(uuid) is None:
+            abort(400, 'Report Card id given is unknown or malformed')
+
+        hyphen_count = uuid.count('-')
+        if hyphen_count > 0:
+            uuid = uuid.replace('-', '')
+
         grade = QuizGrade.query.filter_by(uuid=uuid).first()
         if not grade:
             abort(404, "Student or quiz don't exist.")

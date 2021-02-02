@@ -1,13 +1,15 @@
 import json
-from typing import Dict
+from typing import Dict, List
 
 import pytest
 from factory import build
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
-from server.models import ClassQuiz, QuestionsSchema, SchoolClass, Teacher
+from server.models import (ClassQuiz, QuestionsSchema, QuizGrade, SchoolClass,
+                           Student, Teacher)
 from server.tests.factories import (ClassQuizFactory, QuestionsFactory,
-                                    SchoolClassFactory, TeacherFactory)
+                                    QuizGradeFactory, SchoolClassFactory,
+                                    StudentFactory, TeacherFactory)
 
 
 @pytest.fixture
@@ -18,6 +20,13 @@ def teacher_() -> Teacher:
 @pytest.fixture
 def school_class(teacher_: Teacher) -> SchoolClass:
     return SchoolClassFactory.create(teacher_id=teacher_.id)
+
+
+@pytest.fixture
+def student(school_class: SchoolClass) -> Student:
+    student = StudentFactory()
+    school_class.add_student(student)
+    return student
 
 
 @pytest.fixture
@@ -34,6 +43,55 @@ def classquiz_(school_class: SchoolClass) -> ClassQuiz:
     cq = ClassQuizFactory.build(class_id=school_class.id)
     cq.save()
     return cq
+
+
+@pytest.fixture
+def quiz_grade(student: Student, classquiz_: ClassQuiz) -> QuizGrade:
+    return QuizGradeFactory(student_id=student.id,
+                            class_quiz_id=classquiz_.id, score=None)
+
+
+@pytest.fixture
+def breakdown() -> List[List[Dict]]:
+    return [
+        [
+            {
+                'insert': "Argon only makes up 1% of Earth's atmosphere.\nEarth's \
+                    atmosphere is composed of 78% nitrogen, 21% oxygen, 1% argon and 0.04% carbon dioxide.\n"  # noqa
+            }
+        ],
+        [
+            {
+                'insert': "You mixed up Oxygen and Nitrogen.\nEarth's \
+                    atmosphere is composed of 78% nitrogen, 21% oxygen, 1% argon and 0.04% carbon dioxide.\n"  # noqa
+            },
+            {
+                'attributes': {
+                    'background': '#f5f5f5',
+                    'link': 'https://earthhow.com/wp-content/uploads/2018/10/Atmosphere-Composition.png'  # noqa
+                },
+                'insert': 'Image'
+            },
+            {
+                'insert': '\n'
+            }
+        ],
+        [
+            {
+                'insert': "Carbon Dioxide only makes a TINY part of the atmosphere (0.04%).\nNitrogen (78%) is the most abundant gas in Earth's atmosphere.\n"  # noqa
+            }
+        ],
+        [
+            {
+                'insert': "You may have mixed up Argon with Carbon Dioxide.\nCarbon Dioxide only makes up 0.04% of Earth's atmosphere.\n"  # noqa
+            }
+        ],
+        [
+            {
+                'insert': '\n'
+            }
+        ]
+    ]
 
 
 def dummy_jwt_identity() -> Dict:
@@ -90,3 +148,45 @@ def test_classquiz_get_api(client: FlaskClient,
     assert response.status_code == 200
     data = json.loads(response.data.decode())
     assert data['data']['subject'] in ['Chemistry', 'Biology', 'Physics']
+
+
+def test_classquiz_report_card_fetch_api(client: FlaskClient,
+                                         quiz_grade: QuizGrade,
+                                         mocker: MockFixture,
+                                         breakdown: List[List[Dict]]) -> None:  # noqa
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
+    mocker.patch('server.api.class_quiz_api.get_jwt_identity', dummy_jwt_identity)
+
+    # update with gradebreakdown
+    quiz_grade.update_grade_breakdown(breakdown)
+
+    response = client.get(f"/api/v1/class_quiz/report_card/{quiz_grade.uuid}")
+
+    assert response.status_code == 200
+
+
+def test_classquiz_report_card_fetch_api_id_validation(client: FlaskClient,
+                                                       quiz_grade: QuizGrade,
+                                                       mocker: MockFixture) -> None:
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
+    mocker.patch('server.api.class_quiz_api.get_jwt_identity', dummy_jwt_identity)
+
+    from uuid import uuid4
+    response = client.get(f"/api/v1/class_quiz/report_card/{str(uuid4()).replace('-', '')}")
+    assert response.status_code == 400
+
+
+def test_classquiz_report_card_fetch_api_errors_if_not_found(client: FlaskClient,
+                                                             quiz_grade: QuizGrade,
+                                                             mocker: MockFixture) -> None:
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
+    mocker.patch('server.api.class_quiz_api.get_jwt_identity', dummy_jwt_identity)
+
+    from uuid import uuid4
+    response = client.get(f"/api/v1/class_quiz/report_card/{uuid4()}")
+    assert response.status_code == 404
