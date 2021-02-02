@@ -13,7 +13,7 @@
        <template v-if="reports.length === 0">
          <tr>
            <td :colspan="4">
-             <h3 class="text-center"> Report card not processed yet! </h3>
+             <h3 class="text-center"> Report card has not been processed yet! </h3>
            </td>
          </tr>
        </template>
@@ -22,7 +22,7 @@
            <td class="tg-cly1" :rowspan="report.knowledge_item.length" v-if="idx === 0">{{ report.topic }}</td>
            <td class="tg-0lax">{{ knowledge_item}}</td>
            <td :class="highlightProgress(report.progress[idx])">{{ report.progress[idx] }}</td>
-           <td class="tg-0lax">{{ report.feedback[idx]}}</td>
+           <td class="tg-0lax" v-html="convertDeltaToHTML(report.feedback[idx])">{{}}</td>
          </tr>
        </template>
      </tbody>
@@ -31,11 +31,14 @@
 </template>
 
 <script>
+import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html'
+
 export default {
   name: 'ReportCardComponent',
   props: {
     reports: {
       type: Array,
+      default: [],
       required: true
     }
   },
@@ -54,6 +57,16 @@ export default {
         return 'red'
       } else {
         return 'yellow'
+      }
+    },
+    convertDeltaToHTML (feedback) {
+      try {
+        const deltaOps = JSON.parse(feedback)
+        const cfg = {}
+        const converter = new QuillDeltaToHtmlConverter(deltaOps, cfg)
+        return converter.convert()
+      } catch (error) {
+        return feedback
       }
     }
   }
