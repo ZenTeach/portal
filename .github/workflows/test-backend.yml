@@ -91,6 +91,9 @@ jobs:
       - name: Run db configuration
         run: pipenv run python manage.py db_conf
 
-      - name: Run tests
+      - name: Run unit tests
         run: |
-          pipenv run pytest --timeout 600 --cov=server/ --driver Chrome
+          pipenv run pytest --timeout 600 --cov=server/ -m "not e2e"
+      - name: Run e2e
+        run: |
+          pipenv run pytest --timeout 600 --driver Chrome -m e2e

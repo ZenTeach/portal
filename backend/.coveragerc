@@ -10,6 +10,7 @@ source =
 omit=
     server/models/migrations/*
     server/tests/*
+    server/admin/*
 
 [report]
 show_missing = true
