@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
 
-from factory import SelfAttribute, SubFactory
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc, person
@@ -23,10 +22,6 @@ class QuizSessionFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     uuid = uuid4()
-    student = SubFactory("server.tests.factories.StudentFactory")
-    class_quiz = SubFactory("server.tests.factories.ClassQuizFactory", with_school_class=True)
-    class_quiz_id = SelfAttribute("class_quiz.id")
-    student_id = SelfAttribute("student.id")
     start_time = datetime.utcnow()
-    end_time = timedelta(hours=1)
+    end_time = datetime.utcnow() + timedelta(hours=1)
     status = QuizSessionStatus.ended
