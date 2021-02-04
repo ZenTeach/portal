@@ -1,11 +1,12 @@
 from random import choice
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import pytest
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.api.class_quiz_api import ClassQuiz
 from server.lib import Grader
+from server.lib.grader import CorrectChoice
 from server.models import (ClassQuizStatus, Questions, QuizGrade, QuizSession,
                            SchoolClass, Student, Teacher)
 from server.tests.factories import (QuestionsFactory, QuizGradeFactory,
@@ -93,3 +94,123 @@ class TestQuizGrader(object):
         mocker.patch('server.lib.grader.Feedback')
 
         Grader.from_quiz_session(quiz_session.uuid)
+
+    def test_start_grading(self,
+                           quiz_session: QuizSession,
+                           quizgrade_: QuizGrade,
+                           classquiz_: ClassQuiz,
+                           response: List[Dict],
+                           mocker: MockFixture):
+
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        mocker.patch('server.lib.grader.Feedback')
+
+        @mocker.patch('server.lib.grader.Grader._score_quiz')
+        def start_grading_assertions(_score_quiz):
+            Grader.from_quiz_session(quiz_session.uuid)
+
+            _score_quiz.assert_called_with(response, classquiz_)
+
+    def test__score_quiz(self,
+                         quiz_session: QuizSession,
+                         quizgrade_: QuizGrade,
+                         classquiz_: ClassQuiz,
+                         response: List[Dict],
+                         mocker: MockFixture):
+
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        mocker.patch('server.lib.grader.Feedback')
+
+        @mocker.patch('server.lib.grader.Grader._score_quiz')
+        def start_grading_assertions(_score_quiz):
+            Grader.from_quiz_session(quiz_session.uuid)
+
+            _score_quiz.assert_called_with(response, classquiz_)
+
+    def test__score_quiz_call_arguments(self,
+                                        quiz_session: QuizSession,
+                                        quizgrade_: QuizGrade,
+                                        classquiz_: ClassQuiz,
+                                        response: List[Dict],
+                                        mocker: MockFixture):
+
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        mocker.patch('server.lib.grader.Feedback')
+
+        @mocker.patch('server.lib.grader.Grader._score_quiz')
+        def _mock__score_quiz(quiz_submissions: List[QuizGrade], class_quiz: ClassQuiz):
+            assert isinstance(quiz_submissions[0], QuizGrade)
+            assert quiz_submissions[0] == quizgrade_
+            assert class_quiz is not None
+            assert class_quiz == classquiz_
+        Grader.from_quiz_session(quiz_session.uuid)
+
+    def test__score_quiz_score_calculation_and_updates(self,
+                                                       quiz_session: QuizSession,
+                                                       quizgrade_: QuizGrade,
+                                                       response: List[Dict],
+                                                       mocker: MockFixture):
+
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        def _calculate_score_mock(instance,
+                                  correct_responses: List['CorrectChoice'],
+                                  submitted_response: List[Dict]):
+            assert isinstance(correct_responses, list)
+            assert isinstance(correct_responses[0], CorrectChoice)
+            assert isinstance(submitted_response, list)
+            assert isinstance(submitted_response[0], dict)
+
+        mocker.patch('server.lib.grader.Feedback')
+        mocker.patch('server.lib.grader.Feedback.build_from_question_id')
+        mocker.patch('server.lib.grader.Grader._get_correct_choice_by_question_id')
+        mocker.patch('server.lib.grader.Grader._calculate_score', _calculate_score_mock)
+        mocker.patch('server.models.quiz_grade.QuizGrade.update_score')
+        mocker.patch('server.models.quiz_grade.QuizGrade.is_graded')
+        mocker.patch('server.models.quiz_grade.QuizGrade.update_grade_breakdown')
+
+        Grader.from_quiz_session(quiz_session.uuid)
+
+    def test__calculate_score(self,
+                              quiz_session: QuizSession,
+                              quizgrade_: QuizGrade,
+                              response: List[Dict],
+                              mocker: MockFixture):
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        def _mock_get_correct_choice_by_question_id(instance,
+                                                    target: str,
+                                                    stack: Optional[List[CorrectChoice]]):
+            assert target
+            assert stack
+
+        mocker.patch('server.lib.grader.Feedback')
+        mocker.patch('server.lib.grader.Feedback.build_from_question_id')
+        mocker.patch('server.lib.grader.Grader._get_correct_choice_by_question_id')
+        mocker.patch('server.lib.grader.Grader._calculate_score',
+                     _mock_get_correct_choice_by_question_id)
+        mocker.patch('server.models.quiz_grade.QuizGrade.update_score')
+        mocker.patch('server.models.quiz_grade.QuizGrade.is_graded')
+        mocker.patch('server.models.quiz_grade.QuizGrade.update_grade_breakdown')
+
+        Grader.from_quiz_session(quiz_session.uuid)
+
+    def test_grading_with_valid_response(self,
+                                         quiz_session: QuizSession,
+                                         quizgrade_: QuizGrade,
+                                         response: List[Dict]):
+        quizgrade_.responses = response
+        quizgrade_.save()
+
+        Grader.from_quiz_session(quiz_session.uuid)
+        assert quizgrade_.score is not None or quizgrade_.score != 0
+        assert quizgrade_.graded
+        assert quizgrade_.grade_breakdown is not None and len(quizgrade_.grade_breakdown) != 0
