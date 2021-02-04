@@ -88,8 +88,8 @@ class Feedback(object):
 class Grader(object):
     # Takes a batch of administered quizzes and grades them
     # TODO: Add batching
-    def __init__(self, school_class_id, class_quiz=None, batch=1) -> None:
-        self.batch_size = batch
+    def __init__(self, school_class_id, class_quiz=None) -> None:
+        self.batch_size = 1
         self.school_class_id = school_class_id
         self.class_quiz = class_quiz
         self._feedback_builder = Feedback()
@@ -125,7 +125,7 @@ class Grader(object):
             logger.info(f"Found {len(res)} submissions for quiz with id {quiz.id}")
             self._score_quiz(res, quiz)
 
-    def _score_quiz(self, quiz_submissions, quiz) -> None:
+    def _score_quiz(self, quiz_submissions: List[QuizGrade], quiz: ClassQuiz) -> None:
         for submission in quiz_submissions:
             # TODO: There are two issues with working with unvalidated
             # input. One, the quiz submission can be flawed if they're referencing
