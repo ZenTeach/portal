@@ -30,7 +30,7 @@ const LOGIN_USER = ({ commit, dispatch }, payload) => {
 const SIGNOUT_USER = ({ commit, dispatch }) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
   logoutUser()
-  Vue.prototype.$cookies.remove('access_token_cookie')
+  Vue.prototype.$cookies.remove('csrf_access_token')
   commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
   commit('TOGGLECURRENTUSER', {})
   commit('app/TOGGLE_APP_LOADING', false, { root: true })
