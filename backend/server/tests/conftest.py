@@ -39,6 +39,7 @@ def client():
         yield app.test_client()
         db.session.remove()  # looks like db.session.close() would work as well
         db.drop_all()
+        db.engine.dispose()
 
 
 @pytest.yield_fixture
