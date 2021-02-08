@@ -92,7 +92,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
         from .quiz_session import QuizSession
 
         self.student_quiz_sessions.append(
-            QuizSession(student=student, class_quiz=self))
+            QuizSession(student=student, class_quiz=self, uuid=unique_uuid4()))
 
     def set_maxscore(self) -> int:
         if self.questions is not None and len(self.questions) != 0:

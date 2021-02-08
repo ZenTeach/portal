@@ -35,6 +35,11 @@ class SubmitQuiz(Resource):
         if not class_quiz:
             abort(404, "Class Quiz doesn't exist")
 
+        # check if there was a submission before
+        submission = QuizSession.query.filter_by(student=student, class_quiz=class_quiz).first()
+        if submission:
+            abort(400, "Quiz has already been submitted. If you think this is by mistake, contact your teacher for a redo.")  # noqa
+
         try:
             class_quiz.add_student_session(student)
             class_quiz.save()
@@ -74,6 +79,7 @@ class SubmitQuiz(Resource):
         quiz_session = QuizSession.query.filter_by(
             student_id=student.id, class_quiz_id=class_quiz.id
         ).first()
+
         if not quiz_session:
             abort(404, "Quiz not started")
         try:
