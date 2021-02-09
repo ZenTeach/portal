@@ -170,3 +170,13 @@ def test_teacher_token_refresh(client: FlaskClient,
 
         redis_store.assert_called_once()
         assert response.status_code == 200
+
+
+def test_teacher_logout(client: FlaskClient, teacher_: Teacher, mocker: MockFixture) -> None:
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.teacher_auth_api.get_raw_jwt')
+    mocker.patch('server.api.teacher_auth_api.redis_store')
+
+    response = client.delete('/api/v1/teacher/logout')
+
+    assert response.status_code == 204
