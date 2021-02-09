@@ -8,7 +8,7 @@ export function loginUser (payload) {
 }
 
 export function logoutUser () {
-  return Api.post('/teacher/logout')
+  return Api.remove('/teacher/logout')
     .then(handleResponse)
     .then(data => data)
 }
