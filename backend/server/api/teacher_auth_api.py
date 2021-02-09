@@ -113,10 +113,10 @@ class TeacherLogin(Resource):
 
 class TeacherLogout(Resource):
     @jwt_required
-    def post(self):
+    def delete(self):
         jti = get_raw_jwt()["jti"]
         redis_store.set(jti, "true", ACCESS_EXPIRES * 1.2)
-        return make_response(jsonify({"msg": "Access token revoked"}), 200)
+        return make_response(jsonify({"msg": "Access token revoked"}), 204)
 
 
 class TokenRefresh(Resource):
