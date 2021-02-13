@@ -23,12 +23,3 @@ class StudentFactory(SQLAlchemyModelFactory):
     password = fake.password(length=12, special_chars=True, digits=True,
                              upper_case=True, lower_case=True)
     role = "Student"
-    # classes = RelatedFactory('server.tests.factories.SchoolClassFactory')
-
-    # @post_generation
-    # def add_quiz_grades_to_student(self, create, extracted, **kwargs):
-    #     if not create:
-    #         return
-    #     if extracted:
-    #         for quiz in extracted:
-    #             self.quiz_grades.add(quiz)

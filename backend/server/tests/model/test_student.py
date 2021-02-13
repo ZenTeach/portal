@@ -1,15 +1,22 @@
-from typing import List
+from typing import Dict, List
 
 import pytest
 from factory import build
-from server.models import SchoolClass, Student, StudentAttendedClass, Teacher
+from flask.testing import FlaskClient
+from server.models import (ClassQuiz, SchoolClass, Student,
+                           StudentAttendedClass, Teacher)
 from server.tests.factories import (SchoolClassFactory, StudentFactory,
                                     TeacherFactory)
 
 
 @pytest.fixture
-def student_():
+def student_() -> Dict:
     return build(dict, FACTORY_CLASS=StudentFactory)
+
+
+@pytest.fixture
+def student() -> Student:
+    return StudentFactory()
 
 
 @pytest.fixture
@@ -18,16 +25,16 @@ def teacher_() -> Teacher:
 
 
 @pytest.fixture
-def classrooms_(teacher_) -> List[SchoolClass]:
+def classrooms_(teacher_: Teacher) -> List[SchoolClass]:
     return SchoolClassFactory.create_batch(5, teacher_id=teacher_.id)
 
 
 @pytest.fixture
-def classroom_(teacher_) -> SchoolClass:
+def classroom_(teacher_: Teacher) -> SchoolClass:
     return SchoolClassFactory.create(teacher_id=teacher_.id)
 
 
-def test_student_model_is_saved(client, student_):
+def test_student_model_is_saved(client: FlaskClient, student_: Student) -> None:
     st = Student(**student_)
     st.save()
 
@@ -39,7 +46,9 @@ def test_student_model_is_saved(client, student_):
     assert st.role == "Student"
 
 
-def test_student_add_to_class(client, student_, classroom_):
+def test_student_add_to_class(client: FlaskClient,
+                              student_: Student,
+                              classroom_: ClassQuiz) -> None:
     st = Student(**student_)
     st.save()
 
@@ -49,7 +58,9 @@ def test_student_add_to_class(client, student_, classroom_):
     assert st.classes[0] == classroom_
 
 
-def test_student_save_with_class(client, student_, classroom_):
+def test_student_save_with_class(client: FlaskClient,
+                                 student_: Student,
+                                 classroom_: ClassQuiz) -> None:
     st = Student(**student_)
     st.save()
 
@@ -59,7 +70,9 @@ def test_student_save_with_class(client, student_, classroom_):
     assert st.classes[0] == classroom_
 
 
-def test_student_class_remove(client, student_, classroom_):
+def test_student_class_remove(client: FlaskClient,
+                              student_: Student,
+                              classroom_: SchoolClass) -> None:
     st = Student(**student_)
     st.save()
 
@@ -70,7 +83,10 @@ def test_student_class_remove(client, student_, classroom_):
     assert st.classes == []
 
 
-def test_student_class_append(client, student_, classrooms_, classroom_):
+def test_student_class_append(client: FlaskClient,
+                              student_: Student,
+                              classrooms_: List[SchoolClass],
+                              classroom_: SchoolClass) -> None:
     st = Student(**student_, classes=classrooms_)
     st.save()
 
@@ -83,7 +99,9 @@ def test_student_class_append(client, student_, classrooms_, classroom_):
     assert len(st.classes) == 6
 
 
-def test_student_remove(client, student_, classrooms_):
+def test_student_remove(client: FlaskClient,
+                        student_: Student,
+                        classrooms_: ClassQuiz) -> None:
     st = Student(**student_)
     st.save()
     st.add_from_class_list(classrooms_)
@@ -93,3 +111,15 @@ def test_student_remove(client, student_, classrooms_):
 
     Student.remove_model(st)
     assert StudentAttendedClass.query.filter_by(student_id=st.id).count() == 0
+
+
+def test_student_update_email(client: FlaskClient,
+                              student: Student) -> None:
+    student.update_email("test@example.com")
+    student.reload()
+
+    assert student.email == "test@example.com"
+
+    student.update_email("")
+    student.reload()
+    assert student.email == "test@example.com"
