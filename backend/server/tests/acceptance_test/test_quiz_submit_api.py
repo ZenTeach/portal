@@ -1,3 +1,4 @@
+from json import loads
 from uuid import uuid4
 
 import pytest
@@ -105,3 +106,105 @@ def test_post_quiz_submit(client: FlaskClient,
     assert response.status_code == 201
     assert classquiz_.status == ClassQuizStatus.administered
     assert session_.status == QuizSessionStatus.ended
+
+
+def test_post_student_not_found_error(client: FlaskClient,
+                                      classquiz_: ClassQuiz,
+                                      session_: QuizSession,
+                                      mocker: MockFixture):
+
+    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
+    response = client.post("/api/v1/submit_quiz",
+                           json={
+                               "StudentEmail": "dummy@example.com",
+                               "QuizId": classquiz_.uuid,
+                               "data": []
+                           })
+
+    assert response.status_code == 404
+    assert session_.status == QuizSessionStatus.created
+
+    data = loads(response.data.decode("utf-8"))['message']
+    assert data == "Student with email dummy@example.com doesn't exist"
+
+
+def test_post_classquiz_not_found_error(client: FlaskClient,
+                                        student: Student,
+                                        session_: QuizSession,
+                                        mocker: MockFixture):
+    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
+    response = client.post("/api/v1/submit_quiz",
+                           json={
+                               "StudentEmail": student.email,
+                               "QuizId": uuid4(),
+                               "data": []
+                           })
+
+    assert response.status_code == 404
+    assert session_.status == QuizSessionStatus.created
+
+    data = loads(response.data.decode("utf-8"))['message']
+    assert data == "Class Quiz doesn't exist"
+
+
+def test_post_quizsession_not_found_error(client: FlaskClient,
+                                          student: Student,
+                                          classquiz_: ClassQuiz,
+                                          mocker: MockFixture):
+    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
+    response = client.post("/api/v1/submit_quiz",
+                           json={
+                               "StudentEmail": student.email,
+                               "QuizId": classquiz_.uuid,
+                               "data": []
+                           })
+
+    assert response.status_code == 404
+
+    data = loads(response.data.decode("utf-8"))['message']
+    assert data == "Quiz not started"
+
+
+def test_post_quizsession_ended_error(client: FlaskClient,
+                                      student: Student,
+                                      classquiz_: ClassQuiz,
+                                      session_: QuizSession,
+                                      mocker: MockFixture):
+
+    session_.update_status(QuizSessionStatus.ended)
+    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
+    response = client.post("/api/v1/submit_quiz",
+                           json={
+                               "StudentEmail": student.email,
+                               "QuizId": classquiz_.uuid,
+                               "data": []
+                           })
+
+    assert response.status_code == 404
+
+    data = loads(response.data.decode("utf-8"))['message']
+    assert data == "Session has ended!"
+
+
+def test_post_db_exception(client: FlaskClient,
+                           student: Student,
+                           classquiz_: ClassQuiz,
+                           session_: QuizSession,
+                           mocker: MockFixture):
+
+    def _mock_student_save(*args):
+        raise exc.IntegrityError('', '', '')
+
+    mocker.patch.object(Student, 'save', _mock_student_save)
+    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
+    response = client.post("/api/v1/submit_quiz",
+                           json={
+                               "StudentEmail": student.email,
+                               "QuizId": classquiz_.uuid,
+                               "data": []
+                           })
+
+    assert response.status_code == 500
+
+    data = loads(response.data.decode("utf-8"))['message']
+    assert data == "Encountered a server error"
