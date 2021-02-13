@@ -23,26 +23,25 @@ class SubmitQuiz(Resource):
         """
             Creates a quiz session object
         """
-        # Find student with ID
         args = parser.parse_args()
 
         student = Student.query.filter_by(email=args["email"]).first()
         if not student:
             abort(404, "Student email doesn't exist")
 
-        # add session to class_quiz
         class_quiz = ClassQuizModel.query.filter_by(uuid=args["quiz"]).first()
         if not class_quiz:
             abort(404, "Class Quiz doesn't exist")
 
-        # check if there was a submission before
-        submission = QuizSession.query.filter_by(student=student, class_quiz=class_quiz).first()
-        if submission:
-            abort(400, "Quiz has already been submitted. If you think this is by mistake, contact your teacher for a redo.")  # noqa
-
         try:
-            class_quiz.add_student_session(student)
-            class_quiz.save()
+            submission = QuizSession.query.filter_by(
+                student=student, class_quiz=class_quiz).first()
+            if submission:
+                if submission.has_session_ended():
+                    abort(400, "Quiz has already been submitted. If you think this is by mistake, contact your teacher for a redo.")  # noqa
+            else:
+                class_quiz.add_student_session(student)
+                class_quiz.save()
         except exc.DatabaseError as e:
             logger.error(e)
             report_5xx_error(e)

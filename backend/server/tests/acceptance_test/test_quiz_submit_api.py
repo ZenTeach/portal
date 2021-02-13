@@ -63,11 +63,11 @@ def test_get_quiz_submit_without_class_quiz_fails_with_404(client: FlaskClient,
     assert response.status_code == 404
 
 
-def test_get_quiz_submit_with_existing_submission_fails_with_404(client: FlaskClient,
+def test_get_quiz_submit_with_existing_submission_fails_with_400(client: FlaskClient,
                                                                  student: Student,
                                                                  classquiz_: ClassQuiz,
                                                                  session_: QuizSession):
-
+    session_.update_status(QuizSessionStatus.ended)
     response = client.get(f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}")
     assert response.status_code == 400
 
@@ -83,6 +83,17 @@ def test_get_quiz_submit_with_database_error_fails_with_500(client: FlaskClient,
     mocker.patch.object(ClassQuiz, 'add_student_session', _mock_add_student_session)
     response = client.get(f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}")
     assert response.status_code == 500
+
+
+def test_get_endpoint_idempotency(client: FlaskClient,
+                                  student: Student,
+                                  classquiz_: ClassQuiz,
+                                  session_: QuizSession,
+                                  mocker: MockFixture):
+
+    response = client.get(f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}")
+    assert response.status_code == 200
+    assert QuizSession.query.count() == 1
 
 
 def test_post_quiz_submit(client: FlaskClient,
