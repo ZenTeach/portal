@@ -15,10 +15,16 @@
         </template>
         <template v-slot:item.actions="{ item }">
             <v-icon
-              large
+              medium
               @click="showConfirmItemDelete(item)"
             >
               mdi-trash-can-outline
+            </v-icon>
+            <v-icon
+              medium
+              @click="showEditItemDialog(item)"
+            >
+              mdi-pencil-circle
             </v-icon>
         </template>
         <template v-slot:footer>
@@ -51,8 +57,6 @@
               Confirm student deletion
             </h3>
           </v-card-title>
-          <!-- <div class="px-3" color="primary">
-          </div> -->
           <v-card-text>
             <p class="font-weight-medium body-1 ">
               This action will remove the student from the classroom and in effect remove all
@@ -64,6 +68,41 @@
             <v-btn color="secondary" outlined class="mr-4" @click.native.prevent="hideConfirmItemDelete()">Cancel</v-btn>
         </v-card-actions>
         </v-card>
+      </v-dialog>
+
+      <v-dialog
+        persistent
+        v-model="editStudentModal"
+        :overlay="false"
+        max-width="500px"
+        transition="dialog-transition">
+          <v-card class="d-flex flex-column align-left pa-3">
+            <v-card-title primary-title>
+              <h3 class="title font-weight-bold mb-2">
+                Edit student data
+              </h3>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col>
+                    <v-text-field
+                      v-model="updatedEmail"
+                      label="Email"
+                      :placeholder="editableEmail"
+                      prepend-icon="email"
+                      outline
+                      required
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions class="justify-space-between px-5">
+                <v-btn color="primary" @click="editItem()" class="mr-4" >Update</v-btn>
+                <v-btn color="error" outlined class="mr-4" @click.native.prevent="hideEditStudentDialog()">Cancel</v-btn>
+            </v-card-actions>
+          </v-card>
       </v-dialog>
   </div>
 </template>
@@ -101,6 +140,9 @@ export default {
     selectedFile: null,
     deleteConfirmationModal: false,
     studentToBeDeleted: null,
+    editableEmail: '',
+    updatedEmail: '',
+    editStudentModal: false,
     headers: [
       { text: 'First name', align: 'left', value: 'firstname', width: 20 },
       { text: 'Last Name', align: 'left', value: 'lastname', width: 20 },
@@ -113,7 +155,8 @@ export default {
   }),
   methods: {
     ...mapActions({
-      removeStudent: 'REMOVESTUDENTFROMCLASS'
+      removeStudent: 'REMOVESTUDENTFROMCLASS',
+      updateStudentEmail: 'UPDATESTUDENTEMAIL'
     }),
     toggleInviteDialog (data) {
       this.dialog = data
@@ -128,6 +171,14 @@ export default {
     hideConfirmItemDelete (item) {
       this.deleteConfirmationModal = false
     },
+    showEditItemDialog (item) {
+      this.editableEmail = item.email
+      this.editStudentModal = true
+    },
+    hideEditStudentDialog () {
+      this.editStudentModal = false
+      this.editableEmail = ''
+    },
     deleteItem (item) {
       this.removeStudent({
         classId: this.classId,
@@ -135,6 +186,21 @@ export default {
       })
       this.deleteConfirmationModal = false
       this.studentToBeDeleted = null
+    },
+    editItem () {
+      const payload = {
+        old_email: this.editableEmail,
+        new_email: this.updatedEmail
+      }
+
+      this.updateStudentEmail(
+        {
+          classId: this.classId,
+          data: payload
+        }
+      )
+
+      this.hideEditStudentDialog()
     }
   }
 }

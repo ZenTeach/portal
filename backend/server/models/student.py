@@ -84,6 +84,13 @@ class Student(BaseModelMixin, db.Model):
             .filter_by(student_id=self.id, school_class_id=class_.id).first()
         class_attended.delete()
 
+    def update_email(self, email: str) -> None:
+        if email == "":
+            return
+
+        self.email = email
+        self.save()
+
     @classmethod
     def remove_model(cls, model: 'Student') -> None:
         classes: List[StudentAttendedClass] = StudentAttendedClass.query.filter_by(

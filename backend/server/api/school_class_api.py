@@ -2,6 +2,7 @@
 from flask import Blueprint, abort, jsonify, make_response, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Api, Resource, reqparse
+from marshmallow import INCLUDE, Schema, fields
 from server import db
 from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
@@ -12,6 +13,14 @@ from sqlalchemy import exc
 school_class_blueprint = Blueprint("school_class", __name__)
 api = Api(school_class_blueprint)
 schema_dumper = SchoolClassSchema()
+
+
+class PatchPayloadSchema(Schema):
+    class Meta:
+        unknown = INCLUDE
+
+    new_email = fields.Email(required=True)
+    old_email = fields.Email(required=True)
 
 
 class SchoolClass(Resource):
@@ -243,6 +252,41 @@ class SchoolClassStudent(Resource):
                     }
                 ),
                 204,
+            )
+
+    @jwt_required
+    def patch(self, class_id):
+
+        school_class = SchoolClassModel.query.filter_by(id=class_id).first()
+        if not school_class:
+            abort(404, "School class room doesn't exist")
+
+        data = request.get_json()
+        validation = PatchPayloadSchema().validate(data=data)
+        if validation is not None and len(validation) != 0:
+            abort(400, "Data is not valid!")
+
+        new_email = data.get('new_email')
+        old_email = data.get('old_email')
+
+        student = Student.query.filter_by(email=old_email).first()
+        if not student:
+            abort(404, "Student not found!")
+
+        try:
+            student.update_email(new_email)
+        except exc.DatabaseError as e:  # noqa
+            report_5xx_error(e)
+            abort(500, "Server got an error.")
+        else:
+            return make_response(
+                jsonify(
+                    {
+                        "message": "Student email successfully updated",
+                        "status": "success",
+                    }
+                ),
+                200,
             )
 
 
