@@ -59,7 +59,6 @@ class SubmitQuiz(Resource):
 
     def post(self):
         post_data = request.get_json()
-        # Step 1: Validate data
         student_email = post_data.get('StudentEmail')
         student = Student.query.filter_by(
             email=student_email).first()
@@ -82,26 +81,21 @@ class SubmitQuiz(Resource):
         if not quiz_session:
             abort(404, "Quiz not started")
         try:
-            # check if session ended
             if quiz_session.has_session_ended():
                 abort(404, "Session has ended!")
 
-            # Step 2: Store
             student.add_quiz_score(class_quiz, post_data.get("data"))
             student.save()
-            # TODO: Fix! This logic is somehow flawed as the first submission
-            # triggers a model update.
-            # Proposal: Execute only once the due date is up!
+
             class_quiz.update_status(ClassQuizStatus.administered)
-            # 1. End Quiz Session
             quiz_session.update_status(QuizSessionStatus.ended)
-            # 2. Trigger background job
+
             grader_administered_quizzes.apply_async(args=[quiz_session.uuid])
+
             db.session.commit()
             response_object = {"status": "success",
                                "message": "Quiz submitted!"}
             return make_response(response_object, 201)
-        # Step 3: Update
         except exc.IntegrityError as e:
             logger.error(e)
             report_5xx_error(e)

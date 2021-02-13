@@ -44,6 +44,13 @@ def session_(student: Student, classquiz_: ClassQuiz) -> QuizSession:
                               status=QuizSessionStatus.created)
 
 
+@pytest.fixture
+def ended_session_(student: Student, classquiz_: ClassQuiz) -> QuizSession:
+    return QuizSessionFactory(student=student,
+                              class_quiz=classquiz_,
+                              status=QuizSessionStatus.ended)
+
+
 def test_get_quiz_submit(client: FlaskClient, student: Student, classquiz_: ClassQuiz):
     response = client.get(f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}")
     assert response.status_code == 200
@@ -66,8 +73,8 @@ def test_get_quiz_submit_without_class_quiz_fails_with_404(client: FlaskClient,
 def test_get_quiz_submit_with_existing_submission_fails_with_400(client: FlaskClient,
                                                                  student: Student,
                                                                  classquiz_: ClassQuiz,
-                                                                 session_: QuizSession):
-    session_.update_status(QuizSessionStatus.ended)
+                                                                 ended_session_: QuizSession):
+
     response = client.get(f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}")
     assert response.status_code == 400
 
@@ -179,10 +186,9 @@ def test_post_quizsession_not_found_error(client: FlaskClient,
 def test_post_quizsession_ended_error(client: FlaskClient,
                                       student: Student,
                                       classquiz_: ClassQuiz,
-                                      session_: QuizSession,
+                                      ended_session_: QuizSession,
                                       mocker: MockFixture):
 
-    session_.update_status(QuizSessionStatus.ended)
     mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
     response = client.post("/api/v1/submit_quiz",
                            json={
@@ -219,3 +225,19 @@ def test_post_db_exception(client: FlaskClient,
 
     data = loads(response.data.decode("utf-8"))['message']
     assert data == "Encountered a server error"
+
+
+def test_post_endpoint_idempotency(client: FlaskClient,
+                                   student: Student,
+                                   classquiz_: ClassQuiz,
+                                   ended_session_: QuizSession,
+                                   mocker: MockFixture):
+
+    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
+    response = client.post("/api/v1/submit_quiz",
+                           json={
+                               "StudentEmail": student.email,
+                               "QuizId": classquiz_.uuid,
+                               "data": []
+                           })
+    assert response.status_code == 404
