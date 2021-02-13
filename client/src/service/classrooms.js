@@ -42,3 +42,9 @@ export function removeStudent (classId, studentId) {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function updateStudentEmail (classId, payload) {
+  return Api.patch(`/school_class/${classId}/student`, payload)
+    .then(handleResponse)
+    .then(data => data)
+}

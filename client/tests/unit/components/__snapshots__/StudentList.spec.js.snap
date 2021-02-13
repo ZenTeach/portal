@@ -86,5 +86,27 @@ exports[`StudentList.vue renders correctly 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
+  <v-dialog-stub opendelay="0" closedelay="0" contentclass="" maxwidth="500px" origin="center center" persistent="true" retainfocus="true" transition="dialog-transition" width="auto">
+    <v-card-stub loaderheight="4" tag="div" class="d-flex flex-column align-left pa-3">
+      <v-card-title-stub primarytitle="" primary-title="">
+        <h3 class="title font-weight-bold mb-2">
+          Edit student data
+        </h3>
+      </v-card-title-stub>
+      <v-card-text-stub>
+        <v-container-stub tag="div">
+          <v-row-stub tag="div">
+            <v-col-stub tag="div">
+              <v-text-field-stub errorcount="1" errormessages="" messages="" rules="" successmessages="" value="" backgroundcolor="" label="Email" prependicon="email" loaderheight="2" clearicon="$clear" placeholder="" type="text" outline="" required=""></v-text-field-stub>
+            </v-col-stub>
+          </v-row-stub>
+        </v-container-stub>
+      </v-card-text-stub>
+      <v-card-actions-stub class="justify-space-between px-5">
+        <v-btn-stub color="primary" tag="button" activeclass="" type="button" class="mr-4">Update</v-btn-stub>
+        <v-btn-stub color="error" outlined="true" tag="button" activeclass="" type="button" class="mr-4">Cancel</v-btn-stub>
+      </v-card-actions-stub>
+    </v-card-stub>
+  </v-dialog-stub>
 </div>
 `;
