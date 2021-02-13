@@ -41,13 +41,13 @@ def test_send_confirmation_instructions(client: FlaskClient,
                                         mocker: MockFixture):
     @mocker.patch('server.tasks.user_account_tasks.send_mail_with_html')
     def test_success(send_mail_with_html):
-        send_confirmation_instructions(teacher.id)
         message = Message(subject="Confirm your account!")
         message.recipients = ["{}".format(teacher.email)]
 
         send_mail_with_html.assert_called_with(message,
                                                'account_confirmation.html.j2',
                                                confirmation_link=teacher.generate_confirmation_link())  # noqa
+    send_confirmation_instructions(teacher.id)
 
 
 def test_send_account_recovery_instructions(client: FlaskClient,
@@ -56,7 +56,6 @@ def test_send_account_recovery_instructions(client: FlaskClient,
 
     @mocker.patch('server.tasks.user_account_tasks.send_mail_with_html')
     def test_success(send_mail_with_html):
-        send_account_recovery_instructions(teacher.email)
 
         message = Message(subject="Recover your account")
         message.recipients = ["{}".format(teacher.email)]
@@ -64,23 +63,30 @@ def test_send_account_recovery_instructions(client: FlaskClient,
         send_mail_with_html.assert_called_with(message,
                                                'account_recovery.html.j2',
                                                recovery_link=teacher.get_reset_link())
+    send_account_recovery_instructions(teacher.email)
 
+
+def test_send_account_recovery_instructions_error(client: FlaskClient,
+                                                  teacher: Teacher,
+                                                  mocker: MockFixture):
     @mocker.patch('server.tasks.user_account_tasks.send_mail_with_html')
     def test_error(send_mail_with_html):
-        send_account_recovery_instructions("")
-
         send_mail_with_html.assert_not_called()
+
+    send_account_recovery_instructions("")
 
 
 def test_send_user_invite(client: FlaskClient,
                           invitations: Invitations,
+                          teacher: Teacher,
                           mocker: MockFixture):
     @mocker.patch('server.tasks.user_account_tasks.send_mail_with_html')
     def test_success(send_mail_with_html):
-        send_user_invite(invitations.email)
         message = Message(subject="Your invite is here!")
         message.recipients = ["{}".format(invitations.email)]
 
         send_mail_with_html.assert_called_with(message,
                                                'user_invite.html.j2',
+                                               inviter=str(teacher),
                                                invite_token=invitations.token)
+    send_user_invite(invitations.email)
