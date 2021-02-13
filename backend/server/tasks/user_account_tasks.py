@@ -26,8 +26,11 @@ def send_confirmation_instructions(self, teacher_id):
 
 @celery.task(bind=True)
 def send_account_recovery_instructions(self, email):
+    teacher = Teacher.query.filter_by(email=email).first()
+
+    if teacher is None:
+        return ""
     try:
-        teacher = Teacher.query.filter_by(email=email).first()
         recovery_link = teacher.get_reset_link()
 
         message = Message(subject="Recover your account")
@@ -45,11 +48,13 @@ def send_account_recovery_instructions(self, email):
 def send_user_invite(self, invite_email):
     try:
         invite = Invitations.query.filter_by(email=invite_email, active=True).first()
+        teacher = Teacher.query.filter_by(id=invite.invitation_from_id).first()
         message = Message(subject="Your invite is here!")
         message.recipients = ["{}".format(invite.email)]
 
         send_mail_with_html(message,
                             'user_invite.html.j2',
+                            inviter=str(teacher),
                             invite_token=invite.token)
     except Exception as e:
         logger.error(e)
