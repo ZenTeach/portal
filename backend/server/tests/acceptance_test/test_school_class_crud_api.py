@@ -1,4 +1,6 @@
 import json
+from json import loads
+from typing import Dict
 
 import pytest
 from factory import build
@@ -8,6 +10,7 @@ from server.models import SchoolClass, Teacher
 from server.models.student import Student
 from server.tests.factories import (SchoolClassFactory, StudentFactory,
                                     TeacherFactory)
+from sqlalchemy import exc
 
 
 @pytest.fixture
@@ -96,9 +99,9 @@ def test_delete_school_class(client: FlaskClient,
     assert response.status_code == 204
 
 
-def test_add_student_to_school_class(client: FlaskClient,
-                                     mocker: MockFixture,
-                                     school_class: SchoolClass):
+def test_post_add_student_to_school_class(client: FlaskClient,
+                                          mocker: MockFixture,
+                                          school_class: SchoolClass):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     student_payload = {
         'firstname': 'Michael',
@@ -115,10 +118,10 @@ def test_add_student_to_school_class(client: FlaskClient,
     assert response.status_code == 201
 
 
-def test_remove_student_from_school_class(client: FlaskClient,
-                                          mocker: MockFixture,
-                                          school_class: SchoolClass,
-                                          student: Student):
+def test_delete_remove_student_from_school_class(client: FlaskClient,
+                                                 mocker: MockFixture,
+                                                 school_class: SchoolClass,
+                                                 student: Student):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
 
     school_class.add_student(student)
@@ -130,6 +133,115 @@ def test_remove_student_from_school_class(client: FlaskClient,
 
     assert response.status_code == 204
     assert len(school_class.students) == 0
+
+
+def test_patch_update_student_email_in_school_class(client: FlaskClient,
+                                                    mocker: MockFixture,
+                                                    school_class: SchoolClass,
+                                                    student: Student):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    school_class.add_student(student)
+
+    response = client.patch(f'/api/v1/school_class/{school_class.id}/student',
+                            json={
+                                'old_email': student.email,
+                                'new_email': 'test@example.com'
+                            }
+                            )
+
+    assert response.status_code == 200
+    student.reload()
+    assert student.email == "test@example.com"
+
+
+def test_patch_update_student_email_if_school_class_not_found(client: FlaskClient,
+                                                              mocker: MockFixture,
+                                                              school_class: SchoolClass,
+                                                              student: Student):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    school_class.add_student(student)
+
+    response = client.patch('/api/v1/school_class/10/student',
+                            json={
+                                'old_email': student.email,
+                                'new_email': 'test@example.com'
+                            }
+                            )
+
+    assert response.status_code == 404
+    data = loads(response.data.decode("utf-8"))['message']
+    assert data == "School class room doesn't exist"
+
+
+def test_patch_update_student_email_if_student_not_found(client: FlaskClient,
+                                                         mocker: MockFixture,
+                                                         school_class: SchoolClass,
+                                                         student: Student):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    school_class.add_student(student)
+
+    response = client.patch(f'/api/v1/school_class/{school_class.id}/student',
+                            json={
+                                'old_email': 'nksl@cnajskajs.cs',
+                                'new_email': 'test@example.com'
+                            }
+                            )
+
+    assert response.status_code == 404
+    data = loads(response.data.decode("utf-8"))['message']
+    assert data == "Student not found!"
+
+
+@pytest.mark.parametrize('payload', [
+    pytest.param({
+        'old_email': 'acmaosdaos',
+        'new_email': 'test@example.com'
+    }),
+    pytest.param({
+        'old_email': 'acmaosdaos',
+        'new_email': 'test.com'
+    }),
+    pytest.param({
+        'old_email': 'acmaosdaos',
+    }),
+    pytest.param({})
+])
+def test_patch_update_student_email_malformed_data_error(client: FlaskClient,
+                                                         mocker: MockFixture,
+                                                         school_class: SchoolClass,
+                                                         student: Student,
+                                                         payload: Dict):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    school_class.add_student(student)
+
+    response = client.patch(f'/api/v1/school_class/{school_class.id}/student',
+                            json=payload
+                            )
+
+    assert response.status_code == 400
+    data = loads(response.data.decode("utf-8"))['message']
+    assert data == "Data is not valid!"
+
+
+def test_patch_update_student_email_exceptions(client: FlaskClient,
+                                               mocker: MockFixture,
+                                               school_class: SchoolClass,
+                                               student: Student):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    school_class.add_student(student)
+
+    def _mock_update_email(*args):
+        raise exc.DatabaseError('', '', '')
+
+    mocker.patch.object(Student, 'update_email', _mock_update_email)
+
+    response = client.patch(f'/api/v1/school_class/{school_class.id}/student',
+                            json={
+                                'old_email': student.email,
+                                'new_email': 'test@example.com'
+                            })
+
+    assert response.status_code == 500
 
 
 def test_update_school_class_api(client: FlaskClient,
