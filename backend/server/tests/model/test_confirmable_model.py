@@ -1,6 +1,6 @@
 import re
 
-from server.tests.factories import TeacherFactory
+from server.tests.factories import StudentFactory, TeacherFactory
 
 
 def test_teacher_generate_confirmation_token(client):
@@ -18,3 +18,20 @@ def test_teacher_generate_confirmation_token(client):
 
     teacher.confirm_user()
     assert teacher.confirmed_at is not None
+
+
+def test_students_generate_confirmation_token(client):
+    student = StudentFactory.create()
+    token = student.generate_confirmation_token()
+
+    assert token is not None
+    assert student.valid_confirmation_token(token)
+
+    student.generate_confirmation_token()
+    assert student.valid_confirmation_token(token)
+
+    regex_link = re.compile(r'http:\/\/localhost:8080\/confirm_account\?token=([a-z0-9]*)')
+    assert re.match(regex_link, student.generate_confirmation_link())
+
+    student.confirm_user()
+    assert student.confirmed_at is not None
