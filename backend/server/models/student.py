@@ -5,6 +5,7 @@ from typing import List, Union
 from server import bcrypt, db
 from server.models import SchoolClass, StudentAttendedClass
 from server.models.base_model import BaseModelMixin
+from server.models.user_account.confirmable import Confirmable
 from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -14,7 +15,7 @@ def randomString(stringLength=8):
     return "".join(random.choice(letters) for i in range(stringLength))  # nosec
 
 
-class Student(BaseModelMixin, db.Model):
+class Student(BaseModelMixin, db.Model, Confirmable):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=True)
@@ -34,6 +35,10 @@ class Student(BaseModelMixin, db.Model):
 
     quiz_grades = db.relationship(
         "ClassQuiz", secondary="quiz_grade", viewonly=True)
+
+    confirmed = db.Column(db.Boolean, nullable=True, default=False)
+    confirmed_at = db.Column(db.DateTime, nullable=True)
+    confirmation_token = db.Column(db.String, nullable=True)
 
     def __init__(
         self, firstname, lastname, email, classes=[], password=None, role="Student"

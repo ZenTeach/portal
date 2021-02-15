@@ -20,6 +20,11 @@ def student() -> Student:
 
 
 @pytest.fixture
+def students_() -> List[Dict]:
+    return [build(dict, FACTORY_CLASS=StudentFactory) for _ in range(5)]
+
+
+@pytest.fixture
 def teacher_() -> Teacher:
     return TeacherFactory.create()
 
@@ -123,3 +128,16 @@ def test_student_update_email(client: FlaskClient,
     student.update_email("")
     student.reload()
     assert student.email == "test@example.com"
+
+
+def test_student_full_name(client: FlaskClient, student: Student) -> None:
+    assert student.full_name == f"{student.firstname} {student.lastname}"
+
+
+def test_student_create_from_list(client: FlaskClient, students_: List[Dict]) -> None:
+
+    assert Student.query.count() == 0
+    errors, students = Student.create_from_list(students_)
+    assert Student.query.count() == 5
+    assert len(students) == 5
+    assert len(errors) == 0
