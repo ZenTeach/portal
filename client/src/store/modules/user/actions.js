@@ -7,7 +7,7 @@ import {
   changePassword,
   confirmAccount,
   userInvite
-} from '../../../service/user_auth'
+} from '../../../service/teacher_auth'
 import router from '@/router'
 import Vue from 'vue'
 

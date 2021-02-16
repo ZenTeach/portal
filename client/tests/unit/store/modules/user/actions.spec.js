@@ -1,6 +1,6 @@
 import actions from '@/store/modules/user/actions'
 import { Store } from 'vuex-mock-store'
-// import { loginUser } from '@/service/user_auth'
+// import { loginUser } from '@/service/teacher_auth'
 
 const { LOGIN_USER } = actions
 
