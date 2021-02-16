@@ -39,7 +39,7 @@ def invitations(teacher: Teacher) -> Invitations:
 def test_send_confirmation_instructions(client: FlaskClient,
                                         teacher: Teacher,
                                         mocker: MockFixture):
-    @mocker.patch('server.tasks.user_account_tasks.send_mail_with_html')
+    @mocker.patch('server.tasks.teacher_account_tasks.send_mail_with_html')
     def test_success(send_mail_with_html):
         message = Message(subject="Confirm your account!")
         message.recipients = ["{}".format(teacher.email)]
@@ -54,7 +54,7 @@ def test_send_account_recovery_instructions(client: FlaskClient,
                                             teacher: Teacher,
                                             mocker: MockFixture):
 
-    @mocker.patch('server.tasks.user_account_tasks.send_mail_with_html')
+    @mocker.patch('server.tasks.teacher_account_tasks.send_mail_with_html')
     def test_success(send_mail_with_html):
 
         message = Message(subject="Recover your account")
@@ -69,7 +69,7 @@ def test_send_account_recovery_instructions(client: FlaskClient,
 def test_send_account_recovery_instructions_error(client: FlaskClient,
                                                   teacher: Teacher,
                                                   mocker: MockFixture):
-    @mocker.patch('server.tasks.user_account_tasks.send_mail_with_html')
+    @mocker.patch('server.tasks.teacher_account_tasks.send_mail_with_html')
     def test_error(send_mail_with_html):
         send_mail_with_html.assert_not_called()
 
@@ -80,7 +80,7 @@ def test_send_user_invite(client: FlaskClient,
                           invitations: Invitations,
                           teacher: Teacher,
                           mocker: MockFixture):
-    @mocker.patch('server.tasks.user_account_tasks.send_mail_with_html')
+    @mocker.patch('server.tasks.teacher_account_tasks.send_mail_with_html')
     def test_success(send_mail_with_html):
         message = Message(subject="Your invite is here!")
         message.recipients = ["{}".format(invitations.email)]
