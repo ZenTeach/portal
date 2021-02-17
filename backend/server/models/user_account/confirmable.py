@@ -4,10 +4,10 @@ from secrets import token_urlsafe
 
 
 class Confirmable(object):
-    def generate_confirmation_link(self):
+    def generate_confirmation_link(self, endpoint="/confirm_account"):
         token = self.generate_confirmation_token()
         client_url = environ.get('CLIENT_URL')
-        endpoint = '/confirm_account'
+        endpoint = endpoint
         query = f'?token={token}'
         return f'{client_url}{endpoint}{query}'
 

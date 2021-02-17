@@ -103,6 +103,8 @@ def test_post_add_student_to_school_class(client: FlaskClient,
                                           mocker: MockFixture,
                                           school_class: SchoolClass):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
+
     student_payload = {
         'firstname': 'Michael',
         'lastname': 'Scott',

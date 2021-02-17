@@ -1,7 +1,7 @@
 import actions from '@/store/modules/quiz/actions'
 // import { fetchGradedReportCards } from '@/service/quiz_service'
 import { Store } from 'vuex-mock-store'
-// import { loginUser } from '@/service/user_auth'
+// import { loginUser } from '@/service/teacher_auth'
 
 const { FETCH_GRADEDQUIZZES } = actions
 
