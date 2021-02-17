@@ -18,6 +18,7 @@ def send_student_confirmation_instructions(self, student_id):
 
         send_mail_with_html(message,
                             'student_confirmation.html.j2',
+                            full_name=student.full_name,
                             confirmation_link=confirmation_link)
     except Exception as e:
         logger.error(e)

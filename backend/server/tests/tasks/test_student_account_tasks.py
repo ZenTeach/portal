@@ -24,6 +24,7 @@ def test_send_student_confirmation_instructions(client: FlaskClient,
         assert args[1] == "student_confirmation.html.j2"
         assert kwargs.get('confirmation_link') == student_.generate_confirmation_link(
             '/confirm_student_account')
+        assert kwargs.get('full_name') == student_.full_name
 
     mocker.patch('server.tasks.student_account_tasks.send_mail_with_html', test_success)
     send_student_confirmation_instructions(student_.id)
