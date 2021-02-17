@@ -8,6 +8,7 @@ from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
 from server.models import SchoolClass as SchoolClassModel
 from server.models import SchoolClassSchema, Student
+from server.tasks import send_student_confirmation_instructions
 from sqlalchemy import exc
 
 school_class_blueprint = Blueprint("school_class", __name__)
@@ -209,6 +210,8 @@ class SchoolClassStudent(Resource):
             new_student.save()
             school_class.add_student(new_student)
             school_class.save()
+
+            send_student_confirmation_instructions.apply_async(args=[new_student.id])
         except exc.IntegrityError:
             abort(400, "Student missing required data.")
         except exc.DatabaseError as e:  # noqa
