@@ -8,6 +8,8 @@ import {
   confirmAccount,
   userInvite
 } from '../../../service/teacher_auth'
+
+import { confirmStudentAccount } from '../../../service/student_auth'
 import router from '@/router'
 import Vue from 'vue'
 
@@ -85,6 +87,20 @@ const UPDATEUSERPASSWORD = ({ commit, dispatch }, payload) => {
 const CONFIRMNEWACCOUNT = ({ commit, dispatch }, token) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
   confirmAccount(token).then(
+    _data => {
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+    },
+    error => {
+      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+    }
+  )
+}
+
+const CONFRIMSTUDENTACCOUNT = ({ commit, dispatch}, token) => {
+  commit('app/TOGGLE_APP_LOADING', true, { root: true })
+  confirmStudentAccount(token).then(
     _data => {
       commit('app/TOGGLE_APP_LOADING', false, { root: true })
     },

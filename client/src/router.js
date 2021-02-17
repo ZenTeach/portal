@@ -107,6 +107,12 @@ const router = new Router({
         import(/* webpackChunkName: "ConfirmAccountView" */ './views/AccountConfirmation')
     },
     {
+      path: '/confirm_student_account',
+      name: 'Confirm Student Account',
+      component: () =>
+        import(/* webpackChunkName: "ConfirmStudentAccountView" */ './views/ConfirmStudentAccount')
+    },
+    {
       path: '/user-profile',
       name: 'User Profile',
       component: () =>
