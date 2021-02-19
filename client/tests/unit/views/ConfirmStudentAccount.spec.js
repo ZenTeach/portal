@@ -21,11 +21,11 @@ describe('ConfirmStudentAccount.vue', () => {
     $store = new Store({
       state: {
         app: {
-          loading: 'from app',
+          loading: 'from app'
         }
       },
       actions: {
-        'actions/CONFRIMSTUDENTACCOUNT': 'from user',
+        'actions/CONFRIMSTUDENTACCOUNT': 'from user'
       }
     })
   })

@@ -84,6 +84,7 @@ class StudentSchema(ma.ModelSchema):
             "lastname",
             "email",
             "date_of_birth",
+            "confirmed",
             "classes",
         )
 

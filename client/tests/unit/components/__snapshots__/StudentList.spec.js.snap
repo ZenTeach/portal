@@ -66,7 +66,7 @@ exports[`StudentList.vue renders correctly 1`] = `
   return groups;
 }" locale="en-US" customfilter="function defaultFilter(value, search, item) {
   return value != null &amp;&amp; search != null &amp;&amp; typeof value !== 'boolean' &amp;&amp; value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-}" serveritemslength="-1" itemkey="name" value="" expanded="" noresultstext="$vuetify.dataIterator.noResultsText" nodatatext="$vuetify.noDataText" loadingtext="$vuetify.dataIterator.loadingText" selectablekey="isSelectable" loaderheight="4" headers="[object Object],[object Object],[object Object],[object Object]" expandicon="$expand" itemclass=""></v-data-table-stub>
+}" serveritemslength="-1" itemkey="name" value="" expanded="" noresultstext="$vuetify.dataIterator.noResultsText" nodatatext="$vuetify.noDataText" loadingtext="$vuetify.dataIterator.loadingText" selectablekey="isSelectable" loaderheight="4" headers="[object Object],[object Object],[object Object],[object Object],[object Object]" expandicon="$expand" itemclass=""></v-data-table-stub>
   <v-dialog-stub opendelay="0" closedelay="0" contentclass="" maxwidth="500px" origin="center center" persistent="true" retainfocus="true" transition="dialog-transition" width="auto">
     <v-card-stub loaderheight="4" tag="div" class="d-flex flex-column align-left pa-3">
       <v-card-title-stub primarytitle="" primary-title="">
