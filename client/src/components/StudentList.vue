@@ -6,6 +6,31 @@
           :expand="expand"
           item-key="name"
         >
+        <template v-slot:item.confirmed="{ item }">
+          <v-tooltip left v-if="item.confirmed === true" >
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon v-bind="attrs"
+                v-on="on"
+                color="success darken-1" >
+                mdi-account-check
+              </v-icon>
+            </template>
+            <span>Account email is verified!</span>
+          </v-tooltip>
+
+          <v-tooltip left v-else>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                color="warning darken-1"
+                v-bind="attrs"
+                v-on="on">
+                mdi-account-clock
+              </v-icon>
+            </template>
+            <span>Email hasn't been confirmed yet!</span>
+          </v-tooltip>
+
+        </template>
         <template v-slot:items="props">
           <tr>
             <td class="text-xs-right">{{ props.item.firstname }}</td>
@@ -144,6 +169,7 @@ export default {
     updatedEmail: '',
     editStudentModal: false,
     headers: [
+      { text: '', align: 'right', value: 'confirmed', width: 10 },
       { text: 'First name', align: 'left', value: 'firstname', width: 20 },
       { text: 'Last Name', align: 'left', value: 'lastname', width: 20 },
       { text: 'Email', align: 'left', value: 'email', width: 30 },

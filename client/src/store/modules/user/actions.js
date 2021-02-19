@@ -98,7 +98,7 @@ const CONFIRMNEWACCOUNT = ({ commit, dispatch }, token) => {
   )
 }
 
-const CONFRIMSTUDENTACCOUNT = ({ commit, dispatch}, token) => {
+const CONFRIMSTUDENTACCOUNT = ({ commit, dispatch }, token) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
   confirmStudentAccount(token).then(
     _data => {
@@ -133,5 +133,6 @@ export default {
   SENDACCOUNTRECOVERY,
   UPDATEUSERPASSWORD,
   CONFIRMNEWACCOUNT,
+  CONFRIMSTUDENTACCOUNT,
   SENDUSERINVITE
 }
