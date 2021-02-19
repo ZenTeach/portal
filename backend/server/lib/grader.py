@@ -79,6 +79,8 @@ class Feedback(object):
 
     def compute_progress_for_topic(self, topic: str) -> None:
         m = self._get_topic_breakdown(topic)
+        if m is None:
+            return
         m["progress"].append("0/1")
 
     def to_json(self) -> str:
