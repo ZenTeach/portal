@@ -156,6 +156,9 @@ vcrpy = "*"
 pytest-recording = "*"
 pytest-selenium = "*"
 pytest-randomly = "*"
+quill-delta = "*"
+lxml = "*"
+cssutils = "*"
 
 [requires]
 python_version = "3.7"
