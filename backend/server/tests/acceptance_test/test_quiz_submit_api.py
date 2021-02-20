@@ -31,6 +31,13 @@ def student(school_class: SchoolClass) -> Student:
 
 
 @pytest.fixture
+def unconfirmed_student(school_class: SchoolClass) -> Student:
+    student = StudentFactory(confirmed=False)
+    school_class.add_student(student)
+    return student
+
+
+@pytest.fixture
 def classquiz_(school_class: SchoolClass) -> ClassQuiz:
     cq = ClassQuizFactory.build(class_id=school_class.id)
     cq.save()
@@ -54,6 +61,14 @@ def ended_session_(student: Student, classquiz_: ClassQuiz) -> QuizSession:
 def test_get_quiz_submit(client: FlaskClient, student: Student, classquiz_: ClassQuiz):
     response = client.get(f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}")
     assert response.status_code == 200
+
+
+def test_get_quiz_submit_not_confirmed_fails_with_400(client: FlaskClient,
+                                                      unconfirmed_student: Student,
+                                                      classquiz_: ClassQuiz) -> None:
+    response = client.get(
+        f"/api/v1/submit_quiz?email={unconfirmed_student.email}&quiz={classquiz_.uuid}")
+    assert response.status_code == 400
 
 
 def test_get_quiz_submit_without_student_email_fails_with_404(client: FlaskClient,

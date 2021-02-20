@@ -29,6 +29,9 @@ class SubmitQuiz(Resource):
         if not student:
             abort(404, "Student email doesn't exist")
 
+        if not student.confirmed:
+            abort(400, "Email address hasn't been verified yet!")
+
         class_quiz = ClassQuizModel.query.filter_by(uuid=args["quiz"]).first()
         if not class_quiz:
             abort(404, "Class Quiz doesn't exist")

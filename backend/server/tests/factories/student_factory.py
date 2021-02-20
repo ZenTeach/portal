@@ -23,3 +23,4 @@ class StudentFactory(SQLAlchemyModelFactory):
     password = fake.password(length=12, special_chars=True, digits=True,
                              upper_case=True, lower_case=True)
     role = "Student"
+    confirmed = True
