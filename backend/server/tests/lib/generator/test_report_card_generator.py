@@ -8,7 +8,8 @@ import pytest
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.lib import ReportCardGenerator
-from server.lib.generators.report_card_generator import (highlight_progress,
+from server.lib.generators.report_card_generator import (ModelNotFound,
+                                                         highlight_progress,
                                                          parse_json_blob,
                                                          render_quill_delta)
 from server.models import ClassQuiz, QuizGrade, SchoolClass, Student, Teacher
@@ -83,7 +84,7 @@ def test_report_card_quiz_grade_does_not_exist(client: FlaskClient,
     generator = ReportCardGenerator(
         file_fixture_dir, "dummy_report_card_template.html", getenv("TMP_DIR"))
 
-    with pytest.raises(Exception):
+    with pytest.raises(ModelNotFound):
         generator.generate(uuid4())
 
 

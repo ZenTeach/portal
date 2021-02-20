@@ -46,7 +46,7 @@ def send_quiz_generation_email(self, teacher_email, quiz_id):
 @celery.task(bind=True)
 def send_quiz_pdf(self, teacher_email, quiz_file_dir):
     try:
-        msg = Message(subject="Hi! Your Quiz PDF have arrived.")
+        msg = Message(subject="Hi! Your Quiz PDF has arrived.")
         msg.recipients = ["{}".format(teacher_email)]
 
         with open(quiz_file_dir, "rb") as fp:

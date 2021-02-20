@@ -43,6 +43,11 @@ def render_quill_delta(parsed_data: Union[List[dict], str]) -> str:
         return parsed_data
 
 
+class ModelNotFound(Exception):
+    def __init__(*args, **kwargs):
+        super(args, kwargs)
+
+
 class ReportCardGenerator(object):
     def __init__(self, template_dir, template_name, output_dir):
         self.template_dir = template_dir
@@ -60,7 +65,7 @@ class ReportCardGenerator(object):
 
         grade = QuizGrade.query.filter_by(uuid=grade_id, graded=True).first()
         if not grade:
-            raise Exception("Graded Quiz not found!")
+            raise ModelNotFound("Graded Quiz not found!")
 
         if not self.check_directories(self.output_dir):
             Path(self.output_dir).mkdir(parents=True)
@@ -144,5 +149,5 @@ class ReportCardGenerator(object):
             raise
 
     @property
-    def quiz_file_name(self):
+    def report_file_name(self):
         return self.output_file
