@@ -44,8 +44,7 @@ def render_quill_delta(parsed_data: Union[List[dict], str]) -> str:
 
 
 class ModelNotFound(Exception):
-    def __init__(*args, **kwargs):
-        super(args, kwargs)
+    pass
 
 
 class ReportCardGenerator(object):
