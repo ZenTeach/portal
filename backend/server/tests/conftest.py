@@ -61,7 +61,7 @@ def after_each_cleanup(mocker):
 
 
 @pytest.fixture(autouse=True)
-def file_fixture_dir():
+def file_fixture_dir() -> str:
     return Path.joinpath(Path(__file__).parent, 'fixtures/files').as_posix()
 
 
