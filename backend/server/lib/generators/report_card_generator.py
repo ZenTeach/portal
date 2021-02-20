@@ -2,7 +2,7 @@ import logging
 import os.path as path
 from json import decoder, loads
 from pathlib import Path
-from typing import Union
+from typing import List, Union
 from uuid import UUID
 
 from delta.html import render
@@ -18,10 +18,13 @@ def highlight_progress(progress_value: str) -> str:
     parsed = [int(x) for x in progress_value.split("/")]
     nom, denom = parsed
 
-    if (nom == denom):
-        return 'green'
-    elif (nom == 0):
+    if (nom > denom or denom == 0):
+        return ''
+
+    if (nom == 0):
         return 'red'
+    elif (nom == denom):
+        return 'green'
     else:
         return 'yellow'
 
@@ -33,8 +36,8 @@ def parse_json_blob(feedback_value: str) -> Union[dict, str]:
         return feedback_value
 
 
-def render_quill_delta(parsed_data: Union[dict, str]) -> str:
-    if type(parsed_data) == dict:
+def render_quill_delta(parsed_data: Union[List[dict], str]) -> str:
+    if type(parsed_data) == list and type(parsed_data[0]) == dict:
         return render(parsed_data, method='text')
     else:
         return parsed_data
@@ -61,8 +64,6 @@ class ReportCardGenerator(object):
 
         if not self.check_directories(self.output_dir):
             Path(self.output_dir).mkdir(parents=True)
-
-        # Preprocess quill delta
 
         try:
             env = Environment(
