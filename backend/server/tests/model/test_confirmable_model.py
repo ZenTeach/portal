@@ -1,9 +1,10 @@
 import re
 
+from flask.testing import FlaskClient
 from server.tests.factories import StudentFactory, TeacherFactory
 
 
-def test_teacher_generate_confirmation_token(client):
+def test_teacher_generate_confirmation_token(client: FlaskClient) -> None:
     teacher = TeacherFactory.create()
     token = teacher.generate_confirmation_token()
 
@@ -20,8 +21,8 @@ def test_teacher_generate_confirmation_token(client):
     assert teacher.confirmed_at is not None
 
 
-def test_students_generate_confirmation_token(client):
-    student = StudentFactory.create()
+def test_students_generate_confirmation_token(client: FlaskClient) -> None:
+    student = StudentFactory.create(confirmed=False)
     token = student.generate_confirmation_token()
 
     assert token is not None

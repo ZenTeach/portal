@@ -42,7 +42,7 @@ def client():
         db.engine.dispose()
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def dbsession(engine):
     """Returns an sqlalchemy session, and after the test
         tears down everything properly."""

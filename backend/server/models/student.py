@@ -41,11 +41,19 @@ class Student(BaseModelMixin, db.Model, Confirmable):
     confirmation_token = db.Column(db.String, nullable=True)
 
     def __init__(
-        self, firstname, lastname, email, classes=[], password=None, role="Student"
+        self,
+        firstname,
+        lastname,
+        email,
+        classes=[],
+        password=None,
+        role="Student",
+        confirmed=False
     ):
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
+        self.confirmed = confirmed
         if password is None:
             self.password = bcrypt.generate_password_hash(randomString()).decode(
                 "utf-8"
