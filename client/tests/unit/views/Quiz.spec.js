@@ -24,6 +24,15 @@ describe('Quiz.vue', () => {
         app: {
           loggedIn: 'from app',
           error: 'from app'
+        },
+        quiz: {
+          quiz_questions: [],
+          subject: '',
+          uuid: '',
+          has_started: false,
+          has_submitted: false,
+          report_card: [],
+          graded_quizzes: []
         }
       },
       getters: {
@@ -32,7 +41,8 @@ describe('Quiz.vue', () => {
       },
       actions: {
         'actions/LOAD_QUIZ': 'from quiz',
-        'actions/FETCH_GRADEDQUIZZES': 'from quiz'
+        'actions/FETCH_GRADEDQUIZZES': 'from quiz',
+        'actions/SENDSTUDENTREPORTCARD': 'from quiz'
       }
     })
   })

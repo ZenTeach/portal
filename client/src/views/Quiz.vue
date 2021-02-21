@@ -51,6 +51,7 @@
                 <th class="text-left">Student Email</th>
                 <th class="text-left">Score</th>
                 <th class="text-left">Report card</th>
+                <th class="text-left"></th>
               </tr>
           </thead>
           <tbody>
@@ -66,6 +67,20 @@
                     </span>
                   </a>
                 </td>
+                <td class="tg-0lax">
+                  <a>
+                    <v-tooltip bottom open-on-hover>
+                      <template v-slot:activator="{ on, attrs }">
+                          <v-icon
+                            v-bind="attrs"
+                            v-on="on"
+                            v-on:click="sendStudentReportCard(item.gradeId)"
+                          >mdi-email-send</v-icon>
+                      </template>
+                      <span>Send report card to student as PDF.</span>
+                    </v-tooltip>
+                  </a>
+                </td>
               </tr>
             </template>
           </tbody>
@@ -79,7 +94,9 @@
 
 <script>
 import Api from '@/service/Api'
-import { mapGetters } from 'vuex'
+import { createNamespacedHelpers } from 'vuex'
+
+const { mapGetters, mapActions } = createNamespacedHelpers('quiz')
 
 export default {
   name: 'Quiz',
@@ -101,26 +118,37 @@ export default {
   mounted: function () {
     // TODO: Finalize loading and rendering the quiz
     // then move to making the session get request.
-    this.$store.dispatch('quiz/LOAD_QUIZ', this.$route.params.uuid)
-    this.$store.dispatch('quiz/FETCH_GRADEDQUIZZES', this.$route.params.uuid)
+    // this.$store.dispatch('quiz/LOAD_QUIZ', this.$route.params.uuid)
+    // this.$store.dispatch('quiz/FETCH_GRADEDQUIZZES', this.$route.params.uuid)
+
+    this.loadQuiz(this.$route.params.uuid)
+    this.fetchGradedQuizzes(this.$route.params.uuid)
   },
   computed: {
     quiz_uuid () {
       return this.$route.params.uuid
     },
     ...mapGetters({
-      subject: 'quiz/subject',
-      uuid: 'quiz/uuid',
-      quizQuestions: 'quiz/quizQuestions',
-      gradedQuizzes: 'quiz/gradedQuizzes'
+      subject: 'subject',
+      uuid: 'uuid',
+      quizQuestions: 'quizQuestions',
+      gradedQuizzes: 'gradedQuizzes'
     })
   },
 
   methods: {
+    ...mapActions({
+      sendReportCard: 'SENDSTUDENTREPORTCARD',
+      loadQuiz: 'LOAD_QUIZ',
+      fetchGradedQuizzes: 'FETCH_GRADEDQUIZZES'
+    }),
     handlePDFGeneration () {
       Api.post(`/class_quiz/${this.quiz_uuid}/generate`, {
         type: 'pdf'
       })
+    },
+    sendStudentReportCard (gradeUUID) {
+      this.sendReportCard(gradeUUID)
     }
   }
 }
