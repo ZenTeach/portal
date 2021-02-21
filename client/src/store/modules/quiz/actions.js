@@ -1,4 +1,11 @@
-import { submitQuiz, startQuiz, fetchQuiz, fetchReportCard, fetchGradedReportCards } from '@/service/quiz_service'
+import {
+  submitQuiz,
+  startQuiz,
+  fetchQuiz,
+  fetchReportCard,
+  sendReportCard,
+  fetchGradedReportCards
+} from '@/service/quiz_service'
 
 export default {
   START_QUIZ ({ commit, dispatch }, payload) {
@@ -58,6 +65,18 @@ export default {
         dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       }
     )
+  },
+
+  SENDSTUDENTREPORTCARD ({ commit, dispatch }, quizUUID) {
+    sendReportCard(quizUUID)
+      .then(data => {
+        dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+        dispatch('app/TOGGLE_ERROR', { message: data.message }, { root: true })
+      },
+      error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+      })
   },
 
   FETCH_GRADEDQUIZZES ({ commit, dispatch }, classQuizId) {
