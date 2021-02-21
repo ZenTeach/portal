@@ -1,6 +1,7 @@
 
 import re
-from typing import Dict
+from typing import Dict, NoReturn, Union
+from uuid import UUID
 
 from flask import Blueprint, abort, jsonify, make_response, request, send_file
 from flask.wrappers import Response
@@ -14,7 +15,7 @@ from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizSchema, ClassQuizStatus, QuizGrade,
                            QuizGradeSchema, StudentSchema, Teacher)
 from server.tasks import (generate_pdf, send_quiz_generation_email,
-                          send_quiz_pdf)
+                          send_quiz_pdf, send_report_card_pdf)
 from sqlalchemy import exc
 
 class_quiz_blueprint = Blueprint("class_quiz", __name__)
@@ -285,6 +286,26 @@ class QuizAttendedStudents(Resource):
         return make_response(jsonify(responses))
 
 
+class SendReportCard(Resource):
+    @jwt_required
+    def get(self, quizGradeUUID: UUID) -> Union[Response, NoReturn]:
+        grade = QuizGrade.query.filter_by(uuid=quizGradeUUID).first()
+
+        if not grade:
+            abort(404, "Report card not found!")
+
+        try:
+            send_report_card_pdf.apply_async(args=[grade.uuid])
+        except Exception as e:
+            report_5xx_error(e)
+            abort(500, "Server run into an error sending report card. We're working to resolve the issue")  # noqa
+        else:
+            return make_response(jsonify({
+                "status": "success",
+                "message": "Report card email has been sent!",
+            }), 200)
+
+
 api.add_resource(ClassQuiz, "/class_quiz/<string:class_quiz_uuid>")
 api.add_resource(ClassQuizGenerator,
                  "/class_quiz/<string:class_quiz_uuid>/generate")
@@ -294,3 +315,4 @@ api.add_resource(
     QuizAttendedStudents, "/class_quiz/<string:class_quiz_uuid>/attended_students"
 )
 api.add_resource(GradedQuizzes, "/class_quiz/<string:quizUUId>/graded")
+api.add_resource(SendReportCard, "/class_quiz/<string:quizGradeUUID>/send_report")

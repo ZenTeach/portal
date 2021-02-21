@@ -1,5 +1,6 @@
 import json
 from typing import Dict, List
+from uuid import uuid4
 
 import pytest
 from factory import build
@@ -190,3 +191,37 @@ def test_classquiz_report_card_fetch_api_errors_if_not_found(client: FlaskClient
     from uuid import uuid4
     response = client.get(f"/api/v1/class_quiz/report_card/{uuid4()}")
     assert response.status_code == 404
+
+
+def test_classquiz_send_report_card(client: FlaskClient,
+                                    quiz_grade: QuizGrade,
+                                    mocker: MockFixture) -> None:
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.class_quiz_api.send_report_card_pdf')
+
+    response = client.get(f"/api/v1/class_quiz/{quiz_grade.uuid}/send_report")
+    assert response.status_code == 200
+
+
+def test_classquiz_send_report_card_grade_not_found(client: FlaskClient,
+                                                    mocker: MockFixture) -> None:
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.class_quiz_api.send_report_card_pdf')
+
+    response = client.get(f"/api/v1/class_quiz/{uuid4()}/send_report")
+    assert response.status_code == 404
+
+
+def test_classquiz_send_report_card_exception(client: FlaskClient,
+                                              quiz_grade: QuizGrade,
+                                              mocker: MockFixture) -> None:
+
+    def _mock_send_report_card_pdf(*args):
+        raise Exception()
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.class_quiz_api.send_report_card_pdf', _mock_send_report_card_pdf)
+
+    response = client.get(f"/api/v1/class_quiz/{quiz_grade.uuid}/send_report")
+    assert response.status_code == 500
