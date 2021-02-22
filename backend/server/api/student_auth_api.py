@@ -1,6 +1,7 @@
 from datetime import timedelta
 
-from flask import Blueprint, current_app, jsonify, make_response, request
+from flask import (Blueprint, abort, current_app, jsonify, make_response,
+                   request)
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jti, get_jwt_claims, get_jwt_identity,
                                 get_raw_jwt, jwt_refresh_token_required,
@@ -140,8 +141,30 @@ class StudentAuthRefreshRevoke(Resource):
         return jsonify({"msg": "Refresh token revoked"}), 200
 
 
+class ConfirmAccount(Resource):
+    def post(self):
+        post_data = request.get_json()
+        confirmation_token = post_data["token"]
+        student = Student.query.filter_by(confirmation_token=confirmation_token).first()
+
+        if not student:
+            abort(404, "Encountered an error confirming account. Make sure the email is correct.")
+
+        if confirmation_token is None or not student.valid_confirmation_token(confirmation_token):
+            abort(404, "Encountered an error. Invalid token.")
+
+        if not student.confirm_user():
+            abort(400, "Account already confirmed.")
+
+        return make_response(jsonify({
+            "status": "Success",
+            "message": "Account successfully confirmed."
+        }), 200)
+
+
 api.add_resource(StudentRegistration, "/student/registration")
 api.add_resource(StudentLogin, "/student/login")
 api.add_resource(StudentLogout, "/student/logout")
 api.add_resource(TokenRefresh, "/student/token/refresh")
 api.add_resource(CurrentUser, "/student/current")
+api.add_resource(ConfirmAccount, "/student/confirm")
