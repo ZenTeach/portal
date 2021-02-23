@@ -142,8 +142,10 @@ def test_patch_update_student_email_in_school_class(client: FlaskClient,
                                                     school_class: SchoolClass,
                                                     student: Student):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
     school_class.add_student(student)
 
+    assert student.confirmed
     response = client.patch(f'/api/v1/school_class/{school_class.id}/student',
                             json={
                                 'old_email': student.email,
@@ -153,6 +155,7 @@ def test_patch_update_student_email_in_school_class(client: FlaskClient,
 
     assert response.status_code == 200
     student.reload()
+    assert not student.confirmed
     assert student.email == "test@example.com"
 
 
