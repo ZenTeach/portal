@@ -51,6 +51,13 @@
             >
               mdi-pencil-circle
             </v-icon>
+            <v-icon
+              medium
+              @click="sendStudentConfirmationEmail(item.id)"
+              :disabled="item.confirmed"
+            >
+              mdi-email-send
+            </v-icon>
         </template>
         <template v-slot:footer>
           <v-menu offset-y>
@@ -173,7 +180,7 @@ export default {
       { text: 'First name', align: 'left', value: 'firstname', width: 20 },
       { text: 'Last Name', align: 'left', value: 'lastname', width: 20 },
       { text: 'Email', align: 'left', value: 'email', width: 30 },
-      { text: '', align: 'right', value: 'actions', width: 30 }
+      { text: '', align: 'right', value: 'actions', width: 50 }
     ],
     fileSelectorDialog: false,
     dialog: false,
@@ -182,7 +189,8 @@ export default {
   methods: {
     ...mapActions({
       removeStudent: 'REMOVESTUDENTFROMCLASS',
-      updateStudentEmail: 'UPDATESTUDENTEMAIL'
+      updateStudentEmail: 'UPDATESTUDENTEMAIL',
+      sendStudentConfirmationEmail: 'SENDSTUDENTCONFIRMATIONEMAIL'
     }),
     toggleInviteDialog (data) {
       this.dialog = data
