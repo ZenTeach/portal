@@ -277,7 +277,12 @@ class SchoolClassStudent(Resource):
             abort(404, "Student not found!")
 
         try:
+            if student.confirmed:
+                student.confirmed = False
+
             student.update_email(new_email)
+            send_student_confirmation_instructions.apply_async(args=[student.id])
+
         except exc.DatabaseError as e:  # noqa
             report_5xx_error(e)
             abort(500, "Server got an error.")
@@ -285,7 +290,7 @@ class SchoolClassStudent(Resource):
             return make_response(
                 jsonify(
                     {
-                        "message": "Student email successfully updated",
+                        "message": f"Student email successfully updated! We have sent a confirmation email to {new_email}.",  # noqa
                         "status": "success",
                     }
                 ),
