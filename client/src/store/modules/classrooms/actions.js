@@ -8,6 +8,10 @@ import {
   updateStudentEmail
 } from '../../../service/classrooms'
 
+import {
+  sendStudentConfirmationEmail
+} from '../../../service/student_auth'
+
 const GETCLASSES = ({ commit, dispatch }) => {
   fetchClasses()
     .then(
@@ -93,15 +97,27 @@ const REMOVESTUDENTFROMCLASS = ({ commit, dispatch }, payload) => {
 }
 
 const UPDATESTUDENTEMAIL = ({ commit, dispatch }, payload) => {
-  console.log('UPDATESTUDENTEMAIL', payload)
   const { classId, data } = payload
-  console.log('UPDATESTUDENTEMAIL', classId, data)
   updateStudentEmail(classId, data)
     .then(
       data => {
         commit('app/TOGGLE_APP_STATUS', 'success', { root: true })
         commit('app/TOGGLE_ERROR', data, { root: true })
         dispatch('GETCURRENTCLASS', classId)
+      },
+      error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        commit('app/TOGGLE_APP_STATUS', 'error', { root: true })
+      }
+    )
+}
+
+const SENDSTUDENTCONFIRMATIONEMAIL = ({ commit }, studentId) => {
+  sendStudentConfirmationEmail(studentId)
+    .then(
+      data => {
+        commit('app/TOGGLE_APP_STATUS', 'success', { root: true })
+        commit('app/TOGGLE_ERROR', data, { root: true })
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
@@ -117,5 +133,6 @@ export default {
   DELETECLASSROOM,
   INVITE_STUDENT,
   REMOVESTUDENTFROMCLASS,
-  UPDATESTUDENTEMAIL
+  UPDATESTUDENTEMAIL,
+  SENDSTUDENTCONFIRMATIONEMAIL
 }
