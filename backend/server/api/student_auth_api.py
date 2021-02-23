@@ -11,6 +11,7 @@ from flask_restful import Api, Resource
 from server import bcrypt, jwt, redis_store
 from server.api import logger, report_5xx_error
 from server.models import Student, StudentSchema
+from server.tasks import send_student_confirmation_instructions
 
 student_auth_blueprint = Blueprint("student_auth", __name__)
 api = Api(student_auth_blueprint)
@@ -162,9 +163,30 @@ class ConfirmAccount(Resource):
         }), 200)
 
 
+class SendStudentConfirmation(Resource):
+    @jwt_required
+    def get(self, student_id):
+        student = Student.query.filter_by(id=student_id).first()
+
+        if not student:
+            abort(404, "Student not found.")
+
+        try:
+            send_student_confirmation_instructions.apply_async(args=[student.id])
+        except Exception as e:
+            report_5xx_error(e)
+            abort(500, "Server got an error sending confirmation email.")
+        else:
+            return make_response(jsonify({
+                "status": "Success",
+                "message": "Confirmation email is on it's way!"
+            }), 200)
+
+
 api.add_resource(StudentRegistration, "/student/registration")
 api.add_resource(StudentLogin, "/student/login")
 api.add_resource(StudentLogout, "/student/logout")
 api.add_resource(TokenRefresh, "/student/token/refresh")
 api.add_resource(CurrentUser, "/student/current")
 api.add_resource(ConfirmAccount, "/student/confirm")
+api.add_resource(SendStudentConfirmation, "/student/<int:student_id>/send_confirmation")
