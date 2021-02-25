@@ -1,4 +1,5 @@
 import pytest
+from factory import build
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import Student
@@ -8,6 +9,19 @@ from server.tests.factories import StudentFactory
 @pytest.fixture
 def student_() -> Student:
     return StudentFactory(confirmed=False)
+
+
+def test_student_registration_endpoint(client: FlaskClient,
+                                       mocker: MockFixture):
+    new_student = build(dict, FACTORY_CLASS=StudentFactory, confirmed=True)
+    response = client.post(
+        '/api/v1/student/registration',
+        json=new_student
+    )
+
+    assert response.status_code == 200
+    assert response.headers.get_all('Set-Cookie') is not None
+    assert len(response.headers.get_all('Set-Cookie')) == 4
 
 
 def test_student_account_confirmation(client: FlaskClient, student_: Student):
