@@ -39,10 +39,7 @@ class StudentRegistration(Resource):
             firstname=data["firstname"],
             lastname=data["lastname"],
             email=data["email"],
-            password=password_hash,
-            date_of_birth=data["date_of_birth"],
-            classes=data["classes"],
-            quiz_grades=data["quiz_grades"],
+            password=password_hash
         )
         try:
             new_student.save()
@@ -50,7 +47,7 @@ class StudentRegistration(Resource):
             refresh_token = create_refresh_token(identity=new_student)
             response = jsonify(
                 {"message": "Student {} was created".format(
-                    new_student.full_name())}
+                    new_student.full_name)}
             )
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)

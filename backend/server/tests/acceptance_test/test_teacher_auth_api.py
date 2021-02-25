@@ -74,6 +74,8 @@ def test_teacher_registration_endpoint(client: FlaskClient,
     )
 
     assert success_response.status_code == 200
+    assert success_response.headers.get_all('Set-Cookie') is not None
+    assert len(success_response.headers.get_all('Set-Cookie')) == 4
 
 
 def test_teacher_account_confirmation(client: FlaskClient, teacher_: Teacher):

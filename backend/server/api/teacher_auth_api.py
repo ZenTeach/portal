@@ -68,7 +68,12 @@ class TeacherRegistration(Resource):
 
             send_confirmation_instructions.delay(new_teacher.id)
 
-            return make_response(response, 200)
+            response = make_response(response, 200)
+
+            set_access_cookies(response, access_token)
+            set_refresh_cookies(response, refresh_token)
+
+            return response
         except Exception as e:
             logger.error(e)
             report_5xx_error(e)
