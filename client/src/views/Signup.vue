@@ -47,20 +47,40 @@
                 ></v-text-field>
                 </ValidationProvider>
 
-                <ValidationProvider rules="required" name="dob" v-slot="{errors}">
-                <v-text-field
-                  v-model="dob"
-                  label="Date of Birth"
-                  placeholder
-                  :error-messages="errors"
-                  type="date"
-                  prepend-icon="calendar"
-                  outline
-                  required
-                ></v-text-field>
-                </ValidationProvider>
+                <v-menu
+                  ref="menu"
+                  v-model="date_picker_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="dob"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="290px"
+                >
+                  <template v-slot:activator="{ on }">
+                    <ValidationProvider rules="required" name="dob" v-slot="{errors}">
+                    <v-text-field
+                      v-model="dob"
+                      label="Date of Birth"
+                      :error-messages="errors"
+                      prepend-icon="event"
+                      readonly
+                      v-on="on"
+                      outline
+                    ></v-text-field>
+                    </ValidationProvider>
+                    </template>
+                    <v-date-picker v-model="dob" no-title scrollable min="1950-01-01">
+                      <div class="flex-grow-1"></div>
+                      <v-btn text color="primary" @click="date_picker_menu = false">Cancel</v-btn>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="$refs.menu.save(dob)"
+                      >OK</v-btn>
+                    </v-date-picker>
+                </v-menu>
 
-                <ValidationProvider rules="required|min:12" name="password" v-slot="{errors}" vid="password">
+                <ValidationProvider rules="required|min:8" name="password" v-slot="{errors}" vid="password">
                 <v-text-field
                   id="password"
                   v-model="password"
@@ -179,7 +199,8 @@ export default {
       lazy: false,
       tos_dialog: false,
       privacy_policy_dialog: false,
-      legal_checkbox: false
+      legal_checkbox: false,
+      date_picker_menu: false
     }
   },
   methods: {
