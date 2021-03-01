@@ -6,9 +6,6 @@ import boto3
 from boto3 import client
 from server import celery
 
-# from server.models import ClassQuiz, ClassQuizStatus
-
-
 BUCKET = os.environ.get('AWS_QUESTIONS_BUCKET')
 AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')

@@ -1,7 +1,9 @@
+from celery.utils.log import get_task_logger
 from server import celery
 from server.lib import Grader
 from server.models import ClassQuiz, ClassQuizStatus
-from server.tasks import logger
+
+logger = get_task_logger(__name__)
 
 
 @celery.task(bind=True)
