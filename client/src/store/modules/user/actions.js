@@ -31,18 +31,33 @@ const LOGIN_USER = ({ commit, dispatch }, payload) => {
 
 const SIGNOUT_USER = ({ commit, dispatch }) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
-  logoutUser()
-  Vue.prototype.$cookies.remove('csrf_access_token')
-  commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
-  commit('TOGGLECURRENTUSER', {})
-  commit('app/TOGGLE_APP_LOADING', false, { root: true })
+  logoutUser().then(data=> {
+    Vue.prototype.$cookies.remove('csrf_access_token')
+    commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
+    commit('TOGGLECURRENTUSER', {})
+    commit('app/TOGGLE_APP_LOADING', false, { root: true })
+  },
+  error => {
+    commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+    dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+  }
+  )
 }
 
 const REGISTER_USER = ({ commit, dispatch }, payload) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
-  registerUser(payload)
-  commit('app/TOGGLE_APP_LOGGED_IN', true, { root: true })
-  commit('app/TOGGLE_APP_LOADING', false, { root: true })
+  registerUser(payload).then(
+    data=> {
+      commit('app/TOGGLE_APP_LOGGED_IN', true, { root: true })
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+      router.push('/')
+    },
+    error => {
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+    }
+  )
 }
 
 const FETCHCURRENTUSER = ({ commit, dispatch }) => {
@@ -51,8 +66,13 @@ const FETCHCURRENTUSER = ({ commit, dispatch }) => {
   getCurrentUser().then(result => {
     const { user } = result
     commit('TOGGLECURRENTUSER', user)
+    commit('app/TOGGLE_APP_LOADING', false, { root: true })
+  },
+  error => {
+    commit('app/TOGGLE_APP_LOADING', false, { root: true })
+    commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+    dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
   })
-  commit('app/TOGGLE_APP_LOADING', false, { root: true })
 }
 
 const SENDACCOUNTRECOVERY = ({ commit, dispatch }, email) => {
@@ -62,6 +82,11 @@ const SENDACCOUNTRECOVERY = ({ commit, dispatch }, email) => {
     dispatch('app/TOGGLE_ERROR', result, { root: true })
     dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
     router.push('/')
+  },
+  error => {
+    commit('app/TOGGLE_APP_LOADING', false, { root: true })
+    commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+    dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
   })
 }
 
@@ -73,7 +98,7 @@ const UPDATEUSERPASSWORD = ({ commit, dispatch }, payload) => {
         commit('app/TOGGLE_APP_LOADING', false, { root: true })
         dispatch('app/TOGGLE_ERROR', data, { root: true })
         dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
-        router.push('/')
+        router.push('/login')
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
