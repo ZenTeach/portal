@@ -247,7 +247,7 @@ class ResetAccount(Resource):
 
         return make_response(jsonify({
             "status": "Success",
-            "message": "Account successfully recovered."
+            "message": "Account successfully recovered. Please login with your new credentials."
         }), 200)
 
 

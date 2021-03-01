@@ -220,8 +220,6 @@ export default {
             invitation_code: this.invite_code,
             role: 'Teacher'
           })
-
-        this.$router.push('/')
       }
     }
   }
