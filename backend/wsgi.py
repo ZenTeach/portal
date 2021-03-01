@@ -1,3 +1,4 @@
+import logging
 import os
 
 from aiohttp import web
@@ -7,12 +8,20 @@ from server import create_app
 sentry_dsn_key = os.environ.get("SENTRY_DSN")
 app = None
 
+
 if sentry_dsn_key:
     import sentry_sdk
     from sentry_sdk.integrations.flask import FlaskIntegration
     from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
     from sentry_sdk.integrations.celery import CeleryIntegration
     from sentry_sdk.integrations.redis import RedisIntegration
+    from sentry_sdk.integrations.aiohttp import AioHttpIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+
+    sentry_logging = LoggingIntegration(
+        level=logging.INFO,        # Capture info and above as breadcrumbs
+        event_level=logging.ERROR  # Send errors as events
+    )
 
     sentry_sdk.init(
         dsn=sentry_dsn_key,
@@ -21,6 +30,8 @@ if sentry_dsn_key:
             SqlalchemyIntegration(),
             CeleryIntegration(),
             RedisIntegration(),
+            AioHttpIntegration(),
+            sentry_logging
         ],
     )
 

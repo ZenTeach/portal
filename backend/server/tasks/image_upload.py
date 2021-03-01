@@ -4,18 +4,13 @@ from pathlib import Path
 
 import boto3
 from boto3 import client
-from celery.utils.log import get_task_logger
 from server import celery
-
-# from server.models import ClassQuiz, ClassQuizStatus
-
 
 BUCKET = os.environ.get('AWS_QUESTIONS_BUCKET')
 AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 REGION = os.environ.get('AWS_REGION', 'eu-west-2')
 
-logger = get_task_logger(__name__)
 s3 = boto3.resource('s3')
 s3_client = client('s3')
 

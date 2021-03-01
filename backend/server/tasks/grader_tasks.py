@@ -1,5 +1,3 @@
-
-# from flask_mail import Message
 from celery.utils.log import get_task_logger
 from server import celery
 from server.lib import Grader
