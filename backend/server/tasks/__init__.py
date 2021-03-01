@@ -1,3 +1,5 @@
+from celery.utils.log import get_task_logger
+
 from .grader_tasks import grader_administered_quizzes
 from .image_upload import delete_image_from_s3, upload_image_to_s3
 from .quiz_generator_tasks import (generate_pdf, send_quiz_generation_email,
@@ -7,6 +9,8 @@ from .student_account_tasks import send_student_confirmation_instructions
 from .teacher_account_tasks import (send_account_recovery_instructions,
                                     send_confirmation_instructions,
                                     send_user_invite)
+
+logger = get_task_logger(__name__)
 
 __all__ = [
     "generate_pdf",
