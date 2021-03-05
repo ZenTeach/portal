@@ -8,12 +8,12 @@ extend('required', {
 
 extend('max', {
   ...max,
-  message: 'This field must be {length} characters or less'
+  message: 'This {_field_} must be {length} characters or less'
 })
 
 extend('min', {
   ...min,
-  message: 'This {_field_} must be greater that {length} characters or less'
+  message: 'This {_field_} must be {length} characters or greater'
 })
 
 extend('confirmed', {
@@ -23,5 +23,5 @@ extend('confirmed', {
 
 extend('email', {
   ...email,
-  message: 'This field must be a valid email'
+  message: 'This field must be a valid email.'
 })
