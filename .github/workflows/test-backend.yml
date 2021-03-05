@@ -71,8 +71,6 @@ jobs:
 
       - name: Setup Chromedriver
         uses: nanasess/setup-chromedriver@master
-        with:
-          chromedriver-version: '87.0.4280.20'
 
       - name: Setup display adapters
         run: |

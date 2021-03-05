@@ -1,3 +1,5 @@
+from os import getenv
+
 from celery.utils.log import get_task_logger
 from flask_mail import Message
 from server import celery
@@ -51,10 +53,12 @@ def send_user_invite(self, invite_email):
         teacher = Teacher.query.filter_by(id=invite.invitation_from_id).first()
         message = Message(subject="Your invite is here!")
         message.recipients = ["{}".format(invite.email)]
+        signup_url = f"https://{ getenv('CLIENT_URL', 'portal.zenteach.co.uk') }/signup"
 
         send_mail_with_html(message,
                             'user_invite.html.j2',
                             inviter=str(teacher),
+                            client_url=signup_url,
                             invite_token=invite.token)
     except Exception as e:
         logger.error(e)

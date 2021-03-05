@@ -80,13 +80,15 @@ def test_send_user_invite(client: FlaskClient,
                           invitations: Invitations,
                           teacher: Teacher,
                           mocker: MockFixture):
-    @mocker.patch('server.tasks.teacher_account_tasks.send_mail_with_html')
-    def test_success(send_mail_with_html):
-        message = Message(subject="Your invite is here!")
-        message.recipients = ["{}".format(invitations.email)]
 
-        send_mail_with_html.assert_called_with(message,
-                                               'user_invite.html.j2',
-                                               inviter=str(teacher),
-                                               invite_token=invitations.token)
+    def _mock_getenv(*args, **kwargs) -> str:
+        return "localhost:8080"
+
+    mocker.patch('server.tasks.teacher_account_tasks.getenv', _mock_getenv)
+    mocked_send_mail_with_html = mocker.patch(
+        'server.tasks.teacher_account_tasks.send_mail_with_html')
+    message = Message(subject="Your invite is here!")
+    message.recipients = ["{}".format(invitations.email)]
     send_user_invite(invitations.email)
+
+    mocked_send_mail_with_html.assert_called()
