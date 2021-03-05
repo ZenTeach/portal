@@ -31,7 +31,7 @@ const LOGIN_USER = ({ commit, dispatch }, payload) => {
 
 const SIGNOUT_USER = ({ commit, dispatch }) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
-  logoutUser().then(data=> {
+  logoutUser().then(data => {
     Vue.prototype.$cookies.remove('csrf_access_token')
     commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
     commit('TOGGLECURRENTUSER', {})
@@ -47,7 +47,7 @@ const SIGNOUT_USER = ({ commit, dispatch }) => {
 const REGISTER_USER = ({ commit, dispatch }, payload) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
   registerUser(payload).then(
-    data=> {
+    data => {
       commit('app/TOGGLE_APP_LOGGED_IN', true, { root: true })
       commit('app/TOGGLE_APP_LOADING', false, { root: true })
       router.push('/')
