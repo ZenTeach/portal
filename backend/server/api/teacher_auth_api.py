@@ -275,6 +275,34 @@ class InviteTeacher(Resource):
             }))
 
 
+class SendConfirmation(Resource):
+    @jwt_required
+    def post(self):
+        post_data = request.get_json()
+        email = post_data["email"]
+
+        if email is None:
+            abort(400, "Email is required to perform this action.")
+
+        teacher_id = Teacher.query.filter_by(email=email).first().id
+
+        if teacher_id is None:
+            abort(404, "Email doesn't exist.")
+
+        try:
+            send_confirmation_instructions.delay(teacher_id)
+            return make_response(jsonify({
+                'status': 'success',
+                'message': 'Confirmation instruction Sent! Check your mailbox.'
+            }), 200)
+        except Exception as e:
+            logger.error(e)
+            return make_response(jsonify({
+                'status': 'error',
+                'message': 'Couldn\'t send confirmation instruction. Please wait while we resolve the issue.'  # noqa
+            }))
+
+
 api.add_resource(TeacherRegistration, "/teacher/registration")
 api.add_resource(TeacherLogin, "/teacher/login")
 api.add_resource(TeacherLogout, "/teacher/logout")
@@ -285,3 +313,4 @@ api.add_resource(GAuth, "/teacher/auth/google")
 api.add_resource(ConfirmAccount, "/teacher/confirm")
 api.add_resource(ResetAccount, "/teacher/reset-password")
 api.add_resource(InviteTeacher, "/teacher/invite")
+api.add_resource(SendConfirmation, "/teacher/send_confirmation")

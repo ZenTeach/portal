@@ -182,3 +182,21 @@ def test_teacher_logout(client: FlaskClient, teacher_: Teacher, mocker: MockFixt
     response = client.delete('/api/v1/teacher/logout')
 
     assert response.status_code == 204
+
+
+def test_teacher_send_confirmartion(client: FlaskClient,
+                                    teacher_: Teacher,
+                                    mocker: MockFixture) -> None:
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions')
+    # mocked_send_confirmation_instructions =
+
+    response = client.post(
+        '/api/v1/teacher/send_confirmation',
+        json={
+            'email': teacher_.email
+        })
+
+    assert response.status_code == 200
+    # mocked_send_confirmation_instructions.assert_called()
+    # mocked_send_confirmation_instructions.assert_called_with(teacher_.id)

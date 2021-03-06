@@ -3,6 +3,7 @@
     <nav-bar v-if="isLoggedIn && !isQuizView" />
     <nav-bar-drawer v-if="isLoggedIn && !isQuizView" />
     <v-content class="grey lighten-3">
+      <unconfirmed-account-banner :visible="true" />
       <div id="core-view">
         <v-container fluid>
           <v-fade-transition mode="in-out">
@@ -41,6 +42,7 @@ import NavBar from '@/components/NavBar'
 import NavBarDrawer from '@/components/NavBarDrawer'
 import MaterialNotification from '@/components/Notification'
 import InviteUser from '@/components/InviteUser'
+import UnconfirmedAccountBanner from '@/components/UnconfirmedAccountBanner'
 import { createNamespacedHelpers } from 'vuex'
 const { mapState, mapGetters } = createNamespacedHelpers('app')
 
@@ -49,6 +51,7 @@ export default {
     NavBar,
     NavBarDrawer,
     MaterialNotification,
+    UnconfirmedAccountBanner,
     InviteUser
   },
   computed: {
