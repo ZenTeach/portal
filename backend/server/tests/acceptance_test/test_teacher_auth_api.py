@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 
 import pytest
 from factory import build
@@ -188,8 +189,10 @@ def test_teacher_send_confirmartion(client: FlaskClient,
                                     teacher_: Teacher,
                                     mocker: MockFixture) -> None:
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions')
-    # mocked_send_confirmation_instructions =
+
+    @mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions')
+    def _mocked_send_confirmation_instructions(send_confirmation_instructions):
+        send_confirmation_instructions.assert_called_with(teacher_.id)
 
     response = client.post(
         '/api/v1/teacher/send_confirmation',
@@ -198,5 +201,43 @@ def test_teacher_send_confirmartion(client: FlaskClient,
         })
 
     assert response.status_code == 200
-    # mocked_send_confirmation_instructions.assert_called()
-    # mocked_send_confirmation_instructions.assert_called_with(teacher_.id)
+
+
+@pytest.mark.parametrize('email,status', [
+    pytest.param(None, 400),
+    pytest.param('cnajsk@canjskdajs.casjd', 404)
+])
+def test_teacher_send_confirmation_error(client: FlaskClient,
+                                         email: Optional[str],
+                                         status: int,
+                                         mocker: MockFixture) -> None:
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+
+    response = client.post(
+        '/api/v1/teacher/send_confirmation',
+        json={
+            'email': email
+        })
+
+    assert response.status_code == status
+
+
+def test_teacher_send_confirmation_exception(client: FlaskClient,
+                                             teacher_: Teacher,
+                                             mocker: MockFixture) -> None:
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+
+    def _mock_send_confirmation_instructions(*args):
+        return Exception()
+
+    mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions',
+                 _mock_send_confirmation_instructions)
+
+    response = client.post(
+        '/api/v1/teacher/send_confirmation',
+        json={
+            'email': teacher_.email
+        })
+
+    assert response.status_code == 500

@@ -284,13 +284,13 @@ class SendConfirmation(Resource):
         if email is None:
             abort(400, "Email is required to perform this action.")
 
-        teacher_id = Teacher.query.filter_by(email=email).first().id
+        teacher = Teacher.query.filter_by(email=email).first()
 
-        if teacher_id is None:
+        if teacher is None:
             abort(404, "Email doesn't exist.")
 
         try:
-            send_confirmation_instructions.delay(teacher_id)
+            send_confirmation_instructions.apply_async(args=[teacher.id])
             return make_response(jsonify({
                 'status': 'success',
                 'message': 'Confirmation instruction Sent! Check your mailbox.'
@@ -300,7 +300,7 @@ class SendConfirmation(Resource):
             return make_response(jsonify({
                 'status': 'error',
                 'message': 'Couldn\'t send confirmation instruction. Please wait while we resolve the issue.'  # noqa
-            }))
+            }), 500)
 
 
 api.add_resource(TeacherRegistration, "/teacher/registration")
