@@ -6,7 +6,8 @@ import {
   sendAccountRecovery,
   changePassword,
   confirmAccount,
-  userInvite
+  userInvite,
+  sendConfirmationInstruction
 } from '../../../service/teacher_auth'
 
 import { confirmStudentAccount } from '../../../service/student_auth'
@@ -150,6 +151,19 @@ const SENDUSERINVITE = ({ commit, dispatch }, email) => {
   )
 }
 
+const SENDUSERCONFIRMATION = ({ commit, dispatch }, email) => {
+  sendConfirmationInstruction(email).then(
+    data => {
+      dispatch('app/TOGGLE_ERROR', data, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+    },
+    error => {
+      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+    }
+  )
+}
+
 export default {
   LOGIN_USER,
   SIGNOUT_USER,
@@ -159,5 +173,6 @@ export default {
   UPDATEUSERPASSWORD,
   CONFIRMNEWACCOUNT,
   CONFRIMSTUDENTACCOUNT,
-  SENDUSERINVITE
+  SENDUSERINVITE,
+  SENDUSERCONFIRMATION
 }

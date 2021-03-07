@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UnconfirmedAccountBanner.vue renders UnconfirmedAccountBanner component 1`] = `
+<v-banner-stub color="yellow lighten-4" tag="div" mobilebreakpoint="1264" singleline="true">
+  <div class="d-flex justify-space-between justify-space-around align-baseline">
+    <div class="display-2" style="max-width: 60vw;"><span class="d-flex"><v-icon-stub slot="icon" color="red" size="36">
+                mdi-account-alert-outline
+                </v-icon-stub> <p class="ma-3 font-weight-bold d-inline">Account not verified.</p></span>
+      <hr>
+      <div>
+        <p class="text-lighten-3 font-weight-light text-wrap subtitle-2">Please confirm your account to continue using the portal. Check your Spam folder for the confirmation email. If you haven't recieved it yet, click 'Resend email' to receive it.</p>
+      </div>
+    </div>
+    <div class="mr-10">
+      <v-btn-stub color="success" tag="button" activeclass="" icon="true" type="button">
+        <v-icon-stub size="16">
+          mdi-refresh
+        </v-icon-stub>
+        Resend
+      </v-btn-stub>
+    </div>
+  </div>
+</v-banner-stub>
+`;

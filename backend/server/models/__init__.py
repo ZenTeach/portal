@@ -126,6 +126,7 @@ class TeacherSchema(ma.ModelSchema):
             "email",
             "date_of_birth",
             "classes",
+            "confirmed"
         )
         model = Teacher
 

@@ -5,6 +5,7 @@ exports[`App.vue matches snapshot 1`] = `
   <nav-bar-stub></nav-bar-stub>
   <nav-bar-drawer-stub></nav-bar-drawer-stub>
   <v-content-stub tag="main" class="grey lighten-3">
+    <unconfirmed-account-banner-stub visible="true"></unconfirmed-account-banner-stub>
     <div id="core-view">
       <v-container-stub tag="div" fluid="true">
         <v-fade-transition-stub mode="in-out" origin="top center 0">
