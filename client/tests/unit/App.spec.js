@@ -5,6 +5,10 @@ import Vuex from 'vuex'
 import Vue from 'vue'
 import { Store } from 'vuex-mock-store'
 import VueRouter from 'vue-router'
+import VueLodash from 'vue-lodash'
+import lodash from 'lodash'
+
+Vue.use(VueLodash, { name: 'custom', lodash: lodash })
 
 Vue.use(VueRouter)
 Vue.use(Vuetify)
@@ -29,12 +33,23 @@ describe('App.vue', () => {
         app: {
           loggedIn: 'from app',
           error: 'from app'
+        },
+        user: {
+          current_user: 'from user'
         }
+      },
+      getters: {
+        'getters/getCurrentUser': 'from user'
       },
       actions: {
         'actions/FETCHCURRENTUSER': 'from user'
       }
     })
+
+    mockStore.getters['getters/getCurrentUser'] = { confirmed: false }
+    // mockStore.state.user.current_user =  {
+    //   confirmed: false
+    // }
   })
 
   it('matches snapshot', () => {

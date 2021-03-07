@@ -3,7 +3,7 @@
     <nav-bar v-if="isLoggedIn && !isQuizView" />
     <nav-bar-drawer v-if="isLoggedIn && !isQuizView" />
     <v-content class="grey lighten-3">
-      <unconfirmed-account-banner :visible="true" />
+      <unconfirmed-account-banner :visible="isLoggedIn && !isUserConfirmed" />
       <div id="core-view">
         <v-container fluid>
           <v-fade-transition mode="in-out">
@@ -44,7 +44,9 @@ import MaterialNotification from '@/components/Notification'
 import InviteUser from '@/components/InviteUser'
 import UnconfirmedAccountBanner from '@/components/UnconfirmedAccountBanner'
 import { createNamespacedHelpers } from 'vuex'
+
 const { mapState, mapGetters } = createNamespacedHelpers('app')
+const { mapGetters: mapUserGetters } = createNamespacedHelpers('user')
 
 export default {
   components: {
@@ -67,12 +69,18 @@ export default {
     ...mapGetters({
       appStatus: 'statusText'
     }),
+    ...mapUserGetters({
+      currentUser: 'getCurrentUser'
+    }),
     errorMessage () {
       return this.error.message || ''
     },
     isQuizView: function () {
       const quizViewRegEx = new RegExp('(/)(quiz_view)')
       return quizViewRegEx.test(this.$route.path) || false
+    },
+    isUserConfirmed: function () {
+      return this._.get(this.currentUser, 'confirmed', false)
     }
   },
   mounted: function () {

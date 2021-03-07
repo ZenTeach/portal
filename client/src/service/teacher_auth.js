@@ -49,9 +49,8 @@ export function userInvite (email) {
   }).then(handleResponse).then(data => data)
 }
 
-
-export function sendConfirmationInstruction(email) {
-  return Api.post(`/teacher/confirm`, {
+export function sendConfirmationInstruction (email) {
+  return Api.post('/teacher/send_confirmation', {
     email: email
   }).then(handleResponse).then(data => data)
 }

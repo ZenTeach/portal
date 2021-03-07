@@ -1,12 +1,11 @@
 <template>
     <v-banner
         single-line
-        @click:icon="alert"
         v-model="visible"
         color="yellow lighten-4"
     >
         <div class="d-flex justify-space-between justify-space-around align-baseline">
-            <div>
+            <div class="display-2" style="max-width: 60vw;">
                 <span class="d-flex">
                     <v-icon
                         slot="icon"
@@ -15,11 +14,11 @@
                     >
                     mdi-account-alert-outline
                     </v-icon>
-                    <p class="ma-3 d-inline display-1">Account not verified.</p>
+                    <p class="ma-3 font-weight-bold d-inline">Account not verified.</p>
                 </span>
                     <hr />
                 <div>
-                    <p class="text-lighten-3">Please confirm your account to continue using the portal. Check your Spam folder for the confirmation email. If you haven't recieved it yet, click 'Resend email' to receive it.</p>
+                    <p class="text-lighten-3 font-weight-light text-wrap subtitle-2">Please confirm your account to continue using the portal. Check your Spam folder for the confirmation email. If you haven't recieved it yet, click 'Resend email' to receive it.</p>
                 </div>
             </div>
             <div class="mr-10">
@@ -41,19 +40,39 @@
 </template>
 
 <script>
+
+import { createNamespacedHelpers } from 'vuex'
+
+const { mapActions, mapGetters } = createNamespacedHelpers('user')
+
 export default {
-    name: 'UnconfirmedAccountBanner',
-    props: {
-        visible: {
-            type: Boolean,
-            default: false
-        }
-    },
-    data() {
-        return {
-            loading: false
-        }
+  name: 'UnconfirmedAccountBanner',
+  props: {
+    visible: {
+      type: Boolean,
+      default: false
     }
+  },
+  data () {
+    return {
+      loading: false
+    }
+  },
+  methods: {
+    ...mapGetters({
+      currentUser: 'getCurrentUser'
+    }),
+    ...mapActions({
+      sendConfirmation: 'SENDUSERCONFIRMATION'
+    }),
+    sendConfirmationEmail () {
+      this.loading = true
+      const { email } = this.currentUser()
+      this.sendConfirmation(email).then(
+        this.loading = false
+      )
+    }
+  }
 }
 </script>
 
