@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import timedelta
 
 from celery import Celery
 from flask import (Flask, current_app, has_request_context, jsonify,
@@ -51,7 +52,13 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 bcrypt = Bcrypt()
 jwt = JWTManager()
-cors = CORS(supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
+cors = CORS(supports_credentials=True,
+            resources={
+                r"/api/v1/*": {
+                    "origins": os.environ.get('CLIENT_URL'),
+                    "max_age": timedelta(hours=24)
+                }
+            })
 ma = Marshmallow()
 mail = Mail()
 celery = Celery("zenteach_tasks")
