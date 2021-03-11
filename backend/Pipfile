@@ -158,7 +158,7 @@ quill-delta = "*"
 lxml = "*"
 cssutils = "*"
 coverage = "==5.4"
-sentry-sdk = "*"
+sentry-sdk = "==1.0.0"
 
 [requires]
 python_version = "3.7"

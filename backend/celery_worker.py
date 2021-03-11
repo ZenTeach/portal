@@ -18,8 +18,9 @@ sentry_dsn_key = os.environ.get("SENTRY_DSN")
 if sentry_dsn_key:
     import sentry_sdk
     from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.redis import RedisIntegration
 
-    sentry_sdk.init(dsn=sentry_dsn_key, integrations=[CeleryIntegration()])
+    sentry_sdk.init(dsn=sentry_dsn_key, integrations=[CeleryIntegration(), RedisIntegration()])
 
 app = create_app()
 app.app_context().push()
