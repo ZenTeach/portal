@@ -13,8 +13,9 @@
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
   },
   "dependencies": {
-    "@sentry/browser": "^5.20.1",
+    "@sentry/browser": "^6.2.2",
     "@sentry/integrations": "^5.20.1",
+    "@sentry/vue": "^6.2.2",
     "axios": "^0.21.1",
     "axios-auth-refresh": "^2.2.0",
     "bootstrap": "^4.3.1",
