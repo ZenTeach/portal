@@ -15,9 +15,7 @@ jobs:
       JUMPHOST_KEYS: ../backend/scripts/fabric_bastion_host_connection
       JUMPHOST: 18.132.248.142
       REMOTE_HOST_KEYS: ../backend/scripts/fabric_deploy_keys
-      REMOTE_HOST1: 5.1.10.158
       REMOTE_HOST2: 5.1.10.218
-      REMOTE_HOST3: 5.1.10.32
       REMOTE_USER: ubuntu
       REMOTE_DEST: /var/www/portal.zenteach.co.uk
 
