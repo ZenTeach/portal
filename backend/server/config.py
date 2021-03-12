@@ -23,6 +23,10 @@ class BaseConfig:
     CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
     CELERYD_TASK_LOG_FORMAT = os.environ.get("CELERYD_TASK_LOG_FORMAT")
     CELERY_TRACK_STARTED = True
+    CORS_RESOURCES = [r"/api/v1/*"]
+    CORS_MAX_AGE = timedelta(hours=24)
+    CORS_VARY_HEADER = True
+    CORS_SUPPORTS_CREDENTIALS = True
     CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     DEFAULT_MAIL_SENDER = os.environ.get("DEFAULT_MAIL_SENDER")
@@ -76,3 +80,4 @@ class ProductionConfig(BaseConfig):
     PROPAGATE_EXCEPTIONS = True
     SECRET_KEY = token_urlsafe()
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'server/static/uploaded')
+    CORS_ORIGINS = ['portal.zenteach.co.uk', 'stage.portal.zenteach.co.uk']
