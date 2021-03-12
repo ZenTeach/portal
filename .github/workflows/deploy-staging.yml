@@ -15,7 +15,6 @@ jobs:
     env:
       VUE_APP_API_ENDPOINT: https://service.stage.portal.zenteach.co.uk/api/v1
       VUE_APP_SENTRY_DSN: https://57d2692e63644741b5f061d9ba9e54c6@o328466.ingest.sentry.io/5372591
-      VUE_CORS_API_ORIGIN: https://service.stage.portal.zenteach.co.uk
       REMOTE_HOST_KEYS: ../backend/scripts/fabric_deploy_keys
       REMOTE_HOST: 35.176.160.133
       REMOTE_USER: ubuntu
