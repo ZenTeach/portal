@@ -263,8 +263,6 @@ class GradedQuizzes(Resource):
     def get(self, quizUUId):
         quizId = ClassQuizModel.query.filter_by(uuid=quizUUId).first().id
         graded_quizzes = QuizGrade.query.filter_by(class_quiz_id=quizId, graded=True).all()
-        if not graded_quizzes or len(graded_quizzes) == 0:
-            abort(404, "No Quiz grading found!")
 
         # TODO: Check against non-existing student email
         serializer = QuizGradeSchema(many=True)

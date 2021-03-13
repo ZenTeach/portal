@@ -45,6 +45,7 @@ describe('Quiz.vue', () => {
         'actions/SENDSTUDENTREPORTCARD': 'from quiz'
       }
     })
+    mockStore.state.quiz.graded_quizzes = []
   })
 
   it('matches snapshot', () => {
