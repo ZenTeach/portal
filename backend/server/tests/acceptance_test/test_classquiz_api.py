@@ -225,3 +225,14 @@ def test_classquiz_send_report_card_exception(client: FlaskClient,
 
     response = client.get(f"/api/v1/class_quiz/{quiz_grade.uuid}/send_report")
     assert response.status_code == 500
+
+
+def test_classquiz_get_graded_quizzes(client: FlaskClient,
+                                      quiz_grade: QuizGrade,
+                                      classquiz_: ClassQuiz,
+                                      mocker: MockFixture) -> None:
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+
+    response = client.get(f"/api/v1/class_quiz/{classquiz_.uuid}/graded")
+    assert response.status_code == 200
