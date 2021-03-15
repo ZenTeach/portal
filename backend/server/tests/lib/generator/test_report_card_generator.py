@@ -131,5 +131,4 @@ def test_report_card_parse_json_blob(feedback_value: str, return_value: Union[Di
         "Carbon dioxide only makes up 0.04% of the atmosphere.Earth's atmosphere is composed of 78% nitrogen, 21% oxygen, 1% argon and 0.04% carbon dioxide.")  # noqa
 ])
 def test_report_card_render_quill_delta(parsed_data: Union[Dict, str], text_output: str) -> None:
-    # import pdb; pdb.set_trace()
     assert render_quill_delta(parsed_data) == text_output

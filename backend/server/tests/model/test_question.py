@@ -1,9 +1,10 @@
-from typing import Dict
+from typing import Dict, OrderedDict
 
 import pytest
 from factory import build
 from flask.testing import FlaskClient
 from marshmallow import ValidationError
+from server import globalConfig
 from server.models import Questions
 from server.tests.factories import QuestionsFactory
 from server.tests.factories.question_choice_factory import \
@@ -15,6 +16,11 @@ def question_param(client: FlaskClient) -> Dict:
     return build(dict, FACTORY_CLASS=QuestionsFactory, multiple_choice_question_type=True)
 
 
+@pytest.fixture
+def examboard() -> OrderedDict:
+    return globalConfig.get('C_EXAMBOARD').get('exam_board')
+
+
 def test_question_creation_with_multiple_choices(client: FlaskClient) -> None:
     question = QuestionsFactory.create(multiple_choice_question_type=True, with_choices=4)
 
@@ -22,14 +28,15 @@ def test_question_creation_with_multiple_choices(client: FlaskClient) -> None:
     assert len(question.choices) == 4
 
 
-def test_question_create_from_admin_form_succeeds(client: FlaskClient) -> None:
+def test_question_create_from_admin_form_succeeds(client: FlaskClient,
+                                                  examboard: OrderedDict) -> None:
     choices = [build(dict, FACTORY_CLASS=QuestionChoiceFactory,
                      weight=1, is_correct_choice=True) for _ in range(4)]
     question_payload = build(dict, FACTORY_CLASS=QuestionsFactory,
+                             exam_board=examboard.get('aqa'),
                              multiple_choice_question_type=True)
 
     question_payload['choices'] = choices
-    # import pdb; pdb.set_trace();
     q = Questions.create_from_admin_form(question_payload)
 
     assert q
