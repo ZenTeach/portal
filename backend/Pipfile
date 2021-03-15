@@ -159,6 +159,7 @@ lxml = "*"
 cssutils = "*"
 coverage = "==5.4"
 sentry-sdk = "==1.0.0"
+yamlloader = "*"
 
 [requires]
 python_version = "3.7"
