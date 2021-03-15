@@ -1,0 +1,8 @@
+exam_board:
+  aqa: 'AQA'
+  ocr_gateway: 'OCR Gateway'
+  edexcel: 'EdExcel'
+  ocr_new: 'OCR 21st Century'
+  wjec: 'WJEC'
+  ccea: 'CCEA'
+  eduqas: 'Eduqas'

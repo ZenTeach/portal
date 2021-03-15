@@ -1,7 +1,20 @@
 import os
 from datetime import timedelta
+from os import getcwd
 from pathlib import Path
 from secrets import token_urlsafe
+from typing import OrderedDict
+
+import yaml
+from yamlloader.ordereddict import CLoader
+
+
+def _load_examboard() -> OrderedDict:
+    data = None
+    with open(f"{getcwd()}/server/exam_board.yml") as fp:
+        data = yaml.safe_load(fp, Loader=CLoader)
+
+    return data
 
 
 class BaseConfig:
@@ -34,6 +47,7 @@ class BaseConfig:
     CLIENT_URL = os.environ.get('CLIENT_URL')
     IMAGE_ALLOWED_EXTENSIONS = ['png', 'jpeg', 'jpg']
     UPLOAD_FOLDER = '/tmp'  # nosec
+    C_EXAMBOARD = _load_examboard()
 
 
 class DevelopmentConfig(BaseConfig):
