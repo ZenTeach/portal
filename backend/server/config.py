@@ -80,4 +80,3 @@ class ProductionConfig(BaseConfig):
     PROPAGATE_EXCEPTIONS = True
     SECRET_KEY = token_urlsafe()
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'server/static/uploaded')
-    CORS_ORIGINS = ['portal.zenteach.co.uk', 'stage.portal.zenteach.co.uk']
