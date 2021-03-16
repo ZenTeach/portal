@@ -11,6 +11,7 @@ jobs:
         working-directory: client/
     env:
       VUE_APP_API_ENDPOINT: https://service.portal.zenteach.co.uk/api/v1
+      VUE_APP_CORS_ORIGIN: https://service.portal.zenteach.co.uk
       VUE_APP_SENTRY_DSN: https://6474c2d922534f9a9acc9a83b1553a5b@o328466.ingest.sentry.io/5417325
       JUMPHOST_KEYS: ../backend/scripts/fabric_bastion_host_connection
       JUMPHOST: 18.132.248.142
