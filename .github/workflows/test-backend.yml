@@ -3,6 +3,7 @@ name: Backend test CI
 on:
   pull_request:
     branches: 
+      - master
       - 'backend/**'
 
 jobs:
