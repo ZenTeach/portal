@@ -5,14 +5,14 @@ from pathlib import Path
 from secrets import token_urlsafe
 from typing import OrderedDict
 
-import yaml
+from yaml import load
 from yamlloader.ordereddict import CLoader
 
 
 def _load_examboard() -> OrderedDict:
     data = None
     with open(f"{getcwd()}/server/exam_board.yml") as fp:
-        data = yaml.safe_load(fp, Loader=CLoader)
+        data = load(fp, Loader=CLoader)  # nosec
 
     return data
 
