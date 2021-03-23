@@ -2,7 +2,7 @@ name: Client test CI
 
 on:
   pull_request:
-    branches: 
+    paths:
       - 'client/**'
 
 jobs:
