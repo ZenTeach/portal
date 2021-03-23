@@ -35,6 +35,20 @@ def question_payload():
     return QuestionsSchema().dump(built_question)
 
 
+@pytest.fixture
+def knowledgeitems_() -> List[str]:
+    kis = Questions.query.with_entities(Questions.knowledge_item).distinct().filter(
+        Questions.subject.op('~*')('chemistry')).all()
+    return [item for subl in kis for item in subl if item is not None]
+
+
+@pytest.fixture
+def topics_() -> List[str]:
+    topics = Questions.query.with_entities(Questions.topic).filter(
+        Questions.subject.op('~*')('chemistry')).all()
+    return [item for subl in topics for item in subl if item is not None]
+
+
 def mock_get_jwt_identity():
     return {
         "role": "Teacher"
@@ -257,3 +271,27 @@ def test_question_filter_by_topics_kis_error(client: FlaskClient,
         json=payload)
 
     assert response.status_code == 400
+
+
+@pytest.mark.xfail(reason="Search vectors need to be computed and updated")
+def test_question_search_with_params(client: FlaskClient,
+                                     mocker: MockFixture,
+                                     knowledgeitems_: List[str],
+                                     topics_: List[str]):
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    question_string = Questions.query.filter_by(subject="Chemistry").first().question
+    payload = {
+        "query": question_string,
+        "topic": ['anotherKI'],
+        "knowledge_item": knowledgeitems_,
+        "subject": "Chemistry"
+    }
+
+    response = client.post(
+        "/api/v1/question/search",
+        json=payload
+    )
+
+    assert response.status_code == 200
+    assert json.loads(response.data)['message'] != "No result found"
