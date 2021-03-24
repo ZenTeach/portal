@@ -44,6 +44,7 @@ class AdminFormValidator(Schema):
     question = fields.Str(required=True)
     question_type = EnumField(QuestionTypeEnum, required=True)
     choices = fields.Nested(AdminQuestionChoiceValidator, required=True, many=True)
+    exam_board = fields.Str(required=True)
     subject = fields.Str(required=True)
     topic = fields.Str(required=True)
     tag = fields.Str(required=True)
@@ -73,6 +74,7 @@ class Questions(BaseModelMixin, db.Model):
         nullable=False,
         default=QuestionTypeEnum.multiple_choice,
     )
+    exam_board = db.Column(db.Text, nullable=True)
     subject = db.Column(db.String(256), nullable=False)
     topic = db.Column(db.String(256), nullable=True)
     tag = db.Column(db.String(128), nullable=False)

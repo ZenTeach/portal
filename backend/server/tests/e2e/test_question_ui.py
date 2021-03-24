@@ -53,6 +53,9 @@ class TestQuestionUI:
         sleep(1)
         click_button(selenium, '//*[@id="content"]/div[1]/a', 'xpath')
 
+        # select exam board
+        select_option(selenium, '//*[@id="exam_board"]', 'aqa', 'xpath')
+
         # Fill topic
         enter_text_field(selenium, '//*[@id="topic"]', 'xpath', question_params['question'])
 
@@ -93,7 +96,7 @@ class TestQuestionUI:
         enter_text_field(selenium, f"//*[@id=\"choices-{rnd_choice}-weight\"]", 'xpath', 1)
 
         # Submit
-        click_button(selenium, '//*[@id="content"]/form/div[8]/input[1]', 'xpath')
+        click_button(selenium, '//*[@id="content"]/form/div[9]/input[1]', 'xpath')
         sleep(1)
 
         assert Questions.query.filter_by(question=question_params['question']).first() is not None

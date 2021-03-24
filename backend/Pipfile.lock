@@ -1875,6 +1875,14 @@
             "index": "pypi",
             "version": "==2.2.1"
         },
+        "yamlloader": {
+            "hashes": [
+                "sha256:dc132ef450b10a73d51a89a4124cd8a0b76567ca938883e3ceb41222729589ed",
+                "sha256:e96dc3dc6895d814c330c054c966d993fc81ef1dbf5a30a4bdafeb256359e058"
+            ],
+            "index": "pypi",
+            "version": "==1.0.0"
+        },
         "yarl": {
             "hashes": [
                 "sha256:0c2ab325d33f1b824734b3ef51d4d54a54e0e7a23d13b86974507602334c2cce",
