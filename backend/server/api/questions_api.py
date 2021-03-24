@@ -124,8 +124,8 @@ class QuestionSearch(Resource):
     def post(self):
         query_params = request.get_json()
         try:
-            result_set = Questions.query.search(query_params["query"]).filter_by(
-                subject=query_params["subject"]
+            result_set = Questions.query.search(query_params["query"]).filter(
+                Questions.subject.op('~*')(query_params["subject"])
             ).filter(
                 Questions.topic.in_(query_params["topic"])
             ).filter(

@@ -36,13 +36,11 @@ class BaseConfig:
     CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
     CELERYD_TASK_LOG_FORMAT = os.environ.get("CELERYD_TASK_LOG_FORMAT")
     CELERY_TRACK_STARTED = True
-    CORS_RESOURCES = [r"/api/v1/*"]
-    CORS_MAX_AGE = timedelta(hours=24)
     CORS_VARY_HEADER = True
-    CORS_SUPPORTS_CREDENTIALS = True
     CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     DEFAULT_MAIL_SENDER = os.environ.get("DEFAULT_MAIL_SENDER")
+    ALLOWED_CORS_ORIGIN = os.environ.get('ALLOWED_CORS_ORIGIN')
     TMP_DIR = str(Path(os.environ.get('TMP_DIR')).resolve())
     CLIENT_URL = os.environ.get('CLIENT_URL')
     IMAGE_ALLOWED_EXTENSIONS = ['png', 'jpeg', 'jpg']

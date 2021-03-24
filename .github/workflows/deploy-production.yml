@@ -16,7 +16,7 @@ jobs:
       JUMPHOST_KEYS: ../backend/scripts/fabric_bastion_host_connection
       JUMPHOST: 18.132.248.142
       REMOTE_HOST_KEYS: ../backend/scripts/fabric_deploy_keys
-      REMOTE_HOST2: 5.1.10.218
+      REMOTE_HOST: 5.1.10.218
       REMOTE_USER: ubuntu
       REMOTE_DEST: /var/www/portal.zenteach.co.uk
 
@@ -35,17 +35,9 @@ jobs:
       - name: Build distro
         run: yarn build
 
-      - name: Copy files with SSH to Host ${{ env.REMOTE_HOST1 }}
+      - name: Copy files with SSH to Host ${{ env.REMOTE_HOST }}
         run: |
-         chmod 400 $REMOTE_HOST_KEYS && chmod 400 $JUMPHOST_KEYS && scp -r -i $REMOTE_HOST_KEYS -o "StrictHostKeyChecking=no" ./dist $REMOTE_USER@$REMOTE_HOST1:$REMOTE_DEST
-
-      - name: Copy files with SSH to Host ${{ env.REMOTE_HOST2 }}
-        run: |
-         chmod 400 $REMOTE_HOST_KEYS && chmod 400 $JUMPHOST_KEYS && scp -r -i $REMOTE_HOST_KEYS -o "StrictHostKeyChecking=no" ./dist $REMOTE_USER@$REMOTE_HOST2:$REMOTE_DEST
-
-      - name: Copy files with SSH to Host ${{ env.REMOTE_HOST3 }}
-        run: |
-         chmod 400 $REMOTE_HOST_KEYS && chmod 400 $JUMPHOST_KEYS && scp -r -i $REMOTE_HOST_KEYS -o "StrictHostKeyChecking=no" ./dist $REMOTE_USER@$REMOTE_HOST3:$REMOTE_DEST
+         chmod 400 $REMOTE_HOST_KEYS && chmod 400 $JUMPHOST_KEYS && scp -r -i $REMOTE_HOST_KEYS -o "StrictHostKeyChecking=no" ./dist $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST
 
 
   deploy_backend:

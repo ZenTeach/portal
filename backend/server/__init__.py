@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import timedelta
 
 from celery import Celery
 from flask import (Flask, current_app, has_request_context, jsonify,
@@ -51,7 +52,13 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 bcrypt = Bcrypt()
 jwt = JWTManager()
-cors = CORS()
+cors = CORS(supports_credentials=True,
+            resources={
+                r"/api/v1/*": {
+                    "origins": os.environ.get('ALLOWED_CORS_ORIGIN', '*'),
+                    "max_age": timedelta(hours=24)
+                }
+            })
 ma = Marshmallow()
 mail = Mail()
 celery = Celery("zenteach_tasks")
@@ -195,10 +202,6 @@ def create_app():
         app.register_blueprint(root_api)
 
     default_handler.setFormatter(formatter)
-
-    # @app.errorhandler(500)
-    # def internal_error(exception):
-    #     app.logger.error(exception)
 
     if os.environ.get('FLASK_ENV') == 'production':
         gunicorn_logger = logging.getLogger('gunicorn.error')
