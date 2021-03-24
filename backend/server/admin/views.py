@@ -16,7 +16,7 @@ from flask_login import current_user, login_user, logout_user
 from flask_wtf.csrf import _FlaskFormCSRF
 from jinja2 import Markup
 from server import bcrypt
-from server import db as sdb
+from server.config import _load_examboard
 from server.models import Admin, QuestionChoice, Questions, Student, Teacher
 from wtforms import (BooleanField, IntegerField, SelectField, StringField,
                      TextField, fields, form, validators)
@@ -91,7 +91,6 @@ class LoginForm(form.Form):
         if user is None:
             self.email.errors = "User not found"
             return False
-
         # we're comparing the plaintext pw with the the hash from the sdb
         if not bcrypt.check_password_hash(user.password, self.password.data.encode('utf-8')):
             self.password.errors = "Incorrect password"
@@ -102,7 +101,7 @@ class LoginForm(form.Form):
         return True
 
     def get_user(self):
-        return sdb.session.query(Admin).filter_by(email=self.email.data).first()
+        return Admin.query.filter_by(email=self.email.data).first()
 
 
 class ZenteachAdminIndexView(admin.AdminIndexView):
@@ -278,14 +277,18 @@ class QuestionView(BaseView):
     }
     create_template = "admin/question_create.html"
     edit_template = "admin/question_edit.html"
-    form_overrides = {"subject": SelectField, "question_type": SelectField}
+    form_overrides = {"subject": SelectField,
+                      "question_type": SelectField, 'exam_board': SelectField}
     form_create_rules = ('subject',
+                         'exam_board',
                          'topic',
                          'knowledge_item',
                          'tag',
                          'question_type',
                          'question',
                          'choices')
+
+    _examboard = [(k, v) for k, v in dict(_load_examboard()['exam_board']).items()]
 
     form_args = {
         "subject": dict(
@@ -302,6 +305,9 @@ class QuestionView(BaseView):
                 ("long_answer", "Long Answer"),
             ]
         ),
+        'exam_board': dict(
+            choices=_examboard
+        )
     }
 
     form_excluded_columns = ["uuid", "choices", "image_url",
