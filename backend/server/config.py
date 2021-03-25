@@ -3,13 +3,12 @@ from datetime import timedelta
 from os import getcwd
 from pathlib import Path
 from secrets import token_urlsafe
-from typing import OrderedDict
 
 from yaml import load
 from yamlloader.ordereddict import CLoader
 
 
-def _load_examboard() -> OrderedDict:
+def _load_examboard():
     data = None
     with open(f"{getcwd()}/server/exam_board.yml") as fp:
         data = load(fp, Loader=CLoader)  # nosec
