@@ -14,8 +14,7 @@ export FLASK_ENV='production'
 cd $FLASKDIR/zenteach
 
 pipenv sync
-pip install -r requirements.txt
 
-python manage.py db upgrade
-
-python manage.py db_conf
+# _load_examboard in BaseConfig is called during import.
+TMP_DIR="" python manage.py db upgrade
+TMP_DIR="" python manage.py db_conf
