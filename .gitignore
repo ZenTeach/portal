@@ -307,3 +307,6 @@ backend/server/lib/interfaces/client_id.json
 
 students.csv
 **/static/uploaded/**
+logging.conf
+server/tmp/
+tmp/
