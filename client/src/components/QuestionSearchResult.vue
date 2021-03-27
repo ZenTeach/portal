@@ -1,6 +1,6 @@
 <template>
   <v-list two-line subheader flat>
-    <v-list-item-group multiple>
+    <v-list-item-group multiple v-if="hasResult(resultSet)">
       <template v-for="item in resultSet" >
         <v-list-group
           sub-group
@@ -46,6 +46,9 @@
         </v-list-group>
       </template>
     </v-list-item-group>
+    <v-list-item v-else>
+      <h4> No Question found!</h4>
+    </v-list-item>
   </v-list>
 </template>
 
@@ -53,7 +56,10 @@
 export default {
   name: 'QuestionSearchResult',
   props: {
-    resultSet: Array
+    resultSet: {
+      type: Array,
+      default: []
+    }
   },
   computed: {},
   data () {
@@ -71,6 +77,9 @@ export default {
         3: 'Long Answer'
       }
       return types[type]
+    },
+    hasResult (result) {
+      return result.length > 0
     },
     addToSelectedQuestions (item, cb) {
       this.$store.commit('app/ADD_SELECTED_QUESTIONS', item, { root: true })

@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`QuestionSearchResult.vue Test renders empty search result component 1`] = `
+<v-list-stub
+  flat="true"
+  subheader="true"
+  tag="div"
+  twoline="true"
+>
+  <v-list-item-stub
+    activeclass=""
+    tag="div"
+  >
+    <h4>
+       No Question found!
+    </h4>
+  </v-list-item-stub>
+</v-list-stub>
+`;
