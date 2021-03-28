@@ -9,7 +9,7 @@ from uuid import uuid4
 
 import sqlalchemy as sa
 from alembic import op
-from werkzeug import generate_password_hash
+from werkzeug.security import generate_password_hash
 
 # revision identifiers, used by Alembic.
 revision = "e24bb0f4ef36"

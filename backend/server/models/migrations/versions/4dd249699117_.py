@@ -8,7 +8,7 @@ Create Date: 2020-11-08 21:15:58.073510
 import sqlalchemy as sa
 from alembic import op
 from flask_bcrypt import generate_password_hash as gph
-from werkzeug import generate_password_hash
+from werkzeug.security import generate_password_hash
 
 # revision identifiers, used by Alembic.
 revision = '4dd249699117'
