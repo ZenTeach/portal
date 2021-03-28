@@ -40,11 +40,10 @@ class BaseConfig:
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     DEFAULT_MAIL_SENDER = os.environ.get("DEFAULT_MAIL_SENDER")
     ALLOWED_CORS_ORIGIN = os.environ.get('ALLOWED_CORS_ORIGIN')
-    TMP_DIR = str(Path(os.environ.get('TMP_DIR')).resolve())
+    TMP_DIR = str(Path(os.environ.get('TMP_DIR', "")).resolve())
     CLIENT_URL = os.environ.get('CLIENT_URL')
     IMAGE_ALLOWED_EXTENSIONS = ['png', 'jpeg', 'jpg']
     UPLOAD_FOLDER = '/tmp'  # nosec
-    C_EXAMBOARD = _load_examboard()
 
 
 class DevelopmentConfig(BaseConfig):
