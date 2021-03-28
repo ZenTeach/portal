@@ -18,7 +18,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from sqlalchemy.pool import Pool
 from sqlalchemy_searchable import make_searchable
-from werkzeug import LocalProxy
+from werkzeug.local import LocalProxy
 
 
 def configure_logging():

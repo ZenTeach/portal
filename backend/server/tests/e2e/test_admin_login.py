@@ -23,11 +23,11 @@ class TestAdmin:
         assert live_server.app.config['SERVER_NAME'] == \
             'localhost:%d' % live_server.port
 
-        selenium.get(live_server.url('/admin'))
+        selenium.get(live_server.get_server_url('/admin'))
         assert url_for('admin.login_view') in selenium.current_url
 
     def _login_admin(self, admin_email, admin_password, live_server, selenium):
-        selenium.get(live_server.url('/admin'))
+        selenium.get(live_server.get_server_url('/admin'))
         WebDriverWait(selenium, 5).\
             until(EC.element_to_be_clickable(
                 (By.CSS_SELECTOR,
