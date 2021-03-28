@@ -42,14 +42,14 @@ def question_params() -> Dict:
 class TestQuestionUI:
     @pytest.mark.e2e
     def test_questions_ui_is_visible(self, live_server: LiveServerTestCase, selenium):
-        selenium.get(live_server.url('/admin/admin.question'))
+        selenium.get(live_server.get_server_url('/admin/admin.question'))
         el = selenium.find_element_by_xpath('//*[@id="brand"]')
         assert el.text == 'Questions list'
 
     # @pytest.mark.skip
     @pytest.mark.e2e
     def test_questions_create_form_succeeds(self, live_server, selenium, question_params: Dict):
-        selenium.get(live_server.url('/admin/admin.question'))
+        selenium.get(live_server.get_server_url('/admin/admin.question'))
         sleep(1)
         click_button(selenium, '//*[@id="content"]/div[1]/a', 'xpath')
 
@@ -103,7 +103,7 @@ class TestQuestionUI:
 
     @pytest.fixture(autouse=True)
     def _login_admin(self, admin_: Admin, live_server, selenium) -> None:
-        selenium.get(live_server.url('/admin'))
+        selenium.get(live_server.get_server_url('/admin'))
         WebDriverWait(selenium, 5).\
             until(EC.element_to_be_clickable(
                 (By.CSS_SELECTOR,

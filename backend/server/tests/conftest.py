@@ -17,7 +17,7 @@ def engine():
     return create_engine(os.environ.get("DATABASE_TEST_URL"))
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def app():
     app = create_app()
     return app

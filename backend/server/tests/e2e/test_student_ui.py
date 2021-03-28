@@ -26,13 +26,13 @@ def create_objects(client):
 class TestAdminStudentUI:
     @pytest.mark.e2e
     def test_student_ui_is_visible(self, live_server, selenium):
-        selenium.get(live_server.url('/admin/admin.student'))
+        selenium.get(live_server.get_server_url('/admin/admin.student'))
         el = selenium.find_element_by_xpath('//*[@id="brand"]')
         assert el.text == 'Student list'
 
     @pytest.mark.e2e
     def test_student_delete_does_not_raise(self, live_server, selenium):
-        selenium.get(live_server.url('/admin/admin.student'))
+        selenium.get(live_server.get_server_url('/admin/admin.student'))
         delete_button = selenium.find_element_by_xpath(
             '/html/body/div[1]/div[2]/div/div/div[5]/table/tbody/tr[1]/td[2]/form/button/span')
 
@@ -50,7 +50,7 @@ class TestAdminStudentUI:
     def test_student_delete_flashes_message(self, live_server, selenium, mocker):
         mocker.patch('server.admin.views.Student.remove_model',
                      side_effect=Exception("Cannot delete model"))
-        selenium.get(live_server.url('/admin/admin.student'))
+        selenium.get(live_server.get_server_url('/admin/admin.student'))
         delete_button = selenium.find_element_by_xpath(
             '/html/body/div[1]/div[2]/div/div/div[5]/table/tbody/tr[1]/td[2]/form/button/span')
 
@@ -63,7 +63,7 @@ class TestAdminStudentUI:
 
     @pytest.fixture(autouse=True)
     def _login_admin(self, admin_, live_server, selenium):
-        selenium.get(live_server.url('/admin'))
+        selenium.get(live_server.get_server_url('/admin'))
         WebDriverWait(selenium, 5).\
             until(EC.element_to_be_clickable(
                 (By.CSS_SELECTOR,
