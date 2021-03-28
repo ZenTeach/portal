@@ -4,7 +4,6 @@ import pytest
 from factory import build
 from flask.testing import FlaskClient
 from marshmallow import ValidationError
-from server import globalConfig
 from server.models import Questions
 from server.tests.factories import QuestionsFactory
 from server.tests.factories.question_choice_factory import \
@@ -18,7 +17,7 @@ def question_param(client: FlaskClient) -> Dict:
 
 @pytest.fixture
 def examboard() -> OrderedDict:
-    return globalConfig.get('C_EXAMBOARD').get('exam_board')
+    return OrderedDict([('aqa', 'AQA')])
 
 
 def test_question_creation_with_multiple_choices(client: FlaskClient) -> None:
