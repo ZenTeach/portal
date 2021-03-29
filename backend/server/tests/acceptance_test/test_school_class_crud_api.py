@@ -120,6 +120,29 @@ def test_post_add_student_to_school_class(client: FlaskClient,
     assert response.status_code == 201
 
 
+def test_post_add_existing_student_to_school_class(client: FlaskClient,
+                                                   mocker: MockFixture,
+                                                   school_class: SchoolClass,
+                                                   student: Student):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
+    school_class.add_student(student)
+
+    student_payload = {
+        'firstname': student.firstname,
+        'lastname': student.lastname,
+        'email': student.email
+    }
+
+    response = client.post(
+        f'/api/v1/school_class/{school_class.id}/student',
+        json=student_payload
+    )
+
+    assert len(school_class.students) == 1
+    assert response.status_code == 201
+
+
 def test_delete_remove_student_from_school_class(client: FlaskClient,
                                                  mocker: MockFixture,
                                                  school_class: SchoolClass,

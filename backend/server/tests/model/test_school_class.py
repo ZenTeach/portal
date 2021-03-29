@@ -63,3 +63,19 @@ def test_school_class_remove_classroom(client: FlaskClient,
     assert SchoolClass.query.count() == 1
     SchoolClass.remove_classroom(class_)
     assert SchoolClass.query.count() == 0
+
+
+def test_school_class_has_student(client: FlaskClient,
+                                  student_: Student,
+                                  schoolclass_params: dict):
+    class_ = SchoolClass(**schoolclass_params)
+    class_.save()
+
+    assert len(class_.students) == 0
+    assert class_.students == []
+
+    class_.add_student(student_)
+
+    assert len(class_.students) == 1
+    assert class_.students == [student_]
+    assert class_.has_student(student_)
