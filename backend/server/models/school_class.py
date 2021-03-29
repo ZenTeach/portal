@@ -65,6 +65,12 @@ class SchoolClass(BaseModelMixin, db.Model):
         db.session.delete(assoc_)
         db.session.commit()
 
+    def has_student(self, student):
+        from .student_school_class import StudentAttendedClass
+        return StudentAttendedClass.query.filter_by(
+            student=student,
+            school_class=self).first() is not None
+
     @classmethod
     def remove_classroom(cls, _class: 'SchoolClass'):
         db.engine.execute(

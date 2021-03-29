@@ -206,12 +206,18 @@ class SchoolClassStudent(Resource):
 
         data = request.get_json()
         try:
-            new_student = Student(**data)
-            new_student.save()
-            school_class.add_student(new_student)
-            school_class.save()
+            student = Student.query.filter_by(email=data.get('email')).first()
+            if student is not None:
+                pass
+            else:
+                student = Student(**data)
+                student.save()
 
-            send_student_confirmation_instructions.apply_async(args=[new_student.id])
+            if not school_class.has_student(student):
+                school_class.add_student(student)
+                school_class.save()
+
+            send_student_confirmation_instructions.apply_async(args=[student.id])
         except exc.IntegrityError:
             abort(400, "Student missing required data.")
         except exc.DatabaseError as e:  # noqa
