@@ -15,6 +15,7 @@ class SchoolClass(BaseModelMixin, db.Model):
     subject = db.Column(db.String(256), nullable=False)
     start_date = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow)
+    exam_board = db.Column(db.String(256), nullable=True)
 
     teacher_id = db.Column(
         db.Integer, db.ForeignKey("teacher.id"), nullable=True)
@@ -33,6 +34,7 @@ class SchoolClass(BaseModelMixin, db.Model):
     def __init__(self,
                  name: str,
                  subject: str,
+                 exam_board: str,
                  start_date: Optional['datetime'] = datetime.now(),
                  teacher_id: Optional[int] = None,
                  year_group: Optional[str] = None,
@@ -40,6 +42,7 @@ class SchoolClass(BaseModelMixin, db.Model):
                  ):
         self.name = name
         self.subject = subject
+        self.exam_board = exam_board
         self.start_date = start_date
         self.teacher_id = teacher_id
         self.year_group = year_group
