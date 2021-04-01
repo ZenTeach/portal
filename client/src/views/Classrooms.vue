@@ -14,6 +14,21 @@
                 :items-per-page="5"
                 class="elevation-1"
               >
+                <template v-slot:item.valid="props">
+                  <v-tooltip left>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-icon
+                        v-if="props.item.exam_board === '' "
+                        color="red"
+                        size="24"
+                        v-bind="attrs"
+                        v-on="on">
+                        mdi-alert
+                      </v-icon>
+                    </template>
+                    <span>Please select an exam board.</span>
+                  </v-tooltip>
+                </template>
                 <template v-slot:item.name="props">
                   <a :href="'/classroom/' + props.item.id">{{ props.item.name }}</a>
                 </template>
@@ -131,6 +146,12 @@ export default {
   data () {
     return {
       headers: [
+        {
+          text: '',
+          align: 'left',
+          sortable: false,
+          value: 'valid'
+        },
         {
           text: 'Class',
           align: 'left',
