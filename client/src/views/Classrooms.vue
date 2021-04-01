@@ -14,6 +14,21 @@
                 :items-per-page="5"
                 class="elevation-1"
               >
+                <template v-slot:item.valid="props">
+                  <v-tooltip left>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-icon
+                        v-if="props.item.exam_board === '' "
+                        color="red"
+                        size="24"
+                        v-bind="attrs"
+                        v-on="on">
+                        mdi-alert
+                      </v-icon>
+                    </template>
+                    <span>Please select an exam board.</span>
+                  </v-tooltip>
+                </template>
                 <template v-slot:item.name="props">
                   <a :href="'/classroom/' + props.item.id">{{ props.item.name }}</a>
                 </template>
@@ -53,6 +68,10 @@
 
                               <ValidationProvider rules="required" name="Year group">
                               <v-select :items="yearGroupSelection" label="Year Group" v-model="yearGroup" outlined></v-select>
+                              </ValidationProvider>
+
+                              <ValidationProvider rules="required" name="Exam Board">
+                                <v-select :items="examBoardSelection" label="Exam Board" v-model="examBoard" outlined></v-select>
                               </ValidationProvider>
 
                               <v-menu
@@ -128,6 +147,12 @@ export default {
     return {
       headers: [
         {
+          text: '',
+          align: 'left',
+          sortable: false,
+          value: 'valid'
+        },
+        {
           text: 'Class',
           align: 'left',
           sortable: false,
@@ -135,10 +160,21 @@ export default {
         },
         { text: 'Subject', sortable: true, value: 'subject' },
         { text: 'Starts', sortable: false, value: 'start_date' },
+        { text: 'Exam Board', sortable: true, value: 'exam_board' },
         { text: '', sortable: false, value: 'actions' }
       ],
       subjects: ['Physics', 'Chemistry', 'Biology'],
       yearGroupSelection: ['Year 7', 'Year 8', 'Year 9', 'Year 10', 'Year 11', 'Year 12', 'Year 13'],
+      examBoard: '',
+      examBoardSelection: [
+        { value: 'aqa', text: 'AQA' },
+        { value: 'ocr_gateway', text: 'OCR Gateway' },
+        { value: 'edexcel', text: 'EdExcel' },
+        { value: 'ocr_new', text: 'OCR 21st Century' },
+        { value: 'wjec', text: 'WJEC' },
+        { value: 'ccea', text: 'CCEA' },
+        { value: 'eduqas', text: 'Eduqas' }
+      ],
       yearGroup: '',
       dialog: false,
       start_date: new Date().toISOString().substr(0, 10),
@@ -172,6 +208,7 @@ export default {
       const payload = {
         name: this.classname,
         subject: this.subject,
+        exam_board: this.examBoard,
         start_data: this.start_date,
         year_group: this.yearGroup
       }

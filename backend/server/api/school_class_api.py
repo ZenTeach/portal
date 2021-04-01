@@ -117,6 +117,7 @@ class SchoolClassList(Resource):
         name = post_data.get("name")
         subject = post_data.get("subject")
         start_date = post_data.get("start_date")
+        exam_board = post_data.get("exam_board")
         year_group = post_data.get("year_group")
         teacher_id = teacher["id"]
         try:
@@ -125,6 +126,7 @@ class SchoolClassList(Resource):
                 school_class = SchoolClassModel(
                     name=name,
                     subject=subject,
+                    exam_board=exam_board,
                     start_date=start_date,
                     teacher_id=teacher_id,
                     year_group=year_group

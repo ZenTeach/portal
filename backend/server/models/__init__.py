@@ -111,7 +111,8 @@ class AdminSchema(ma.ModelSchema):
 class SchoolClassSchema(ma.ModelSchema):
     class Meta:
         model = SchoolClass
-        fields = ("id", "name", "subject", "start_date", "year_group", "students", "quizzes")
+        fields = ("id", "name", "subject", "exam_board",
+                  "start_date", "year_group", "students", "quizzes")
 
     quizzes = ma.Nested(ClassQuizSchema, many=True)
     students = ma.Nested(StudentSchema, many=True)
