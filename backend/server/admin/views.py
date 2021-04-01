@@ -2,8 +2,9 @@ import json
 import logging
 import os
 import re
-from functools import reduce
+from functools import lru_cache, reduce
 from html import escape
+from typing import OrderedDict
 
 import flask_admin as admin
 from flask import current_app, flash, redirect, request, session, url_for
@@ -32,6 +33,11 @@ def report_5xx_error(exception: Exception):
     from sentry_sdk import init, capture_exception
     init(sentry_dsn_key)
     capture_exception(exception)
+
+
+@lru_cache(64)
+def _loaded_examboard() -> OrderedDict:
+    return _load_examboard().get('exam_board')
 
 
 class CustomSecureForm(SecureForm):
@@ -288,7 +294,7 @@ class QuestionView(BaseView):
                          'question',
                          'choices')
 
-    _examboard = [(k, v) for k, v in dict(_load_examboard()['exam_board']).items()]
+    _examboard = [(k, v) for k, v in dict(_loaded_examboard()).items()]
 
     form_args = {
         "subject": dict(
@@ -306,7 +312,7 @@ class QuestionView(BaseView):
             ]
         ),
         'exam_board': dict(
-            choices=_examboard
+            choices=_loaded_examboard()
         )
     }
 
@@ -353,12 +359,23 @@ class QuestionView(BaseView):
             return redirect(url_for("admin.question.index_view"))
 
 
+def exam_board_formatter(view, context, model, name):
+    value = getattr(model, name)
+    boards = _loaded_examboard()
+    human_readable_value = boards.get(value)
+    return human_readable_value
+
+
 class SchoolClassView(BaseView):
     column_exclude_list = ["uuid"]
     form_excluded_columns = [
         "uuid", "student_attended_classes", "students", "quizzes"]
 
-    form_overrides = {"subject": SelectField, "year_group": SelectField}
+    column_formatters = {
+        'exam_board': exam_board_formatter
+    }
+    boards = [(k, v) for k, v in dict(_loaded_examboard()).items()]
+    form_overrides = {"subject": SelectField, "year_group": SelectField, 'exam_board': SelectField}
     form_args = {
         "subject": dict(
             choices=[
@@ -377,6 +394,9 @@ class SchoolClassView(BaseView):
                 ("Year 12", "Year 12"),
                 ("Year 13", "Year 13")
             ]
+        ),
+        'exam_board': dict(
+            choices=boards
         )
     }
 
