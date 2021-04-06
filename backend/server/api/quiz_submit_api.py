@@ -1,6 +1,7 @@
 
-from flask import Blueprint, abort, jsonify, make_response, request
-from flask_restful import Api, Resource, reqparse
+from flask import Blueprint, jsonify, make_response, request
+from flask.views import MethodView
+from flask_restful import reqparse
 from server import db
 from server.api import logger, report_5xx_error
 from server.models import ClassQuiz as ClassQuizModel
@@ -10,7 +11,6 @@ from server.tasks import grader_administered_quizzes
 from sqlalchemy import exc
 
 quiz_submit_blueprint = Blueprint("quiz_submit", __name__)
-api = Api(quiz_submit_blueprint)
 
 parser = reqparse.RequestParser()
 parser.add_argument("email", required=True, help="Student Email")
@@ -18,7 +18,7 @@ parser.add_argument("email", required=True, help="Student Email")
 parser.add_argument("quiz", required=True, help="Quiz unique id")
 
 
-class SubmitQuiz(Resource):
+class SubmitQuiz(MethodView):
     def get(self):
         """
             Creates a quiz session object
@@ -27,21 +27,25 @@ class SubmitQuiz(Resource):
 
         student = Student.query.filter_by(email=args["email"]).first()
         if not student:
-            abort(404, "Student email doesn't exist")
+            return make_response(jsonify({'message': "Student email doesn't exist"}), 404)
 
         if not student.confirmed:
-            abort(400, "Email address hasn't been verified yet!")
+            return make_response(jsonify({
+                'message': "Email address hasn't been verified yet!"
+            }), 400)
 
         class_quiz = ClassQuizModel.query.filter_by(uuid=args["quiz"]).first()
         if not class_quiz:
-            abort(404, "Class Quiz doesn't exist")
+            return make_response(jsonify({"message": "Class Quiz doesn't exist"}), 404)
 
         try:
             submission = QuizSession.query.filter_by(
                 student=student, class_quiz=class_quiz).first()
             if submission:
                 if submission.has_session_ended():
-                    abort(400, "Quiz has already been submitted. If you think this is by mistake, contact your teacher for a redo.")  # noqa
+                    return make_response(jsonify({
+                        'message': "Quiz has already been submitted. If you think this is by mistake, contact your teacher for a redo."  # noqa
+                    }), 400)  # noqa
             else:
                 class_quiz.add_student_session(student)
                 class_quiz.save()
@@ -66,26 +70,31 @@ class SubmitQuiz(Resource):
         student = Student.query.filter_by(
             email=student_email).first()
         if student is None:
-            abort(
-                404,
-                "Student with email {} doesn't exist".format(student_email)
-            )
+            return make_response(jsonify({
+                'message': "Student with email {} doesn't exist".format(student_email)
+            }), 404)
 
         class_quiz = ClassQuizModel.query.filter_by(
             uuid=post_data.get("QuizId")
         ).first()
         if class_quiz is None:
-            abort(404, "Class Quiz doesn't exist")
+            return make_response(jsonify({
+                'message': "Class Quiz doesn't exist"
+            }), 404)
 
         quiz_session = QuizSession.query.filter_by(
             student_id=student.id, class_quiz_id=class_quiz.id
         ).first()
 
         if not quiz_session:
-            abort(404, "Quiz not started")
+            return make_response(jsonify({
+                'message': "Quiz not started"
+            }), 404)
         try:
             if quiz_session.has_session_ended():
-                abort(404, "Session has ended!")
+                return make_response(jsonify({
+                    'message': "Session has ended!"
+                }), 404)
 
             student.add_quiz_score(class_quiz, post_data.get("data"))
             student.save()
@@ -110,4 +119,4 @@ class SubmitQuiz(Resource):
                 500)
 
 
-api.add_resource(SubmitQuiz, "/submit_quiz")
+quiz_submit_blueprint.add_url_rule("/submit_quiz", view_func=SubmitQuiz.as_view('submit_quiz_api'))

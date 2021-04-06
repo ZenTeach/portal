@@ -2,11 +2,12 @@ from datetime import timedelta
 from secrets import token_hex
 
 from flask import Blueprint, abort, jsonify, make_response, request
+from flask.views import MethodView
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jti, get_jwt_identity, get_raw_jwt,
                                 jwt_refresh_token_required, jwt_required,
                                 set_access_cookies, set_refresh_cookies)
-from flask_restful import Api, Resource, reqparse
+from flask_restful import reqparse
 from server import bcrypt, jwt, redis_store
 from server.api import logger, report_5xx_error
 from server.models import Invitations, Teacher, TeacherSchema
@@ -14,7 +15,7 @@ from server.tasks import (send_account_recovery_instructions,
                           send_confirmation_instructions, send_user_invite)
 
 teacher_auth_blueprint = Blueprint("teacher_auth", __name__)
-api = Api(teacher_auth_blueprint)
+
 dumper = TeacherSchema()
 ACCESS_EXPIRES = timedelta(days=1)
 REFRESH_EXPIRES = timedelta(days=30)
@@ -25,7 +26,7 @@ def load_user(identity):
     return {"identity": dumper.dump(identity)}
 
 
-class TeacherRegistration(Resource):
+class TeacherRegistration(MethodView):
     def validate_invite(self, email, invite_code):
         return Invitations.validate_email_invitation_token(email, invite_code)
 
@@ -84,7 +85,7 @@ class TeacherRegistration(Resource):
                 500)
 
 
-class TeacherLogin(Resource):
+class TeacherLogin(MethodView):
     def post(self):
         data = request.get_json()
         email = data["email"]
@@ -116,7 +117,7 @@ class TeacherLogin(Resource):
             return make_response({"message": "Wrong credentials"}, 400)
 
 
-class TeacherLogout(Resource):
+class TeacherLogout(MethodView):
     @jwt_required
     def delete(self):
         jti = get_raw_jwt()["jti"]
@@ -124,7 +125,7 @@ class TeacherLogout(Resource):
         return make_response(jsonify({"msg": "Access token revoked"}), 204)
 
 
-class TokenRefresh(Resource):
+class TokenRefresh(MethodView):
     @jwt_refresh_token_required
     def post(self):
         current_identity = get_jwt_identity()["identity"]
@@ -139,7 +140,7 @@ class TokenRefresh(Resource):
         return make_response(response, 200)
 
 
-class AllTeachers(Resource):
+class AllTeachers(MethodView):
     def get(self):
         return {"message": "List of Teachers"}
 
@@ -147,7 +148,7 @@ class AllTeachers(Resource):
         return {"message": "Delete all Teachers"}
 
 
-class CurrentUser(Resource):
+class CurrentUser(MethodView):
     @jwt_required
     def get(self):
         teacher = get_jwt_identity()["identity"]
@@ -163,7 +164,7 @@ class CurrentUser(Resource):
             return make_response("User not logged in", 400)
 
 
-class GAuth(Resource):
+class GAuth(MethodView):
     @jwt_required
     def post(self):
         teacher = get_jwt_identity()["identity"]
@@ -191,7 +192,7 @@ class GAuth(Resource):
             )
 
 
-class ConfirmAccount(Resource):
+class ConfirmAccount(MethodView):
     def post(self):
         post_data = request.get_json()
         confirmation_token = post_data["token"]
@@ -212,7 +213,7 @@ class ConfirmAccount(Resource):
         }), 200)
 
 
-class ResetAccount(Resource):
+class ResetAccount(MethodView):
 
     parser = reqparse.RequestParser()
     parser.add_argument("email", required=True,
@@ -251,7 +252,7 @@ class ResetAccount(Resource):
         }), 200)
 
 
-class InviteTeacher(Resource):
+class InviteTeacher(MethodView):
     @jwt_required
     def post(self):
         teacher = get_jwt_identity()["identity"]
@@ -275,7 +276,7 @@ class InviteTeacher(Resource):
             }))
 
 
-class SendConfirmation(Resource):
+class SendConfirmation(MethodView):
     @jwt_required
     def post(self):
         post_data = request.get_json()
@@ -303,14 +304,22 @@ class SendConfirmation(Resource):
             }), 500)
 
 
-api.add_resource(TeacherRegistration, "/teacher/registration")
-api.add_resource(TeacherLogin, "/teacher/login")
-api.add_resource(TeacherLogout, "/teacher/logout")
-api.add_resource(TokenRefresh, "/teacher/token/refresh")
-api.add_resource(AllTeachers, "/teachers")
-api.add_resource(CurrentUser, "/teacher/current")
-api.add_resource(GAuth, "/teacher/auth/google")
-api.add_resource(ConfirmAccount, "/teacher/confirm")
-api.add_resource(ResetAccount, "/teacher/reset-password")
-api.add_resource(InviteTeacher, "/teacher/invite")
-api.add_resource(SendConfirmation, "/teacher/send_confirmation")
+teacher_auth_blueprint.add_url_rule(
+    "/teacher/registration", view_func=TeacherRegistration.as_view('registration_api'))
+teacher_auth_blueprint.add_url_rule("/teacher/login", view_func=TeacherLogin.as_view('login_api'))
+teacher_auth_blueprint.add_url_rule(
+    "/teacher/logout", view_func=TeacherLogout.as_view('logout_api'))
+teacher_auth_blueprint.add_url_rule(
+    "/teacher/token/refresh", view_func=TokenRefresh.as_view('refresh_api'))
+teacher_auth_blueprint.add_url_rule("/teachers", view_func=AllTeachers.as_view('all_teachers_api'))
+teacher_auth_blueprint.add_url_rule(
+    "/teacher/current", view_func=CurrentUser.as_view('current_api'))
+teacher_auth_blueprint.add_url_rule("/teacher/auth/google", view_func=GAuth.as_view('gauth_api'))
+teacher_auth_blueprint.add_url_rule(
+    "/teacher/confirm", view_func=ConfirmAccount.as_view('confirm_api'))
+teacher_auth_blueprint.add_url_rule("/teacher/reset-password",
+                                    view_func=ResetAccount.as_view('reset_password_api'))
+teacher_auth_blueprint.add_url_rule(
+    "/teacher/invite", view_func=InviteTeacher.as_view('invite_api'))
+teacher_auth_blueprint.add_url_rule(
+    "/teacher/send_confirmation", view_func=SendConfirmation.as_view('send_confirmation_api'))

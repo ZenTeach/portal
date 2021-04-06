@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, make_response, request
+from flask.views import MethodView
 from flask_jwt_extended import jwt_required
-from flask_restful import Api, Resource, reqparse
+from flask_restful import reqparse
 from server import db
 from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
@@ -8,7 +9,6 @@ from server.models import Questions, QuestionsSchema, QuestionTypeEnum
 from sqlalchemy import exc
 
 question_blueprint = Blueprint("question", __name__)
-api = Api(question_blueprint)
 dumper = QuestionsSchema()
 
 parser = reqparse.RequestParser()
@@ -16,7 +16,7 @@ parser.add_argument("subject", required=True,
                     help="Question subject not recognized")
 
 
-class QuestionList(Resource):
+class QuestionList(MethodView):
     @jwt_required
     def get(self):
         args = parser.parse_args()
@@ -81,7 +81,7 @@ class QuestionList(Resource):
             return make_response(error_object, 500)
 
 
-class Question(Resource):
+class Question(MethodView):
     method_decorators = [jwt_required]
 
     def get(self, question_id):
@@ -119,7 +119,7 @@ class Question(Resource):
         pass
 
 
-class QuestionSearch(Resource):
+class QuestionSearch(MethodView):
     @jwt_required
     def post(self):
         query_params = request.get_json()
@@ -147,7 +147,7 @@ class QuestionSearch(Resource):
             return make_response(jsonify(error_object), 500)
 
 
-class QuestionFromKIsAndTopics(Resource):
+class QuestionFromKIsAndTopics(MethodView):
     @jwt_required
     def post(self):
         json_payload = request.get_json()
@@ -173,7 +173,7 @@ class QuestionFromKIsAndTopics(Resource):
         return make_response(response, 200)
 
 
-class QuestionKIFilter(Resource):
+class QuestionKIFilter(MethodView):
     @jwt_required
     def post(self):
         """
@@ -209,7 +209,7 @@ class QuestionKIFilter(Resource):
             }), 500)
 
 
-class QuestionTopicFilter(Resource):
+class QuestionTopicFilter(MethodView):
     @jwt_required
     def get(self, subject: str):
         try:
@@ -227,9 +227,14 @@ class QuestionTopicFilter(Resource):
             }), 500)
 
 
-api.add_resource(Question, "/question/<question_id>")
-api.add_resource(QuestionList, "/question")
-api.add_resource(QuestionSearch, "/question/search")
-api.add_resource(QuestionKIFilter, "/question/filter/ki")
-api.add_resource(QuestionTopicFilter, "/question/filter/topic/<string:subject>")
-api.add_resource(QuestionFromKIsAndTopics, "/question/fetch")
+question_blueprint.add_url_rule("/question/<question_id>",
+                                view_func=Question.as_view('question_with_id'))
+question_blueprint.add_url_rule("/question", view_func=QuestionList.as_view("question_list"))
+question_blueprint.add_url_rule(
+    "/question/search", view_func=QuestionSearch.as_view("question_search"))
+question_blueprint.add_url_rule(
+    "/question/filter/ki", view_func=QuestionKIFilter.as_view("question_filter_ki"))
+question_blueprint.add_url_rule("/question/filter/topic/<string:subject>",
+                                view_func=QuestionTopicFilter.as_view("question_filter_topic"))
+question_blueprint.add_url_rule(
+    "/question/fetch", view_func=QuestionFromKIsAndTopics.as_view('question_fetch'))

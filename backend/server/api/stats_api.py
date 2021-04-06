@@ -1,13 +1,9 @@
 from flask import Blueprint, jsonify, make_response
+from flask.views import MethodView
 from flask_jwt_extended import jwt_required
-from flask_restful import Api, Resource
 from server.decorators import with_required_roles
 
-# from server.models import SchoolClass as SchoolClassModel
-
-
 statistics_view_blueprint = Blueprint("stats", __name__)
-api = Api(statistics_view_blueprint)
 
 
 def correct_response_distribution_sql(student_id):
@@ -16,7 +12,7 @@ def correct_response_distribution_sql(student_id):
     """
 
 
-class StatsPing(Resource):
+class StatsPing(MethodView):
     def get(self):
         return make_response(
             jsonify({
@@ -26,7 +22,7 @@ class StatsPing(Resource):
             200)
 
 
-class StatsCorrectResponse(Resource):
+class StatsCorrectResponse(MethodView):
     @jwt_required
     @with_required_roles(["Admin", "Teacher"])
     def get(self):
@@ -38,5 +34,6 @@ class StatsCorrectResponse(Resource):
         pass
 
 
-api.add_resource(StatsPing, "/stats/ping")
-api.add_resource(StatsCorrectResponse, "/stats/correct_response")
+statistics_view_blueprint.add_url_rule("/stats/ping", view_func=StatsPing.as_view('stats_ping'))
+statistics_view_blueprint.add_url_rule(
+    "/stats/correct_response", view_func=StatsCorrectResponse.as_view('stats_correct_response'))
