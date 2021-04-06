@@ -1,20 +1,19 @@
 from datetime import timedelta
 
-from flask import (Blueprint, abort, current_app, jsonify, make_response,
-                   request)
+from flask import Blueprint, current_app, jsonify, make_response, request
+from flask.views import MethodView
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jti, get_jwt_claims, get_jwt_identity,
                                 get_raw_jwt, jwt_refresh_token_required,
                                 jwt_required, set_access_cookies,
                                 set_refresh_cookies)
-from flask_restful import Api, Resource
 from server import bcrypt, jwt, redis_store
 from server.api import logger, report_5xx_error
 from server.models import Student, StudentSchema
 from server.tasks import send_student_confirmation_instructions
 
 student_auth_blueprint = Blueprint("student_auth", __name__)
-api = Api(student_auth_blueprint)
+
 dumper = StudentSchema()
 ACCESS_EXPIRES = timedelta(days=1)
 REFRESH_EXPIRES = timedelta(days=30)
@@ -25,7 +24,7 @@ def load_user(identity):
     return {"identity": dumper.dump(identity)}
 
 
-class StudentRegistration(Resource):
+class StudentRegistration(MethodView):
     def post(self):
         data = request.get_json()
         if Student.query.filter_by(email=data["email"]).first():
@@ -66,7 +65,7 @@ class StudentRegistration(Resource):
                 500)
 
 
-class StudentLogin(Resource):
+class StudentLogin(MethodView):
     def post(self):
         data = request.get_json()
         current_user = Student.query.filter_by(email=data["email"]).first()
@@ -94,7 +93,7 @@ class StudentLogin(Resource):
             return make_response({"message": "Wrong credentials"}, 400)
 
 
-class StudentLogout(Resource):
+class StudentLogout(MethodView):
     @jwt_required
     def post(self):
         jti = get_raw_jwt()["jti"]
@@ -102,7 +101,7 @@ class StudentLogout(Resource):
         return jsonify({"msg": "Access token revoked"}), 200
 
 
-class TokenRefresh(Resource):
+class TokenRefresh(MethodView):
     @jwt_refresh_token_required
     def post(self):
         current_user = get_jwt_claims()
@@ -117,7 +116,7 @@ class TokenRefresh(Resource):
         return make_response(response, 200)
 
 
-class CurrentUser(Resource):
+class CurrentUser(MethodView):
     @jwt_required
     def get(self):
         # Fetches and returns the current logged in user
@@ -130,8 +129,7 @@ class CurrentUser(Resource):
             return make_response("User not logged in", 400)
 
 
-@api.resource("/student/auth/refresh_revoke")
-class StudentAuthRefreshRevoke(Resource):
+class StudentAuthRefreshRevoke(MethodView):
     @jwt_refresh_token_required
     def delete(self):
         jti = get_raw_jwt()["jti"]
@@ -139,20 +137,26 @@ class StudentAuthRefreshRevoke(Resource):
         return jsonify({"msg": "Refresh token revoked"}), 200
 
 
-class ConfirmAccount(Resource):
+class ConfirmAccount(MethodView):
     def post(self):
         post_data = request.get_json()
         confirmation_token = post_data["token"]
         student = Student.query.filter_by(confirmation_token=confirmation_token).first()
 
         if not student:
-            abort(404, "Encountered an error confirming account. Make sure the email is correct.")
+            return make_response(jsonify({
+                'message': "Encountered an error confirming account. Make sure the email is correct."  # noqa
+            }), 404)
 
         if confirmation_token is None or not student.valid_confirmation_token(confirmation_token):
-            abort(404, "Encountered an error. Invalid token.")
+            return make_response(jsonify({
+                'message': "Encountered an error. Invalid token."
+            }), 404)
 
         if not student.confirm_user():
-            abort(400, "Account already confirmed.")
+            return make_response(jsonify({
+                'message': "Account already confirmed."
+            }), 400)
 
         return make_response(jsonify({
             "status": "Success",
@@ -160,19 +164,23 @@ class ConfirmAccount(Resource):
         }), 200)
 
 
-class SendStudentConfirmation(Resource):
+class SendStudentConfirmation(MethodView):
     @jwt_required
     def get(self, student_id):
         student = Student.query.filter_by(id=student_id).first()
 
         if not student:
-            abort(404, "Student not found.")
+            return make_response(jsonify({
+                'message': "Student not found."
+            }), 404)
 
         try:
             send_student_confirmation_instructions.apply_async(args=[student.id])
         except Exception as e:
             report_5xx_error(e)
-            abort(500, "Server got an error sending confirmation email.")
+            return make_response(jsonify({
+                'message': "Server got an error sending confirmation email."
+            }), 500)
         else:
             return make_response(jsonify({
                 "status": "Success",
@@ -180,10 +188,18 @@ class SendStudentConfirmation(Resource):
             }), 200)
 
 
-api.add_resource(StudentRegistration, "/student/registration")
-api.add_resource(StudentLogin, "/student/login")
-api.add_resource(StudentLogout, "/student/logout")
-api.add_resource(TokenRefresh, "/student/token/refresh")
-api.add_resource(CurrentUser, "/student/current")
-api.add_resource(ConfirmAccount, "/student/confirm")
-api.add_resource(SendStudentConfirmation, "/student/<int:student_id>/send_confirmation")
+student_auth_blueprint.add_url_rule(
+    "/student/registration", view_func=StudentRegistration.as_view('registration_api'))
+student_auth_blueprint.add_url_rule("/student/login", view_func=StudentLogin.as_view('login_api'))
+student_auth_blueprint.add_url_rule(
+    "/student/logout", view_func=StudentLogout.as_view('logout_api'))
+student_auth_blueprint.add_url_rule(
+    "/student/token/refresh", view_func=TokenRefresh.as_view('refresh_api'))
+student_auth_blueprint.add_url_rule(
+    "/student/current", view_func=CurrentUser.as_view('current_api'))
+student_auth_blueprint.add_url_rule(
+    "/student/confirm", view_func=ConfirmAccount.as_view('confirm_api'))
+student_auth_blueprint.add_url_rule("/student/<int:student_id>/send_confirmation",
+                                    view_func=SendStudentConfirmation.as_view('send_confirmation_api'))  # noqa
+student_auth_blueprint.add_url_rule(
+    "/student/auth/refresh_revoke", view_func=StudentAuthRefreshRevoke.as_view('refresh_revoke_api'))  # noqa

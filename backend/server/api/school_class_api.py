@@ -1,7 +1,8 @@
 
-from flask import Blueprint, abort, jsonify, make_response, request
+from flask import Blueprint, jsonify, make_response, request
+from flask.views import MethodView
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from flask_restful import Api, Resource, reqparse
+from flask_restful import reqparse
 from marshmallow import INCLUDE, Schema, fields
 from server import db
 from server.api import logger, report_5xx_error
@@ -12,7 +13,6 @@ from server.tasks import send_student_confirmation_instructions
 from sqlalchemy import exc
 
 school_class_blueprint = Blueprint("school_class", __name__)
-api = Api(school_class_blueprint)
 schema_dumper = SchoolClassSchema()
 
 
@@ -24,7 +24,7 @@ class PatchPayloadSchema(Schema):
     old_email = fields.Email(required=True)
 
 
-class SchoolClass(Resource):
+class SchoolClass(MethodView):
     @jwt_required
     def get(self, school_class_id):
         error_response = jsonify({"message": "Class room doesn't exist"})
@@ -90,7 +90,7 @@ class SchoolClass(Resource):
             }), 500)
 
 
-class SchoolClassList(Resource):
+class SchoolClassList(MethodView):
     @jwt_required
     def get(self):
         response_object = jsonify(
@@ -146,7 +146,7 @@ class SchoolClassList(Resource):
             return make_response(error_object, 500)
 
 
-class SchoolClassOwned(Resource):
+class SchoolClassOwned(MethodView):
     @jwt_required
     @with_required_roles(["Admin"])
     def get(self, teacher_id):
@@ -170,7 +170,7 @@ class SchoolClassOwned(Resource):
             return make_response(error_message, 400)
 
 
-class TeacherOwnedClass(Resource):
+class TeacherOwnedClass(MethodView):
     @jwt_required
     def get(self):
         error_object = {"message": ""}
@@ -199,12 +199,14 @@ class TeacherOwnedClass(Resource):
             return make_response(jsonify(error_object), 500)
 
 
-class SchoolClassStudent(Resource):
+class SchoolClassStudent(MethodView):
     @jwt_required
     def post(self, class_id):
         school_class = SchoolClassModel.query.filter_by(id=class_id).first()
         if not school_class:
-            abort(404, "School class room doesn't exist")
+            return make_response(jsonify({
+                'message': "School class room doesn't exist"
+            }), 404)
 
         data = request.get_json()
         try:
@@ -221,10 +223,12 @@ class SchoolClassStudent(Resource):
 
             send_student_confirmation_instructions.apply_async(args=[student.id])
         except exc.IntegrityError:
-            abort(400, "Student missing required data.")
+            return make_response(jsonify({
+                'message': "Student missing required data."
+            }), 400)
         except exc.DatabaseError as e:  # noqa
             report_5xx_error(e)
-            abort(500, "Server got an error.")
+            return make_response(jsonify({'message': "Server got an error."}), 500)
         else:
             return make_response(
                 jsonify(
@@ -244,7 +248,9 @@ class SchoolClassStudent(Resource):
         args = parser.parse_args()
         school_class = SchoolClassModel.query.filter_by(id=class_id).first()
         if not school_class:
-            abort(404, "School class room doesn't exist")
+            return make_response(jsonify({
+                'message': "School class room doesn't exist"
+            }), 404)
 
         # data = request.get_json()
         logger.info(f'Got payload {args}')
@@ -253,7 +259,9 @@ class SchoolClassStudent(Resource):
         except Exception as e:  # noqa
             logger.error(e)
             report_5xx_error(e)
-            abort(500, "Server got an error.")
+            return make_response(jsonify({
+                'message': "Server got an error."
+            }), 500)
         else:
             return make_response(
                 jsonify(
@@ -270,19 +278,25 @@ class SchoolClassStudent(Resource):
 
         school_class = SchoolClassModel.query.filter_by(id=class_id).first()
         if not school_class:
-            abort(404, "School class room doesn't exist")
+            return make_response(jsonify({
+                'message': "School class room doesn't exist"
+            }), 404)
 
         data = request.get_json()
         validation = PatchPayloadSchema().validate(data=data)
         if validation is not None and len(validation) != 0:
-            abort(400, "Data is not valid!")
+            return make_response(jsonify({
+                'message': "Data is not valid!"
+            }), 400)
 
         new_email = data.get('new_email')
         old_email = data.get('old_email')
 
         student = Student.query.filter_by(email=old_email).first()
         if not student:
-            abort(404, "Student not found!")
+            return make_response(jsonify({
+                'message': "Student not found!"
+            }), 404)
 
         try:
             if student.confirmed:
@@ -293,7 +307,9 @@ class SchoolClassStudent(Resource):
 
         except exc.DatabaseError as e:  # noqa
             report_5xx_error(e)
-            abort(500, "Server got an error.")
+            return make_response(jsonify({
+                'message': "Server got an error."
+            }), 500)
         else:
             return make_response(
                 jsonify(
@@ -306,10 +322,14 @@ class SchoolClassStudent(Resource):
             )
 
 
-api.add_resource(SchoolClass, "/school_class/<int:school_class_id>")
-api.add_resource(SchoolClassOwned, "/school_class/owned/<teacher_id>")
-api.add_resource(TeacherOwnedClass, "/school_class/owned")
-api.add_resource(SchoolClassList, "/school_class")
-api.add_resource(
-    SchoolClassStudent, "/school_class/<int:class_id>/student"
+school_class_blueprint.add_url_rule(
+    "/school_class/<int:school_class_id>", view_func=SchoolClass.as_view('schoolclass'))
+school_class_blueprint.add_url_rule(
+    "/school_class/owned/<teacher_id>", view_func=SchoolClassOwned.as_view('teacher_owned_schoolclass'))  # noqa
+school_class_blueprint.add_url_rule(
+    "/school_class/owned", view_func=TeacherOwnedClass.as_view('owned_schoolclass'))
+school_class_blueprint.add_url_rule(
+    "/school_class", view_func=SchoolClassList.as_view('schoolclass_list'))
+school_class_blueprint.add_url_rule(
+    "/school_class/<int:class_id>/student", view_func=SchoolClassStudent.as_view('schoolclass_student')  # noqa
 )

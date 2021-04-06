@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 getLogger('factory').setLevel(CRITICAL)
+getLogger('factory.generate').setLevel(CRITICAL)
 
 
 @pytest.fixture(scope="session")

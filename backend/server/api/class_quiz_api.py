@@ -3,10 +3,10 @@ import re
 from typing import Dict, NoReturn, Union
 from uuid import UUID
 
-from flask import Blueprint, abort, jsonify, make_response, request, send_file
+from flask import Blueprint, abort, jsonify, make_response, request
+from flask.views import MethodView
 from flask.wrappers import Response
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from flask_restful import Api, Resource
 from marshmallow import INCLUDE, Schema, ValidationError, fields
 from server import db
 from server.api import logger, report_5xx_error
@@ -19,7 +19,6 @@ from server.tasks import (generate_pdf, send_quiz_generation_email,
 from sqlalchemy import exc
 
 class_quiz_blueprint = Blueprint("class_quiz", __name__)
-api = Api(class_quiz_blueprint)
 dumper = ClassQuizSchema()
 students_dumper = StudentSchema(many=True)
 
@@ -55,7 +54,7 @@ class ClassQuizCreateSchema(Schema):
     questions = fields.Nested(ClassQuizCreateQuestionsSchema, many=True, required=True)
 
 
-class ClassQuiz(Resource):
+class ClassQuiz(MethodView):
     def get(self, class_quiz_uuid):
         error_response = {"message": "No Class Quiz found."}
         try:
@@ -91,7 +90,7 @@ class ClassQuiz(Resource):
             return make_response(error_response, 404)
 
 
-class ClassQuizList(Resource):
+class ClassQuizList(MethodView):
     @with_required_roles(["Teacher", "Admin"])
     @jwt_required
     def get(self):
@@ -154,33 +153,33 @@ class ClassQuizList(Resource):
             }), 500)
 
 
-@api.resource("/class_quiz/pdf_view/<class_quiz_id>")
-class ClassQuizPDFView(Resource):
-    @jwt_required
-    def get(self, class_quiz_id):
-        quiz = ClassQuizModel.query.filter_by(id=class_quiz_id).first()
-        error_object = {"status": "fail", "message": "Invalid payload."}
-        if not quiz:
-            return make_response(error_object, 400)
+# @api.resource("/class_quiz/pdf_view/<class_quiz_id>")
+# class ClassQuizPDFView(MethodView):
+#     @jwt_required
+#     def get(self, class_quiz_id):
+#         quiz = ClassQuizModel.query.filter_by(id=class_quiz_id).first()
+#         error_object = {"status": "fail", "message": "Invalid payload."}
+#         if not quiz:
+#             return make_response(error_object, 400)
 
-        generated_file_name = None
-        try:
-            generated_file_name = generate_pdf.delay(quiz)
-        except Exception as e:
-            logger.exception(e)
-            report_5xx_error(e)
-            error_object["message"] = "Error generating quiz pdf"
-            return make_response(error_object, 500)
+#         generated_file_name = None
+#         try:
+#             generated_file_name = generate_pdf.delay(quiz)
+#         except Exception as e:
+#             logger.exception(e)
+#             report_5xx_error(e)
+#             error_object["message"] = "Error generating quiz pdf"
+#             return make_response(error_object, 500)
 
-        return generated_file_name, 200
-
-
-@api.representation("application/pdf")
-def output_pdf(data, code, headers=None):
-    return send_file(data, as_attachment=True)
+#         return generated_file_name, 200
 
 
-class ClassQuizGenerator(Resource):
+# @api.representation("application/pdf")
+# def output_pdf(data, code, headers=None):
+#     return send_file(data, as_attachment=True)
+
+
+class ClassQuizGenerator(MethodView):
     @jwt_required
     def post(self, class_quiz_uuid):
         """
@@ -237,7 +236,7 @@ class ClassQuizGenerator(Resource):
             return make_response(jsonify(error_object), 400)
 
 
-class QuizReportCard(Resource):
+class QuizReportCard(MethodView):
     @jwt_required
     def get(self, uuid):
         # Validate the UUID string
@@ -258,7 +257,7 @@ class QuizReportCard(Resource):
         return make_response(jsonify(grade.grade_breakdown), 200)
 
 
-class GradedQuizzes(Resource):
+class GradedQuizzes(MethodView):
     @jwt_required
     def get(self, quizUUId):
         quizId = ClassQuizModel.query.filter_by(uuid=quizUUId).first().id
@@ -269,7 +268,7 @@ class GradedQuizzes(Resource):
         return make_response(jsonify(serializer.dump(graded_quizzes)), 200)
 
 
-class QuizAttendedStudents(Resource):
+class QuizAttendedStudents(MethodView):
     @jwt_required
     def get(self, class_quiz_uuid):
         quiz = ClassQuizModel.query.filter_by(
@@ -284,7 +283,7 @@ class QuizAttendedStudents(Resource):
         return make_response(jsonify(responses))
 
 
-class SendReportCard(Resource):
+class SendReportCard(MethodView):
     @jwt_required
     def get(self, quizGradeUUID: UUID) -> Union[Response, NoReturn]:
         grade = QuizGrade.query.filter_by(uuid=quizGradeUUID).first()
@@ -304,13 +303,19 @@ class SendReportCard(Resource):
             }), 200)
 
 
-api.add_resource(ClassQuiz, "/class_quiz/<string:class_quiz_uuid>")
-api.add_resource(ClassQuizGenerator,
-                 "/class_quiz/<string:class_quiz_uuid>/generate")
-api.add_resource(ClassQuizList, "/class_quiz")
-api.add_resource(QuizReportCard, "/class_quiz/report_card/<string:uuid>")
-api.add_resource(
-    QuizAttendedStudents, "/class_quiz/<string:class_quiz_uuid>/attended_students"
+class_quiz_blueprint.add_url_rule(
+    "/class_quiz/<string:class_quiz_uuid>", view_func=ClassQuiz.as_view('class_quiz_with_id'))
+class_quiz_blueprint.add_url_rule("/class_quiz/<string:class_quiz_uuid>/generate",
+                                  view_func=ClassQuizGenerator.as_view('class_quiz_generate'))
+class_quiz_blueprint.add_url_rule("/class_quiz", view_func=ClassQuizList.as_view('class_quiz'))
+class_quiz_blueprint.add_url_rule(
+    "/class_quiz/report_card/<string:uuid>",
+    view_func=QuizReportCard.as_view('class_quiz_report_card'))
+class_quiz_blueprint.add_url_rule(
+    "/class_quiz/<string:class_quiz_uuid>/attended_students",
+    view_func=QuizAttendedStudents.as_view('class_quiz_students')
 )
-api.add_resource(GradedQuizzes, "/class_quiz/<string:quizUUId>/graded")
-api.add_resource(SendReportCard, "/class_quiz/<string:quizGradeUUID>/send_report")
+class_quiz_blueprint.add_url_rule(
+    "/class_quiz/<string:quizUUId>/graded", view_func=GradedQuizzes.as_view('graded_class_quiz'))
+class_quiz_blueprint.add_url_rule("/class_quiz/<string:quizGradeUUID>/send_report",
+                                  view_func=SendReportCard.as_view("send_quiz_report_card"))
