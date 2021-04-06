@@ -46,6 +46,7 @@ def seeds():
     s = SchoolClass(
         name="Atoms",
         subject="Chemistry",
+        exam_board=None,
         start_date=datetime.date.today(),
         teacher_id=class_teacher_id,
         uuid=uuid4(),
@@ -56,6 +57,7 @@ def seeds():
         SchoolClass(
             name=f"Atoms-{i}",
             subject=choice(["Chemistry", "Biology", "Physics"]),
+            exam_board=None,
             start_date=datetime.date.today(),
             teacher_id=class_teacher_id,
             uuid=uuid4(),
