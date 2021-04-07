@@ -18,7 +18,7 @@
                   <v-tooltip left>
                     <template v-slot:activator="{ on, attrs }">
                       <v-icon
-                        v-if="props.item.exam_board === '' "
+                        v-if="has_empty_examboard(props.item)"
                         color="red"
                         size="24"
                         v-bind="attrs"
@@ -218,6 +218,9 @@ export default {
     },
     deleteItem (item) {
       this.deleteClass(item.id)
+    },
+    has_empty_examboard (item) {
+      return (item.exam_board === '' || item.exam_board === null || item.exam_board === undefined)
     }
   }
 }
