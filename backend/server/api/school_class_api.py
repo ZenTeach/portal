@@ -79,6 +79,7 @@ class SchoolClass(MethodView):
 
         try:
             class_room.update_from_dict(update_data)
+            class_room.save()
             return make_response(jsonify({
                 'message': 'Update classroom succeeded!'
             }), 200)
