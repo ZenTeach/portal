@@ -34,10 +34,14 @@
                 </template>
                 <template v-slot:item.actions="{ item }">
                   <v-icon
-                    large
+                    medium
+                    class="m-2"
                     @click="deleteItem(item)"
                   >
                     mdi-trash-can-outline
+                  </v-icon>
+                  <v-icon medium class="m-2" @click="editItem(item)">
+                    mdi-pencil
                   </v-icon>
                 </template>
                 <template v-slot:footer>
@@ -121,6 +125,52 @@
                   </v-dialog>
                 </template>
               </v-data-table>
+              <v-dialog v-model="editDialog" max-width="500px" max-height="auto">
+                <ValidationObserver ref="edit_observer" v-slot="{ passes }">
+                  <v-card>
+                    <v-card-title primary-title>
+                      Edit class
+                    </v-card-title>
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
+                          <v-col cols="10" lg="12" sm="9" md="12">
+                            <ValidationProvider rules="required" name="classname">
+                                <v-text-field label="Class name" v-model="editedItem.name" color="" outlined grow></v-text-field>
+                              </ValidationProvider>
+
+                              <ValidationProvider rules="required" name="subject">
+                                <v-select :items="subjects" label="Subject" v-model="editedItem.subject" outlined></v-select>
+                              </ValidationProvider>
+
+                              <ValidationProvider rules="required" name="year_group">
+                                <v-select :items="yearGroupSelection" label="Year Group" v-model="editedItem.year_group" outlined></v-select>
+                              </ValidationProvider>
+                              <ValidationProvider rules="required" name="exam_board">
+                                <v-select :items="examBoardSelection" label="Exam Board" v-model="editedItem.exam_board" outlined></v-select>
+                              </ValidationProvider>
+                              <ValidationProvider name="Start date">
+                                <v-text-field
+                                  v-model="start_date"
+                                  label="Start date"
+                                  prepend-icon="event"
+                                  disabled
+                                  readonly
+                                  outlined
+                                ></v-text-field>
+                              </ValidationProvider>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                        <div class="flex-grow-1"></div>
+                        <v-btn color="blue darken-1" text @click="close" outlined>Cancel</v-btn>
+                        <v-btn color="blue darken-1" text outlined :disabled="!passes" @click="updateClass">Update</v-btn>
+                      </v-card-actions>
+                  </v-card>
+                </ValidationObserver>
+              </v-dialog>
             </div>
           </v-card>
         </v-col>
@@ -177,10 +227,12 @@ export default {
       ],
       yearGroup: '',
       dialog: false,
+      editDialog: false,
       start_date: new Date().toISOString().substr(0, 10),
       menu: false,
       classname: '',
-      subject: ''
+      subject: '',
+      editedItem: {}
     }
   },
   mounted: function () {
@@ -195,14 +247,16 @@ export default {
     ...mapActions({
       fetchClasses: 'GETCLASSES',
       createClass: 'CREATECLASS',
-      deleteClass: 'DELETECLASSROOM'
+      deleteClass: 'DELETECLASSROOM',
+      updateClassroom: 'UPDATECLASSROOM'
     }),
     close () {
       this.dialog = false
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
-      }, 300)
+        this.editDialog = false
+      }, 100)
     },
     addClass () {
       const payload = {
@@ -221,6 +275,20 @@ export default {
     },
     has_empty_examboard (item) {
       return (item.exam_board === '' || item.exam_board === null || item.exam_board === undefined)
+    },
+    editItem (item) {
+      this.editedItem = {
+        id: item.id,
+        exam_board: item.exam_board,
+        name: item.name,
+        subject: item.subject,
+        year_group: item.year_group
+      }
+      this.editDialog = true
+    },
+    updateClass () {
+      this.updateClassroom(this.editedItem)
+      this.close()
     }
   }
 }
