@@ -48,3 +48,9 @@ export function updateStudentEmail (classId, payload) {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function updateClassRoom (classId, payload) {
+  return Api.put(`/school_class/${classId}`, payload)
+    .then(handleResponse)
+    .then(data => data)
+}

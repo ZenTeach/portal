@@ -5,7 +5,8 @@ import {
   inviteStudent,
   deleteClassroom,
   removeStudent,
-  updateStudentEmail
+  updateStudentEmail,
+  updateClassRoom
 } from '../../../service/classrooms'
 
 import {
@@ -56,11 +57,10 @@ const CREATECLASS = ({ commit, dispatch }, payload) => {
 
 const GETCURRENTCLASS = ({ commit, dispatch }, payload) => {
   fetchCurrentClass(payload)
-    .then(response => {
-      if (response.status === 'success') {
+    .then(
+      response => {
         commit('UPDATE_CURRENT_CLASS', response.data)
-      }
-    })
+      })
     .catch(error => {
       commit('app/TOGGLE_ERROR', error.response.data, { root: true })
       dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
@@ -112,6 +112,22 @@ const UPDATESTUDENTEMAIL = ({ commit, dispatch }, payload) => {
     )
 }
 
+const UPDATECLASSROOM = ({ commit, dispatch }, payload) => {
+  const { id, ...updateAttributes } = payload
+  updateClassRoom(id, updateAttributes)
+    .then(
+      data => {
+        commit('app/TOGGLE_APP_STATUS', 'success', { root: true })
+        commit('app/TOGGLE_ERROR', data, { root: true })
+        dispatch('GETCURRENTCLASS', id)
+      },
+      error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        commit('app/TOGGLE_APP_STATUS', 'error', { root: true })
+      }
+    )
+}
+
 const SENDSTUDENTCONFIRMATIONEMAIL = ({ commit }, studentId) => {
   sendStudentConfirmationEmail(studentId)
     .then(
@@ -134,5 +150,6 @@ export default {
   INVITE_STUDENT,
   REMOVESTUDENTFROMCLASS,
   UPDATESTUDENTEMAIL,
-  SENDSTUDENTCONFIRMATIONEMAIL
+  SENDSTUDENTCONFIRMATIONEMAIL,
+  UPDATECLASSROOM
 }

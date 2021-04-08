@@ -8,6 +8,9 @@ const CLASSLIST_ADDED = (state, payload) => {
 
 const UPDATE_CURRENT_CLASS = (state, payload) => {
   state.current_class = payload
+  const classId = state.class_list.findIndex(x => x.id === payload.id)
+  state.class_list.splice(classId, 1)
+  state.class_list.push(payload)
 }
 
 export default {
