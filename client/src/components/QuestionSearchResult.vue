@@ -4,10 +4,10 @@
       <template v-for="item in resultSet" >
         <v-list-group
           sub-group
-          value="false"
+          value=false
           :key="item.question.uuid">
           <template v-slot:activator>
-            <v-list-item>
+            <v-list-item class="d-flex align-baseline">
               <template v-slot:default="{active, toggle}">
                 <v-list-item-action>
                   <v-checkbox
@@ -18,7 +18,7 @@
                     ></v-checkbox>
                 </v-list-item-action>
 
-                <v-list-item-content>
+                <v-list-item-content class="d-flex justify-space-between">
                   <!-- <v-edit-dialog
                     :return-value.sync="item.question"
                     @save="save()"
@@ -34,8 +34,17 @@
                       ></v-text-field>
                     </template>
                   </v-edit-dialog> -->
-                  <h3>{{item.question}}</h3>
-                  <v-list-item-subtitle v-text="questionTypeMapping(item.question_type)"></v-list-item-subtitle>
+                  <v-row>
+                    <v-col cols="8" class="my-5">
+                      <h3>{{item.question}}</h3>
+                      <v-list-item-subtitle v-text="questionTypeMapping(item.question_type)"></v-list-item-subtitle>
+                    </v-col>
+                    <v-col cols="4">
+                      <v-list-item-icon v-if="item.user_created">
+                        <v-chip color="primary" small>User Created</v-chip>
+                      </v-list-item-icon>
+                    </v-col>
+                  </v-row>
                 </v-list-item-content>
               </template>
             </v-list-item>

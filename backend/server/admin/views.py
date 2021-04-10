@@ -4,7 +4,7 @@ import os
 import re
 from functools import lru_cache, reduce
 from html import escape
-from typing import OrderedDict
+from typing import List
 
 import flask_admin as admin
 from flask import current_app, flash, redirect, request, session, url_for
@@ -36,8 +36,8 @@ def report_5xx_error(exception: Exception):
 
 
 @lru_cache(64)
-def _loaded_examboard() -> OrderedDict:
-    return _load_examboard().get('exam_board')
+def _loaded_examboard() -> List:
+    return list(_load_examboard().get('exam_board').items())
 
 
 class CustomSecureForm(SecureForm):
@@ -276,7 +276,7 @@ class CustomImageUploadField(ImageUploadField):
 
 class QuestionView(BaseView):
     column_exclude_list = ["search_vector", "uuid", "image_url"]
-    column_filters = ("topic", "question_type", "subject", "knowledge_item")
+    column_filters = ("topic", "question_type", "subject", "knowledge_item", "user_created")
     column_formatters = {
         "choices": json_formatter,
         "correct_choice_id": correct_choice_formatter,
@@ -293,8 +293,6 @@ class QuestionView(BaseView):
                          'question_type',
                          'question',
                          'choices')
-
-    _examboard = [(k, v) for k, v in dict(_loaded_examboard()).items()]
 
     form_args = {
         "subject": dict(
@@ -317,7 +315,7 @@ class QuestionView(BaseView):
     }
 
     form_excluded_columns = ["uuid", "choices", "image_url",
-                             "correct_choice", "correct_choice_id"]
+                             "correct_choice", "correct_choice_id", "user_created"]
 
     # form_extra_fields = {
     #     'image_url': CustomImageUploadField('Image')
@@ -341,7 +339,9 @@ class QuestionView(BaseView):
         try:
             one_correct_choice_validator(form.data, "is_correct_choice")
             has_choice_for_multiple_choice_type(form.data)
-            Questions.create_from_admin_form(form.data)
+            data = form.data.copy()
+            data.update(user_created=False)
+            Questions.create_from_admin_form(data)
             return redirect(url_for("admin.question.index_view"))
         except Exception as e:
             report_5xx_error(e)

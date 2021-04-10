@@ -61,6 +61,7 @@ class QuestionsSchema(ma.ModelSchema):
             "topic",
             "knowledge_item",
             "tag",
+            "user_created",
             "choices",
         )
 
