@@ -45,6 +45,7 @@ class AdminFormValidator(Schema):
     question_type = EnumField(QuestionTypeEnum, required=True)
     choices = fields.Nested(AdminQuestionChoiceValidator, required=True, many=True)
     exam_board = fields.Str(required=True)
+    user_created = fields.Boolean(required=True)
     subject = fields.Str(required=True)
     topic = fields.Str(required=True)
     tag = fields.Str(required=True)
@@ -81,6 +82,7 @@ class Questions(BaseModelMixin, db.Model):
     correct_choice_id = db.Column(db.Integer, nullable=False)
     choices = db.relationship("QuestionChoice", backref="question")
     knowledge_item = db.Column(db.String(256), nullable=False)
+    user_created = db.Column(db.Boolean, nullable=False, default=False)
     search_vector = db.Column(TSVectorType("question"))
     image_url = db.Column(db.Text, nullable=True)
 
@@ -93,6 +95,7 @@ class Questions(BaseModelMixin, db.Model):
         tag: str,
         knowledge_item: str,
         correct_choice_id: int,
+        user_created: bool = False,
         uuid: Optional[UUID] = None,
         choices: Optional[List[QuestionChoice]] = [],
         image_url: str = "",
@@ -110,6 +113,7 @@ class Questions(BaseModelMixin, db.Model):
         self.topic = topic
         self.tag = tag
         self.knowledge_item = knowledge_item
+        self.user_created = user_created
         if uuid is None:
             self.uuid = unique_uuid4()
 
