@@ -1,31 +1,34 @@
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import jwt_required
-from flask_restful import reqparse
 from server import db
 from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
 from server.models import Questions, QuestionsSchema, QuestionTypeEnum
 from sqlalchemy import exc
+from webargs import fields
+from webargs.flaskparser import use_kwargs
 
 question_blueprint = Blueprint("question", __name__)
 dumper = QuestionsSchema()
 
-parser = reqparse.RequestParser()
-parser.add_argument("subject", required=True,
-                    help="Question subject not recognized")
+question_args = {
+    'subject': fields.Str(required=True)
+}
 
 
 class QuestionList(MethodView):
     @jwt_required
-    def get(self):
-        args = parser.parse_args()
+    @use_kwargs(question_args, location='query')
+    def get(self, **kwargs):
+        subject = kwargs.get('subject')
+
         question_list = None
-        if args["subject"] == "":
+        if subject == "":
             question_list = []
         else:
             question_list = Questions.query.filter(
-                Questions.subject.op('~*')(args["subject"])).all()
+                Questions.subject.op('~*')(subject)).all()
 
         return make_response(
             {"questions": [dumper.dump(question)

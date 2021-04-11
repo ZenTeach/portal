@@ -1,7 +1,6 @@
 
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
-from flask_restful import reqparse
 from server import db
 from server.api import logger, report_5xx_error
 from server.models import ClassQuiz as ClassQuizModel
@@ -9,23 +8,25 @@ from server.models import (ClassQuizStatus, QuizSession, QuizSessionStatus,
                            Student)
 from server.tasks import grader_administered_quizzes
 from sqlalchemy import exc
+from webargs import fields, validate
+from webargs.flaskparser import use_kwargs
 
 quiz_submit_blueprint = Blueprint("quiz_submit", __name__)
 
-parser = reqparse.RequestParser()
-parser.add_argument("email", required=True, help="Student Email")
-
-parser.add_argument("quiz", required=True, help="Quiz unique id")
+quiz_submit_args = {
+    'email': fields.Str(required=True, validate=validate.Email()),
+    'quiz': fields.Str(required=True)
+}
 
 
 class SubmitQuiz(MethodView):
-    def get(self):
+    @use_kwargs(quiz_submit_args, location='query')
+    def get(self, email, quiz):
         """
             Creates a quiz session object
         """
-        args = parser.parse_args()
 
-        student = Student.query.filter_by(email=args["email"]).first()
+        student = Student.query.filter_by(email=email).first()
         if not student:
             return make_response(jsonify({'message': "Student email doesn't exist"}), 404)
 
@@ -34,7 +35,7 @@ class SubmitQuiz(MethodView):
                 'message': "Email address hasn't been verified yet!"
             }), 400)
 
-        class_quiz = ClassQuizModel.query.filter_by(uuid=args["quiz"]).first()
+        class_quiz = ClassQuizModel.query.filter_by(uuid=quiz).first()
         if not class_quiz:
             return make_response(jsonify({"message": "Class Quiz doesn't exist"}), 404)
 
