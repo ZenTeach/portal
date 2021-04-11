@@ -2,7 +2,6 @@
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from flask_restful import reqparse
 from marshmallow import INCLUDE, Schema, fields
 from server import db
 from server.api import logger, report_5xx_error
@@ -11,9 +10,14 @@ from server.models import SchoolClass as SchoolClassModel
 from server.models import SchoolClassSchema, Student
 from server.tasks import send_student_confirmation_instructions
 from sqlalchemy import exc
+from webargs import fields as webarg_fields
+from webargs.flaskparser import use_kwargs
 
 school_class_blueprint = Blueprint("school_class", __name__)
 schema_dumper = SchoolClassSchema()
+student_delete_args = {
+    'student_id': webarg_fields.Int(required=True)
+}
 
 
 class PatchPayloadSchema(Schema):
@@ -242,21 +246,16 @@ class SchoolClassStudent(MethodView):
             )
 
     @jwt_required
-    def delete(self, class_id):
-        parser = reqparse.RequestParser()
-        parser.add_argument("student_id", required=True,
-                            help="Student id missing.")
-        args = parser.parse_args()
+    @use_kwargs(student_delete_args, location='query')
+    def delete(self, class_id, student_id):
         school_class = SchoolClassModel.query.filter_by(id=class_id).first()
         if not school_class:
             return make_response(jsonify({
                 'message': "School class room doesn't exist"
             }), 404)
 
-        # data = request.get_json()
-        logger.info(f'Got payload {args}')
         try:
-            school_class.remove_student(args["student_id"])
+            school_class.remove_student(student_id)
         except Exception as e:  # noqa
             logger.error(e)
             report_5xx_error(e)

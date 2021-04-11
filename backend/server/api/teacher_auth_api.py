@@ -7,12 +7,13 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jti, get_jwt_identity, get_raw_jwt,
                                 jwt_refresh_token_required, jwt_required,
                                 set_access_cookies, set_refresh_cookies)
-from flask_restful import reqparse
 from server import bcrypt, jwt, redis_store
 from server.api import logger, report_5xx_error
 from server.models import Invitations, Teacher, TeacherSchema
 from server.tasks import (send_account_recovery_instructions,
                           send_confirmation_instructions, send_user_invite)
+from webargs import fields
+from webargs.flaskparser import use_kwargs
 
 teacher_auth_blueprint = Blueprint("teacher_auth", __name__)
 
@@ -213,14 +214,14 @@ class ConfirmAccount(MethodView):
         }), 200)
 
 
+reset_account_args = {
+    'email': fields.Email(required=True)
+}
+
+
 class ResetAccount(MethodView):
-
-    parser = reqparse.RequestParser()
-    parser.add_argument("email", required=True,
-                        help="Email address not found.")
-
-    def get(self):
-        email = self.parser.parse_args()["email"]
+    @use_kwargs(reset_account_args, location='query')
+    def get(self, email):
         send_account_recovery_instructions.delay(email)
         return make_response(jsonify({
             "status": "Success",
