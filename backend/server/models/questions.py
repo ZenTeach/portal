@@ -75,6 +75,10 @@ class Questions(BaseModelMixin, db.Model):
         nullable=False,
         default=QuestionTypeEnum.multiple_choice,
     )
+
+    teacher_id = db.Column(
+        db.Integer, db.ForeignKey("teacher.id"), nullable=True)
+
     exam_board = db.Column(db.Text, nullable=True)
     subject = db.Column(db.String(256), nullable=False)
     topic = db.Column(db.String(256), nullable=True)
