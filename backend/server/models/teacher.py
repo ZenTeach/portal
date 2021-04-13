@@ -27,6 +27,7 @@ class Teacher(BaseModelMixin, db.Model, Confirmable, Recoverable):
     role = db.Column(db.String(128), nullable=False)
 
     classes = db.relationship("SchoolClass", backref="teacher", lazy=True)
+    questions = db.relationship("Questions", backref="teacher", lazy=True)
 
     confirmed = db.Column(db.Boolean, nullable=True, default=False)
     confirmed_at = db.Column(db.DateTime, nullable=True)
@@ -42,6 +43,7 @@ class Teacher(BaseModelMixin, db.Model, Confirmable, Recoverable):
         email,
         date_of_birth,
         classes=[],
+        questions=[],
         password=None,
         role="Teacher",
         uuid=None
@@ -61,6 +63,7 @@ class Teacher(BaseModelMixin, db.Model, Confirmable, Recoverable):
         else:
             self.uuid = uuid
 
+        self.questions = questions
         self.classes = classes
         self.date_of_birth = date_of_birth
 
@@ -90,7 +93,19 @@ def teacher_class_append_listener(target, value, initiator):
     value.save()
 
 
+@event.listens_for(Teacher.questions, "append")
+def teacher_question_append_listener(target, value, initiator):
+    value.teacher_id = target.id
+    value.save()
+
+
 @event.listens_for(Teacher.classes, "remove")
 def student_class_remove_listener(target, value, initiator):
     db.engine.execute(
         "UPDATE school_class SET teacher_id=null WHERE id=%s", value.id)
+
+
+@event.listens_for(Teacher.questions, "remove")
+def student_question_remove_listener(target, value, initiator):
+    db.engine.execute(
+        "UPDATE questions SET teacher_id=null WHERE id=%s", value.id)
