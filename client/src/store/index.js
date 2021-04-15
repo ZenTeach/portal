@@ -5,6 +5,7 @@ import app from '@/store/modules/app'
 import user from '@/store/modules/user'
 import classrooms from '@/store/modules/classrooms'
 import quiz from '@/store/modules/quiz'
+import questions from '@/store/modules/questions'
 
 Vue.use(Vuex)
 
@@ -17,7 +18,8 @@ const store = new Vuex.Store({
     app: app,
     user: user,
     classrooms: classrooms,
-    quiz: quiz
+    quiz: quiz,
+    questions: questions
   },
   state: {
     // global state
