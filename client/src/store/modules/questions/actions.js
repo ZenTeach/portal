@@ -6,7 +6,7 @@ const GETQUESTIONS = ({ commit, dispatch }) => {
   getUserQuestions()
     .then(
       data => {
-        commit('QUESTIONLIST_UPDATED', data.data)
+        commit('QUESTIONLIST_UPDATED', data.questions)
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
