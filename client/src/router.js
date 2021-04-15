@@ -122,6 +122,15 @@ const router = new Router({
       }
     },
     {
+      path: '/questions',
+      name: 'Questions',
+      component: () =>
+        import(/* webpackChunkName: "QuestionsView" */ './views/Questions'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
       path: '*',
       name: 'NotFound',
       component: () =>
