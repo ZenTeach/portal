@@ -27,3 +27,9 @@ export function fetchQuestionsFromTopicsAndKIs (topics, kis) {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function getUserQuestions () {
+  return Api.get('/question/user_created')
+    .then(handleResponse)
+    .then(data => data)
+}

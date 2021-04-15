@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from server import db
 from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
@@ -85,12 +85,13 @@ class QuestionList(MethodView):
 
 
 class Question(MethodView):
-    method_decorators = [jwt_required]
 
+    @jwt_required
     def get(self, question_id):
         question = Questions.query.filter_by(id=question_id).first()
         return make_response({"question": dumper.dump(question)}, 200)
 
+    @jwt_required
     def delete(self, question_id):
         try:
             question = Questions.query.filter_by(id=question_id).first()
@@ -117,9 +118,23 @@ class Question(MethodView):
                 }),
                 500)
 
+    @jwt_required
     @with_required_roles(["Admin"])
     def put(self):
         pass
+
+
+class TeacherOwnedQuestion(MethodView):
+
+    @jwt_required
+    def get(self):
+        teacher = get_jwt_identity()["identity"]
+        questions = Questions.query.filter_by(teacher_id=teacher["id"]).all()
+
+        return make_response(
+            jsonify({
+                "questions": [dumper.dump(question) for question in questions]
+            }), 200)
 
 
 class QuestionSearch(MethodView):
@@ -241,3 +256,6 @@ question_blueprint.add_url_rule("/question/filter/topic/<string:subject>",
                                 view_func=QuestionTopicFilter.as_view("question_filter_topic"))
 question_blueprint.add_url_rule(
     "/question/fetch", view_func=QuestionFromKIsAndTopics.as_view('question_fetch'))
+question_blueprint.add_url_rule(
+    "/question/user_created", view_func=TeacherOwnedQuestion.as_view('teacher_owned_question')
+)

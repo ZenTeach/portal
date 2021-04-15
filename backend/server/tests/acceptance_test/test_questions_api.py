@@ -6,11 +6,16 @@ import pytest
 from faker import Faker
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
-from server.models import QuestionsSchema
+from server.models import QuestionsSchema, Teacher
 from server.models.questions import Questions, QuestionTypeEnum
-from server.tests.factories import QuestionsFactory
+from server.tests.factories import QuestionsFactory, TeacherFactory
 
 fake = Faker()
+
+
+@pytest.fixture
+def teacher_(client: FlaskClient) -> Teacher:
+    return TeacherFactory()
 
 
 @pytest.fixture(autouse=True)
@@ -295,3 +300,24 @@ def test_question_search_with_params(client: FlaskClient,
 
     assert response.status_code == 200
     assert json.loads(response.data)['message'] != "No result found"
+
+
+def test_teacher_owned_question_get_action(client: FlaskClient,
+                                           mocker: MockFixture,
+                                           teacher_: Teacher):
+    # QuestionsFactory.create(teacher_id=teacher_.id, multiple_choice_question_type=True)
+    teacher_.questions.append(Questions.query.first())
+    teacher_.save()
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mock_teacher = {
+        'identity': {
+            'id': teacher_.id,
+            'email': teacher_.email
+        }
+    }
+    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
+
+    response = client.get("/api/v1/question/user_created")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert len(data['questions']) == 1
