@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Questions.vue renders correctly 1`] = `
+<v-container-stub tag="div" fluid="true" resultset="">
+  <v-flex-stub tag="div" xs12="" sm12="" md12="" lg12="">
+    <v-row-stub tag="div">
+      <v-col-stub tag="div">
+        <material-card-stub color="secondary" elevation="10" offset="24" title="Question Lists">
+          <div>
+            <question-search-result-stub resultset=""></question-search-result-stub>
+          </div>
+        </material-card-stub>
+      </v-col-stub>
+    </v-row-stub>
+  </v-flex-stub>
+</v-container-stub>
+`;

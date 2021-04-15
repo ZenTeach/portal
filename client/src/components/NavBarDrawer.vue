@@ -34,7 +34,15 @@
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
+          <v-list-item-title>
+            {{ item.title }}
+            <v-badge v-if="item.beta"
+              color="deep-purple"
+              dot
+              overlap
+              right>
+            </v-badge>
+          </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
@@ -87,6 +95,12 @@ export default {
           title: 'Classrooms',
           icon: 'mdi-book-minus-multiple',
           to: '/classrooms'
+        },
+        {
+          title: 'Questions',
+          icon: 'mdi-post-it-note-check',
+          to: '/questions',
+          beta: true
         }
       ]
     }
