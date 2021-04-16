@@ -29,6 +29,7 @@ class QuestionsFactory(SQLAlchemyModelFactory):
         )
     question = fake.sentence()
     knowledge_item = fake.word()
+    exam_board = choice(['aqa', 'edexcel', 'ccea'])
     tag = fake.word()
     topic = fake.word()
     correct_choice_id = choice([1, 2, 3, 4])

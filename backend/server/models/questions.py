@@ -1,5 +1,5 @@
 import enum
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from uuid import uuid4
 
 from flask_sqlalchemy import BaseQuery
@@ -8,6 +8,7 @@ from marshmallow_enum import EnumField
 from server import db
 from server.models import QuestionChoice, Subject
 from server.models.base_model import BaseModelMixin
+from server.models.teacher import Teacher
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy_searchable import SearchQueryMixin
 from sqlalchemy_utils.types import TSVectorType
@@ -37,6 +38,10 @@ class AdminQuestionChoiceValidator(Schema):
 # Server side validation
 
 
+def validate_teacher_id(id) -> bool:
+    return Teacher.query.filter_by(id=id).count() > 0
+
+
 class AdminFormValidator(Schema):
     class Meta:
         unknown = INCLUDE
@@ -50,16 +55,12 @@ class AdminFormValidator(Schema):
     topic = fields.Str(required=True)
     tag = fields.Str(required=True)
     knowledge_item = fields.Str(required=True)
-
-
-class MultipleChoiceSchema(Schema):
-    class Meta:
-        unknown = INCLUDE
-
-    a = fields.Str(required=True)
-    b = fields.Str(required=True)
-    c = fields.Str(required=True)
-    d = fields.Str(required=True)
+    user_created = fields.Boolean(required=True)
+    teacher_id = fields.Int(required=True,
+                            validate=validate_teacher_id,
+                            error_messages={
+                                'invalid': 'Teacher not found.'
+                            })
 
 
 class Questions(BaseModelMixin, db.Model):
@@ -100,19 +101,15 @@ class Questions(BaseModelMixin, db.Model):
         topic: str,
         tag: str,
         knowledge_item: str,
-        correct_choice_id: int,
+        correct_choice_id: Optional[int] = None,
         user_created: bool = False,
         subject_id: Optional[str] = None,
+        teacher_id: Optional[int] = None,
         uuid: Optional[UUID] = None,
         choices: Optional[List[QuestionChoice]] = [],
         image_url: str = "",
         **kwargs
     ):
-        if question_type == QuestionTypeEnum.multiple_choice:
-            try:
-                MultipleChoiceSchema().validate(data=choices)
-            except ValidationError:
-                raise
 
         self.question = question
         self.question_type = question_type
@@ -125,40 +122,55 @@ class Questions(BaseModelMixin, db.Model):
             self.uuid = unique_uuid4()
 
         # self.uuid = uuid
-        self.correct_choice_id = correct_choice_id
-        self.choices = choices
+        self.teacher_id = teacher_id
+        correct_choice = None
+        if isinstance(choices, list) and len(choices) > 0:
+            self.choices, correct_choice = self.create_choices_from_list(choices)
+
+        self.correct_choice_id = correct_choice_id or correct_choice
         self.image_url = image_url
 
     @classmethod
     def create_from_admin_form(cls, data: Dict):
-        validation_errors = AdminFormValidator().validate(data=data)
+        # We ignore all missing fields here. The most likely missing field
+        # is teacher_id as this method is only called from the admin portal.
+        # https://stackoverflow.com/questions/55795258/validating-optional-field-in-marshmallow
+
+        validation_errors = AdminFormValidator().validate(data=data, partial=True)
         if validation_errors is not None and len(validation_errors) != 0:
             raise ValidationError(
                 "Error creating question. Make sure that you have filled in all the required fields.", validation_errors)  # noqa
-        created_choice = []
         correct_choice_id = None
 
         subject_ = Subject.query.filter(Subject.name == data['subject']).first()
-        for choice in data["choices"]:
-            interim = QuestionChoice(
-                choice["value"], choice["feedback"], choice["weight"]
-            )
-            interim.save()
-            if choice["is_correct_choice"] and correct_choice_id is None:
-                correct_choice_id = interim.id
-            created_choice.append(interim)
+        choices = data.pop("choices")
         instance = cls(
             data["question"],
             data["question_type"],
             data["topic"],
             data["tag"],
             data["knowledge_item"],
-            correct_choice_id,
-            subject_id=subject_.id,
-            choices=created_choice,
+            subject_id=subject_.id
         )
+        instance.choices, instance.correct_choice_id = instance.create_choices_from_list(choices)
         instance.save()
         return instance
+
+    def create_choices_from_list(self,
+                                 choice_list: List[dict]) -> Tuple[List[QuestionChoice], int]:
+        correct_choice_id = None
+        choices = []
+        for choice in choice_list:
+            interim = QuestionChoice(
+                choice.get("value", ""),
+                choice.get("feedback", ""),
+                choice.get("weight", 0)
+            )
+            interim.save()
+            if choice.get("is_correct_choice", False) and correct_choice_id is None:
+                correct_choice_id = interim.id
+            choices.append(interim)
+        return choices, correct_choice_id
 
     def correct_choice(self) -> Optional[QuestionChoice]:
         if self.correct_choice_id is None:

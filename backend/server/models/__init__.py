@@ -74,6 +74,7 @@ class QuestionsSchema(ma.ModelSchema):
             "knowledge_item",
             "tag",
             "user_created",
+            "exam_board",
             "choices",
         )
 

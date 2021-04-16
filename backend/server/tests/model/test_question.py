@@ -44,7 +44,7 @@ def test_question_create_from_admin_form_succeeds(client: FlaskClient,
                              subject=subject_.name,
                              multiple_choice_question_type=True)
 
-    question_payload['choices'] = choices
+    question_payload.update({'choices': choices, 'user_created': False})
     q = Questions.create_from_admin_form(question_payload)
 
     assert q
@@ -58,7 +58,7 @@ def test_question_create_from_admin_form_raises_error(client: FlaskClient) -> No
                              multiple_choice_question_type=True)
 
     question_payload['choices'] = choices
-    del question_payload['question']
+    question_payload['question'] = None
 
     with pytest.raises(ValidationError):
         Questions.create_from_admin_form(question_payload)
