@@ -3,12 +3,16 @@ from random import choice
 from typing import List, Union
 
 import pytest
+from factory import build
+from factory.helpers import build_batch
 from faker import Faker
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import QuestionsSchema, Subject, Teacher
 from server.models.questions import Questions, QuestionTypeEnum
 from server.tests.factories import QuestionsFactory, TeacherFactory
+from server.tests.factories.question_choice_factory import \
+    QuestionChoiceFactory
 
 fake = Faker()
 
@@ -21,13 +25,14 @@ def subjects_(client: FlaskClient) -> None:
 
 @pytest.fixture()
 def subject_() -> Subject:
-    return Subject.query.filter(Subject.name == 'Chemistry').first()
+    s = Subject(name='Chemistry', enabled=True)
+    s.save()
+    return s
 
 
 @pytest.fixture()
-def _subject_() -> int:
-    return Subject.query.filter(Subject.name == 'Chemistry').first().id
-
+def subject_id(subject_: Subject) -> int:
+    return subject_.id
 
 @pytest.fixture
 def teacher_(client: FlaskClient) -> Teacher:
@@ -35,33 +40,51 @@ def teacher_(client: FlaskClient) -> Teacher:
 
 
 @pytest.fixture(autouse=True)
-def populate_questions(client: FlaskClient, subjects_, _subject_):
+def populate_questions(client: FlaskClient, subject_: Subject):
+    subject_id = subject_.id
     QuestionsFactory.create_batch(5, topic="testKI",
-                                  subject_id=_subject_,
+                                  subject_id=subject_id,
                                   multiple_choice_question_type=True)
     QuestionsFactory.create_batch(5, topic="testKI",
-                                  subject_id=_subject_,
+                                  subject_id=subject_id,
                                   knowledge_item="Testing value",
                                   multiple_choice_question_type=True)
     QuestionsFactory.create_batch(3, topic="anotherKI",
-                                  subject_id=_subject_,
+                                  subject_id=subject_id,
                                   multiple_choice_question_type=True)
     QuestionsFactory.create_batch(3, topic=None,
-                                  subject_id=_subject_,
+                                  subject_id=subject_id,
                                   multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(5, subject_id=_subject_,
+    QuestionsFactory.create_batch(5, subject_id=subject_id,
                                   multiple_choice_question_type=True)
     QuestionsFactory.create_batch(5,
-                                  subject_id=_subject_,
+                                  subject_id=subject_id,
                                   multiple_choice_question_type=True)
 
 
 @pytest.fixture
-def question_payload(subjects_):
+def question_payload():
     built_question = QuestionsFactory.build(
         multiple_choice_question_type=True, subject_id=choice([1, 2, 3]))
     built_question.question_type = getattr(QuestionTypeEnum, built_question.question_type)
     return QuestionsSchema().dump(built_question)
+
+
+@pytest.fixture
+def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
+    q = build(dict,
+              FACTORY_CLASS=QuestionsFactory,
+              multiple_choice_question_type=True,
+              subject=subject_.name,
+              teacher_id=teacher_.id,
+              with_choices=4)
+    choices = build_batch(dict, 4, FACTORY_CLASS=QuestionChoiceFactory)
+
+    q.update({
+        'choices': choices
+    })
+
+    return q
 
 
 @pytest.fixture
@@ -189,11 +212,11 @@ def test_question_create_api(client: FlaskClient,
 
 def test_question_create_api_question_already_existing(client: FlaskClient,
                                                        question_payload: dict,
-                                                       _subject_: int,
+                                                       subject_id: Subject,
                                                        mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     existing_question = Questions.query.first()
-    question_payload['subject_id'] = _subject_
+    question_payload['subject_id'] = subject_id
     question_payload['tag'] = existing_question.tag
     question_payload['question'] = existing_question.question
 
@@ -346,3 +369,45 @@ def test_teacher_owned_question_get_action(client: FlaskClient,
     assert response.status_code == 200
     data = json.loads(response.data)
     assert len(data['questions']) == 1
+
+
+def test_teacher_owned_question_create_action(client: FlaskClient,
+                                              mocker: MockFixture,
+                                              teacher_: Teacher,
+                                              question_payload_as_json: dict):
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mock_teacher = {
+        'identity': {
+            'id': teacher_.id,
+            'email': teacher_.email
+        }
+    }
+    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
+    question_payload_as_json.update({
+        'user_created': True,
+        'teacher_id': teacher_.id
+    })
+
+    response = client.post("/api/v1/question/user_created", json=question_payload_as_json)
+    assert response.status_code == 201
+    teacher_.reload()
+    assert len(teacher_.questions) == 1
+
+
+def test_teacher_owned_question_create_action_400_error(client: FlaskClient,
+                                                        mocker: MockFixture,
+                                                        teacher_: Teacher,
+                                                        question_payload_as_json: dict):
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mock_teacher = {
+        'identity': {
+            'id': 100,
+            'email': teacher_.email
+        }
+    }
+    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
+
+    response = client.post("/api/v1/question/user_created", json=question_payload_as_json)
+    assert response.status_code == 400

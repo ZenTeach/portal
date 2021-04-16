@@ -5,6 +5,8 @@ from server import db
 from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
 from server.models import Questions, QuestionsSchema, QuestionTypeEnum, Subject
+from server.models.questions import \
+    AdminFormValidator as QuestionSchemaValidator
 from sqlalchemy import exc
 from webargs import fields
 from webargs.flaskparser import use_kwargs
@@ -140,6 +142,31 @@ class TeacherOwnedQuestion(MethodView):
             jsonify({
                 "questions": [dumper.dump(question) for question in questions]
             }), 200)
+
+    @jwt_required
+    def post(self):
+        teacher = get_jwt_identity()["identity"]
+        data = request.get_json()
+
+        validation_errors = QuestionSchemaValidator().validate(data=data)
+        if validation_errors is not None and len(validation_errors) != 0:
+            return make_response(jsonify(validation_errors), 400)
+
+        if teacher.get('id') != data.get('teacher_id', None):
+            return make_response(jsonify({
+                'message': 'Teacher is not recognized'
+            }), 400)
+
+        question = Questions(**data)
+        try:
+            question.save()
+            return make_response(jsonify({
+                'message': 'Question successfully added'
+            }), 201)
+        except Exception:
+            return make_response(jsonify({
+                'message': "Run into an error creating question. We will take a look in a bit!"
+            }), 500)
 
 
 class QuestionSearch(MethodView):
