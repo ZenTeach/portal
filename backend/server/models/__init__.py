@@ -15,6 +15,7 @@ from .school_class import SchoolClass
 from .student import Student
 from .teacher import Teacher
 from .admin import Admin
+from .subjects import Subject
 from .migrations.seeds import run_seed
 from .invitations import Invitations
 
@@ -29,6 +30,7 @@ __all__ = [
     "QuizGrade",
     "StudentAttendedClass",
     "Student",
+    "Subject",
     "StudentSchema",
     "SchoolClass",
     "SchoolClassSchema",
