@@ -1,3 +1,3 @@
-import './chartist'
-import './vee-validate'
-import './sentry'
+import "./chartist";
+import "./vee-validate";
+// import './sentry'

@@ -26,8 +26,11 @@ class QuizSession(BaseModelMixin, db.Model):
     )
 
     student = db.relationship("Student", backref=db.backref("quiz_session"))
+
     class_quiz = db.relationship(
-        "ClassQuiz", backref=db.backref("quiz_session"))
+        "ClassQuiz",
+        backref=db.backref("quiz_session", uselist=False, cascade="all, delete-orphan")
+    )
 
     start_time = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow)

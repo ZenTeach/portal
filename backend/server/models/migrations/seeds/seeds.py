@@ -38,6 +38,7 @@ def seeds():
         email="peter.griffin@example.com",
         password=password,
         role="Student",
+        confirmed=True
     ).save()
 
     # SchoolClass
