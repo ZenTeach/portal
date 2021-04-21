@@ -3,7 +3,7 @@ import {
   fetchKis,
   fetchTopics,
   fetchQuestionsFromTopicsAndKIs
-} from '../../../service/questions'
+} from '../../../service/question_service'
 
 export default {
   QUERY_QUESTIONS ({ commit }, payload) {
