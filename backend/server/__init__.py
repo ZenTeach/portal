@@ -202,8 +202,7 @@ def create_app():
     app.register_blueprint(question_blueprint, url_prefix="/api/v1")
     app.register_blueprint(statistics_view_blueprint, url_prefix="/api/v1")
     app.register_blueprint(quiz_submit_blueprint, url_prefix="/api/v1")
-    if os.environ.get('FLASK_ENV') == 'development':
-        app.register_blueprint(root_api)
+    app.register_blueprint(root_api, url_prefix="/api/v1")
 
     default_handler.setFormatter(formatter)
 
@@ -214,6 +213,7 @@ def create_app():
 
     @app.shell_context_processor
     def ctx():
-        return {"app": app, "db": db, "globalConfig": globalConfig}
+        import server.models as sm
+        return {"app": app, "db": db, "globalConfig": globalConfig, "sm": sm}
 
     return app

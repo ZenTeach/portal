@@ -31,6 +31,7 @@ __all__ = [
     "StudentAttendedClass",
     "Student",
     "Subject",
+    "SubjectSchema",
     "StudentSchema",
     "SchoolClass",
     "SchoolClassSchema",
@@ -146,3 +147,12 @@ class QuizGradeSchema(ma.ModelSchema):
                   "student")
 
     student = ma.Nested(StudentSchema)
+
+
+class SubjectSchema(ma.ModelSchema):
+    class Meta:
+        model = Subject
+        fields = ("id",
+                  "name",
+                  "enabled",
+                  "remark")
