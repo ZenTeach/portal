@@ -5,6 +5,10 @@ import {
   fetchQuestionsFromTopicsAndKIs
 } from '../../../service/question_service'
 
+import {
+  fetchSubjects
+} from '../../../service/app_service'
+
 export default {
   QUERY_QUESTIONS ({ commit }, payload) {
     fetchQuestions(payload)
@@ -54,6 +58,15 @@ export default {
       .catch(error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
         commit('TOGGLE_APP_STATUS', 'error')
+      })
+  },
+  FETCH_SUBJECTS ({ commit }) {
+    fetchSubjects()
+      .then(subjects => {
+        commit('UPDATE_SUBJECTS', subjects)
+      })
+      .catch(error => {
+        commit('TOGGLE_ERROR', error.response.data)
       })
   }
 }

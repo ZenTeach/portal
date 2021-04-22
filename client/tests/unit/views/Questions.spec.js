@@ -17,18 +17,18 @@ describe('Questions.vue', () => {
     $store = new Store({
       state: {
         questions: {
-          questions: 'from questions',
+          questions: 'from questions'
         }
       },
       getters: {
         'getters/QUESTIONLIST': 'from questions'
       },
       actions: {
-        'actions/GETQUESTIONS': 'from questions',
+        'actions/GETQUESTIONS': 'from questions'
       }
     })
     props = {
-      resultSet: []  
+      resultSet: []
     }
   })
 
