@@ -14,6 +14,5 @@ class Subject(db.Model, BaseModelMixin):
     # question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
     # question = db.relationship("Questions", back_populates="subjects")
 
-    # One to one relationship with school class
-    # question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
-    # question = db.relationship("Questions", back_populates="subjects")
+    def __repr__(self) -> str:
+        return f'{self.name}'
