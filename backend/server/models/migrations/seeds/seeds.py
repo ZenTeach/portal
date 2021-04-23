@@ -19,6 +19,7 @@ def seeds():
         password=password,
         role="Teacher",
         uuid=uuid4(),
+        confirmed=True
     ).save()
     # Admin Teacher seed
     Admin(
@@ -38,6 +39,7 @@ def seeds():
         email="peter.griffin@example.com",
         password=password,
         role="Student",
+        confirmed=True
     ).save()
 
     # SchoolClass

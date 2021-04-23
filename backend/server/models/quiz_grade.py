@@ -22,7 +22,9 @@ class QuizGrade(BaseModelMixin, db.Model):
     student = db.relationship("Student", backref=db.backref("quiz_grade"))
 
     class_quiz = db.relationship(
-        "ClassQuiz", backref=db.backref("student_quiz_grade"))
+        "ClassQuiz",
+        backref=db.backref("student_quiz_grade", cascade="all, delete-orphan")
+    )
 
     score = db.Column(db.Integer, nullable=True)
     graded = db.Column(db.Boolean, nullable=False, default=False)

@@ -372,7 +372,6 @@ class QuestionView(BaseView):
 def exam_board_formatter(view, context, model, name):
     value = getattr(model, name)
     boards = _loaded_examboard()
-    # human_readable_value = boards.get(value, '')
     filtered = list(
         filter(lambda x: x[0] == value, boards)
     )
