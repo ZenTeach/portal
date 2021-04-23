@@ -79,6 +79,7 @@ class QuestionsSchema(ma.ModelSchema):
 
     question_type = EnumField(QuestionTypeEnum, by_value=True)
     choices = ma.Nested(QuestionChoicesSchema, many=True)
+    subject = ma.Nested(SubjectSchema, only=('name',))
 
 
 class ClassQuizSchema(ma.ModelSchema):
