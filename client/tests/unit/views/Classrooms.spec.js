@@ -23,14 +23,14 @@ describe('Classrooms.vue', () => {
         }
       },
       getters: {
-        'getters/CLASSLIST': 'from classrooms',
-        getSubjects: jest.fn(() => {
-          [
-            { id: 1, name: 'Chemistry', enabled: true, remarks: '' },
-            { id: 2, name: 'Biology', enabled: true, remarks: '' },
-            { id: 3, name: 'Physics', enabled: true, remarks: '' }
-          ]
-        })
+        'getters/CLASSLIST': 'from classrooms'
+        // getSubjects: jest.fn(() => {
+        //   [
+        //     { id: 1, name: 'Chemistry', enabled: true, remarks: '' },
+        //     { id: 2, name: 'Biology', enabled: true, remarks: '' },
+        //     { id: 3, name: 'Physics', enabled: true, remarks: '' }
+        //   ]
+        // })
       },
       actions: {
         'actions/GETCLASSES': 'from classrooms',

@@ -32,6 +32,7 @@
                 <template v-slot:item.name="props">
                   <a :href="'/classroom/' + props.item.id">{{ props.item.name }}</a>
                 </template>
+
                 <template v-slot:item.actions="{ item }">
                   <v-icon
                     medium
@@ -209,7 +210,7 @@ export default {
           sortable: false,
           value: 'name'
         },
-        { text: 'Subject', sortable: true, value: 'subject' },
+        { text: 'Subject', sortable: true, value: 'subject.name' },
         { text: 'Starts', sortable: false, value: 'start_date' },
         { text: 'Exam Board', sortable: true, value: 'exam_board' },
         { text: '', sortable: false, value: 'actions' }
