@@ -33,7 +33,6 @@ class QuestionsFactory(SQLAlchemyModelFactory):
     topic = fake.word()
     correct_choice_id = choice([1, 2, 3, 4])
     user_created = choice([True, False])
-    subject = choice(["Chemistry", "Biology", "Physics"])
 
     @post_generation
     def with_choices(obj, create, extracted, **kwargs):

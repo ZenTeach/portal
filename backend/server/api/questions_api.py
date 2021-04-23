@@ -4,7 +4,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from server import db
 from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
-from server.models import Questions, QuestionsSchema, QuestionTypeEnum
+from server.models import Questions, QuestionsSchema, QuestionTypeEnum, Subject
 from sqlalchemy import exc
 from webargs import fields
 from webargs.flaskparser import use_kwargs
@@ -27,8 +27,13 @@ class QuestionList(MethodView):
         if subject == "":
             question_list = []
         else:
-            question_list = Questions.query.filter(
-                Questions.subject.op('~*')(subject)).all()
+            subject_ = Subject.query.filter(Subject.name.op('~*')(subject)).first()
+            if subject_ is None:
+                return make_response(jsonify({
+                    'questions': [],
+                    'message': f"{subject} subject not found"
+                }), 400)
+            question_list = Questions.query.filter_by(subject_id=subject_.id).all()
 
         return make_response(
             {"questions": [dumper.dump(question)
@@ -46,7 +51,7 @@ class QuestionList(MethodView):
 
         question = data.get("question")
         question_type = QuestionTypeEnum(data.get("question_type"))
-        subject = data.get("subject")
+        subject_id = data.get("subject_id")
         topic = data.get("topic")
         knowledge_item = data.get("knowledge_item")
         correct_choice_id = data.get("correct_choice_id")
@@ -54,13 +59,13 @@ class QuestionList(MethodView):
         choices = data.get("choices")
         try:
             question_entry = Questions.query.filter_by(
-                subject=subject, tag=tag, question=question
+                subject_id=subject_id, tag=tag, question=question
             ).first()
             if not question_entry:
                 Questions(
                     question=question,
                     question_type=question_type,
-                    subject=subject,
+                    subject_id=subject_id,
                     topic=topic,
                     tag=tag,
                     knowledge_item=knowledge_item,
@@ -142,8 +147,10 @@ class QuestionSearch(MethodView):
     def post(self):
         query_params = request.get_json()
         try:
+            subject_ = Subject.query.filter(Subject.name == query_params['subject']).first()
+
             result_set = Questions.query.search(query_params["query"]).filter(
-                Questions.subject.op('~*')(query_params["subject"])
+                Questions.subject_id == subject_.id
             ).filter(
                 Questions.topic.in_(query_params["topic"])
             ).filter(
@@ -231,8 +238,11 @@ class QuestionTopicFilter(MethodView):
     @jwt_required
     def get(self, subject: str):
         try:
+            subject_ = Subject.query.filter(Subject.name.op('~*')(subject)).first()
+            if subject_ is None:
+                return make_response(jsonify({}), 400)
             topics = Questions.query.with_entities(Questions.topic)\
-                .filter(Questions.subject.op('~*')(subject))\
+                .filter(Questions.subject_id == subject_.id)\
                 .filter(Questions.topic.isnot(None))\
                 .filter(Questions.topic != '').distinct(Questions.topic).all()
             response = [x for (x,) in topics]

@@ -6,11 +6,27 @@ import pytest
 from faker import Faker
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
-from server.models import QuestionsSchema, Teacher
+from server.models import QuestionsSchema, Subject, Teacher
 from server.models.questions import Questions, QuestionTypeEnum
 from server.tests.factories import QuestionsFactory, TeacherFactory
 
 fake = Faker()
+
+
+@pytest.fixture(autouse=True)
+def subjects_(client: FlaskClient) -> None:
+    for subject in ['Biology', 'Chemistry', 'Physics']:
+        Subject(name=subject, enabled=True).save()
+
+
+@pytest.fixture()
+def subject_() -> Subject:
+    return Subject.query.filter(Subject.name == 'Chemistry').first()
+
+
+@pytest.fixture()
+def _subject_() -> int:
+    return Subject.query.filter(Subject.name == 'Chemistry').first().id
 
 
 @pytest.fixture
@@ -19,23 +35,31 @@ def teacher_(client: FlaskClient) -> Teacher:
 
 
 @pytest.fixture(autouse=True)
-def populate_questions(client: FlaskClient):
-    QuestionsFactory.create_batch(5, subject="Physics", topic="testKI",
+def populate_questions(client: FlaskClient, subjects_, _subject_):
+    QuestionsFactory.create_batch(5, topic="testKI",
+                                  subject_id=_subject_,
                                   multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(5, subject="Physics", topic="testKI",
+    QuestionsFactory.create_batch(5, topic="testKI",
+                                  subject_id=_subject_,
                                   knowledge_item="Testing value",
                                   multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(3, subject="Chemistry", topic="anotherKI",
+    QuestionsFactory.create_batch(3, topic="anotherKI",
+                                  subject_id=_subject_,
                                   multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(3, subject="Chemistry", topic=None,
+    QuestionsFactory.create_batch(3, topic=None,
+                                  subject_id=_subject_,
                                   multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(5, subject="Chemistry", multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(5, subject="chemistry", multiple_choice_question_type=True)
+    QuestionsFactory.create_batch(5, subject_id=_subject_,
+                                  multiple_choice_question_type=True)
+    QuestionsFactory.create_batch(5,
+                                  subject_id=_subject_,
+                                  multiple_choice_question_type=True)
 
 
 @pytest.fixture
-def question_payload():
-    built_question = QuestionsFactory.build(multiple_choice_question_type=True)
+def question_payload(subjects_):
+    built_question = QuestionsFactory.build(
+        multiple_choice_question_type=True, subject_id=choice([1, 2, 3]))
     built_question.question_type = getattr(QuestionTypeEnum, built_question.question_type)
     return QuestionsSchema().dump(built_question)
 
@@ -61,9 +85,9 @@ def mock_get_jwt_identity():
 
 
 @pytest.mark.parametrize("subject,count,status", [
-    pytest.param("Chemistry", 16, 200),
-    pytest.param("chemistry", 16, 200),
-    pytest.param("bcahsj", 0, 200),
+    pytest.param("Chemistry", 26, 200),
+    pytest.param("chemistry", 26, 200),
+    pytest.param("bcahsj", 0, 400),
     pytest.param("", 0, 200)
 ])
 def test_question_list_get(client: FlaskClient,
@@ -121,8 +145,8 @@ def test_knowledge_item_filter_errors(client: FlaskClient,
 
 
 @pytest.mark.parametrize('param,status_code,topics',
-                         [pytest.param('chemistry', 200, 2),
-                          pytest.param('canjas', 200, 0)])
+                         [pytest.param('chemistry', 200, 3),
+                          pytest.param('canjas', 400, 0)])
 def test_topic_filter(client: FlaskClient,
                       mocker: MockFixture,
                       param: str,
@@ -146,7 +170,7 @@ def test_topic_filters_with_case_normalization(client: FlaskClient,
     data = json.loads(response.data)
 
     assert response.status_code == 200
-    assert len(data) == 2
+    assert len(data) == 3
 
 
 def test_question_create_api(client: FlaskClient,
@@ -165,10 +189,11 @@ def test_question_create_api(client: FlaskClient,
 
 def test_question_create_api_question_already_existing(client: FlaskClient,
                                                        question_payload: dict,
+                                                       _subject_: int,
                                                        mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     existing_question = Questions.query.first()
-    question_payload['subject'] = existing_question.subject
+    question_payload['subject_id'] = _subject_
     question_payload['tag'] = existing_question.tag
     question_payload['question'] = existing_question.question
 
