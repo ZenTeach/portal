@@ -1,16 +1,28 @@
 import json
 from json import loads
+from random import choice
 from typing import Dict
 
 import pytest
 from factory import build
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
-from server.models import SchoolClass, Teacher
+from server.models import SchoolClass, Subject, Teacher
 from server.models.student import Student
 from server.tests.factories import (SchoolClassFactory, StudentFactory,
                                     TeacherFactory)
 from sqlalchemy import exc
+
+
+@pytest.fixture(autouse=True)
+def subjects_(client: FlaskClient) -> None:
+    for subject in ['Biology', 'Chemistry', 'Physics']:
+        Subject(name=subject, enabled=True).save()
+
+
+@pytest.fixture()
+def subject_() -> Subject:
+    return Subject.query.first()
 
 
 @pytest.fixture
@@ -24,13 +36,23 @@ def student() -> Student:
 
 
 @pytest.fixture
-def school_class(teacher_: Teacher) -> SchoolClass:
-    return SchoolClassFactory.create(teacher_id=teacher_.id)
+def school_class(teacher_: Teacher, subject_: Subject) -> SchoolClass:
+    return SchoolClassFactory.create(teacher_id=teacher_.id, subject_id=subject_.id)
 
 
 @pytest.fixture
 def school_class_param(teacher_: Teacher) -> dict:
-    return build(dict, FACTORY_CLASS=SchoolClassFactory, teacher_id=teacher_.id)
+    return build(dict,
+                 FACTORY_CLASS=SchoolClassFactory,
+                 subject=choice(['Chemistry', 'Biology', 'Physics']),
+                 teacher_id=teacher_.id)
+
+
+@pytest.fixture
+def update_school_class_param(teacher_: Teacher) -> dict:
+    return build(dict,
+                 FACTORY_CLASS=SchoolClassFactory,
+                 teacher_id=teacher_.id)
 
 
 @pytest.fixture
@@ -275,19 +297,18 @@ def test_patch_update_student_email_exceptions(client: FlaskClient,
 def test_update_school_class_api(client: FlaskClient,
                                  mocker: MockFixture,
                                  school_class: SchoolClass,
-                                 school_class_param: dict):
+                                 update_school_class_param: dict):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     response = client.put(
         f"/api/v1/school_class/{school_class.id}",
-        json=school_class_param
+        json=update_school_class_param
     )
     school_class.reload()
 
     assert response.status_code == 200
-    assert school_class.subject == school_class_param["subject"]
-    assert school_class.name == school_class_param["name"]
-    assert school_class.year_group == school_class_param["year_group"]
-    assert school_class.start_date == school_class_param["start_date"]
+    assert school_class.name == update_school_class_param["name"]
+    assert school_class.year_group == update_school_class_param["year_group"]
+    assert school_class.start_date == update_school_class_param["start_date"]
 
 
 @pytest.mark.parametrize('school_class_id,status', [
