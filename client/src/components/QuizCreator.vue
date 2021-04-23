@@ -125,7 +125,7 @@ export default {
         const classId = parseInt(this.$route.params.id)
         return x.id === classId
       })
-      return filtered.subject
+      return filtered.subject.name
     }
   },
   data () {
