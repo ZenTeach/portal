@@ -7,7 +7,7 @@ from factory import build
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import (ClassQuiz, QuestionsSchema, QuizGrade, SchoolClass,
-                           Student, Teacher)
+                           Student, Subject, Teacher)
 from server.tests.factories import (ClassQuizFactory, QuestionsFactory,
                                     QuizGradeFactory, SchoolClassFactory,
                                     StudentFactory, TeacherFactory)
@@ -16,6 +16,13 @@ from server.tests.factories import (ClassQuizFactory, QuestionsFactory,
 @pytest.fixture
 def teacher_() -> Teacher:
     return TeacherFactory.create()
+
+
+@pytest.fixture
+def subject_() -> Subject:
+    s = Subject(name="Chemistry", enabled=True)
+    s.save()
+    return s
 
 
 @pytest.fixture
@@ -31,8 +38,8 @@ def student(school_class: SchoolClass) -> Student:
 
 
 @pytest.fixture
-def classquiz_params(school_class: SchoolClass) -> Dict:  # noqa
-    questions = QuestionsFactory.create_batch(5, multiple_choice_question_type=True, with_choices=4)  # noqa
+def classquiz_params(school_class: SchoolClass, subject_: Subject) -> Dict:  # noqa
+    questions = QuestionsFactory.create_batch(5, subject_id=subject_.id, multiple_choice_question_type=True, with_choices=4)  # noqa
     dumper = QuestionsSchema()
     questions = [dumper.dump(question) for question in questions]
 
