@@ -187,6 +187,7 @@ import {
 } from 'vee-validate'
 
 const { mapGetters, mapActions } = createNamespacedHelpers('classrooms')
+const { mapGetters: appGetters } = createNamespacedHelpers('app')
 export default {
   name: 'Classrooms',
   components: {
@@ -208,7 +209,7 @@ export default {
           sortable: false,
           value: 'name'
         },
-        { text: 'Subject', sortable: true, value: 'subject' },
+        { text: 'Subject', sortable: true, value: 'subject.name' },
         { text: 'Starts', sortable: false, value: 'start_date' },
         { text: 'Exam Board', sortable: true, value: 'exam_board' },
         { text: '', sortable: false, value: 'actions' }
@@ -231,16 +232,22 @@ export default {
       start_date: new Date().toISOString().substr(0, 10),
       menu: false,
       classname: '',
-      subject: '',
+      subject: [],
       editedItem: {}
     }
   },
   mounted: function () {
     this.fetchClasses()
+    this.subjects = this.getSubjects
+      .filter(x => x.enabled)
+      .map(x => x.name)
   },
   computed: {
     ...mapGetters({
       classList: 'CLASSLIST'
+    }),
+    ...appGetters({
+      getSubjects: 'getSubjects'
     })
   },
   methods: {

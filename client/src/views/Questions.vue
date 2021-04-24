@@ -6,9 +6,9 @@
           <material-card title="Question Lists">
             <div>
               <question-search-result
-                :resultSet='this.questionList' 
-                :selectable='false' 
-                :show_user_created_badge='false'  
+                :resultSet='this.questionList'
+                :selectable='false'
+                :show_user_created_badge='false'
               />
             </div>
           </material-card>
@@ -23,7 +23,6 @@ import MaterialCard from '@/components/MaterialCard'
 import QuestionSearchResult from '@/components/QuestionSearchResult'
 import { createNamespacedHelpers } from 'vuex'
 
-
 const { mapActions, mapGetters } = createNamespacedHelpers('questions')
 
 export default {
@@ -32,7 +31,7 @@ export default {
     MaterialCard,
     QuestionSearchResult
   },
-  mounted: function() {
+  mounted: function () {
     this.fetchQuestions()
   },
   computed: {
