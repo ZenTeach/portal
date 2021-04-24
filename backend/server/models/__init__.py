@@ -129,6 +129,7 @@ class SchoolClassSchema(ma.ModelSchema):
 
     quizzes = ma.Nested(ClassQuizSchema, many=True)
     students = ma.Nested(StudentSchema, many=True)
+    subject = ma.Nested(SubjectSchema, only=('name',))
 
 
 class TeacherSchema(ma.ModelSchema):

@@ -45,35 +45,27 @@ def seeds():
     # SchoolClass
     class_student = Student.query.first()
     class_teacher_id = Teacher.query.filter_by(role="Teacher").first().id
-    s = SchoolClass(
-        name="Atoms",
-        subject="Chemistry",
-        exam_board=None,
-        start_date=datetime.date.today(),
-        teacher_id=class_teacher_id,
-        uuid=uuid4(),
-    )
 
     # classrooms
-    for i in range(2, 6):
-        SchoolClass(
+    for i in range(1, 3):
+        ids = Subject.query.with_entities(
+            Subject.id
+        ).filter(
+            Subject.name.in_(
+                ['Biology', 'Chemistry', 'Physics']
+            )
+        ).all()
+
+        s = SchoolClass(
             name=f"Atoms-{i}",
-            subject=choice(["Chemistry", "Biology", "Physics"]),
+            subject_id=choice(ids)[0],
             exam_board=None,
             start_date=datetime.date.today(),
             teacher_id=class_teacher_id,
             uuid=uuid4(),
-        ).save()
-
-    # Add Quiz
-    # _class = SchoolClass.query.first()
-
-    # ClassQuizModel(subject=_class.subject,
-    #                 max_score=3,
-    #                 class_id=_class.id,
-    #                 variants=3,
-    #                 questions=)
-    s.add_student(class_student)
+        )
+        s.save()
+        s.add_student(class_student)
 
 
 def run_seed():
