@@ -12,7 +12,10 @@ class SchoolClass(BaseModelMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     uuid = db.Column(UUID(as_uuid=True), unique=True, nullable=True)
     name = db.Column(db.String(256), nullable=False)
-    subject = db.Column(db.String(256), nullable=False)
+
+    subject_id = db.Column(db.Integer, db.ForeignKey("subjects.id"), nullable=True)
+    subject = db.relationship('Subject')
+
     start_date = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow)
     exam_board = db.Column(db.String(256), nullable=True)
@@ -33,15 +36,15 @@ class SchoolClass(BaseModelMixin, db.Model):
 
     def __init__(self,
                  name: str,
-                 subject: str,
                  exam_board: str,
                  start_date: Optional['datetime'] = datetime.now(),
+                 subject_id: Optional[int] = None,
                  teacher_id: Optional[int] = None,
                  year_group: Optional[str] = None,
                  uuid: Optional[UUID] = None
                  ):
         self.name = name
-        self.subject = subject
+        self.subject_id = subject_id
         self.exam_board = exam_board
         self.start_date = start_date
         self.teacher_id = teacher_id

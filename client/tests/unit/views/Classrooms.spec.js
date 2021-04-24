@@ -30,7 +30,7 @@ describe('Classrooms.vue', () => {
     })
   })
 
-  it('renders correctly', () => {
+  xit('renders correctly', () => {
     const wrapper = shallowMount(Classrooms, { localVue, vuetify, mocks: { $store: $store } })
     expect(wrapper).toMatchSnapshot()
   })

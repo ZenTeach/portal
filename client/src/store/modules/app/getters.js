@@ -25,5 +25,8 @@ export default {
   },
   statusText (state) {
     return state.status
+  },
+  getSubjects (state) {
+    return state.subjects
   }
 }
