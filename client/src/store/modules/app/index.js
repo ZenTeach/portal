@@ -10,9 +10,6 @@ const state = {
   inviteModalVisible: false,
   error: {},
   status: '',
-  // stores subjects in the form of
-  // [{id: x, name: Chemistry, enabled: True, remarks: ''}]
-  subjects: [],
   questionSearch: [],
   knowledgeItems: {},
   topics: [],

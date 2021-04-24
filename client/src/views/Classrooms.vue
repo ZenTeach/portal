@@ -32,7 +32,6 @@
                 <template v-slot:item.name="props">
                   <a :href="'/classroom/' + props.item.id">{{ props.item.name }}</a>
                 </template>
-
                 <template v-slot:item.actions="{ item }">
                   <v-icon
                     medium
@@ -188,7 +187,6 @@ import {
 } from 'vee-validate'
 
 const { mapGetters, mapActions } = createNamespacedHelpers('classrooms')
-const { mapGetters: appGetters } = createNamespacedHelpers('app')
 export default {
   name: 'Classrooms',
   components: {
@@ -210,12 +208,12 @@ export default {
           sortable: false,
           value: 'name'
         },
-        { text: 'Subject', sortable: true, value: 'subject.name' },
+        { text: 'Subject', sortable: true, value: 'subject' },
         { text: 'Starts', sortable: false, value: 'start_date' },
         { text: 'Exam Board', sortable: true, value: 'exam_board' },
         { text: '', sortable: false, value: 'actions' }
       ],
-      subjects: [],
+      subjects: ['Physics', 'Chemistry', 'Biology'],
       yearGroupSelection: ['Year 7', 'Year 8', 'Year 9', 'Year 10', 'Year 11', 'Year 12', 'Year 13'],
       examBoard: '',
       examBoardSelection: [
@@ -239,16 +237,10 @@ export default {
   },
   mounted: function () {
     this.fetchClasses()
-    this.subjects = this.getSubjects
-      .filter(x => x.enabled)
-      .map(x => x.name)
   },
   computed: {
     ...mapGetters({
       classList: 'CLASSLIST'
-    }),
-    ...appGetters({
-      getSubjects: 'getSubjects'
     })
   },
   methods: {

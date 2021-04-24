@@ -86,7 +86,6 @@ export default {
   mounted: function () {
     if (this.isLoggedIn) {
       this.$store.dispatch('user/FETCHCURRENTUSER', {}, { root: true })
-      this.$store.dispatch('app/FETCH_SUBJECTS', {}, { root: true })
     }
   },
   data () {

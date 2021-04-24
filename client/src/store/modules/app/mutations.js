@@ -73,10 +73,6 @@ export default {
       }
     })
   },
-  UPDATE_SUBJECTS (state, subjects) {
-    state.subjects = []
-    state.subjects = subjects
-  },
   RESET_QUIZ_CREATOR (state) {
     state.questionSearch = []
     delete state.knowledgeItems

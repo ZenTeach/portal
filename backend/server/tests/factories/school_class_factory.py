@@ -32,6 +32,7 @@ class SchoolClassFactory(SQLAlchemyModelFactory):
 
     name = fake.sentence(
         nb_words=3, variable_nb_words=True, ext_word_list=None)
+    subject = ""
     start_date = fake.date_time_between(
         start_date="-1y", end_date="now", tzinfo=None)
     year_group = choice(["Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13"])

@@ -1,6 +1,6 @@
 import {
   getUserQuestions
-} from '../../../service/question_service'
+} from '../../../service/questions'
 
 const GETQUESTIONS = ({ commit, dispatch }) => {
   getUserQuestions()

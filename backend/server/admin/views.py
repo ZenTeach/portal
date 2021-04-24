@@ -18,14 +18,11 @@ from flask_wtf.csrf import _FlaskFormCSRF
 from jinja2 import Markup
 from server import bcrypt
 from server.config import _load_examboard
-from server.models import (Admin, QuestionChoice, Questions, Student, Subject,
-                           Teacher)
+from server.models import Admin, QuestionChoice, Questions, Student, Teacher
 from wtforms import (BooleanField, IntegerField, SelectField, StringField,
                      TextField, fields, form, validators)
 from wtforms.compat import text_type
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.meta import DefaultMeta
-from wtforms.validators import Required
 from wtforms.widgets import HTMLString, TextInput, html_params
 
 logger = logging.getLogger('admin::view')
@@ -209,13 +206,6 @@ def correct_choice_formatter(view, context, model, name):
         return ""
 
 
-def subject_formatter(view, context, model, name):
-    if model.subject is not None:
-        return model.subject.name
-    else:
-        return ''
-
-
 def has_choice_for_multiple_choice_type(form_data):
     choices = form_data.get('choices')
     question_type = form_data.get('question_type')
@@ -289,7 +279,7 @@ class QuestionView(BaseView):
     column_filters = ("topic", "question_type", "subject", "knowledge_item", "user_created")
     column_formatters = {
         "choices": json_formatter,
-        "correct_choice_id": correct_choice_formatter
+        "correct_choice_id": correct_choice_formatter,
     }
     create_template = "admin/question_create.html"
     edit_template = "admin/question_edit.html"
@@ -371,14 +361,9 @@ class QuestionView(BaseView):
 
 def exam_board_formatter(view, context, model, name):
     value = getattr(model, name)
-    boards = _loaded_examboard()
-    filtered = list(
-        filter(lambda x: x[0] == value, boards)
-    )
-    if len(filtered) == 0:
-        return ''
-    else:
-        return filtered[0][1]
+    boards = dict(_loaded_examboard())
+    human_readable_value = boards.get(value)
+    return human_readable_value
 
 
 class SchoolClassView(BaseView):
@@ -387,12 +372,18 @@ class SchoolClassView(BaseView):
         "uuid", "student_attended_classes", "students", "quizzes"]
 
     column_formatters = {
-        'exam_board': exam_board_formatter,
-        'subject': subject_formatter
+        'exam_board': exam_board_formatter
     }
     boards = [(k, v) for k, v in dict(_loaded_examboard()).items()]
-    form_overrides = {"year_group": SelectField, 'exam_board': SelectField}
+    form_overrides = {"subject": SelectField, "year_group": SelectField, 'exam_board': SelectField}
     form_args = {
+        "subject": dict(
+            choices=[
+                ("chemistry", "Chemistry"),
+                ("biology", "Biology"),
+                ("physics", "Physics"),
+            ]
+        ),
         "year_group": dict(
             choices=[
                 ("Year 7", "Year 7"),
@@ -408,15 +399,6 @@ class SchoolClassView(BaseView):
             choices=boards
         )
     }
-
-    def scaffold_form(self):
-        form = super().scaffold_form()
-        form.subject = QuerySelectField('Subject',
-                                        validators=[Required()],
-                                        query_factory=lambda: Subject.query.filter_by(
-                                            enabled=True).all(),
-                                        allow_blank=False)
-        return form
 
 
 class StudentView(BaseView):
@@ -530,11 +512,3 @@ class UserInvitationView(BaseView):
     can_create = False
     can_edit = False
     column_exclude_list = ["invite_sent_at"]
-
-
-class SubjectsView(BaseView):
-    can_create = False
-    can_edit = True
-    column_exclude_list = ["id"]
-    form_excluded_columns = ["name"]
-    column_filters = ("enabled",)

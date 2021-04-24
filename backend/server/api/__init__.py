@@ -1,7 +1,7 @@
 import logging
 import os
 
-from flask import Blueprint, current_app, jsonify
+from flask import Blueprint, current_app, jsonify, url_for
 from flask.helpers import make_response
 
 root_api = Blueprint("root", __name__)
@@ -18,10 +18,28 @@ def has_no_empty_params(rule):
     return len(defaults) >= len(arguments)
 
 
+@root_api.route("/")
+def site_map():
+    links = []
+    for rule in current_app.url_map.iter_rules():
+        # Filter out rules we can't navigate to in a browser
+        # and rules that require parameters
+        if "GET" in rule.methods and has_no_empty_params(rule):
+            url = url_for(rule.endpoint, **(rule.defaults or {}))
+            links.append((url, rule.endpoint))
+    # links is now a list of url, endpoint tuples
+    return jsonify(links)
+
+
 @root_api.errorhandler(500)
 def root_api_exception_handler(e):
     report_5xx_error(e)
     return
+
+
+@root_api.route("/ping")
+def ping():
+    return make_response("pong", 500)
 
 
 def report_5xx_error(exception: Exception):
@@ -29,15 +47,3 @@ def report_5xx_error(exception: Exception):
     from sentry_sdk import init, capture_exception
     init(sentry_dsn_key)
     capture_exception(exception)
-
-
-@root_api.route("/subjects", methods=['GET'])
-def subjects():
-    from server.models import Subject, SubjectSchema
-    dumper = SubjectSchema()
-    subjects = Subject.query.all()
-
-    response = [dumper.dump(subject) for subject in subjects]
-    return make_response(jsonify({
-        'subjects': response
-    }), 200)
