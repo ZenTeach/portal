@@ -17,9 +17,6 @@ depends_on = None
 
 
 def upgrade():
-    school_class_table = sa.Table('school_class', sa.MetaData(
-        bind=op.get_bind()), autoload=True)
-
     session = sessionmaker(bind=op.get_bind().engine)()
     select_sql = """
         select school_class.id, subjects.id as subject_id
@@ -30,6 +27,9 @@ def upgrade():
 
     # Tuple of school_class.id and subjects.id
     results = session.execute(select_sql).fetchall()
+    session.close()
+    school_class_table = sa.Table('school_class', sa.MetaData(
+        bind=op.get_bind()), autoload=True)
     for result in results:
         update_stmt = sa.update(school_class_table).where(
             school_class_table.c.id == result[0]
@@ -37,7 +37,6 @@ def upgrade():
             subject_id=result[1]
         )
         op.execute(update_stmt)
-    session.close()
 
     op.create_foreign_key(None, 'school_class', 'subjects', ['subject_id'], ['id'])
     op.drop_column('school_class', 'subject')
