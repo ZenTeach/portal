@@ -512,3 +512,11 @@ class UserInvitationView(BaseView):
     can_create = False
     can_edit = False
     column_exclude_list = ["invite_sent_at"]
+
+
+class SubjectsView(BaseView):
+    can_create = False
+    can_edit = True
+    column_exclude_list = ["id"]
+    form_excluded_columns = ["name"]
+    column_filters = ("enabled",)
