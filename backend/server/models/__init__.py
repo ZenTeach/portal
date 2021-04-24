@@ -12,6 +12,7 @@ from .quiz_grade import QuizGrade
 from .class_quiz import ClassQuiz, ClassQuizStatus
 from .student_school_class import StudentAttendedClass
 from .school_class import SchoolClass
+from .subjects import Subject
 from .student import Student
 from .teacher import Teacher
 from .admin import Admin
@@ -29,6 +30,8 @@ __all__ = [
     "QuizGrade",
     "StudentAttendedClass",
     "Student",
+    "Subject",
+    "SubjectSchema",
     "StudentSchema",
     "SchoolClass",
     "SchoolClassSchema",
@@ -42,6 +45,15 @@ __all__ = [
     "QuestionsSchema",
     "run_seed",
 ]
+
+
+class SubjectSchema(ma.ModelSchema):
+    class Meta:
+        model = Subject
+        fields = ("id",
+                  "name",
+                  "enabled",
+                  "remark")
 
 
 class QuestionChoicesSchema(ma.ModelSchema):

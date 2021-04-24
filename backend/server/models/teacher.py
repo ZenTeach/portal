@@ -42,6 +42,7 @@ class Teacher(BaseModelMixin, db.Model, Confirmable, Recoverable):
         lastname,
         email,
         date_of_birth,
+        confirmed=False,
         classes=[],
         questions=[],
         password=None,
@@ -57,7 +58,7 @@ class Teacher(BaseModelMixin, db.Model, Confirmable, Recoverable):
             self.password = bcrypt.generate_password_hash(
                 password).decode("utf-8")
         self.role = role
-
+        self.confirmed = confirmed
         if self.uuid is None:
             self.uuid = unique_uuid4()
         else:
