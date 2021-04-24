@@ -3,7 +3,7 @@ from random import choice
 from uuid import uuid4
 
 from flask_bcrypt import generate_password_hash
-from server.models import Admin, SchoolClass, Student, Teacher
+from server.models import Admin, SchoolClass, Student, Subject, Teacher
 
 from .questions import question_seeds
 
@@ -77,5 +77,34 @@ def seeds():
 
 
 def run_seed():
+    add_subjects()
     seeds()
     question_seeds()
+
+
+def add_subjects():
+    subjects = ["Art and Design",
+                "Business",
+                "Computer Science",
+                "Design and Technology",
+                "Drama",
+                "English Language",
+                "English Literature",
+                "French",
+                "Geography",
+                "German",
+                "History",
+                "ICT",
+                "Maths",
+                "Media Studies",
+                "Music",
+                "Physical Education",
+                "Religious Studies",
+                "Sociology",
+                "Spanish",
+                "Biology",
+                "Chemistry",
+                "Physics"
+                ]
+    for subject in subjects:
+        Subject(name=subject, enabled=True).save()
