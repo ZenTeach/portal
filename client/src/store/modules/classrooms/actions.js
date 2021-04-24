@@ -7,7 +7,7 @@ import {
   removeStudent,
   updateStudentEmail,
   updateClassRoom
-} from '../../../service/classroom_service'
+} from '../../../service/classrooms'
 
 import {
   sendStudentConfirmationEmail

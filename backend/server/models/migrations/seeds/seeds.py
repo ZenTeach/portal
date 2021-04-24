@@ -3,7 +3,7 @@ from random import choice
 from uuid import uuid4
 
 from flask_bcrypt import generate_password_hash
-from server.models import Admin, SchoolClass, Student, Subject, Teacher
+from server.models import Admin, SchoolClass, Student, Teacher
 
 from .questions import question_seeds
 
@@ -56,55 +56,26 @@ def seeds():
 
     # classrooms
     for i in range(2, 6):
-        ids = Subject.query.with_entities(
-            Subject.id
-        ).filter(
-            Subject.name.in_(
-                ['Biology', 'Chemistry', 'Physics']
-            )
-        ).all()
-
         SchoolClass(
             name=f"Atoms-{i}",
-            subject_id=choice(ids)[0],
+            subject=choice(["Chemistry", "Biology", "Physics"]),
             exam_board=None,
             start_date=datetime.date.today(),
             teacher_id=class_teacher_id,
             uuid=uuid4(),
         ).save()
 
+    # Add Quiz
+    # _class = SchoolClass.query.first()
+
+    # ClassQuizModel(subject=_class.subject,
+    #                 max_score=3,
+    #                 class_id=_class.id,
+    #                 variants=3,
+    #                 questions=)
     s.add_student(class_student)
 
 
 def run_seed():
-    add_subjects()
     seeds()
     question_seeds()
-
-
-def add_subjects():
-    subjects = ["Art and Design",
-                "Business",
-                "Computer Science",
-                "Design and Technology",
-                "Drama",
-                "English Language",
-                "English Literature",
-                "French",
-                "Geography",
-                "German",
-                "History",
-                "ICT",
-                "Maths",
-                "Media Studies",
-                "Music",
-                "Physical Education",
-                "Religious Studies",
-                "Sociology",
-                "Spanish",
-                "Biology",
-                "Chemistry",
-                "Physics"
-                ]
-    for subject in subjects:
-        Subject(name=subject, enabled=True).save()

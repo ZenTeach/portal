@@ -5,7 +5,6 @@
 from marshmallow_enum import EnumField
 from server import ma
 
-from .subjects import Subject
 from .question_choice import QuestionChoice
 from .questions import Questions, QuestionTypeEnum
 from .quiz_session import QuizSession, QuizSessionStatus
@@ -30,8 +29,6 @@ __all__ = [
     "QuizGrade",
     "StudentAttendedClass",
     "Student",
-    "Subject",
-    "SubjectSchema",
     "StudentSchema",
     "SchoolClass",
     "SchoolClassSchema",
@@ -45,15 +42,6 @@ __all__ = [
     "QuestionsSchema",
     "run_seed",
 ]
-
-
-class SubjectSchema(ma.ModelSchema):
-    class Meta:
-        model = Subject
-        fields = ("id",
-                  "name",
-                  "enabled",
-                  "remark")
 
 
 class QuestionChoicesSchema(ma.ModelSchema):
@@ -129,7 +117,6 @@ class SchoolClassSchema(ma.ModelSchema):
 
     quizzes = ma.Nested(ClassQuizSchema, many=True)
     students = ma.Nested(StudentSchema, many=True)
-    subject = ma.Nested(SubjectSchema, only=('name',))
 
 
 class TeacherSchema(ma.ModelSchema):

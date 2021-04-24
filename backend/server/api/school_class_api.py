@@ -7,7 +7,7 @@ from server import db
 from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
 from server.models import SchoolClass as SchoolClassModel
-from server.models import SchoolClassSchema, Student, Subject
+from server.models import SchoolClassSchema, Student
 from server.tasks import send_student_confirmation_instructions
 from sqlalchemy import exc
 from webargs import fields as webarg_fields
@@ -125,17 +125,12 @@ class SchoolClassList(MethodView):
         exam_board = post_data.get("exam_board")
         year_group = post_data.get("year_group")
         teacher_id = teacher["id"]
-        subject = Subject.query.filter_by(name=subject).first()
-        if not subject:
-            return make_response(jsonify({
-                'message': "Subject not recognized or has been disabled."
-            }), 400)
         try:
             school_class = SchoolClassModel.query.filter_by(name=name).first()
             if not school_class:
                 school_class = SchoolClassModel(
                     name=name,
-                    subject_id=subject.id,
+                    subject=subject,
                     exam_board=exam_board,
                     start_date=start_date,
                     teacher_id=teacher_id,

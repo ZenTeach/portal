@@ -139,7 +139,6 @@ def create_app():
         TeacherView,
         ClassQuizView,
         UserInvitationView,
-        SubjectsView,
         ZenteachAdminIndexView,
     )
 
@@ -164,9 +163,6 @@ def create_app():
     )
     admin.add_view(
         UserInvitationView(models.Invitations, db.session, endpoint="admin.user_invite")
-    )
-    admin.add_view(
-        SubjectsView(models.Subject, db.session, endpoint="admin.subjects")
     )
 
     # import background tasks after initializing celery
@@ -202,7 +198,8 @@ def create_app():
     app.register_blueprint(question_blueprint, url_prefix="/api/v1")
     app.register_blueprint(statistics_view_blueprint, url_prefix="/api/v1")
     app.register_blueprint(quiz_submit_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(root_api, url_prefix="/api/v1")
+    if os.environ.get('FLASK_ENV') == 'development':
+        app.register_blueprint(root_api)
 
     default_handler.setFormatter(formatter)
 
@@ -213,7 +210,6 @@ def create_app():
 
     @app.shell_context_processor
     def ctx():
-        import server.models as sm
-        return {"app": app, "db": db, "globalConfig": globalConfig, "sm": sm}
+        return {"app": app, "db": db, "globalConfig": globalConfig}
 
     return app

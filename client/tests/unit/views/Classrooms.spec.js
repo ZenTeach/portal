@@ -18,19 +18,10 @@ describe('Classrooms.vue', () => {
         classrooms: {
           class_list: 'from classrooms',
           current_class: 'from classrooms'
-        },
-        app: {
         }
       },
       getters: {
         'getters/CLASSLIST': 'from classrooms'
-        // getSubjects: jest.fn(() => {
-        //   [
-        //     { id: 1, name: 'Chemistry', enabled: true, remarks: '' },
-        //     { id: 2, name: 'Biology', enabled: true, remarks: '' },
-        //     { id: 3, name: 'Physics', enabled: true, remarks: '' }
-        //   ]
-        // })
       },
       actions: {
         'actions/GETCLASSES': 'from classrooms',
@@ -39,12 +30,8 @@ describe('Classrooms.vue', () => {
     })
   })
 
-  xit('renders correctly', () => {
-    const wrapper = shallowMount(Classrooms, {
-      localVue,
-      vuetify,
-      mocks: { $store: $store }
-    })
+  it('renders correctly', () => {
+    const wrapper = shallowMount(Classrooms, { localVue, vuetify, mocks: { $store: $store } })
     expect(wrapper).toMatchSnapshot()
   })
 })
