@@ -1,7 +1,7 @@
 """Add subject_id on questions
 
 Revision ID: 389b937b1b53
-Revises: ff484a08dfe1
+Revises: e7b39f502502
 Create Date: 2021-04-23 18:58:20.938340
 
 """
@@ -10,7 +10,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '389b937b1b53'
-down_revision = 'ff484a08dfe1'
+down_revision = 'e7b39f502502'
 branch_labels = None
 depends_on = None
 
