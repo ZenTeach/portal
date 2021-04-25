@@ -6,7 +6,7 @@ from flask_sqlalchemy import BaseQuery
 from marshmallow import INCLUDE, Schema, ValidationError, fields
 from marshmallow_enum import EnumField
 from server import db
-from server.models import QuestionChoice
+from server.models import QuestionChoice, Subject
 from server.models.base_model import BaseModelMixin
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy_searchable import SearchQueryMixin
@@ -80,7 +80,6 @@ class Questions(BaseModelMixin, db.Model):
         db.Integer, db.ForeignKey("teacher.id"), nullable=True)
 
     exam_board = db.Column(db.Text, nullable=True)
-    subject = db.Column(db.String(256), nullable=False)
     topic = db.Column(db.String(256), nullable=True)
     tag = db.Column(db.String(128), nullable=False)
     correct_choice_id = db.Column(db.Integer, nullable=False)
@@ -88,18 +87,22 @@ class Questions(BaseModelMixin, db.Model):
     knowledge_item = db.Column(db.String(256), nullable=False)
     user_created = db.Column(db.Boolean, nullable=False, default=False)
     search_vector = db.Column(TSVectorType("question"))
+
+    subject_id = db.Column(db.Integer, db.ForeignKey("subjects.id"), nullable=True)
+    subject = db.relationship('Subject')
+
     image_url = db.Column(db.Text, nullable=True)
 
     def __init__(
         self,
         question: str,
         question_type: 'enum.Enum',
-        subject: str,
         topic: str,
         tag: str,
         knowledge_item: str,
         correct_choice_id: int,
         user_created: bool = False,
+        subject_id: Optional[str] = None,
         uuid: Optional[UUID] = None,
         choices: Optional[List[QuestionChoice]] = [],
         image_url: str = "",
@@ -113,7 +116,7 @@ class Questions(BaseModelMixin, db.Model):
 
         self.question = question
         self.question_type = question_type
-        self.subject = subject
+        self.subject_id = subject_id
         self.topic = topic
         self.tag = tag
         self.knowledge_item = knowledge_item
@@ -134,6 +137,8 @@ class Questions(BaseModelMixin, db.Model):
                 "Error creating question. Make sure that you have filled in all the required fields.", validation_errors)  # noqa
         created_choice = []
         correct_choice_id = None
+
+        subject_ = Subject.query.filter(Subject.name == data['subject']).first()
         for choice in data["choices"]:
             interim = QuestionChoice(
                 choice["value"], choice["feedback"], choice["weight"]
@@ -145,11 +150,11 @@ class Questions(BaseModelMixin, db.Model):
         instance = cls(
             data["question"],
             data["question_type"],
-            data["subject"],
             data["topic"],
             data["tag"],
             data["knowledge_item"],
             correct_choice_id,
+            subject_id=subject_.id,
             choices=created_choice,
         )
         instance.save()

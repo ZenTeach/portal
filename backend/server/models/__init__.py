@@ -6,13 +6,13 @@ from marshmallow_enum import EnumField
 from server import ma
 
 from .question_choice import QuestionChoice
+from .subjects import Subject
 from .questions import Questions, QuestionTypeEnum
 from .quiz_session import QuizSession, QuizSessionStatus
 from .quiz_grade import QuizGrade
 from .class_quiz import ClassQuiz, ClassQuizStatus
 from .student_school_class import StudentAttendedClass
 from .school_class import SchoolClass
-from .subjects import Subject
 from .student import Student
 from .teacher import Teacher
 from .admin import Admin
@@ -79,6 +79,7 @@ class QuestionsSchema(ma.ModelSchema):
 
     question_type = EnumField(QuestionTypeEnum, by_value=True)
     choices = ma.Nested(QuestionChoicesSchema, many=True)
+    subject = ma.Nested(SubjectSchema, only=('name',))
 
 
 class ClassQuizSchema(ma.ModelSchema):

@@ -39,7 +39,7 @@ class ClassQuizCreateQuestionsSchema(Schema):
     question_type = fields.Int(required=True)
     choices = fields.Nested(ClassQuizCreateQuestionChoicesSchema, many=True, required=True)
     topic = fields.Str(required=True)
-    subject = fields.Str(required=True)
+    subject = fields.Dict(keys=fields.Str, values=fields.Str, required=True)
     tag = fields.Str(required=True)
     question = fields.Str(required=True)
     id = fields.Int(required=True)

@@ -293,8 +293,7 @@ class QuestionView(BaseView):
     }
     create_template = "admin/question_create.html"
     edit_template = "admin/question_edit.html"
-    form_overrides = {"subject": SelectField,
-                      "question_type": SelectField, 'exam_board': SelectField}
+    form_overrides = {"question_type": SelectField, 'exam_board': SelectField}
     form_create_rules = ('subject',
                          'exam_board',
                          'topic',
@@ -305,13 +304,6 @@ class QuestionView(BaseView):
                          'choices')
 
     form_args = {
-        "subject": dict(
-            choices=[
-                ("chemistry", "Chemistry"),
-                ("biology", "Biology"),
-                ("physics", "Physics"),
-            ]
-        ),
         "question_type": dict(
             choices=[
                 ("multiple_choice", "Multiple Choice"),
@@ -335,6 +327,15 @@ class QuestionView(BaseView):
     inline_model_form_converter = CustomInlineModelConverter
     inline_models = (QuestionChoiceInlineModelForm(),)
 
+    def scaffold_form(self):
+        form = super().scaffold_form()
+        form.subject = QuerySelectField('Subject',
+                                        validators=[Required()],
+                                        query_factory=lambda: Subject.query.filter_by(
+                                            enabled=True).all(),
+                                        allow_blank=False)
+        return form
+
     def edit_form(self, obj):
         # handle correct question choice updates
         choice_id = obj.correct_choice_id
@@ -350,7 +351,7 @@ class QuestionView(BaseView):
             one_correct_choice_validator(form.data, "is_correct_choice")
             has_choice_for_multiple_choice_type(form.data)
             data = form.data.copy()
-            data.update(user_created=False)
+            data.update(user_created=False, subject=str(data.get('subject')))
             Questions.create_from_admin_form(data)
             return redirect(url_for("admin.question.index_view"))
         except Exception as e:
