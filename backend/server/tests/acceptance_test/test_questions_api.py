@@ -34,6 +34,7 @@ def subject_() -> Subject:
 def subject_id(subject_: Subject) -> int:
     return subject_.id
 
+
 @pytest.fixture
 def teacher_(client: FlaskClient) -> Teacher:
     return TeacherFactory()
@@ -78,7 +79,28 @@ def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
               subject=subject_.name,
               teacher_id=teacher_.id,
               with_choices=4)
-    choices = build_batch(dict, 4, FACTORY_CLASS=QuestionChoiceFactory)
+    choices = build_batch(dict, 4,
+                          is_correct_choice=choice([True, False]),
+                          FACTORY_CLASS=QuestionChoiceFactory)
+
+    q.update({
+        'choices': choices
+    })
+
+    return q
+
+
+@pytest.fixture
+def question_payload_json_without_correct_choice(subject_: Subject, teacher_: Teacher) -> dict:
+    q = build(dict,
+              FACTORY_CLASS=QuestionsFactory,
+              multiple_choice_question_type=True,
+              subject=subject_.name,
+              teacher_id=teacher_.id,
+              with_choices=4)
+    choices = build_batch(dict, 4,
+                          is_correct_choice=False,
+                          FACTORY_CLASS=QuestionChoiceFactory)
 
     q.update({
         'choices': choices
@@ -197,15 +219,14 @@ def test_topic_filters_with_case_normalization(client: FlaskClient,
 
 
 def test_question_create_api(client: FlaskClient,
-                             question_payload: dict,
+                             question_payload_as_json: dict,
                              mocker: MockFixture):
 
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    question_payload['correct_choice_id'] = choice([1, 2, 3, 4])
-    question_payload['question'] = fake.sentence()
+    question_payload_as_json['question'] = fake.sentence()
 
     response = client.post("/api/v1/question",
-                           json=question_payload)
+                           json=question_payload_as_json)
 
     assert response.status_code == 201
 
@@ -233,13 +254,13 @@ def test_question_create_api_empty_data(client: FlaskClient, mocker: MockFixture
 
 
 def test_question_create_api_exception_handling(client: FlaskClient,
-                                                question_payload: dict,
+                                                question_payload_json_without_correct_choice: dict,
                                                 mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    question_payload["correct_choice_id"] = None
-    question_payload['question'] = fake.sentence()
+    question_payload_json_without_correct_choice['question_type'] = 'multiple_choice'
+    question_payload_json_without_correct_choice['question'] = fake.sentence()
 
-    response = client.post("/api/v1/question", json=question_payload)
+    response = client.post("/api/v1/question", json=question_payload_json_without_correct_choice)
     assert response.status_code == 500
 
 
