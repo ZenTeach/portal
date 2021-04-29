@@ -311,6 +311,27 @@ def test_update_school_class_api(client: FlaskClient,
     assert school_class.start_date == update_school_class_param["start_date"]
 
 
+def test_update_school_class_api_with_subject(client: FlaskClient,
+                                              mocker: MockFixture,
+                                              school_class: SchoolClass,
+                                              update_school_class_param: dict):
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    update_school_class_param.update({
+        'subject': 'Biology'
+    })
+    response = client.put(
+        f"/api/v1/school_class/{school_class.id}",
+        json=update_school_class_param
+    )
+    school_class.reload()
+
+    assert response.status_code == 200
+    assert school_class.name == update_school_class_param["name"]
+    assert school_class.year_group == update_school_class_param["year_group"]
+    assert school_class.start_date == update_school_class_param["start_date"]
+    assert school_class.subject.name == update_school_class_param["subject"]
+
+
 @pytest.mark.parametrize('school_class_id,status', [
     pytest.param(100, 404),
     pytest.param(1, 500)

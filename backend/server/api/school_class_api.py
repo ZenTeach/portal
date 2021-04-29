@@ -74,6 +74,13 @@ class SchoolClass(MethodView):
     @jwt_required
     def put(self, school_class_id):
         update_data = request.get_json()
+
+        subject = None
+        if update_data.get('subject') is not None:
+            subject = Subject.query.filter(
+                Subject.name == update_data.pop('subject')
+            ).first()
+
         error_response = jsonify({"message": "Class room doesn't exist"})
         class_room = SchoolClassModel.query.filter_by(
             id=school_class_id).first()
@@ -82,6 +89,10 @@ class SchoolClass(MethodView):
             return make_response(error_response, 404)
 
         try:
+            if subject is not None:
+                update_data.update({
+                    'subject_id': subject.id
+                })
             class_room.update_from_dict(update_data)
             class_room.save()
             return make_response(jsonify({
