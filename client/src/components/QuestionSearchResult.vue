@@ -5,7 +5,7 @@
         <v-list-group
           sub-group
           :ripple="false"
-          value=false
+          :value="false"
           :key="item.question.uuid">
           <template v-slot:activator>
             <v-list-item class="d-flex align-baseline">
