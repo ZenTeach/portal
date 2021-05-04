@@ -102,7 +102,6 @@ class ApiService {
   }
 
   async patch (...params) {
-    console.log('PATCH data', params)
     const updatedHeaders = this.pushToHeader(params.headers || {}, this.csrfDoubleSubmitHeader('csrf_access_token'))
 
     return Promise.resolve(this.session.patch(...params, { headers: updatedHeaders }))
