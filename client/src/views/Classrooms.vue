@@ -140,7 +140,7 @@
                               </ValidationProvider>
 
                               <ValidationProvider rules="required" name="subject">
-                                <v-select :items="subjects" label="Subject" v-model="editedItem.subject" outlined></v-select>
+                                <v-select :items="subjects" label="Subject" :placeholder="editedItem.subject.name" v-model="editedItem.subject" outlined></v-select>
                               </ValidationProvider>
 
                               <ValidationProvider rules="required" name="year_group">
@@ -241,6 +241,13 @@ export default {
     this.subjects = this.getSubjects
       .filter(x => x.enabled)
       .map(x => x.name)
+  },
+  watch: {
+    subjects: function (val) {
+      this.getSubjects
+        .filter(x => x.enabled)
+        .map(x => x.name)
+    }
   },
   computed: {
     ...mapGetters({
