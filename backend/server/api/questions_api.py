@@ -136,6 +136,10 @@ class TeacherOwnedQuestion(MethodView):
     def post(self):
         teacher = get_jwt_identity()["identity"]
         data = request.get_json()
+        data.update({
+            'user_created': True,
+            'teacher_id': teacher['id']
+        })
 
         validation_errors = QuestionSchemaValidator().validate(data=data)
         if validation_errors is not None and len(validation_errors) != 0:
