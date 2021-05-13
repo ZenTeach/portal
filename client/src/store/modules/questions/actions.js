@@ -2,6 +2,7 @@ import {
   getUserQuestions,
   userCreatedQuestion
 } from '../../../service/question_service'
+import router from '@/router'
 
 const GETQUESTIONS = ({ commit, dispatch }) => {
   getUserQuestions()
@@ -22,9 +23,11 @@ const CREATEQUESTION = ({ commit, dispatch }, payload) => {
         dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
         dispatch('app/TOGGLE_ERROR', { message: 'Question created successfully!' }, { root: true })
         dispatch('GETQUESTIONS')
+        router.push('/questions')
       },
       error => {
-        commit('app/TOGGLE_ERROR', data, { root: true })
+        const errorMessage = error.response.data
+        commit('app/TOGGLE_ERROR', errorMessage, { root: true })
         dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       }
     )

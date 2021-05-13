@@ -1,34 +1,34 @@
 <template>
     <div class="">
-      <ValidationObserver ref="choice_validator_observer" v-slot="{ errors }">
+      <ValidationObserver ref="choice_validator_observer">
         <v-row>
           <v-col cols="8" lg="7" sm="12" md="12">
-            <ValidationProvider name="choice" rules="required">
+            <ValidationProvider name="choice" rules="required" v-slot="{ errors }">
               <v-text-field
                 v-model="choice.value"
                 label="Choice"
-                :error-messages="errors.choice"
+                :error-messages="errors"
                 outlined>
               </v-text-field>
             </ValidationProvider>
           </v-col>
           <v-col cols="2" lg="2" sm="12" md="12">
-            <ValidationProvider name="weight" vid="weight" rules="min_value:0|max_value:1">
+            <ValidationProvider name="weight" vid="weight" rules="min_value:0|max_value:1" v-slot="{ errors }">
               <v-text-field
                 v-model="choice.weight"
                 label="Weight"
                 type="number"
-                :error-messages="errors.weight"
+                :error-messages="errors"
                 outlined >
               </v-text-field>
             </ValidationProvider>
           </v-col>
           <v-col cols="3" lg="3" sm="12" md="12">
-            <ValidationProvider name="correct_choice" rules="required_if:weight,1">
+            <ValidationProvider name="correct_choice" rules="required_if:weight,1" v-slot="{ errors }">
               <v-checkbox
                 label="Correct Choice"
                 v-model="choice.is_correct_choice"
-                :error-messages="errors.correct_choice"
+                :error-messages="errors"
                 :value="false">
               </v-checkbox>
             </ValidationProvider>
@@ -36,10 +36,10 @@
         </v-row>
         <v-row>
           <v-col cols="12" lg="12" sm="12" md="12">
-            <ValidationProvider name="feedback" rules="required">
+            <ValidationProvider name="feedback" rules="required" v-slot="{ errors }">
               <vue-editor v-model="choice.feedback" :editorToolbar="toolbar"></vue-editor>
+              <span v-show="hasFeedbackError(errors)" class="red--text text--darken-1 font-weight-light">This field is required</span>
             </ValidationProvider>
-            <span v-show="hasFeedbackError(errors)" class="red--text text--darken-1 font-weight-light">This field is required</span>
           </v-col>
         </v-row>
       </ValidationObserver>
@@ -65,7 +65,7 @@ export default {
   props: {
     choice: {
       type: Object,
-      default: new Object({})
+      default: {}
     }
   },
   data: function () {
@@ -85,12 +85,8 @@ export default {
     },
     hasFeedbackError (errorObj) {
       return errorObj &&
-        this._.has(errorObj, 'feedback') &&
-        !this._.isEmpty(this._.get(errorObj, 'feedback'))
+        !this._.isEmpty(errorObj)
     }
-    // getFeedbackError(errorObj) {
-    //   return this._.get(errorObj, 'feedback')
-    // }
   }
 }
 </script>

@@ -38,7 +38,6 @@ import QuestionSearchResult from '@/components/QuestionSearchResult'
 import { createNamespacedHelpers } from 'vuex'
 
 const { mapActions, mapGetters } = createNamespacedHelpers('questions')
-const { mapActions: appActions, mapGetters: appGetters } = createNamespacedHelpers('app')
 
 export default {
   name: 'Questions',
