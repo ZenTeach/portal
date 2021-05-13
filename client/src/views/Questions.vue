@@ -23,11 +23,40 @@
                 :resultSet='this.questionList'
                 :selectable='false'
                 :show_user_created_badge='false'
-              />
+              >
+                <template v-slot:extra_actions="itemSlotProps">
+                  <v-icon
+                    medium
+                    class="m-2"
+                    @click.stop.capture="openDeleteConfirmationDialog(itemSlotProps)"
+                  >
+                    mdi-trash-can-outline
+                  </v-icon>
+                </template>
+              </question-search-result>
             </div>
           </material-card>
         </v-col>
       </v-row>
+      <v-dialog
+        v-model="deleteConfirmationDialog"
+        scrollable
+        persistent
+        :overlay="false"
+        max-width="500px"
+        transition="dialog-transition"
+      >
+        <material-card title="⚠ Deleting this question is irreversible.">
+          <v-card-text>
+            <h3 class="mx-5"> Are you sure you want to delete the question? </h3>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-btn color="primary" @click="processDeletion()">Delete</v-btn>
+            <v-btn color="error" @click="deleteConfirmationDialog = false">Cancel</v-btn>
+          </v-card-actions>
+        </material-card>
+      </v-dialog>
     </v-flex>
   </v-container>
 </template>
@@ -49,7 +78,10 @@ export default {
     this.fetchQuestions()
   },
   data: function () {
-    return {}
+    return {
+      deleteConfirmationDialog: false,
+      deletableItemId: null
+    }
   },
   computed: {
     ...mapGetters({
@@ -58,8 +90,19 @@ export default {
   },
   methods: {
     ...mapActions({
-      fetchQuestions: 'GETQUESTIONS'
-    })
+      fetchQuestions: 'GETQUESTIONS',
+      deleteQuestion: 'DELETEQUESTION'
+    }),
+    openDeleteConfirmationDialog (e) {
+      this.deletableItemId = e.item.id
+      this.deleteConfirmationDialog = true
+    },
+    processDeletion () {
+      this.deleteQuestion(this.deletableItemId)
+      setTimeout(() => {
+        this.deleteConfirmationDialog = false
+      }, 200)
+    }
   }
 }
 </script>

@@ -38,3 +38,8 @@ export function userCreatedQuestion (payload) {
   return Api.post('/question/user_created', payload)
     .then(handleResponse)
 }
+
+export function deleteUserCreatedQuestion (questionId) {
+  return Api.remove(`/question/user_created/${questionId}`)
+    .then(handleResponse)
+}
