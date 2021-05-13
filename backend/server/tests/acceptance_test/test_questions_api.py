@@ -80,8 +80,12 @@ def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
               teacher_id=teacher_.id,
               with_choices=4)
     choices = build_batch(dict, 4,
-                          is_correct_choice=choice([True, False]),
+                          is_correct_choice=False,
                           FACTORY_CLASS=QuestionChoiceFactory)
+
+    choices[0].update({
+        'is_correct_choice': True
+    })
 
     q.update({
         'choices': choices
