@@ -121,7 +121,7 @@ class Question(MethodView):
         pass
 
 
-class TeacherOwnedQuestion(MethodView):
+class TeacherOwnedQuestions(MethodView):
 
     @jwt_required
     def get(self):
@@ -162,6 +162,35 @@ class TeacherOwnedQuestion(MethodView):
             logger.exception(e)
             return make_response(jsonify({
                 'message': "Run into an error creating question. We will take a look in a bit!"
+            }), 500)
+
+
+class TeacherOwnedQuestion(MethodView):
+    @jwt_required
+    def delete(self, question_id):
+        teacher = get_jwt_identity()["identity"]
+
+        question: Questions = Questions.query.filter_by(id=question_id).first()
+
+        if question is None:
+            return make_response(jsonify({
+                'message': "Question doesn't exist."
+            }), 404)
+
+        if question.teacher_id != teacher['id']:
+            return make_response(jsonify({
+                'message': "The selected question doesn't belong to the teacher"
+            }), 422)
+
+        try:
+            question.delete()
+            return make_response(jsonify({
+                'message': "Question deleted successfully!"
+            }), 204)
+        except Exception as e:
+            logger.exception(e)
+            return make_response(jsonify({
+                'message': "We ran into a problem deleting the question."
             }), 500)
 
 
@@ -290,5 +319,9 @@ question_blueprint.add_url_rule("/question/filter/topic/<string:subject>",
 question_blueprint.add_url_rule(
     "/question/fetch", view_func=QuestionFromKIsAndTopics.as_view('question_fetch'))
 question_blueprint.add_url_rule(
-    "/question/user_created", view_func=TeacherOwnedQuestion.as_view('teacher_owned_question')
+    "/question/user_created", view_func=TeacherOwnedQuestions.as_view('teacher_owned_questions')
+)
+question_blueprint.add_url_rule(
+    "/question/user_created/<int:question_id>",
+    view_func=TeacherOwnedQuestion.as_view('teacher_owned_question')
 )

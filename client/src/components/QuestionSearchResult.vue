@@ -45,6 +45,9 @@
                         <v-chip color="primary" small>User Created</v-chip>
                       </v-list-item-icon>
                     </v-col>
+                    <v-col cols="2">
+                      <slot name="extra_actions" v-bind:item="item"></slot>
+                    </v-col>
                   </v-row>
                 </v-list-item-content>
               </template>

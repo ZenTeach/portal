@@ -40,6 +40,19 @@ def teacher_(client: FlaskClient) -> Teacher:
     return TeacherFactory()
 
 
+@pytest.fixture
+def teacher_created_question(client: FlaskClient,
+                             subject_: Subject,
+                             teacher_: Teacher) -> Questions:
+    subject_id = subject_.id
+    return QuestionsFactory(topic="testKI",
+                                  subject_id=subject_id,
+                                  user_created=True,
+                                  teacher_id=teacher_.id,
+                                  multiple_choice_question_type=True,
+                                  with_choices=4)
+
+
 @pytest.fixture(autouse=True)
 def populate_questions(client: FlaskClient, subject_: Subject):
     subject_id = subject_.id
@@ -437,3 +450,22 @@ def test_teacher_owned_question_create_action_400_error(client: FlaskClient,
     response = client.post("/api/v1/question/user_created", json=question_payload_as_json)
     assert response.status_code == 422
     assert response.data
+
+
+def test_teacher_owned_question_delete_action(client: FlaskClient,
+                                              mocker: MockFixture,
+                                              teacher_: Teacher,
+                                              teacher_created_question: Questions) -> None:
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mock_teacher = {
+        'identity': {
+            'id': teacher_.id,
+            'email': teacher_.email
+        }
+    }
+    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
+
+    response = client.delete(f"/api/v1/question/user_created/{teacher_created_question.id}")
+
+    assert response.status_code == 204
