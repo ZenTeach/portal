@@ -1,4 +1,16 @@
-import { required, email, max, min, confirmed } from 'vee-validate/dist/rules'
+import {
+  required,
+  email,
+  max,
+  min,
+  confirmed,
+  // eslint-disable-next-line camelcase
+  required_if,
+  // eslint-disable-next-line camelcase
+  min_value,
+  // eslint-disable-next-line camelcase
+  max_value
+} from 'vee-validate/dist/rules'
 import { extend } from 'vee-validate'
 
 extend('required', {
@@ -24,4 +36,24 @@ extend('confirmed', {
 extend('email', {
   ...email,
   message: 'This field must be a valid email.'
+})
+
+extend('required_if', {
+  // eslint-disable-next-line camelcase
+  ...required_if,
+  message: (fieldName, placeholders) => {
+    return `This field is needed when setting ${placeholders.target} with value ${placeholders.values}`
+  }
+})
+
+extend('min_value', {
+  // eslint-disable-next-line camelcase
+  ...min_value,
+  message: 'The minimum value for this field is not met.'
+})
+
+extend('max_value', {
+  // eslint-disable-next-line camelcase
+  ...max_value,
+  message: 'The maximum value for this field is not met.'
 })

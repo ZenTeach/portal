@@ -3,7 +3,21 @@
     <v-flex xs12 sm12 md12 lg12>
       <v-row>
         <v-col>
-          <material-card title="Question Lists">
+          <router-link to="/question/create" >
+            <v-btn color="primary" class="float-right mx-4" dark>Create a question</v-btn>
+          </router-link>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <material-card>
+            <template v-slot:header>
+              <div class="px-3 d-flex align-center">
+                <h4 class="title font-weight-light mb-2">Question Lists</h4>
+                <v-spacer></v-spacer>
+
+              </div>
+            </template>
             <div>
               <question-search-result
                 :resultSet='this.questionList'
@@ -33,6 +47,9 @@ export default {
   },
   mounted: function () {
     this.fetchQuestions()
+  },
+  data: function () {
+    return {}
   },
   computed: {
     ...mapGetters({

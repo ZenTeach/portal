@@ -1,10 +1,14 @@
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from marshmallow import ValidationError
 from server import db
 from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
-from server.models import Questions, QuestionsSchema, QuestionTypeEnum, Subject
+from server.lib import format_validation_for_api
+from server.models import Questions, QuestionsSchema, Subject
+from server.models.questions import \
+    AdminFormValidator as QuestionSchemaValidator
 from sqlalchemy import exc
 from webargs import fields
 from webargs.flaskparser import use_kwargs
@@ -49,29 +53,14 @@ class QuestionList(MethodView):
         if not data:
             return make_response(error_object, 400)
 
-        question = data.get("question")
-        question_type = QuestionTypeEnum(data.get("question_type"))
-        subject_id = data.get("subject_id")
-        topic = data.get("topic")
-        knowledge_item = data.get("knowledge_item")
-        correct_choice_id = data.get("correct_choice_id")
-        tag = data.get("tag")
-        choices = data.get("choices")
         try:
             question_entry = Questions.query.filter_by(
-                subject_id=subject_id, tag=tag, question=question
+                subject_id=data.get('subject_id'),
+                tag=data.get('tag'),
+                question=data.get('question')
             ).first()
             if not question_entry:
-                Questions(
-                    question=question,
-                    question_type=question_type,
-                    subject_id=subject_id,
-                    topic=topic,
-                    tag=tag,
-                    knowledge_item=knowledge_item,
-                    correct_choice_id=correct_choice_id,
-                    choices=choices,
-                ).save()
+                Questions.create_from_admin_form(data)
 
                 response_object = jsonify(
                     {"status": "success", "message": "Question was added!"}
@@ -82,6 +71,9 @@ class QuestionList(MethodView):
                     "status": "fail",
                     "message": "Question already exists."
                 }), 400)
+        except ValidationError as e:
+            logger.error(e)
+            return make_response(error_object, 400)
         except Exception as e:
             db.session.rollback()
             logger.error(e)
@@ -140,6 +132,37 @@ class TeacherOwnedQuestion(MethodView):
             jsonify({
                 "questions": [dumper.dump(question) for question in questions]
             }), 200)
+
+    @jwt_required
+    def post(self):
+        teacher = get_jwt_identity()["identity"]
+        data = request.get_json()
+        data.update({
+            'user_created': True,
+            'teacher_id': teacher['id']
+        })
+
+        validation_errors = QuestionSchemaValidator().validate(data=data)
+        if validation_errors is not None and len(validation_errors) != 0:
+            errors = format_validation_for_api(validation_errors)
+            return make_response(jsonify(errors), 422)
+
+        if teacher.get('id') != data.get('teacher_id', None):
+            return make_response(jsonify({
+                'message': 'Teacher is not recognized'
+            }), 422)
+
+        question = Questions(**data)
+        try:
+            question.save()
+            return make_response(jsonify({
+                'message': 'Question successfully added'
+            }), 201)
+        except Exception as e:
+            logger.exception(e)
+            return make_response(jsonify({
+                'message': "Run into an error creating question. We will take a look in a bit!"
+            }), 500)
 
 
 class QuestionSearch(MethodView):

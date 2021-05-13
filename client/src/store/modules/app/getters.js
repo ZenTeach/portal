@@ -28,5 +28,8 @@ export default {
   },
   getSubjects (state) {
     return state.subjects
+  },
+  getTopics (state) {
+    return state.topics
   }
 }

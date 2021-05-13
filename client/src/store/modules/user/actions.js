@@ -18,9 +18,10 @@ const LOGIN_USER = ({ commit, dispatch }, payload) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
 
   loginUser(payload).then(
-    data => {
+    _data => {
       commit('app/TOGGLE_APP_LOGGED_IN', true, { root: true })
       dispatch('FETCHCURRENTUSER')
+      dispatch('app/FETCH_SUBJECTS', {}, { root: true })
       router.push('/')
     },
     error => {

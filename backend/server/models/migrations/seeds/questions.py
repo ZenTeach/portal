@@ -2,7 +2,7 @@ import csv
 import os
 from random import choice
 
-from server.models import QuestionChoice, Questions, QuestionTypeEnum
+from server.models import QuestionChoice, Questions, QuestionTypeEnum, Subject
 
 filename = "Questions.csv"
 filepath = os.path.join(os.path.dirname(__file__), filename)
@@ -11,15 +11,17 @@ filepath = os.path.join(os.path.dirname(__file__), filename)
 def question_seeds():
     with open(filepath, newline="") as fp:
         reader = csv.DictReader(fp, delimiter=",", quotechar="|")
+        subject_id = Subject.query.filter(Subject.name == 'Chemistry').first().id
+
         for line in reader:
             q = Questions(
                 question=line["Question"],
                 question_type=QuestionTypeEnum.multiple_choice,
-                subject="Chemistry",
+                subject_id=subject_id,
                 topic=line["Topic"],
                 tag=line["TAG"],
                 knowledge_item=line["KnowledgeItem"],
-                correct_choice_id=0,  # nosec
+                correct_choice_id=1,  # nosec
             )
             q.save()
 

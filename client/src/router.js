@@ -123,9 +123,18 @@ const router = new Router({
     },
     {
       path: '/questions',
-      name: 'Questions',
+      name: '',
       component: () =>
         import(/* webpackChunkName: "QuestionsView" */ './views/Questions'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/question/create',
+      name: 'Create a question',
+      component: () =>
+        import(/* webpackChunkName: "QuestionCreateView" */ './views/QuestionCreate'),
       meta: {
         requiresAuth: true
       }

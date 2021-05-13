@@ -33,3 +33,8 @@ export function getUserQuestions () {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function userCreatedQuestion (payload) {
+  return Api.post('/question/user_created', payload)
+    .then(handleResponse)
+}
