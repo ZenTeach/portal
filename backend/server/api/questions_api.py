@@ -5,6 +5,7 @@ from marshmallow import ValidationError
 from server import db
 from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
+from server.lib import format_validation_for_api
 from server.models import Questions, QuestionsSchema, Subject
 from server.models.questions import \
     AdminFormValidator as QuestionSchemaValidator
@@ -143,12 +144,13 @@ class TeacherOwnedQuestion(MethodView):
 
         validation_errors = QuestionSchemaValidator().validate(data=data)
         if validation_errors is not None and len(validation_errors) != 0:
-            return make_response(jsonify(validation_errors), 400)
+            errors = format_validation_for_api(validation_errors)
+            return make_response(jsonify(errors), 422)
 
         if teacher.get('id') != data.get('teacher_id', None):
             return make_response(jsonify({
                 'message': 'Teacher is not recognized'
-            }), 400)
+            }), 422)
 
         question = Questions(**data)
         try:
@@ -156,7 +158,8 @@ class TeacherOwnedQuestion(MethodView):
             return make_response(jsonify({
                 'message': 'Question successfully added'
             }), 201)
-        except Exception:
+        except Exception as e:
+            logger.exception(e)
             return make_response(jsonify({
                 'message': "Run into an error creating question. We will take a look in a bit!"
             }), 500)

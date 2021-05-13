@@ -431,4 +431,5 @@ def test_teacher_owned_question_create_action_400_error(client: FlaskClient,
     mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
 
     response = client.post("/api/v1/question/user_created", json=question_payload_as_json)
-    assert response.status_code == 400
+    assert response.status_code == 422
+    assert response.data
