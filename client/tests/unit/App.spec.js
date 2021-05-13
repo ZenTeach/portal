@@ -61,11 +61,4 @@ describe('App.vue', () => {
     const wrapper = shallowMount(App, { localVue, vuetify, router, mocks: { $store: mockStore } })
     expect(wrapper.vm.drawer).toBeFalsy()
   })
-
-  it("dispatches 'FETCHCURRENTUSER' action with each mount", () => {
-    // eslint-disable-next-line no-unused-vars
-    const wrapper = shallowMount(App, { localVue, vuetify, router, mocks: { $store: mockStore } })
-    expect(mockStore.dispatch).toHaveBeenCalled()
-    expect(mockStore.dispatch).toHaveBeenCalledWith('user/FETCHCURRENTUSER', {}, { root: true })
-  })
 })
