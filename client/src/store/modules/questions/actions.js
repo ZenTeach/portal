@@ -1,7 +1,8 @@
 import {
   getUserQuestions,
   userCreatedQuestion,
-  deleteUserCreatedQuestion
+  deleteUserCreatedQuestion,
+  updateUserCreatedQuestion
 } from '../../../service/question_service'
 import router from '@/router'
 
@@ -49,8 +50,26 @@ const DELETEQUESTION = ({ commit, dispatch }, questionId) => {
     )
 }
 
+const UPDATEQUESTION = ({ commit, dispatch}, questionId, payload) => {
+  updateUserCreatedQuestion(questionId, payload)
+    .then(
+      data => {
+        dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+        dispatch('app/TOGGLE_ERROR', data, { root: true })
+        dispatch('GETQUESTIONS')
+        commit('UNSET_CURRENTQUESTION')
+        router.push('/questions')
+      },
+      error => {
+        dispatch('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+      }
+    )
+}
+
 export default {
   GETQUESTIONS,
   CREATEQUESTION,
-  DELETEQUESTION
+  DELETEQUESTION,
+  UPDATEQUESTION
 }

@@ -43,3 +43,9 @@ export function deleteUserCreatedQuestion (questionId) {
   return Api.remove(`/question/user_created/${questionId}`)
     .then(handleResponse)
 }
+
+export function updateUserCreatedQuestion (questionId, payload) {
+  return Api.patch(`/question/user_created/${questionId}`, payload)
+    .then(handleResponse)
+    .then(data => data)
+}
