@@ -1,114 +1,28 @@
 <template>
-  <ValidationObserver ref="edit_observer" v-slot="{ invalid, validated, handleSubmit }">
-    <material-card title="" :elevation="23" class="grey lighten-3">
-      <v-card-text >
-        <v-container>
-          <v-row>
-              <v-col cols="10" lg="12" sm="12" md="12" class="flex">
-                  <ValidationProvider rules="required" name="question" v-slot="{ errors }">
-                  <v-text-field label="Question"
-                    v-model="create_question.question"
-                    :error-messages="errors"
-                    color="" outlined grow></v-text-field>
-                  </ValidationProvider>
-              </v-col>
-          </v-row>
-          <v-row>
-              <v-col cols="3" lg="3" sm="12" md="6">
-                  <ValidationProvider rules="required" name="subject" v-slot="{ errors }">
-                      <v-select
-                          :items="subjects"
-                          label="Subject"
-                          @change="triggerTopicFetch()"
-                          :error-messages="errors"
-                          v-model="create_question.subject"
-                          outlined></v-select>
-                  </ValidationProvider>
-              </v-col>
-              <v-col cols="3" lg="3" sm="12" md="6">
-                  <ValidationProvider rules="required" name="topic" v-slot="{ errors }">
-                  <v-select
-                      :items="getTopics"
-                      label="Topic"
-                      :error-messages="errors"
-                      @change="triggerKIFetch()"
-                      v-model="create_question.topic"
-                      outlined></v-select>
-                  </ValidationProvider>
-              </v-col>
-              <v-col cols="3" lg="3" sm="12" md="6">
-                  <ValidationProvider rules="required" name="knowledge_item" v-slot="{ errors }">
-                      <v-select
-                          :items="knowledge_items"
-                          :error-messages="errors"
-                          label="Knowledge Item"
-                          v-model="create_question.knowledge_item"
-                          outlined></v-select>
-                  </ValidationProvider>
-              </v-col>
-              <v-col cols="3" lg="3" sm="12" md="6">
-                  <ValidationProvider name="question_type" rules="required" v-slot="{ errors }">
-                  <v-select :items="question_type"
-                      :error-messages="errors"
-                      value="multiple_choice"
-                      placeholder="Multiple Choice"
-                      :disabled="true"
-                      v-model="create_question.question_type" label="Question Type" outlined
-                  ></v-select>
-                  </ValidationProvider>
-              </v-col>
-              <v-col cols="12" lg="12" sm="12" md="12">
-                  <ValidationProvider name="tag" rules="required" v-slot="{ errors }">
-                  <v-text-field
-                      v-model="create_question.tag"
-                      label="Tag"
-                      single-line
-                      :error-messages="errors"
-                      outlined
-                  ></v-text-field>
-                  </ValidationProvider>
-              </v-col>
-          </v-row>
-          <v-row>
-            <span class="inline-flex">
-              <v-row>
-                <v-col>
-                  <h2 class="my-3">Choices</h2>
-                  <!-- <v-btn color="success" class="my-3" @click="addChoiceEditor">Add</v-btn> -->
-                </v-col>
-              </v-row>
-            </span>
-            <hr class="my-3"/>
-              <v-col cols="12">
-                  <questions-choices :choice="create_question.choices[0]" :disable_validation="validate_multiple_choices"/>
-              </v-col>
-              <v-col cols="12">
-                  <questions-choices :choice="create_question.choices[1]" :disable_validation="validate_multiple_choices"/>
-              </v-col>
-              <v-col cols="12">
-                  <questions-choices :choice="create_question.choices[2]" :disable_validation="validate_multiple_choices"/>
-              </v-col>
-              <v-col cols="12">
-                  <questions-choices :choice="create_question.choices[3]" :disable_validation="validate_multiple_choices"/>
-              </v-col>
-          </v-row>
-        </v-container>
-      </v-card-text>
-      <v-card-actions>
+  <ValidationObserver ref="create_observer">
+    <question-form 
+      :question_object="create_question"
+      :knowledge_items="knowledge_items"
+      :topics="topics"
+      :subjects="subjects"
+      :exam_boards="exam_boards"
+      :question_type="question_type"
+      :topicChangeHandler="triggerTopicFetch"
+      :KIChangeHandler="triggerKIFetch"
+    >
+      <template v-slot:form_actions>
         <div class="flex-grow-1"></div>
         <v-btn color="green darken-1" @click="processSubmit" outlined >Create Question</v-btn>
         <v-btn color="red darken-1" @click="$router.back()" outlined>Cancel and Go back</v-btn>
-      </v-card-actions>
-    </material-card>
+      </template>
+    </question-form>
   </ValidationObserver>
 </template>
 <script>
-import MaterialCard from '@/components/MaterialCard'
-import QuestionsChoices from '@/components/QuestionsChoices'
+import QuestionForm from '@/components/QuestionForm'
 import { createNamespacedHelpers } from 'vuex'
 import {
-  ValidationObserver,
-  ValidationProvider
+  ValidationObserver
 } from 'vee-validate'
 
 const { mapActions, mapGetters } = createNamespacedHelpers('app')
@@ -117,17 +31,15 @@ const { mapActions: questionActions } = createNamespacedHelpers('questions')
 export default {
   name: 'QuestionCreate',
   components: {
-    MaterialCard,
     ValidationObserver,
-    ValidationProvider,
-    QuestionsChoices
+    QuestionForm
   },
 
   computed: {
     ...mapGetters({
       getSubjects: 'getSubjects',
       getKis: 'getKis',
-      getTopics: 'getTopics'
+      topics: 'getTopics'
     })
   },
   mounted: function () {
@@ -164,6 +76,15 @@ export default {
 
       },
       subjects: [],
+      exam_boards: [
+        { value: 'aqa', text: 'AQA' },
+        { value: 'ocr_gateway', text: 'OCR Gateway' },
+        { value: 'edexcel', text: 'EdExcel' },
+        { value: 'ocr_new', text: 'OCR 21st Century' },
+        { value: 'wjec', text: 'WJEC' },
+        { value: 'ccea', text: 'CCEA' },
+        { value: 'eduqas', text: 'Eduqas' }
+      ],
       question_type: [
         { text: 'Multiple Choice', value: 'multiple_choice' },
         { text: 'Short Answer', value: 'short_answer' },
@@ -191,7 +112,7 @@ export default {
       this.fetchKis(payload)
     },
     validate () {
-      if (this.$refs.edit_observer.validate()) {
+      if (this.$refs.create_observer.validate()) {
         return true
       }
       return false
