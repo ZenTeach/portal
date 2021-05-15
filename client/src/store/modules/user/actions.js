@@ -41,6 +41,7 @@ const SIGNOUT_USER = ({ commit, dispatch }) => {
     commit('app/TOGGLE_APP_LOADING', false, { root: true })
   },
   error => {
+    commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
     commit('app/TOGGLE_ERROR', error.response.data, { root: true })
     dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
   }
