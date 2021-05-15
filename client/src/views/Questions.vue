@@ -32,6 +32,9 @@
                   >
                     mdi-trash-can-outline
                   </v-icon>
+                  <v-icon medium class="m-2" @click.stop="editItem(itemSlotProps)">
+                    mdi-pencil
+                  </v-icon>
                 </template>
               </question-search-result>
             </div>
@@ -66,7 +69,7 @@ import MaterialCard from '@/components/MaterialCard'
 import QuestionSearchResult from '@/components/QuestionSearchResult'
 import { createNamespacedHelpers } from 'vuex'
 
-const { mapActions, mapGetters } = createNamespacedHelpers('questions')
+const { mapActions, mapGetters, mapMutations } = createNamespacedHelpers('questions')
 
 export default {
   name: 'Questions',
@@ -93,6 +96,9 @@ export default {
       fetchQuestions: 'GETQUESTIONS',
       deleteQuestion: 'DELETEQUESTION'
     }),
+    ...mapMutations({
+      setCurrentQuestion: 'SET_CURRENTQUESTION'
+    }),
     openDeleteConfirmationDialog (e) {
       this.deletableItemId = e.item.id
       this.deleteConfirmationDialog = true
@@ -102,6 +108,10 @@ export default {
       setTimeout(() => {
         this.deleteConfirmationDialog = false
       }, 200)
+    },
+    editItem (item) {
+      this.setCurrentQuestion(item.item)
+      this.$router.push('/question/edit')
     }
   }
 }

@@ -140,6 +140,15 @@ const router = new Router({
       }
     },
     {
+      path: '/question/edit',
+      name: 'Edit question',
+      component: () =>
+        import(/* webpackChunkName: "QuestionCreateView" */ './views/QuestionEdit'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
       path: '*',
       name: 'NotFound',
       component: () =>

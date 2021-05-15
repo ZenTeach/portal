@@ -7,6 +7,7 @@ from server.api import logger, report_5xx_error
 from server.decorators import with_required_roles
 from server.lib import format_validation_for_api
 from server.models import Questions, QuestionsSchema, Subject
+from server.models.question_choice import QuestionChoice
 from server.models.questions import \
     AdminFormValidator as QuestionSchemaValidator
 from sqlalchemy import exc
@@ -187,6 +188,54 @@ class TeacherOwnedQuestion(MethodView):
             return make_response(jsonify({
                 'message': "Question deleted successfully!"
             }), 204)
+        except Exception as e:
+            logger.exception(e)
+            return make_response(jsonify({
+                'message': "We ran into a problem deleting the question."
+            }), 500)
+
+    @jwt_required
+    def patch(self, question_id):
+        data = request.get_json()
+        teacher = get_jwt_identity()["identity"]
+
+        question: Questions = Questions.query.filter_by(id=question_id).first()
+        if question is None:
+            return make_response(jsonify({
+                'message': "Question doesn't exist."
+            }), 404)
+
+        if question.teacher_id != teacher['id']:
+            return make_response(jsonify({
+                'message': "The selected question doesn't belong to the teacher"
+            }), 422)
+
+        if data is None:
+            return make_response(jsonify({
+                'message': "Cannot update question with empty values."
+            }), 400)
+
+        try:
+            if 'subject' in data:
+                subject_id = Subject.query.filter_by(name=data.get('subject')).first().id
+                data.update(subject_id=subject_id)
+                del data['subject']
+
+            if 'choices' in data:
+                choices = data['choices']
+                for choice in choices:
+                    QuestionChoice.query.\
+                        filter_by(uuid=choice['uuid']).\
+                        first()\
+                        .update_from_dict(choice)
+                del data['choices']
+
+            question.update_from_dict(data)
+            question.save()
+
+            return make_response(jsonify({
+                'message': "Question was updated successfully!"
+            }), 200)
         except Exception as e:
             logger.exception(e)
             return make_response(jsonify({

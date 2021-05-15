@@ -1,0 +1,163 @@
+<template>
+    <material-card title="" :elevation="23" class="grey lighten-3">
+      <v-card-text >
+        <v-container>
+          <v-row>
+              <v-col cols="10" lg="12" sm="12" md="12" class="flex">
+                  <ValidationProvider rules="required" name="question" v-slot="{ errors }">
+                  <v-text-field label="Question"
+                    :placeholder="question_object.question || ''"
+                    v-model="question_object.question"
+                    :error-messages="errors"
+                    color="" outlined grow></v-text-field>
+                  </ValidationProvider>
+              </v-col>
+          </v-row>
+          <v-row>
+              <v-col cols="3" lg="3" sm="12" md="6">
+                  <ValidationProvider rules="required" name="subjects" v-slot="{ errors }">
+                      <v-select
+                          :items="subjects"
+                          label="Subject"
+                          :placeholder="question_object.subject || ''"
+                          @change="topicChangeHandler()"
+                          :error-messages="errors"
+                          v-model="question_object.subject"
+                          outlined></v-select>
+                  </ValidationProvider>
+              </v-col>
+              <v-col cols="3" lg="3" sm="12" md="6">
+                  <ValidationProvider rules="required" name="topic" v-slot="{ errors }">
+                  <v-select
+                      :items="topics"
+                      label="Topic"
+                      :placeholder="question_object.topic || ''"
+                      :error-messages="errors"
+                      @change="KIChangeHandler()"
+                      v-model="question_object.topic"
+                      outlined></v-select>
+                  </ValidationProvider>
+              </v-col>
+              <v-col cols="3" lg="3" sm="12" md="6">
+                  <ValidationProvider rules="required" name="knowledge_item" v-slot="{ errors }">
+                      <v-select
+                          :items="knowledge_items"
+                          :error-messages="errors"
+                          label="Knowledge Item"
+                          :placeholder="question_object.knowledge_item || ''"
+                          v-model="question_object.knowledge_item"
+                          outlined></v-select>
+                  </ValidationProvider>
+              </v-col>
+          </v-row>
+          <v-row>
+              <v-col cols="3" lg="3" sm="12" md="6">
+                  <ValidationProvider rules="required" name="exam_board" v-slot="{ errors }">
+                      <v-select
+                          :items="exam_board"
+                          :placeholder="question_object.exam_board || ''"
+                          label="Exam Board"
+                          :error-messages="errors"
+                          v-model="question_object.exam_board"
+                          outlined></v-select>
+                  </ValidationProvider>
+              </v-col>
+              <v-col cols="3" lg="3" sm="12" md="6">
+                  <ValidationProvider name="question_type" rules="required" v-slot="{ errors }">
+                  <v-select :items="question_type"
+                      :error-messages="errors"
+                      value="multiple_choice"
+                      placeholder="Multiple Choice"
+                      :disabled="true"
+                      v-model="question_object.question_type" label="Question Type" outlined
+                  ></v-select>
+                  </ValidationProvider>
+              </v-col>
+              <v-col cols="12" lg="12" sm="12" md="12">
+                  <ValidationProvider name="tag" rules="required" v-slot="{ errors }">
+                  <v-text-field
+                      v-model="question_object.tag"
+                      :placeholder="question_object.tag || ''"
+                      label="Tag"
+                      single-line
+                      :error-messages="errors"
+                      outlined
+                  ></v-text-field>
+                  </ValidationProvider>
+              </v-col>
+          </v-row>
+          <v-row>
+            <span class="inline-flex">
+              <v-row>
+                <v-col>
+                  <h2 class="my-3">Choices</h2>
+                </v-col>
+              </v-row>
+            </span>
+            <hr class="my-3"/>
+              <v-col cols="12">
+                  <questions-choices :choice="question_object.choices[0]" :disable_validation="validate_multiple_choices"/>
+              </v-col>
+              <v-col cols="12">
+                  <questions-choices :choice="question_object.choices[1]" :disable_validation="validate_multiple_choices"/>
+              </v-col>
+              <v-col cols="12">
+                  <questions-choices :choice="question_object.choices[2]" :disable_validation="validate_multiple_choices"/>
+              </v-col>
+              <v-col cols="12">
+                  <questions-choices :choice="question_object.choices[3]" :disable_validation="validate_multiple_choices"/>
+              </v-col>
+          </v-row>
+        </v-container>
+      </v-card-text>
+      <v-card-actions>
+        <slot name="form_actions"></slot>
+      </v-card-actions>
+    </material-card>
+</template>
+
+<script>
+
+import { ValidationProvider } from 'vee-validate'
+import QuestionsChoices from './QuestionsChoices'
+import MaterialCard from './MaterialCard'
+
+export default {
+  name: 'QuestionForm',
+  components: {
+    ValidationProvider,
+    QuestionsChoices,
+    MaterialCard
+  },
+  props: {
+    question_object: {
+      type: Object
+    },
+    knowledge_items: {
+      type: Array
+    },
+    topics: {
+      type: Array
+    },
+    subjects: {
+      type: Array
+    },
+    exam_board: {
+      type: Array
+    },
+    question_type: {
+      type: Array
+    },
+    topicChangeHandler: {
+      type: Function
+    },
+    KIChangeHandler: {
+      type: Function
+    },
+    validate_multiple_choices: {
+      type: Boolean,
+      default: false
+    }
+  }
+}
+</script>
