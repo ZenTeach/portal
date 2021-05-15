@@ -1,6 +1,6 @@
 <template>
   <ValidationObserver ref="create_observer">
-    <question-form 
+    <question-form
       :question_object="create_question"
       :knowledge_items="knowledge_items"
       :topics="topics"
