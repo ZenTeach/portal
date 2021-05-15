@@ -52,13 +52,13 @@
           </v-row>
           <v-row>
               <v-col cols="3" lg="3" sm="12" md="6">
-                  <ValidationProvider rules="required" name="exam_boards" v-slot="{ errors }">
+                  <ValidationProvider rules="required" name="exam_board" v-slot="{ errors }">
                       <v-select
-                          :items="exam_boards"
-                          :placeholder="question_object.exam_boards || ''"
+                          :items="exam_board"
+                          :placeholder="question_object.exam_board || ''"
                           label="Exam Board"
                           :error-messages="errors"
-                          v-model="question_object.exam_boards"
+                          v-model="question_object.exam_board"
                           outlined></v-select>
                   </ValidationProvider>
               </v-col>
@@ -123,41 +123,41 @@ import QuestionsChoices from './QuestionsChoices'
 import MaterialCard from './MaterialCard'
 
 export default {
-    name: 'QuestionForm',
-    components: {
-        ValidationProvider,
-        QuestionsChoices,
-        MaterialCard
+  name: 'QuestionForm',
+  components: {
+    ValidationProvider,
+    QuestionsChoices,
+    MaterialCard
+  },
+  props: {
+    question_object: {
+      type: Object
     },
-    props: {
-        question_object: {
-            type: Object
-        },
-        knowledge_items: {
-            type: Array
-        },
-        topics: {
-            type: Array
-        },
-        subjects: {
-            type: Array
-        },
-        exam_boards: {
-            type: Array
-        },
-        question_type: {
-            type: Array
-        },
-        topicChangeHandler: {
-            type: Function
-        },
-        KIChangeHandler: {
-            type: Function
-        },
-        validate_multiple_choices: {
-            type: Boolean,
-            default: false
-        }
+    knowledge_items: {
+      type: Array
+    },
+    topics: {
+      type: Array
+    },
+    subjects: {
+      type: Array
+    },
+    exam_board: {
+      type: Array
+    },
+    question_type: {
+      type: Array
+    },
+    topicChangeHandler: {
+      type: Function
+    },
+    KIChangeHandler: {
+      type: Function
+    },
+    validate_multiple_choices: {
+      type: Boolean,
+      default: false
     }
+  }
 }
 </script>
