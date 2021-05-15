@@ -59,7 +59,7 @@ class SubjectSchema(ma.ModelSchema):
 class QuestionChoicesSchema(ma.ModelSchema):
     class Meta:
         model = QuestionChoice
-        fields = ("value", "uuid")
+        fields = ("value", "uuid", "feedback", "weight")
 
 
 class QuestionsSchema(ma.ModelSchema):

@@ -469,3 +469,27 @@ def test_teacher_owned_question_delete_action(client: FlaskClient,
     response = client.delete(f"/api/v1/question/user_created/{teacher_created_question.id}")
 
     assert response.status_code == 204
+
+
+def test_teacher_owned_question_update_action(client: FlaskClient,
+                                              mocker: MockFixture,
+                                              teacher_: Teacher,
+                                              teacher_created_question: Questions) -> None:
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mock_teacher = {
+        'identity': {
+            'id': teacher_.id,
+            'email': teacher_.email
+        }
+    }
+
+    update_params = {
+        'knowledge_item': "cnacnfjocanicofncasl"
+    }
+    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
+
+    response = client.patch(
+        f"/api/v1/question/user_created/{teacher_created_question.id}", json=update_params)
+
+    assert response.status_code == 200
