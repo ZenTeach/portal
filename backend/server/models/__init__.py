@@ -5,6 +5,7 @@
 from marshmallow_enum import EnumField
 from server import ma
 
+from functools import lru_cache
 from .question_choice import QuestionChoice
 from .subjects import Subject
 from .questions import Questions, QuestionTypeEnum
@@ -59,7 +60,20 @@ class SubjectSchema(ma.ModelSchema):
 class QuestionChoicesSchema(ma.ModelSchema):
     class Meta:
         model = QuestionChoice
-        fields = ("value", "uuid", "feedback", "weight")
+        fields = ("value", "uuid", "feedback", "weight", "is_correct_choice")
+
+    is_correct_choice = ma.Method('_is_correct_choice')
+
+    @lru_cache(4, typed=True)
+    def _question(self, q_id: int) -> Questions:
+        return Questions.query.filter_by(id=q_id).first()
+
+    def _is_correct_choice(self, obj):
+        q = self._question(obj.question_id)
+        if q.correct_choice_id == obj.id:
+            return True
+
+        return False
 
 
 class QuestionsSchema(ma.ModelSchema):

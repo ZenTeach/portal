@@ -56,7 +56,7 @@ export default {
 
     const { id, ...editableQuestion } = Object.assign({}, this.currentQuestion)
     editableQuestion.question_type = 'multiple_choice'
-    editableQuestion.subject = editableQuestion.subject.name
+    editableQuestion.subject = this._.get(editableQuestion, 'subject.name', '')
     this.editableQuestion = editableQuestion
   },
   data: function () {
@@ -91,24 +91,6 @@ export default {
     ...questionsMutations({
       unsetCurrentQuestion: 'UNSET_CURRENTQUESTION'
     }),
-    // renameWith(obj, keyMapping) {
-    //     function rename(obj, key, newKey) {
-    //             if(this._.includes(this._.keys(obj), key)) {
-    //                 obj[newKey] = this._.clone(obj[key], true);
-
-    //                 delete obj[key];
-    //             }
-
-    //             return obj;
-    //     }
-
-    //     let objMapper = this._.partial(rename)(obj)
-    //     let r
-    //     for (const values of keyMapping) {
-    //         r = objMapper(values)
-    //     }
-    //     return r
-    // },
     triggerTopicFetch () {
       this.fetchTopics(this.editableQuestion.subject)
     },

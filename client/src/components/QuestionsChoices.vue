@@ -12,23 +12,13 @@
               </v-text-field>
             </ValidationProvider>
           </v-col>
-          <v-col cols="2" lg="2" sm="12" md="12">
-            <ValidationProvider name="weight" vid="weight" rules="min_value:0|max_value:1" v-slot="{ errors }">
-              <v-text-field
-                v-model="choice.weight"
-                label="Weight"
-                type="number"
-                :error-messages="errors"
-                outlined >
-              </v-text-field>
-            </ValidationProvider>
-          </v-col>
           <v-col cols="3" lg="3" sm="12" md="12">
-            <ValidationProvider name="correct_choice" rules="required_if:weight,1" v-slot="{ errors }">
+            <ValidationProvider name="correct_choice" v-slot="{ errors }">
               <v-checkbox
                 label="Correct Choice"
                 v-model="choice.is_correct_choice"
                 :error-messages="errors"
+                @change="setWeight"
                 :value="false">
               </v-checkbox>
             </ValidationProvider>
@@ -86,6 +76,13 @@ export default {
     hasFeedbackError (errorObj) {
       return errorObj &&
         !this._.isEmpty(errorObj)
+    },
+    setWeight (val) {
+      if (val === true) {
+        this.choice.weight = 1
+      } else if (val === false) {
+        this.choice.weight = 0
+      }
     }
   }
 }
