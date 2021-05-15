@@ -50,7 +50,8 @@ const DELETEQUESTION = ({ commit, dispatch }, questionId) => {
     )
 }
 
-const UPDATEQUESTION = ({ commit, dispatch}, questionId, payload) => {
+const UPDATEQUESTION = ({ commit, dispatch }, data) => {
+  const { questionId, payload } = data
   updateUserCreatedQuestion(questionId, payload)
     .then(
       data => {
