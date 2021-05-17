@@ -36,7 +36,7 @@ def test_send_quiz_generation_email(client: FlaskClient,
     @mocker.patch('server.tasks.quiz_generator_tasks.send_mail_with_html')
     def test_success(send_mail_with_html):
         send_quiz_generation_email(teacher_.email, classquiz_.id)
-        message = Message(subject="Hi! Your Quiz have arrived.")
+        message = Message(subject="Hi! Your Quiz has arrived.")
         message.recipients = ["{}".format(teacher_.email)]
         send_mail_with_html.assert_called_with(
             message,
