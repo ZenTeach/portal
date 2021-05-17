@@ -33,7 +33,7 @@ def generate_pdf(self, quiz_id):
 @celery.task(bind=True, default_retry_delay=1 * 60)
 def send_quiz_generation_email(self, teacher_email, quiz_id):
     try:
-        msg = Message(subject="Hi! Your Quiz have arrived.")
+        msg = Message(subject="Hi! Your Quiz has arrived.")
         msg.recipients = ["{}".format(teacher_email)]
         quiz = ClassQuiz.query.filter_by(id=quiz_id).first()
         teacher_fullname = Teacher.query.filter_by(email=teacher_email).first().full_name()

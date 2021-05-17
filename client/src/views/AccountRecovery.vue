@@ -30,7 +30,12 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn :disabled="invalid || !validated" color="primary lighten-2" class="mr-4" @click="recover_account" outlined>Send Recovery Link</v-btn>
+              <v-btn
+                :disabled="invalid || !validated"
+                color="primary lighten-2"
+                class="mr-4"
+                @click="recover_account"
+                outlined>Reset Account</v-btn>
             </v-card-actions>
             <v-spacer></v-spacer>
           </v-card>
