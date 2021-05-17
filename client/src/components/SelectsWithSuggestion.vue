@@ -71,31 +71,31 @@
 </template>
 
 <script>
-  export default {
-    name: "SelectsWithSuggestion",
-    props: {
+export default {
+  name: 'SelectsWithSuggestion',
+  props: {
 
-    },
-    data: () => ({
-      data: [
-        { value: 'eduqas', text: 'Eduqas', suggested: true },
-        { value: 'aqa', text: 'AQA', suggested: false },
-        { value: 'ocr_gateway', text: 'OCR Gateway', suggested: false },
-        { value: 'edexcel', text: 'EdExcel', suggested: false },
-        { value: 'ocr_new', text: 'OCR 21st Century', suggested: false },
-        { value: 'wjec', text: 'WJEC', suggested: false },
-        { value: 'ccea', text: 'CCEA', suggested: false }
-      ],
-      selectedFruits: [],
-    }),
+  },
+  data: () => ({
+    data: [
+      { value: 'eduqas', text: 'Eduqas', suggested: true },
+      { value: 'aqa', text: 'AQA', suggested: false },
+      { value: 'ocr_gateway', text: 'OCR Gateway', suggested: false },
+      { value: 'edexcel', text: 'EdExcel', suggested: false },
+      { value: 'ocr_new', text: 'OCR 21st Century', suggested: false },
+      { value: 'wjec', text: 'WJEC', suggested: false },
+      { value: 'ccea', text: 'CCEA', suggested: false }
+    ],
+    selectedFruits: []
+  }),
 
-    computed: {
-    },
-    mounted: function () {
-      // enhance examboard
-      // let teacher_classes = 
-    },
-    methods: {
-    },
+  computed: {
+  },
+  mounted: function () {
+    // enhance examboard
+    // let teacher_classes =
+  },
+  methods: {
   }
+}
 </script>
