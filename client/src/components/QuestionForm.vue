@@ -53,14 +53,16 @@
           <v-row>
               <v-col cols="3" lg="3" sm="12" md="6">
                   <ValidationProvider rules="required" name="exam_board" v-slot="{ errors }">
-                      <v-select
+                      <!-- <v-select
                           :items="exam_board"
                           :placeholder="question_object.exam_board || ''"
                           label="Exam Board"
                           :error-messages="errors"
                           v-model="question_object.exam_board"
-                          outlined></v-select>
+                          outlined></v-select> -->
+                      <SelectsWithSuggestion />
                   </ValidationProvider>
+
               </v-col>
               <v-col cols="3" lg="3" sm="12" md="6">
                   <ValidationProvider name="question_type" rules="required" v-slot="{ errors }">
@@ -121,11 +123,13 @@
 import { ValidationProvider } from 'vee-validate'
 import QuestionsChoices from './QuestionsChoices'
 import MaterialCard from './MaterialCard'
+import SelectsWithSuggestion from './SelectsWithSuggestion'
 
 export default {
   name: 'QuestionForm',
   components: {
     ValidationProvider,
+    SelectsWithSuggestion,
     QuestionsChoices,
     MaterialCard
   },

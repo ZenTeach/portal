@@ -77,13 +77,13 @@ export default {
       },
       subjects: [],
       exam_boards: [
-        { value: 'aqa', text: 'AQA' },
-        { value: 'ocr_gateway', text: 'OCR Gateway' },
-        { value: 'edexcel', text: 'EdExcel' },
-        { value: 'ocr_new', text: 'OCR 21st Century' },
-        { value: 'wjec', text: 'WJEC' },
-        { value: 'ccea', text: 'CCEA' },
-        { value: 'eduqas', text: 'Eduqas' }
+        { value: 'aqa', text: 'AQA', suggested: false },
+        { value: 'ocr_gateway', text: 'OCR Gateway', suggested: false },
+        { value: 'edexcel', text: 'EdExcel', suggested: false },
+        { value: 'ocr_new', text: 'OCR 21st Century', suggested: false },
+        { value: 'wjec', text: 'WJEC', suggested: false },
+        { value: 'ccea', text: 'CCEA', suggested: false },
+        { value: 'eduqas', text: 'Eduqas', suggested: true }
       ],
       question_type: [
         { text: 'Multiple Choice', value: 'multiple_choice' },
