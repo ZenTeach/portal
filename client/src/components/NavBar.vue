@@ -11,9 +11,6 @@
 
     <v-toolbar-items>
       <v-row align="center" class="mx-0">
-        <v-btn icon to="/">
-          <v-icon color="tertiary">mdi-view-dashboard</v-icon>
-        </v-btn>
         <v-btn to="/user-profile" icon>
           <v-icon color="tertiary">mdi-account</v-icon>
         </v-btn>

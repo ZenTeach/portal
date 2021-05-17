@@ -91,7 +91,7 @@ export default {
         },
         // TODO: Use actual proctored date
         {
-          text: 'Proctored at',
+          text: 'Administered at',
           value: 'created_at'
         }
       ],
