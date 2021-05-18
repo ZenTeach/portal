@@ -10,6 +10,10 @@ const existsInList = (iterable, item) => {
   return iterable.find(x => x === item) || false
 }
 
+function unique(array, propertyName) {
+  return array.filter((e, i) => array.findIndex(a => a[propertyName] === e[propertyName]) === i);
+}
+
 export default {
   TOGGLE_APP_LOADING (state, payload) {
     state.loading = payload
@@ -33,7 +37,9 @@ export default {
     state.questionSearch = []
   },
   UPDATE_QUESTION_SEARCH (state, payload) {
-    state.questionSearch = [...state.questionSearch, ...payload]
+    let mergedResults = [...state.questionSearch, ...payload]
+    // persit unique results
+    state.questionSearch = unique([...new Set(mergedResults)], 'id')
   },
   ADD_SELECTED_QUESTIONS (state, payload) {
     if (!idExistsInList(state.questionList, payload.id)) {
