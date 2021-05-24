@@ -295,7 +295,7 @@ export default {
         id: item.id,
         exam_board: item.exam_board,
         name: item.name,
-        subject: item.subject,
+        subject: item.subject.name,
         year_group: item.year_group
       }
       this.editDialog = true
