@@ -53,14 +53,12 @@
           <v-row>
               <v-col cols="3" lg="3" sm="12" md="6">
                   <ValidationProvider rules="required" name="exam_board" v-slot="{ errors }">
-                      <!-- <v-select
-                          :items="exam_board"
-                          :placeholder="question_object.exam_board || ''"
-                          label="Exam Board"
-                          :error-messages="errors"
-                          v-model="question_object.exam_board"
-                          outlined></v-select> -->
-                      <SelectsWithSuggestion />
+                      <SelectsWithSuggestion
+                        :items="exam_board"
+                        label="Exam Board"
+                        :error-messages="errors"
+                        :placeholder="translateExamBoard(question_object.exam_board)"
+                        outlined/>
                   </ValidationProvider>
 
               </v-col>
@@ -161,6 +159,13 @@ export default {
     validate_multiple_choices: {
       type: Boolean,
       default: false
+    }
+  },
+  methods: {
+    translateExamBoard: function (value) {
+      if (!value) return ''
+      const it = this._.findIndex(this.exam_board, ['value', value])
+      return this.exam_board[it].text
     }
   }
 }
