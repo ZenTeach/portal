@@ -1,11 +1,11 @@
 <template>
-    <ValidationObserver ref="edit_observer">
+    <ValidationObserver ref="_observer">
         <question-form
-            :question_object="editableQuestion"
+            :question_object="questionObject"
             :knowledge_items="knowledge_items"
             :topics="topics"
             :subjects="subjects"
-            :exam_board="exam_board"
+            :exam_board="exam_boards"
             :question_type="question_type"
             :topicChangeHandler="triggerTopicFetch"
             :KIChangeHandler="triggerKIFetch"
@@ -23,6 +23,7 @@
 
 import QuestionForm from '@/components/QuestionForm'
 import { createNamespacedHelpers } from 'vuex'
+import { QuestionCRUDMixin } from '@/mixins/QuestionCRUDMixin'
 import {
   ValidationObserver
 } from 'vee-validate'
@@ -32,7 +33,9 @@ const {
   mapMutations: questionsMutations,
   mapActions: questionsActions
 } = createNamespacedHelpers('questions')
+
 const { mapActions: appActions, mapGetters: appGetters } = createNamespacedHelpers('app')
+const { mapGetters: classRoomGetters } = createNamespacedHelpers('classrooms')
 
 export default {
   name: 'QuestionEdit',
@@ -40,6 +43,7 @@ export default {
     QuestionForm,
     ValidationObserver
   },
+  mixins: [QuestionCRUDMixin],
   computed: {
     ...questionsGetters({
       currentQuestion: 'CURRENTQUESTION'
@@ -48,37 +52,19 @@ export default {
       getSubjects: 'getSubjects',
       getKis: 'getKis',
       topics: 'getTopics'
+    }),
+    ...classRoomGetters({
+      classList: 'CLASSLIST'
     })
   },
   beforeMount: function () {
-    const enabledSubjects = this._.filter(this.getSubjects, ['enabled', true])
-    this.subjects = this._.map(enabledSubjects, 'name')
-
-    const { id, ...editableQuestion } = Object.assign({}, this.currentQuestion)
-    editableQuestion.question_type = 'multiple_choice'
-    editableQuestion.subject = this._.get(editableQuestion, 'subject.name', '')
-    this.editableQuestion = editableQuestion
+    const { id, ...questionObject } = Object.assign({}, this.currentQuestion)
+    questionObject.question_type = 'multiple_choice'
+    questionObject.subject = this._.get(questionObject, 'subject.name', '')
+    this.questionObject = questionObject
   },
   data: function () {
-    return {
-      subjects: [],
-      exam_board: [
-        { value: 'aqa', text: 'AQA' },
-        { value: 'ocr_gateway', text: 'OCR Gateway' },
-        { value: 'edexcel', text: 'EdExcel' },
-        { value: 'ocr_new', text: 'OCR 21st Century' },
-        { value: 'wjec', text: 'WJEC' },
-        { value: 'ccea', text: 'CCEA' },
-        { value: 'eduqas', text: 'Eduqas' }
-      ],
-      question_type: [
-        { text: 'Multiple Choice', value: 'multiple_choice' },
-        { text: 'Short Answer', value: 'short_answer' },
-        { text: 'Long Answer', value: 'long_answer' }
-      ],
-      knowledge_items: [],
-      editableQuestion: {}
-    }
+    return this.initData()
   },
   methods: {
     ...appActions({
@@ -91,29 +77,13 @@ export default {
     ...questionsMutations({
       unsetCurrentQuestion: 'UNSET_CURRENTQUESTION'
     }),
-    triggerTopicFetch () {
-      this.fetchTopics(this.editableQuestion.subject)
-    },
-    triggerKIFetch () {
-      const payload = {
-        topics_selected: [this.editableQuestion.topic]
-      }
-      this.fetchKis(payload)
-    },
     cleanupAndExit () {
       this.unsetCurrentQuestion()
       this.$router.back()
     },
-    validate () {
-      if (this.$refs.create_observer.validate()) {
-        return true
-      }
-      return false
-    },
     processSubmit () {
       if (this.validate) {
-        console.log(this.editableQuestion)
-        const payload = Object.assign({}, this.editableQuestion)
+        const payload = Object.assign({}, this.questionObject)
         this.updateQuestion({
           questionId: this.currentQuestion.id,
           payload: payload

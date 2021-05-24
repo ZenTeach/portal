@@ -1,11 +1,11 @@
 <template>
-  <ValidationObserver ref="create_observer">
+  <ValidationObserver ref="_observer">
     <question-form
-      :question_object="create_question"
+      :question_object="questionObject"
       :knowledge_items="knowledge_items"
       :topics="topics"
       :subjects="subjects"
-      :exam_boards="exam_boards"
+      :exam_board="exam_boards"
       :question_type="question_type"
       :topicChangeHandler="triggerTopicFetch"
       :KIChangeHandler="triggerKIFetch"
@@ -21,12 +21,14 @@
 <script>
 import QuestionForm from '@/components/QuestionForm'
 import { createNamespacedHelpers } from 'vuex'
+import { QuestionCRUDMixin } from '@/mixins/QuestionCRUDMixin'
 import {
   ValidationObserver
 } from 'vee-validate'
 
 const { mapActions, mapGetters } = createNamespacedHelpers('app')
 const { mapActions: questionActions } = createNamespacedHelpers('questions')
+const { mapGetters: classRoomGetters } = createNamespacedHelpers('classrooms')
 
 export default {
   name: 'QuestionCreate',
@@ -34,65 +36,40 @@ export default {
     ValidationObserver,
     QuestionForm
   },
-
+  mixins: [QuestionCRUDMixin],
   computed: {
     ...mapGetters({
       getSubjects: 'getSubjects',
       getKis: 'getKis',
       topics: 'getTopics'
+    }),
+    ...classRoomGetters({
+      classList: 'CLASSLIST'
     })
   },
-  mounted: function () {
-    const enabledSubjects = this._.filter(this.getSubjects, ['enabled', true])
-    this.subjects = this._.map(enabledSubjects, 'name')
-  },
-  watch: {
-    getKis: function (val) {
-      this.knowledge_items = []
-      this.knowledge_items = this._.flatten(this._.values(this.getKis))
-    },
-    'create_question.question_type': function (val) {
-      if (val === 'multiple_choice') {
-        this.validate_multiple_choices = false
-      }
-    }
-  },
-  data: function () {
-    return {
-      create_question: {
-        subject: '',
-        exam_board: '',
-        topic: '',
-        knowledge_item: '',
-        tag: '',
-        question_type: 'multiple_choice',
-        question: '',
-        choices: [
-          { value: '', weight: 0, is_correct_choice: false, feedback: '' },
-          { value: '', weight: 0, is_correct_choice: false, feedback: '' },
-          { value: '', weight: 0, is_correct_choice: false, feedback: '' },
-          { value: '', weight: 0, is_correct_choice: false, feedback: '' }
-        ]
 
+  data: function () {
+    // merge default data
+    return Object.assign(
+      {
+        questionObject: {
+          subject: '',
+          exam_board: '',
+          topic: '',
+          knowledge_item: '',
+          tag: '',
+          question_type: 'multiple_choice',
+          question: '',
+          choices: [
+            { value: '', weight: 0, is_correct_choice: false, feedback: '' },
+            { value: '', weight: 0, is_correct_choice: false, feedback: '' },
+            { value: '', weight: 0, is_correct_choice: false, feedback: '' },
+            { value: '', weight: 0, is_correct_choice: false, feedback: '' }
+          ]
+        }
       },
-      subjects: [],
-      exam_boards: [
-        { value: 'aqa', text: 'AQA', suggested: false },
-        { value: 'ocr_gateway', text: 'OCR Gateway', suggested: false },
-        { value: 'edexcel', text: 'EdExcel', suggested: false },
-        { value: 'ocr_new', text: 'OCR 21st Century', suggested: false },
-        { value: 'wjec', text: 'WJEC', suggested: false },
-        { value: 'ccea', text: 'CCEA', suggested: false },
-        { value: 'eduqas', text: 'Eduqas', suggested: true }
-      ],
-      question_type: [
-        { text: 'Multiple Choice', value: 'multiple_choice' },
-        { text: 'Short Answer', value: 'short_answer' },
-        { text: 'Long Answer', value: 'long_answer' }
-      ],
-      knowledge_items: [],
-      validate_multiple_choices: false
-    }
+      this.initData()
+    )
   },
   methods: {
     ...mapActions({
@@ -102,24 +79,9 @@ export default {
     ...questionActions({
       postQuestion: 'CREATEQUESTION'
     }),
-    triggerTopicFetch () {
-      this.fetchTopics(this.create_question.subject)
-    },
-    triggerKIFetch () {
-      const payload = {
-        topics_selected: [this.create_question.topic]
-      }
-      this.fetchKis(payload)
-    },
-    validate () {
-      if (this.$refs.create_observer.validate()) {
-        return true
-      }
-      return false
-    },
     processSubmit () {
       if (this.validate) {
-        this.postQuestion(this.create_question)
+        this.postQuestion(this.questionObject)
       }
     }
   }
