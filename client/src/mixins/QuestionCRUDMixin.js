@@ -3,7 +3,7 @@ const QuestionCRUDMixin = {
   name: 'QuestionCRUDable',
   watch: {
     'questionObject.subject': function (val) {
-      this.suggestedExamBoardsForSubjects()
+      this.suggestedExamBoardsForSubjects(val)
     },
     getKis: function (val) {
       this.knowledge_items = []
@@ -14,13 +14,6 @@ const QuestionCRUDMixin = {
   mounted: function () {
     const enabledSubjects = this._.filter(this.getSubjects, ['enabled', true])
     this.subjects = this._.map(enabledSubjects, 'name')
-
-    // update examboards
-    const classes = this._.map(this.classList, 'exam_board')
-    classes.forEach((val) => {
-      const index = this._.findIndex(this.exam_boards, ['value', val])
-      this.exam_boards[index].suggested = true
-    })
 
     this.exam_boards = this._.reverse(this._.sortBy(this.exam_boards, ['suggested']))
   },
@@ -56,14 +49,18 @@ const QuestionCRUDMixin = {
       }
       this.fetchKis(payload)
     },
-    suggestedExamBoardsForSubjects () {
-      // TODO: filter by selected subject
-
-      const classes = this._.map(this.classList, 'exam_board')
+    suggestedExamBoardsForSubjects (selectedSubject) {
+      const subjectWithExamBoards = this._.zip(
+        this._.map(this.classList, 'subject.name'),
+        this._.map(this.classList, 'exam_board'))
       this.exam_boards = Array.from(this.default_exam_board)
-      classes.forEach((val) => {
-        const index = this._.findIndex(this.exam_boards, ['value', val])
-        this.exam_boards[index].suggested = true
+
+      subjectWithExamBoards.forEach((subjectWithExamBoard) => {
+        const index = this._.findIndex(this.exam_boards, ['value', subjectWithExamBoard[1]])
+
+        if (selectedSubject === subjectWithExamBoard[0]) {
+          this.exam_boards[index].suggested = true
+        }
       })
 
       this.exam_boards = this._.reverse(this._.sortBy(this.exam_boards, ['suggested']))
