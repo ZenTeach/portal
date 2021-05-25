@@ -1,14 +1,13 @@
 <template>
   <v-select
-    v-model="selectedFruits"
+    v-model="dataModel"
     :items="items"
     :label="label"
     v-bind="$attrs"
     v-on="$listeners"
   >
-    <!-- Suggestion sub block-->
     <template v-slot:no-data>
-      <p class="m-2">
+      <p class="mx-3 my-3">
         Please select a subject first.
       </p>
     </template>
@@ -47,31 +46,14 @@ export default {
       type: Array,
       default: []
     },
+    dataModel: {
+      type: String,
+      required: true
+    },
     label: {
       type: String,
       default: ''
     }
-  },
-  data: () => ({
-    data: [
-      { value: 'eduqas', text: 'Eduqas', suggested: true },
-      { value: 'aqa', text: 'AQA', suggested: false },
-      { value: 'ocr_gateway', text: 'OCR Gateway', suggested: false },
-      { value: 'edexcel', text: 'EdExcel', suggested: false },
-      { value: 'ocr_new', text: 'OCR 21st Century', suggested: false },
-      { value: 'wjec', text: 'WJEC', suggested: false },
-      { value: 'ccea', text: 'CCEA', suggested: false }
-    ],
-    selectedFruits: []
-  }),
-
-  computed: {
-  },
-  mounted: function () {
-    // enhance examboard
-    // let teacher_classes =
-  },
-  methods: {
   }
 }
 </script>

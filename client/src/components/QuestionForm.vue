@@ -55,6 +55,7 @@
                   <ValidationProvider rules="required" name="exam_board" v-slot="{ errors }">
                       <SelectsWithSuggestion
                         :items="exam_board"
+                        :dataModel="question_object.exam_board"
                         label="Exam Board"
                         :error-messages="errors"
                         :placeholder="translateExamBoard(question_object.exam_board)"
