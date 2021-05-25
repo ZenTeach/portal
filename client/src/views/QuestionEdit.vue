@@ -62,6 +62,8 @@ export default {
     questionObject.question_type = 'multiple_choice'
     questionObject.subject = this._.get(questionObject, 'subject.name', '')
     this.questionObject = questionObject
+    this.suggestedExamBoardsForSubjects(questionObject.subject)
+    this.exam_boards = this.default_exam_board
   },
   data: function () {
     return this.initData()
