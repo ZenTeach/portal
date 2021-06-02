@@ -10,8 +10,8 @@ const existsInList = (iterable, item) => {
   return iterable.find(x => x === item) || false
 }
 
-function unique(array, propertyName) {
-  return array.filter((e, i) => array.findIndex(a => a[propertyName] === e[propertyName]) === i);
+function unique (array, propertyName) {
+  return array.filter((e, i) => array.findIndex(a => a[propertyName] === e[propertyName]) === i)
 }
 
 export default {
@@ -37,7 +37,7 @@ export default {
     state.questionSearch = []
   },
   UPDATE_QUESTION_SEARCH (state, payload) {
-    let mergedResults = [...state.questionSearch, ...payload]
+    const mergedResults = [...state.questionSearch, ...payload]
     // persit unique results
     state.questionSearch = unique([...new Set(mergedResults)], 'id')
   },
