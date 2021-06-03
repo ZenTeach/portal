@@ -35,7 +35,7 @@
                 color="primary lighten-2"
                 class="mr-4"
                 @click="recover_account"
-                outlined>Reset Account</v-btn>
+                outlined>Reset Password</v-btn>
             </v-card-actions>
             <v-spacer></v-spacer>
           </v-card>
