@@ -80,9 +80,25 @@
                     </v-icon>
                     <template v-slot:activator>
                       <v-list-item-title>{{topic}}</v-list-item-title>
+                      <v-badge
+                        color="success"
+                        overlap
+                        :content="_.get(questionTopicCount, topic) || 0"
+                        :value="_.get(questionTopicCount, topic) || 0"
+                      ></v-badge>
                     </template>
                     <v-list-item v-for="ki in kis" :key="ki">
                       <v-list-item-title v-text="ki"></v-list-item-title>
+                      <v-chip
+                        class="ma-2"
+                        close
+                        color="success"
+                        label
+                        x-small
+                        outlined>
+                          {{ _.get(questionKICount, ki) || 0 }} / {{ questionList.length || 0 }} Questions selected
+                      </v-chip>
+
                       <v-list-item-icon>
                         <v-icon>mdi-checkbox-marked-circle</v-icon>
                       </v-list-item-icon>
@@ -91,7 +107,7 @@
               </v-list>
             </v-card-text>
             <v-card-actions class="justify-space-between px-5">
-              <v-btn color="primary" @click="createQuiz()">Continue</v-btn>
+              <v-btn color="primary" @click="createQuiz()" :disabled="!formIsValid">Create</v-btn>
               <v-btn @click.native.prevent="closeDialog()" class="float-left error">Cancel</v-btn>
             </v-card-actions>
           </v-card>
@@ -130,6 +146,15 @@ export default {
         return x.id === classId
       })
       return filtered.subject.name
+    },
+    questionKICount () {
+      return this._.countBy(this.questionList, 'knowledge_item')
+    },
+    questionTopicCount () {
+      return this._.countBy(this.questionList, 'topic')
+    },
+    formIsValid () {
+      return this.firstStepValidation && (this.questionList.length > 0)
     }
   },
   data () {
