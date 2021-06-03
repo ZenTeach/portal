@@ -1,7 +1,11 @@
 <template>
   <v-stepper v-model="curator">
     <v-stepper-header>
-      <v-stepper-step step="1" editable :complete="curator > 1">Topic selection</v-stepper-step>
+      <v-stepper-step
+        step="1"
+        editable
+        :rules="[() => firstStepValidation]"
+        :complete="curator > 1">Topic selection</v-stepper-step>
 
       <v-divider></v-divider>
 
@@ -26,7 +30,7 @@
               @change="fetch_KIs()"
               label="Topic: "
               v-model="topicsSelected"
-              :rules="[() => topicsSelected.length > 0 || 'You must choose at least one']"
+              :rules="[validateTopicsSelected]"
             ></v-select>
 
             <v-spacer class="ma-3 mb-3"></v-spacer>
@@ -38,13 +42,13 @@
               chips
               required
               :items="knowledgeItems"
-              :rules="[() => selectedKnowledgeItems.length > 0 || 'You must choose at least one']"
+              :rules="[validateSelectedKnowledgeItems]"
               v-model="selectedKnowledgeItems"
             ></v-select>
           </v-card-text>
           <v-card-actions class="justify-space-between px-5">
             <div>
-              <v-btn color="primary" class="mr-2" @click="curator = 2">Continue</v-btn>
+              <v-btn color="primary" class="mr-2" @click="gotoStep(2, 'firstStepValidation')">Continue</v-btn>
               <v-btn color="success" @click="createQuizFastTracked()">Finish</v-btn>
             </div>
             <v-btn @click.native.prevent="closeDialog()" class="float-left error">Cancel</v-btn>
@@ -76,9 +80,25 @@
                     </v-icon>
                     <template v-slot:activator>
                       <v-list-item-title>{{topic}}</v-list-item-title>
+                      <v-badge
+                        color="success"
+                        overlap
+                        :content="_.get(questionTopicCount, topic) || 0"
+                        :value="_.get(questionTopicCount, topic) || 0"
+                      ></v-badge>
                     </template>
                     <v-list-item v-for="ki in kis" :key="ki">
                       <v-list-item-title v-text="ki"></v-list-item-title>
+                      <v-chip
+                        class="ma-2"
+                        close
+                        color="success"
+                        label
+                        x-small
+                        outlined>
+                          {{ _.get(questionKICount, ki) || 0 }} / {{ questionList.length || 0 }} Questions selected
+                      </v-chip>
+
                       <v-list-item-icon>
                         <v-icon>mdi-checkbox-marked-circle</v-icon>
                       </v-list-item-icon>
@@ -87,7 +107,7 @@
               </v-list>
             </v-card-text>
             <v-card-actions class="justify-space-between px-5">
-              <v-btn color="primary" @click="createQuiz()">Continue</v-btn>
+              <v-btn color="primary" @click="createQuiz()" :disabled="!formIsValid">Create</v-btn>
               <v-btn @click.native.prevent="closeDialog()" class="float-left error">Cancel</v-btn>
             </v-card-actions>
           </v-card>
@@ -126,6 +146,15 @@ export default {
         return x.id === classId
       })
       return filtered.subject.name
+    },
+    questionKICount () {
+      return this._.countBy(this.questionList, 'knowledge_item')
+    },
+    questionTopicCount () {
+      return this._.countBy(this.questionList, 'topic')
+    },
+    formIsValid () {
+      return this.firstStepValidation && (this.questionList.length > 0)
     }
   },
   data () {
@@ -146,10 +175,25 @@ export default {
         curator: 1,
         questionSearchResult: [],
         hasSearchResult: false,
+        firstStepValidation: true,
         topicsSelected: [],
         knowledgeItems: [],
         selectedKnowledgeItems: []
       }
+    },
+    validateTopicsSelected () {
+      return this.topicsSelected.length > 0 || 'You must choose at least one'
+    },
+    validateSelectedKnowledgeItems () {
+      return this.selectedKnowledgeItems.length > 0 || 'You must choose at least one'
+    },
+    validateStep (dataValueName) {
+      const val = (this.topicsSelected.length > 0) && (this.selectedKnowledgeItems.length > 0)
+      this._.set(this.$data, dataValueName, val)
+    },
+    gotoStep (step, validator) {
+      this.validateStep(validator)
+      this.curator = step
     },
     createQuiz () {
       const payload = {
