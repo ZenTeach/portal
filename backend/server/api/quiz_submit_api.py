@@ -1,7 +1,6 @@
 
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
-from server import db
 from server.api import logger, report_5xx_error
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizStatus, QuizSession, QuizSessionStatus,
@@ -105,7 +104,6 @@ class SubmitQuiz(MethodView):
 
             grader_administered_quizzes.apply_async(args=[quiz_session.uuid])
 
-            db.session.commit()
             response_object = {"status": "success",
                                "message": "Quiz submitted!"}
             return make_response(response_object, 201)

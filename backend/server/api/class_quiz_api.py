@@ -81,8 +81,7 @@ class ClassQuiz(MethodView):
             if not class_quiz:
                 return make_response(error_response, 404)
             else:
-                db.session.delete(class_quiz)
-                db.session.commit()
+                class_quiz.delete()
                 response_message = {"status": "success",
                                     "message": "Deleted Quiz"}
                 return make_response(response_message, 200)

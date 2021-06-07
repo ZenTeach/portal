@@ -100,7 +100,6 @@ class Question(MethodView):
                     }),
                     400)
             db.session.delete(question)
-            db.session.commit()
             return make_response(
                 jsonify({
                     "message": "Deleted question {}".format(question.id)
