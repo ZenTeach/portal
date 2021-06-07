@@ -68,8 +68,8 @@ class SchoolClass(BaseModelMixin, db.Model):
                                      .filter_by(school_class=self,
                                                 student_id=student_id)\
                                      .first()
-        db.session.delete(assoc_)
-        db.session.commit()
+
+        assoc_.delete()
 
     def has_student(self, student):
         from .student_school_class import StudentAttendedClass
