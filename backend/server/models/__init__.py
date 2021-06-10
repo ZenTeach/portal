@@ -5,7 +5,6 @@
 from marshmallow_enum import EnumField
 from server import ma
 
-from functools import lru_cache
 from .question_choice import QuestionChoice
 from .subjects import Subject
 from .questions import Questions, QuestionTypeEnum
@@ -64,7 +63,6 @@ class QuestionChoicesSchema(ma.ModelSchema):
 
     is_correct_choice = ma.Method('_is_correct_choice')
 
-    @lru_cache(4, typed=True)
     def _question(self, q_id: int) -> Questions:
         return Questions.query.filter_by(id=q_id).first()
 
@@ -140,12 +138,16 @@ class AdminSchema(ma.ModelSchema):
 class SchoolClassSchema(ma.ModelSchema):
     class Meta:
         model = SchoolClass
-        fields = ("id", "name", "subject", "exam_board",
+        fields = ("id", "name", "subject", "exam_board", "key_stage",
                   "start_date", "year_group", "students", "quizzes")
 
     quizzes = ma.Nested(ClassQuizSchema, many=True)
     students = ma.Nested(StudentSchema, many=True)
     subject = ma.Nested(SubjectSchema, only=('name',))
+    key_stage = ma.Method('_key_stage_for_api')
+
+    def _key_stage_for_api(self, obj):
+        return obj.key_stage_for_front_end()
 
 
 class TeacherSchema(ma.ModelSchema):
