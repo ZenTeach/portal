@@ -30,7 +30,23 @@
                   </v-tooltip>
                 </template>
                 <template v-slot:item.name="props">
-                  <a :href="'/classroom/' + props.item.id">{{ props.item.name }}</a>
+                  <div class="d-flex flex-column">
+                    <a :href="'/classroom/' + props.item.id" class="text-body-1">{{ props.item.name }}</a>
+                    <small class="grey lighten-4 black--text text-center text-caption" style="width:70%;">
+                      {{ props.item.key_stage }}
+                      <v-tooltip left>
+                        <template v-slot:activator="{ on, attrs }">
+                        <v-icon
+                          size="12"
+                          v-bind="attrs"
+                          v-on="on">
+                          mdi-information-outline
+                        </v-icon>
+                        </template>
+                        <span>Key stages signify levels.</span>
+                      </v-tooltip>
+                    </small>
+                  </div>
                 </template>
                 <template v-slot:item.actions="{ item }">
                   <v-icon

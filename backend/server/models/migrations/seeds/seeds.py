@@ -55,11 +55,12 @@ def seeds():
                 ['Biology', 'Chemistry', 'Physics']
             )
         ).all()
-
+        year = choice(list(range(7, 12)))
         s = SchoolClass(
             name=f"Atoms-{i}",
             subject_id=choice(ids)[0],
             exam_board=None,
+            year_group=f"Year {year}",
             start_date=datetime.date.today(),
             teacher_id=class_teacher_id,
             uuid=uuid4(),
