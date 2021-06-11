@@ -42,9 +42,8 @@ repos:
     rev: v1.0.5
     hooks:
       - id: python-bandit-vulnerability-check
-        files: ^backend/
-        args: [--skip, "B101,B311"]
-        exclude: ^client/
+        files: .py$
+        args: [--skip, "B101,B311", --recursive, backend]
         language_version: python3.7
 
   - repo: https://gitlab.com/pycqa/flake8

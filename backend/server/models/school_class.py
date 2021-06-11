@@ -114,7 +114,7 @@ class SchoolClass(BaseModelMixin, db.Model):
             start = it_v['range']['start']
             end = it_v['range']['end']
 
-            if matched_year >= start or matched_year <= end:
+            if matched_year >= start and matched_year <= end:
                 return it_k
             else:
                 continue
