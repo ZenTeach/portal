@@ -33,7 +33,7 @@ logger = logging.getLogger('admin::view')
 
 def report_5xx_error(exception: Exception):
     sentry_dsn_key = os.environ.get("SENTRY_DSN")
-    from sentry_sdk import init, capture_exception
+    from sentry_sdk import capture_exception, init
     init(sentry_dsn_key)
     capture_exception(exception)
 
@@ -385,7 +385,7 @@ def exam_board_formatter(view, context, model, name):
 class SchoolClassView(BaseView):
     column_exclude_list = ["uuid"]
     form_excluded_columns = [
-        "uuid", "student_attended_classes", "students", "quizzes"]
+        "uuid", "student_attended_classes", "students", "quizzes", "key_stage"]
 
     column_formatters = {
         'exam_board': exam_board_formatter,
