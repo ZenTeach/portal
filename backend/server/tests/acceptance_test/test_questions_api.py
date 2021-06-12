@@ -108,6 +108,22 @@ def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
 
 
 @pytest.fixture
+def existing_question_payload_as_json() -> dict:
+    subject_id = Subject.query.first().id
+    q = QuestionsFactory(multiple_choice_question_type=True,
+                         subject_id=subject_id,
+                         with_choices=4)
+    json_dump = QuestionsSchema().dump(q)
+    json_dump['choices'][0].update({
+        'is_correct_choice': True
+    })
+    json_dump.update({
+        'question_type': q.question_type.name
+    })
+    return json_dump
+
+
+@pytest.fixture
 def question_payload_json_without_correct_choice(subject_: Subject, teacher_: Teacher) -> dict:
     q = build(dict,
               FACTORY_CLASS=QuestionsFactory,
@@ -433,7 +449,7 @@ def test_teacher_owned_question_create_action(client: FlaskClient,
     assert len(teacher_.questions) == 1
 
 
-def test_teacher_owned_question_create_action_400_error(client: FlaskClient,
+def test_teacher_owned_question_create_action_422_error(client: FlaskClient,
                                                         mocker: MockFixture,
                                                         teacher_: Teacher,
                                                         question_payload_as_json: dict):
@@ -493,3 +509,27 @@ def test_teacher_owned_question_update_action(client: FlaskClient,
         f"/api/v1/question/user_created/{teacher_created_question.id}", json=update_params)
 
     assert response.status_code == 200
+
+
+def test_updating_original_question_creates_question_on_user(client: FlaskClient,
+                                                             mocker: MockFixture,
+                                                             teacher_: Teacher,
+                                                             existing_question_payload_as_json: dict) -> None:  # noqa
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mock_teacher = {
+        'identity': {
+            'id': teacher_.id,
+            'email': teacher_.email
+        }
+    }
+
+    existing_question_payload_as_json['subject'] = existing_question_payload_as_json['subject']['name']  # noqa
+    assert Questions.query.filter_by(teacher_id=teacher_.id).count() == 0
+
+    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
+    q_id = existing_question_payload_as_json.pop('id')
+    response = client.patch(
+        f"/api/v1/question/user_created/{q_id}", json=existing_question_payload_as_json)
+
+    assert response.status_code == 201
+    assert Questions.query.filter_by(teacher_id=teacher_.id).count() == 1

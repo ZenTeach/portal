@@ -198,16 +198,15 @@ class TeacherOwnedQuestion(MethodView):
         data = request.get_json()
         teacher = get_jwt_identity()["identity"]
 
+        success_message = {
+            'message': "Question was updated successfully."
+        }
+        status_code = 200
         question: Questions = Questions.query.filter_by(id=question_id).first()
         if question is None:
             return make_response(jsonify({
                 'message': "Question doesn't exist."
             }), 404)
-
-        if question.teacher_id != teacher['id']:
-            return make_response(jsonify({
-                'message': "The selected question doesn't belong to the teacher"
-            }), 422)
 
         if data is None:
             return make_response(jsonify({
@@ -219,6 +218,26 @@ class TeacherOwnedQuestion(MethodView):
                 subject_id = Subject.query.filter_by(name=data.get('subject')).first().id
                 data.update(subject_id=subject_id)
                 del data['subject']
+
+            if question.teacher_id != teacher['id']:
+                question = Questions.empty_instance()
+                data.update({
+                    'user_created': True,
+                    'teacher_id': teacher['id']
+                })
+                success_message['message'] = "Question successfully added."
+                status_code = 201
+
+            # update correct choice id
+            correct_choice_id = [choice['uuid']
+                                 for choice in data['choices']
+                                 if choice['is_correct_choice']][0]
+
+            if correct_choice_id is not None:
+                choice_id = QuestionChoice.query.filter_by(uuid=correct_choice_id).first().id
+                data.update({
+                    'correct_choice_id': choice_id
+                })
 
             if 'choices' in data:
                 choices = data['choices']
@@ -232,9 +251,7 @@ class TeacherOwnedQuestion(MethodView):
             question.update_from_dict(data)
             question.save()
 
-            return make_response(jsonify({
-                'message': "Question was updated successfully!"
-            }), 200)
+            return make_response(jsonify(success_message), status_code)
         except Exception as e:
             logger.exception(e)
             return make_response(jsonify({
