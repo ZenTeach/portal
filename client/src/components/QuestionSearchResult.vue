@@ -20,23 +20,8 @@
                 </v-list-item-action>
 
                 <v-list-item-content class="d-flex justify-space-between">
-                  <!-- <v-edit-dialog
-                    :return-value.sync="item.question"
-                    @save="save()"
-                    ref="questionEditBox">
-                  {{ item.question }}
-                    <template v-slot:input>
-                      <v-text-field
-                        v-model="item.question"
-                        :rules="[max200chars]"
-                        label="Edit"
-                        single-line
-                        counter
-                      ></v-text-field>
-                    </template>
-                  </v-edit-dialog> -->
                   <v-row>
-                    <v-col cols="8" class="my-5">
+                    <v-col cols="6" class="my-5">
                       <h3>{{item.question}}</h3>
                       <v-list-item-subtitle v-text="questionTypeMapping(item.question_type)"></v-list-item-subtitle>
                     </v-col>
@@ -45,7 +30,7 @@
                         <v-chip color="primary" small>User Created</v-chip>
                       </v-list-item-icon>
                     </v-col>
-                    <v-col cols="2">
+                    <v-col cols="2" class="text-center">
                       <slot name="extra_actions" v-bind:item="item"></slot>
                     </v-col>
                   </v-row>
