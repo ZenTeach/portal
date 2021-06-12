@@ -59,7 +59,7 @@ def seeds():
         s = SchoolClass(
             name=f"Atoms-{i}",
             subject_id=choice(ids)[0],
-            exam_board=None,
+            exam_board='aqa',
             year_group=f"Year {year}",
             start_date=datetime.date.today(),
             teacher_id=class_teacher_id,
