@@ -105,6 +105,7 @@ class Questions(BaseModelMixin, db.Model):
         user_created: bool = False,
         subject_id: Optional[str] = None,
         teacher_id: Optional[int] = None,
+        exam_board: Optional[str] = None,
         uuid: Optional[UUID] = None,
         choices: Optional[List[QuestionChoice]] = [],
         image_url: str = "",
@@ -118,6 +119,7 @@ class Questions(BaseModelMixin, db.Model):
         self.tag = tag
         self.knowledge_item = knowledge_item
         self.user_created = user_created
+        self.exam_board = exam_board
         if uuid is None:
             self.uuid = unique_uuid4()
 
@@ -140,7 +142,6 @@ class Questions(BaseModelMixin, db.Model):
         if validation_errors is not None and len(validation_errors) != 0:
             raise ValidationError(
                 "Error creating question. Make sure that you have filled in all the required fields.", validation_errors)  # noqa
-        correct_choice_id = None
 
         subject_ = Subject.query.filter(Subject.name == data['subject']).first()
         choices = data.pop("choices")
@@ -181,3 +182,13 @@ class Questions(BaseModelMixin, db.Model):
             return None
 
         return choice
+
+    @classmethod
+    def empty_instance(cls):
+        return cls(
+            question='',
+            question_type='',
+            topic='',
+            tag='',
+            knowledge_item=''
+        )

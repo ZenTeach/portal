@@ -60,7 +60,15 @@
           <v-card-title>Search for Questions</v-card-title>
           <v-card-text>
             <question-search v-bind:subject="subject" v-bind:topics="topicsSelected" v-bind:knowledge_items="selectedKnowledgeItems" v-on:update:searchResult="populateSearchResult"/>
-            <question-search-result v-bind:resultSet="questionSearch" v-show="hasSearchResult"/>
+            <question-search-result v-bind:resultSet="questionSearch" v-show="hasSearchResult">
+              <template v-slot:extra_actions="{ item }">
+                <v-btn @click="confirmEdit(item)">
+                  <v-icon medium class="m-2">
+                      mdi-pencil
+                  </v-icon>
+                </v-btn>
+              </template>
+            </question-search-result>
           </v-card-text>
           <v-card-actions class="justify-space-between px-5">
             <v-btn color="primary" @click="curator = 3">Continue</v-btn>
@@ -113,6 +121,32 @@
           </v-card>
         </v-stepper-content>
       </v-stepper-items>
+      <v-dialog
+        v-model="confirmQuestionEdit"
+        persistent
+        max-width="500px"
+        transition="dialog-transition"
+      >
+      <v-card>
+        <v-card-title>
+          <v-icon color="orange lighten-1" class="mx-1">
+            mdi-alert
+          </v-icon>
+          Confirm editing question
+        </v-card-title>
+        <hr />
+        <v-card-text>
+          <p class="body-2 font-weight-normal my-2 mx-2"> Confirming this will take you to a different page for editing
+            selected Question
+          </p>
+        </v-card-text>
+        <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn color="success" @click="goToQuestionEdit()" outlined>Continue editing</v-btn>
+          <v-btn color="error" @click="confirmQuestionEdit=false" text outlined>Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+      </v-dialog>
     </v-stepper>
 </template>
 
@@ -122,7 +156,8 @@ import QuestionSearchResult from '@/components/QuestionSearchResult'
 import Api from '@/service/Api'
 
 import { createNamespacedHelpers } from 'vuex'
-const { mapState, mapActions, mapGetters } = createNamespacedHelpers('app')
+const { mapState, mapActions, mapGetters, mapMutations: appMutations } = createNamespacedHelpers('app')
+const { mapMutations: questionMutations } = createNamespacedHelpers('questions')
 
 export default {
   name: 'QuizCreator',
@@ -170,6 +205,12 @@ export default {
     ...mapActions({
       fetchQuestionsFastTracked: 'FETCH_QUESTIONS_FASTTRACKED'
     }),
+    ...questionMutations({
+      setCurrentQuestion: 'SET_CURRENTQUESTION'
+    }),
+    ...appMutations({
+      resetQuestionSearch: 'RESET_QUESTION_SEARCH'
+    }),
     initial () {
       return {
         curator: 1,
@@ -178,7 +219,9 @@ export default {
         firstStepValidation: true,
         topicsSelected: [],
         knowledgeItems: [],
-        selectedKnowledgeItems: []
+        selectedKnowledgeItems: [],
+        editableQuestion: {},
+        confirmQuestionEdit: false
       }
     },
     validateTopicsSelected () {
@@ -215,6 +258,11 @@ export default {
           this.curator = 3
         })
     },
+    goToQuestionEdit () {
+      this.setCurrentQuestion(this.editableQuestion)
+      this.resetQuestionSearch()
+      this.$router.push('/question/edit')
+    },
     closeDialog () {
       this.$store.commit('app/RESET_QUIZ_CREATOR', { root: true })
       Object.assign(this.$data, this.initial())
@@ -240,6 +288,10 @@ export default {
       }
 
       return copy
+    },
+    confirmEdit (item) {
+      Object.assign(this.editableQuestion, item)
+      this.confirmQuestionEdit = true
     }
   }
 }

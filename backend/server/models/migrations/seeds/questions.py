@@ -20,6 +20,7 @@ def question_seeds():
                 subject_id=subject_id,
                 topic=line["Topic"],
                 tag=line["TAG"],
+                exam_board="aqa",
                 knowledge_item=line["KnowledgeItem"],
                 correct_choice_id=1,  # nosec
             )
