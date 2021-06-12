@@ -229,9 +229,11 @@ class TeacherOwnedQuestion(MethodView):
                 status_code = 201
 
             # update correct choice id
-            correct_choice_id = [choice['uuid']
-                                 for choice in data['choices']
-                                 if choice['is_correct_choice']][0]
+            correct_choice_id = None
+            if 'choices' in data:
+                correct_choice_id = [choice['uuid']
+                                     for choice in data['choices']
+                                     if choice['is_correct_choice']][0]
 
             if correct_choice_id is not None:
                 choice_id = QuestionChoice.query.filter_by(uuid=correct_choice_id).first().id
