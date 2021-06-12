@@ -70,6 +70,7 @@ import QuestionSearchResult from '@/components/QuestionSearchResult'
 import { createNamespacedHelpers } from 'vuex'
 
 const { mapActions, mapGetters, mapMutations } = createNamespacedHelpers('questions')
+const { mapActions: classroomAction } = createNamespacedHelpers('classrooms')
 
 export default {
   name: 'Questions',
@@ -79,6 +80,7 @@ export default {
   },
   mounted: function () {
     this.fetchQuestions()
+    this.fetchClasses()
   },
   data: function () {
     return {
@@ -95,6 +97,9 @@ export default {
     ...mapActions({
       fetchQuestions: 'GETQUESTIONS',
       deleteQuestion: 'DELETEQUESTION'
+    }),
+    ...classroomAction({
+      fetchClasses: 'GETCLASSES'
     }),
     ...mapMutations({
       setCurrentQuestion: 'SET_CURRENTQUESTION'

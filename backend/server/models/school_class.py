@@ -100,8 +100,8 @@ class SchoolClass(BaseModelMixin, db.Model):
                                      .filter_by(school_class=self,
                                                 student_id=student_id)\
                                      .first()
-        db.session.delete(assoc_)
-        db.session.commit()
+
+        assoc_.delete()
 
     def key_stage_from_year_group(self, year_group: str) -> str:
         year_group = year_group.lower()

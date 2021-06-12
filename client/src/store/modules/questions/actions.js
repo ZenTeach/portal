@@ -24,7 +24,6 @@ const CREATEQUESTION = ({ commit, dispatch }, payload) => {
       _data => {
         dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
         dispatch('app/TOGGLE_ERROR', { message: 'Question created successfully!' }, { root: true })
-        dispatch('GETQUESTIONS')
         router.push('/questions')
       },
       error => {
@@ -57,7 +56,6 @@ const UPDATEQUESTION = ({ commit, dispatch }, data) => {
       data => {
         dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
         dispatch('app/TOGGLE_ERROR', data, { root: true })
-        dispatch('GETQUESTIONS')
         commit('UNSET_CURRENTQUESTION')
         router.push('/questions')
       },
