@@ -36,6 +36,7 @@
     "vue-cookies": "^1.5.0",
     "vue-google-oauth2": "^1.4.0",
     "vue-lodash": "^2.1.2",
+    "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.0.1",
     "vue-template-loader": "^1.1.0",
     "vue2-editor": "^2.10.2",
