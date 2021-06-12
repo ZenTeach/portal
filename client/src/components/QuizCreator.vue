@@ -156,7 +156,7 @@ import QuestionSearchResult from '@/components/QuestionSearchResult'
 import Api from '@/service/Api'
 
 import { createNamespacedHelpers } from 'vuex'
-const { mapState, mapActions, mapGetters } = createNamespacedHelpers('app')
+const { mapState, mapActions, mapGetters, mapMutations: appMutations } = createNamespacedHelpers('app')
 const { mapMutations: questionMutations } = createNamespacedHelpers('questions')
 
 export default {
@@ -208,6 +208,9 @@ export default {
     ...questionMutations({
       setCurrentQuestion: 'SET_CURRENTQUESTION'
     }),
+    ...appMutations({
+      resetQuestionSearch: 'RESET_QUESTION_SEARCH'
+    }),
     initial () {
       return {
         curator: 1,
@@ -257,6 +260,7 @@ export default {
     },
     goToQuestionEdit () {
       this.setCurrentQuestion(this.editableQuestion)
+      this.resetQuestionSearch()
       this.$router.push('/question/edit')
     },
     closeDialog () {
