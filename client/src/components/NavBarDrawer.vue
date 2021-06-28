@@ -34,14 +34,18 @@
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>
+          <v-badge v-if="item.beta"
+            color="primary darken-3"
+            content="NEW"
+            offset-x="2.9rem"
+            offset-y="1.2rem"
+            right>
+            <v-list-item-title>
+              {{ item.title }}
+            </v-list-item-title>
+          </v-badge>
+          <v-list-item-title v-else>
             {{ item.title }}
-            <v-badge v-if="item.beta"
-              color="deep-purple"
-              dot
-              overlap
-              right>
-            </v-badge>
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
@@ -97,8 +101,8 @@ export default {
           to: '/classrooms'
         },
         {
-          title: 'Questions',
-          icon: 'mdi-post-it-note-check',
+          title: 'Question Library',
+          icon: 'mdi-library-shelves',
           to: '/questions',
           beta: true
         }
