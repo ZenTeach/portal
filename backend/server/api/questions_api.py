@@ -152,6 +152,11 @@ class TeacherOwnedQuestions(MethodView):
                 'message': 'Teacher is not recognized'
             }), 422)
 
+        if 'subject' in data:
+            subject_id = Subject.query.filter_by(name=data.get('subject')).first().id
+            data.update(subject_id=subject_id)
+            del data['subject']
+
         question = Questions(**data)
         try:
             question.save()
