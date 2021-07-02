@@ -87,7 +87,7 @@
                       mdi-checkbox
                     </v-icon>
                     <template v-slot:activator>
-                      <v-list-item-title>{{topic}}</v-list-item-title>
+                      <v-list-item-title class="body-1 text-uppercase font-weight-bold">{{topic}}</v-list-item-title>
                       <v-badge
                         color="success"
                         overlap
@@ -96,7 +96,7 @@
                       ></v-badge>
                     </template>
                     <v-list-item v-for="ki in kis" :key="ki">
-                      <v-list-item-title v-text="ki"></v-list-item-title>
+                      <v-list-item-title v-text="ki" class="font-weight-light"></v-list-item-title>
                       <v-chip
                         class="ma-2"
                         close

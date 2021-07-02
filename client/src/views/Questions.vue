@@ -23,6 +23,7 @@
                 :resultSet='this.questionList'
                 :selectable='false'
                 :show_user_created_badge='false'
+                no_data_text='User is library empty 📭'
               >
                 <template v-slot:extra_actions="itemSlotProps">
                   <v-icon
