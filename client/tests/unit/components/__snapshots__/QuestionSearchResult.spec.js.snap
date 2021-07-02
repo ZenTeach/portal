@@ -11,9 +11,9 @@ exports[`QuestionSearchResult.vue Test renders empty search result component 1`]
     activeclass=""
     tag="div"
   >
-    <h4>
+    <h2>
        No Question found!
-    </h4>
+    </h2>
   </v-list-item-stub>
 </v-list-stub>
 `;
