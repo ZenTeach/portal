@@ -27,7 +27,11 @@ import {
 } from 'vee-validate'
 
 const { mapActions, mapGetters } = createNamespacedHelpers('app')
-const { mapActions: questionActions } = createNamespacedHelpers('questions')
+const {
+  mapActions: questionActions,
+  mapGetters: questionsGetters,
+  mapMutations: questionsMutations
+} = createNamespacedHelpers('questions')
 const { mapGetters: classRoomGetters } = createNamespacedHelpers('classrooms')
 
 export default {
@@ -38,6 +42,12 @@ export default {
   },
   mixins: [QuestionCRUDMixin],
   computed: {
+    ...questionsGetters({
+      currentQuestion: 'CURRENTQUESTION'
+    }),
+    ...questionsMutations({
+      unsetCurrentQuestion: 'UNSET_CURRENTQUESTION'
+    }),
     ...mapGetters({
       getSubjects: 'getSubjects',
       getKis: 'getKis',
@@ -48,25 +58,35 @@ export default {
     })
   },
 
+  beforeMount: function () {
+    if (this.currentQuestion) {
+      this._.merge(this.questionObject, this.processCurrentQuestion(this.currentQuestion))
+      console.log(this.questionObject, this.processCurrentQuestion(this.currentQuestion))
+      this.triggerKIFetch()
+    }
+  },
+
   data: function () {
     // merge default data
+    const questionObject = {
+      subject: '',
+      exam_board: '',
+      topic: '',
+      knowledge_item: '',
+      tag: '',
+      question_type: 'multiple_choice',
+      question: '',
+      choices: [
+        { value: '', weight: 0, is_correct_choice: false, feedback: '' },
+        { value: '', weight: 0, is_correct_choice: false, feedback: '' },
+        { value: '', weight: 0, is_correct_choice: false, feedback: '' },
+        { value: '', weight: 0, is_correct_choice: false, feedback: '' }
+      ]
+    }
+
     return Object.assign(
       {
-        questionObject: {
-          subject: '',
-          exam_board: '',
-          topic: '',
-          knowledge_item: '',
-          tag: '',
-          question_type: 'multiple_choice',
-          question: '',
-          choices: [
-            { value: '', weight: 0, is_correct_choice: false, feedback: '' },
-            { value: '', weight: 0, is_correct_choice: false, feedback: '' },
-            { value: '', weight: 0, is_correct_choice: false, feedback: '' },
-            { value: '', weight: 0, is_correct_choice: false, feedback: '' }
-          ]
-        }
+        questionObject: questionObject
       },
       this.initData()
     )
@@ -82,6 +102,9 @@ export default {
     processSubmit () {
       if (this.validate) {
         this.postQuestion(this.questionObject)
+      }
+      if (this.currentQuestion) {
+        this.unsetCurrentQuestion()
       }
     }
   }

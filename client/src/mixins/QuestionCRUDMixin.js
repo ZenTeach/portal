@@ -40,6 +40,12 @@ const QuestionCRUDMixin = {
         knowledge_items: []
       }
     },
+    processCurrentQuestion (currentQuestion) {
+      const { id, ...questionObject } = Object.assign({}, currentQuestion)
+      questionObject.question_type = 'multiple_choice'
+      questionObject.subject = this._.get(questionObject, 'subject.name', '')
+      return questionObject
+    },
     triggerTopicFetch () {
       this.fetchTopics(this.questionObject.subject)
     },

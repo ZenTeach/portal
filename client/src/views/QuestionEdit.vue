@@ -58,11 +58,12 @@ export default {
     })
   },
   beforeMount: function () {
-    const { id, ...questionObject } = Object.assign({}, this.currentQuestion)
-    questionObject.question_type = 'multiple_choice'
-    questionObject.subject = this._.get(questionObject, 'subject.name', '')
-    this.questionObject = questionObject
-    this.suggestedExamBoardsForSubjects(questionObject.subject)
+    // const { id, ...questionObject } = Object.assign({}, this.currentQuestion)
+    // questionObject.question_type = 'multiple_choice'
+    // questionObject.subject = this._.get(questionObject, 'subject.name', '')
+    // this.questionObject = questionObject
+    this.questionObject = this.processCurrentQuestion(this.currentQuestion)
+    this.suggestedExamBoardsForSubjects(this.questionObject.subject)
     this.exam_boards = this.default_exam_board
   },
   data: function () {

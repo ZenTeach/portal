@@ -68,7 +68,7 @@ export default {
     },
     no_data_text: {
       type: String,
-      default: "No Question found!"
+      default: 'No Question found!'
     }
   },
   computed: {},
