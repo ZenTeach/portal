@@ -45,7 +45,7 @@
       </template>
     </v-list-item-group>
     <v-list-item v-else>
-      <h4> No Question found!</h4>
+      <h2> {{ no_data_text }}</h2>
     </v-list-item>
   </v-list>
 </template>
@@ -65,6 +65,10 @@ export default {
     show_user_created_badge: {
       type: Boolean,
       default: true
+    },
+    no_data_text: {
+      type: String,
+      default: "No Question found!"
     }
   },
   computed: {},
