@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import uuid4
 
 from server import db
@@ -9,6 +9,8 @@ from .base_model import unique_uuid4
 
 
 class QuestionChoice(db.Model, BaseModelMixin):
+    _IGNORED_COLUMNS = ["uuid"]
+
     __tablename__ = "question_choice"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     question_id = db.Column(db.Integer, db.ForeignKey("questions.id"))
@@ -46,6 +48,26 @@ class QuestionChoice(db.Model, BaseModelMixin):
     def __repr__(self):
         return "Choice: {}".format(self.value)
 
+    def get_non_pk_columns(self) -> List[str]:
+        table = self.__table__
+        return [k for k in table.columns.keys() if k not in table.primary_key and k not in self._IGNORED_COLUMNS]  # noqa
+
     @classmethod
     def empty_instance(cls):
-        return cls(value="")
+        return cls(value="", feedback="")
+
+    @classmethod
+    def clone(cls, instance: 'QuestionChoice', **kwargs: dict) -> 'QuestionChoice':
+        instance.id
+
+        non_pk_columns = instance.get_non_pk_columns()
+        data = {c: getattr(instance, c) for c in non_pk_columns}
+        data.update(kwargs)
+
+        clone = instance.__class__(**data)
+        try:
+            clone.save()
+        except Exception as e:
+            raise e
+
+        return clone
