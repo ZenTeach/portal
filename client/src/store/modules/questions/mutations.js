@@ -7,7 +7,7 @@ const SET_CURRENTQUESTION = (state, payload) => {
 }
 
 const UNSET_CURRENTQUESTION = (state) => {
-  Object.assign(state.current_question, {})
+  state.current_question = {}
 }
 
 export default {

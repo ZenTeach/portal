@@ -62,8 +62,8 @@
             <question-search v-bind:subject="subject" v-bind:topics="topicsSelected" v-bind:knowledge_items="selectedKnowledgeItems" v-on:update:searchResult="populateSearchResult"/>
             <question-search-result v-bind:resultSet="questionSearch" v-show="hasSearchResult">
               <template v-slot:extra_actions="{ item }">
-                <v-btn @click="confirmEdit(item)">
-                  <v-icon medium class="m-2">
+                <v-btn :elevation="0" class="white" :ripple="false" @click.capture.stop="confirmEdit(item)">
+                  <v-icon small class="m-2">
                       mdi-pencil
                   </v-icon>
                 </v-btn>
@@ -261,7 +261,7 @@ export default {
     goToQuestionEdit () {
       this.setCurrentQuestion(this.editableQuestion)
       this.resetQuestionSearch()
-      this.$router.push('/question/edit')
+      this.$router.push('/question/create')
     },
     closeDialog () {
       this.$store.commit('app/RESET_QUIZ_CREATOR', { root: true })
