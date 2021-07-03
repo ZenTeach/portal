@@ -48,15 +48,13 @@ import {
 } from 'vee-validate'
 
 import { VueEditor } from 'vue2-editor'
-import { quillEditor } from 'vue-quill-editor'
 
 export default {
   name: 'QuestionsChoices',
   components: {
     ValidationObserver,
     ValidationProvider,
-    VueEditor,
-    quillEditor
+    VueEditor
   },
   props: {
     choice: {
