@@ -33,6 +33,14 @@
           </v-dialog>
         </v-container>
       </div>
+      <v-footer padless absolute>
+        <v-col
+          class="text-center w-"
+          cols="12"
+        >
+          <p class="font-weight-medium caption">&#169; {{ new Date().getFullYear() }} — ZenTeach&#174;</p>
+        </v-col>
+      </v-footer>
     </v-content>
   </v-app>
 </template>
