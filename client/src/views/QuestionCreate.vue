@@ -1,6 +1,7 @@
 <template>
   <ValidationObserver ref="_observer">
     <question-form
+      ref="question_form"
       :question_object="questionObject"
       :knowledge_items="knowledge_items"
       :topics="topics"
@@ -61,7 +62,6 @@ export default {
   beforeMount: function () {
     if (this.currentQuestion) {
       this._.merge(this.questionObject, this.processCurrentQuestion(this.currentQuestion))
-      console.log(this.questionObject, this.processCurrentQuestion(this.currentQuestion))
       this.triggerKIFetch()
     }
   },
@@ -100,11 +100,13 @@ export default {
       postQuestion: 'CREATEQUESTION'
     }),
     processSubmit () {
-      if (this.validate) {
-        this.postQuestion(this.questionObject)
-      }
-      if (this.currentQuestion) {
-        this.unsetCurrentQuestion()
+      if (this.validate()) {
+        this.convertToQuillDelta(this.questionObject.choices)
+        this.postQuestion(this.questionObject).then(_res => {
+          if (this.currentQuestion) {
+            this.unsetCurrentQuestion()
+          }
+        })
       }
     }
   }

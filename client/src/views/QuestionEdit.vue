@@ -1,6 +1,7 @@
 <template>
     <ValidationObserver ref="_observer">
         <question-form
+            ref="question_form"
             :question_object="questionObject"
             :knowledge_items="knowledge_items"
             :topics="topics"
@@ -58,10 +59,6 @@ export default {
     })
   },
   beforeMount: function () {
-    // const { id, ...questionObject } = Object.assign({}, this.currentQuestion)
-    // questionObject.question_type = 'multiple_choice'
-    // questionObject.subject = this._.get(questionObject, 'subject.name', '')
-    // this.questionObject = questionObject
     this.questionObject = this.processCurrentQuestion(this.currentQuestion)
     this.suggestedExamBoardsForSubjects(this.questionObject.subject)
     this.exam_boards = this.default_exam_board
@@ -87,6 +84,7 @@ export default {
     processSubmit () {
       if (this.validate) {
         const payload = Object.assign({}, this.questionObject)
+        this.convertToQuillDelta(payload.choices)
         this.updateQuestion({
           questionId: this.currentQuestion.id,
           payload: payload
