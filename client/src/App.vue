@@ -35,10 +35,16 @@
       </div>
       <v-footer padless absolute>
         <v-col
-          class="text-center w-"
+          class="text-center flex items-center"
           cols="12"
         >
-          <p class="font-weight-medium caption">&#169; {{ new Date().getFullYear() }} — ZenTeach&#174;</p>
+          <p class="font-weight-medium caption"> Copyright &#169; 2019 - {{ new Date().getFullYear() }} — ZenTeach&#174;</p>
+          <a href="/tos" class="caption text-decoration-none black--text">
+            Terms of Service
+          </a> |
+          <a href="/privacy_policy" class="caption text-decoration-none black--text">
+            Privacy Policy
+          </a>
         </v-col>
       </v-footer>
     </v-content>
