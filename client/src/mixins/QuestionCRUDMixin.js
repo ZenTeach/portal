@@ -76,6 +76,15 @@ const QuestionCRUDMixin = {
         return true
       }
       return false
+    },
+    convertToQuillDelta (choices) {
+      for (const [ref, component] of Object.entries(this.$refs.question_form.$refs)) {
+        const refIndex = parseInt(ref.split('-')[1])
+        const delta = component[0].$refs.editor.quill.getContents()
+
+        // update choice feedback
+        choices[refIndex].feedback = JSON.stringify(delta)
+      }
     }
   },
   components: {}

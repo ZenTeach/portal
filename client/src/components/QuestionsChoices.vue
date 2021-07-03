@@ -27,7 +27,11 @@
         <v-row>
           <v-col cols="12" lg="12" sm="12" md="12">
             <ValidationProvider name="feedback" rules="required" v-slot="{ errors }">
-              <vue-editor v-model="choice.feedback" :editorToolbar="toolbar" :placeholder="choice.feedback || ''"></vue-editor>
+              <vue-editor
+                v-model="choice.feedback"
+                :editorToolbar="toolbar"
+                ref="editor"
+                :placeholder="choice.feedback || ''"></vue-editor>
               <span v-show="hasFeedbackError(errors)" class="red--text text--darken-1 font-weight-light">This field is required</span>
             </ValidationProvider>
           </v-col>
@@ -70,6 +74,16 @@ export default {
           ['code-block', 'link']
         ],
         editors: [],
+        editorOption: {
+          modules: {
+            toolbar: [
+              [{ header: [1, 2, false] }],
+              ['bold', 'italic', 'underline', 'strike'],
+              ['blockquote', 'code-block'],
+              ['link', 'image', 'video']
+            ]
+          }
+        },
         choiceCount: 0
       }
     },

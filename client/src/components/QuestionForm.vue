@@ -97,17 +97,15 @@
             </span>
             <hr class="my-3"/>
               <v-col cols="12">
-                  <questions-choices :choice="question_object.choices[0]" :disable_validation="validate_multiple_choices"/>
+                  <questions-choices
+                    v-for="(choice, idx) in question_object.choices"
+                    :choice="question_object.choices[idx]"
+                    :ref="'choiceEditor-' + idx"
+                    :key="idx"
+                    :disable_validation="validate_multiple_choices"/>
               </v-col>
-              <v-col cols="12">
-                  <questions-choices :choice="question_object.choices[1]" :disable_validation="validate_multiple_choices"/>
-              </v-col>
-              <v-col cols="12">
-                  <questions-choices :choice="question_object.choices[2]" :disable_validation="validate_multiple_choices"/>
-              </v-col>
-              <v-col cols="12">
-                  <questions-choices :choice="question_object.choices[3]" :disable_validation="validate_multiple_choices"/>
-              </v-col>
+              <!-- If no choices are given -->
+              <template></template>
           </v-row>
         </v-container>
       </v-card-text>
