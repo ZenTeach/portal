@@ -42,12 +42,12 @@
 
 <script>
 
+import { VueEditor } from 'vue2-editor'
 import {
   ValidationObserver,
   ValidationProvider
 } from 'vee-validate'
-
-import { VueEditor } from 'vue2-editor'
+import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html'
 
 export default {
   name: 'QuestionsChoices',
@@ -60,6 +60,12 @@ export default {
     choice: {
       type: Object,
       default: {}
+    }
+  },
+  beforeMount: function () {
+    if (this.choice) {
+      const convertedFeedback = new QuillDeltaToHtmlConverter(JSON.parse(this.choice.feedback).ops, {}).convert()
+      this.choice.feedback = convertedFeedback
     }
   },
   data: function () {
