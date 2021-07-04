@@ -33,6 +33,20 @@
           </v-dialog>
         </v-container>
       </div>
+      <v-footer padless absolute>
+        <v-col
+          class="text-center flex items-center"
+          cols="12"
+        >
+          <p class="font-weight-medium caption"> Copyright &#169; 2019 - {{ new Date().getFullYear() }} — ZenTeach&#174;</p>
+          <a href="/tos" class="caption text-decoration-none black--text">
+            Terms of Service
+          </a> |
+          <a href="/privacy_policy" class="caption text-decoration-none black--text">
+            Privacy Policy
+          </a>
+        </v-col>
+      </v-footer>
     </v-content>
   </v-app>
 </template>
