@@ -33,7 +33,7 @@
           </v-dialog>
         </v-container>
       </div>
-      <v-footer padless absolute>
+      <v-footer fixed absolute>
         <v-col
           class="text-center flex items-center"
           cols="12"

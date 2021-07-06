@@ -19,7 +19,7 @@ exports[`App.vue matches snapshot 1`] = `
         </v-dialog-stub>
       </v-container-stub>
     </div>
-    <v-footer-stub height="auto" tag="div" absolute="true" padless="true">
+    <v-footer-stub height="auto" tag="div" absolute="true" fixed="true">
       <v-col-stub cols="12" tag="div" class="text-center flex items-center">
         <p class="font-weight-medium caption"> Copyright © 2019 - 2021 — ZenTeach®</p> <a href="/tos" class="caption text-decoration-none black--text">
           Terms of Service

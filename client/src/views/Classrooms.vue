@@ -60,6 +60,12 @@
                     mdi-pencil
                   </v-icon>
                 </template>
+                <template v-slot:item.start_date="{ item }">
+                    {{ item.start_date | formatDate }}
+                </template>
+                <template v-slot:item.exam_board="{ item }">
+                  {{ item.exam_board | formatExamBoard }}
+                </template>
                 <template v-slot:footer>
                   <v-dialog v-model="dialog" max-width="500px" max-height="450px">
                     <template v-slot:activator="{ on }">
@@ -201,6 +207,7 @@ import {
   ValidationObserver,
   ValidationProvider
 } from 'vee-validate'
+import moment from 'moment'
 
 const { mapGetters, mapActions } = createNamespacedHelpers('classrooms')
 const { mapGetters: appGetters } = createNamespacedHelpers('app')
@@ -250,6 +257,30 @@ export default {
       classname: '',
       subject: [],
       editedItem: {}
+    }
+  },
+  filters: {
+    formatExamBoard: function (value) {
+      if (!value) return ''
+
+      const defaultExamBoard = [
+        { value: 'aqa', text: 'AQA' },
+        { value: 'ocr_gateway', text: 'OCR Gateway' },
+        { value: 'edexcel', text: 'EdExcel' },
+        { value: 'ocr_new', text: 'OCR 21st Century' },
+        { value: 'wjec', text: 'WJEC' },
+        { value: 'ccea', text: 'CCEA' },
+        { value: 'eduqas', text: 'Eduqas' }
+      ]
+
+      const examBoard = defaultExamBoard.filter((val) => value === val.value)
+      return examBoard[0].text
+    },
+    formatDate: function (value) {
+      if (!value) return ''
+      if (value) {
+        return moment(String(value)).format('DD/MM/YYYY')
+      }
     }
   },
   mounted: function () {

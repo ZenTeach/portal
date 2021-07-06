@@ -6,7 +6,6 @@ import '@/plugins'
 import App from '@/App.vue'
 import router from './src/router'
 import store from '@/store'
-import moment from 'moment'
 import VueLodash from 'vue-lodash'
 import lodash from 'lodash'
 
@@ -15,12 +14,6 @@ Vue.use(VueCookies)
 Vue.use(VueLodash, { name: 'custom', lodash: lodash })
 
 const unsync = sync(store, router)
-
-Vue.filter('formatDate', function (value) {
-  if (value) {
-    return moment(String(value)).format('DD/MM/YYYY')
-  }
-})
 
 var vm = new Vue({
   router,
