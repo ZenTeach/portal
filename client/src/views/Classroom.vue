@@ -21,7 +21,9 @@
             <v-chip :color="statusToColor[item.status]">{{ item.status }}</v-chip>
           </template>
           <template v-slot:item.created_at="{item}">
-            {{ item.created_at | formatDate }}
+            <p>
+              {{ item.created_at | formatDate }}
+            </p>
           </template>
           <template v-slot:footer>
             <v-dialog v-model="dialog" max-width="1000px" persistent>
@@ -48,6 +50,7 @@ import MaterialChartCard from '@/components/ChartCard'
 import StudentList from '@/components/StudentList'
 import QuizCreator from '@/components/QuizCreator'
 import { createNamespacedHelpers } from 'vuex'
+import moment from 'moment'
 
 const { mapGetters, mapActions } = createNamespacedHelpers('classrooms')
 const { mapMutations } = createNamespacedHelpers('app')
@@ -61,6 +64,14 @@ export default {
   },
   mounted () {
     this.getCurrentClass(this.$route.params.id)
+  },
+  filters: {
+    formatDate: function (value) {
+      if (!value) return ''
+      if (value) {
+        return moment(String(value)).format('DD/MM/YYYY')
+      }
+    }
   },
   computed: {
     ...mapGetters({
@@ -77,6 +88,15 @@ export default {
   },
   data () {
     return {
+      defaultExamBoard: [
+        { value: 'aqa', text: 'AQA', suggested: false },
+        { value: 'ocr_gateway', text: 'OCR Gateway', suggested: false },
+        { value: 'edexcel', text: 'EdExcel', suggested: false },
+        { value: 'ocr_new', text: 'OCR 21st Century', suggested: false },
+        { value: 'wjec', text: 'WJEC', suggested: false },
+        { value: 'ccea', text: 'CCEA', suggested: false },
+        { value: 'eduqas', text: 'Eduqas', suggested: false }
+      ],
       headers: [
         {
           text: 'Quiz',
