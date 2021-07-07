@@ -156,12 +156,12 @@ class Grader(object):
             submission.update_grade_breakdown(self._feedback_builder.feedback)
 
     def _get_correct_choice_by_question_id(self,
-                                           target_question_id: str,
+                                           question_choice_uuid: UUID,
                                            haystack: Optional[List[CorrectChoice]] = None) -> Optional[str]:  # noqa
         if haystack is None:
             return
 
-        _filtered = filter(lambda value: target_question_id == value.correct_choice, haystack)
+        _filtered = filter(lambda value: question_choice_uuid == value.correct_choice, haystack)
         indexable = list(_filtered)
 
         if len(indexable) == 0:
@@ -174,11 +174,11 @@ class Grader(object):
                          submission_responses: List[Dict]) -> int:
         cum_sum = 0
         for response in submission_responses:
-            correct_choice = self._get_correct_choice_by_question_id(
-                response["questionID"], correct_responses
+            answered_correctly = self._get_correct_choice_by_question_id(
+                UUID(response["Choice_answer"]), correct_responses
             )
 
-            if correct_choice is None:
+            if answered_correctly is None:
                 self._feedback_builder.build_from_question_id(
                     int(response["questionID"]), UUID(response["Choice_answer"])
                 )

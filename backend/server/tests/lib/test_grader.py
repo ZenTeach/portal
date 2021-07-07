@@ -1,5 +1,6 @@
 from random import choice
 from typing import Dict, List, Optional
+from uuid import UUID
 
 import pytest
 from flask.testing import FlaskClient
@@ -169,6 +170,20 @@ def test__score_quiz_score_calculation_and_updates(quiz_session: QuizSession,
     Grader.from_quiz_session(quiz_session.uuid)
 
 
+def test__get_correct_choice_by_question_id(quiz_session: QuizSession,
+                                            quizgrade_: QuizGrade,
+                                            response: List[Dict],
+                                            mocker: MockFixture):
+    quizgrade_.response = response
+    quizgrade_.save()
+
+    def _mock_get_correct_choice_by_question_id(instance,
+                                                target: UUID,
+                                                stack: Optional[List[CorrectChoice]]):
+        assert isinstance(target, UUID)
+        assert stack
+
+
 def test__calculate_score(quiz_session: QuizSession,
                           quizgrade_: QuizGrade,
                           response: List[Dict],
@@ -177,7 +192,7 @@ def test__calculate_score(quiz_session: QuizSession,
     quizgrade_.save()
 
     def _mock_get_correct_choice_by_question_id(instance,
-                                                target: str,
+                                                target: UUID,
                                                 stack: Optional[List[CorrectChoice]]):
         assert target
         assert stack
