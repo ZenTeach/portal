@@ -50,7 +50,6 @@ class TestQuizGraderTask:
         except Exception as exception:
             raise fail("DID RAISE {0}".format(exception))
 
-    @pytest.mark.celery
     def test_grader_regrade_quiz(self, monkeypatch,
                                  mocker: MockFixture,
                                  student_: Student,
