@@ -47,3 +47,10 @@ class QuizGrade(BaseModelMixin, db.Model):
     def is_graded(self):
         self.graded = True
         self.save()
+
+    def prepare_regrade_(self):
+        if not self.is_graded():
+            raise Exception("Quiz has not been graded yet!")
+
+        self.grade_breakdown = {}
+        self.save()
