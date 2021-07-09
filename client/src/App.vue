@@ -33,7 +33,7 @@
           </v-dialog>
         </v-container>
       </div>
-      <v-footer fixed absolute>
+      <footer>
         <v-col
           class="text-center flex items-center"
           cols="12"
@@ -46,7 +46,7 @@
             Privacy Policy
           </a>
         </v-col>
-      </v-footer>
+      </footer>
     </v-content>
   </v-app>
 </template>
