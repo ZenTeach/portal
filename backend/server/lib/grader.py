@@ -88,6 +88,22 @@ class Grader(object):
         self.start_grading()
 
     @classmethod
+    def from_student_and_quiz_id(cls, student_id: int, class_quiz_id: int) -> None:
+        quiz_grade = QuizGrade.query.filter_by(
+            student_id=student_id, class_quiz_id=class_quiz_id).first()
+        quiz_session = QuizSession.query.filter_by(
+            student_id=student_id, class_quiz_id=class_quiz_id).first()
+
+        if quiz_grade is None:
+            raise ValueError('Quiz grade not found!')
+
+        if quiz_session is None:
+            raise ValueError('Quiz session not found!')
+
+        quiz_grade.prepare_regrade_()
+        cls.from_quiz_session(quiz_session.uuid)
+
+    @classmethod
     def from_quiz_session(cls, quiz_session_id: UUID) -> None:
         # Get submission from session
         session = QuizSession.query.filter_by(uuid=quiz_session_id).first()
@@ -110,11 +126,11 @@ class Grader(object):
                 )
             ).all()
 
-        logger.info(f"Found {len(administered_quiz_list)} administered quizzes!")
+        logger.debug(f"Found {len(administered_quiz_list)} administered quizzes!")
         for quiz in administered_quiz_list:
             res = QuizGrade.query.filter(
                 QuizGrade.class_quiz_id == quiz.id).all()
-            logger.info(f"Found {len(res)} submissions for quiz with id {quiz.id}")
+            logger.debug(f"Found {len(res)} submissions for quiz with id {quiz.id}")
             self._score_quiz(res, quiz)
 
     def _score_quiz(self, quiz_submissions: List[QuizGrade], quiz: ClassQuiz) -> None:
@@ -140,6 +156,7 @@ class Grader(object):
                 for vals in correct_choices_resultset
             ]
             score = self._calculate_score(correct_choices, data)
+            logger.debug(f"Setting score for quiz {score}")
             submission.update_score(score)
             submission.is_graded()
             # TODO: Step 2 get grade breakdown
@@ -156,7 +173,7 @@ class Grader(object):
 
         if len(indexable) == 0:
             return None
-
+        logger.debug(f"Question is correctly answered {indexable}")
         return indexable[0][1]
 
     def _calculate_score(self,
@@ -169,6 +186,8 @@ class Grader(object):
             )
 
             if answered_correctly is None:
+                logger.debug(
+                    f"Found a question answered incorrectly: ids {response['questionID']}, {response['Choice_answer']}")  # noqa
                 topic_and_ki_tuple: Tuple[str, str] = (
                     Questions.query.with_entities(
                         Questions.topic, Questions.knowledge_item)
