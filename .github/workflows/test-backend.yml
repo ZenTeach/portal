@@ -13,7 +13,9 @@ jobs:
       DATABASE_TEST_URL: postgres://zenteach:cipass@postgres:5432/zenteach
       FLASK_ENV: test
       APP_SETTINGS: server.config.TestingConfig
-      REDIS_URL: redis://redis:6379/app
+      REDIS_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://localhost:6379/0
+      CELERY_BROKER_URL: amqp://zenteach:localhost@localhost:5672/jobs
       AUTHLIB_INSECURE_TRANSPORT: true
       CLIENT_URL: http://localhost:8080
       TMP_DIR: /tmp
@@ -40,7 +42,15 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
+      rabbitmq:
+        image: rabbitmq:alpine
+        ports:
+          - 5672:5672
+        env:
+          RABBITMQ_DEFAULT_USER: zenteach
+          RABBITMQ_ERLANG_COOKIE: va21ef9BSZz4WUVgcGcacmsIQ09qlh7VAKWOgfznaCg
+          RABBITMQ_DEFAULT_PASS: zenteach_broker
+          RABBITMQ_DEFAULT_VHOST: jobs
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
