@@ -3,7 +3,7 @@ import string
 from typing import List, Union
 
 from server import bcrypt, db
-from server.models import SchoolClass, StudentAttendedClass
+from server.models import ClassQuiz, SchoolClass, StudentAttendedClass
 from server.models.base_model import BaseModelMixin
 from server.models.user_account.confirmable import Confirmable
 from sqlalchemy import event
@@ -85,11 +85,11 @@ class Student(BaseModelMixin, db.Model, Confirmable):
         """
         [self.add_to_class(_class) for _class in classrooms]
 
-    def add_quiz_score(self, quiz, response) -> None:
+    def add_quiz_score(self, quiz: ClassQuiz, response: dict) -> None:
         from .quiz_grade import QuizGrade
 
         self.quiz_grade.append(
-            QuizGrade(student=self, class_quiz=quiz, responses=response)
+            QuizGrade(student_id=self.id, class_quiz_id=quiz.id, responses=response)
         )
 
     def remove_class(self, class_: SchoolClass) -> None:
