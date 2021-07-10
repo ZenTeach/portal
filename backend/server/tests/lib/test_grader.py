@@ -1,5 +1,6 @@
 from random import choice
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
+from uuid import UUID
 
 import pytest
 from flask.testing import FlaskClient
@@ -9,6 +10,7 @@ from server.lib import Grader
 from server.lib.grader import CorrectChoice, Feedback
 from server.models import (ClassQuizStatus, Questions, QuizGrade, QuizSession,
                            SchoolClass, Student, Teacher)
+from server.models.question_choice import QuestionChoice
 from server.tests.factories import (QuestionsFactory, QuizGradeFactory,
                                     QuizSessionFactory, SchoolClassFactory,
                                     StudentFactory, TeacherFactory)
@@ -51,6 +53,11 @@ def quizgrade_(student: Student, classquiz_: ClassQuiz, client: FlaskClient) -> 
 @pytest.fixture
 def question_(client: FlaskClient) -> Questions:
     return QuestionsFactory.create(multiple_choice_question_type=True, with_choices=4)
+
+
+@pytest.fixture(autouse=True)
+def questions_(client: FlaskClient) -> None:
+    QuestionsFactory.create_batch(3, multiple_choice_question_type=True, with_choices=4)
 
 
 @pytest.fixture
@@ -169,6 +176,20 @@ def test__score_quiz_score_calculation_and_updates(quiz_session: QuizSession,
     Grader.from_quiz_session(quiz_session.uuid)
 
 
+def test__get_correct_choice_by_question_id(quiz_session: QuizSession,
+                                            quizgrade_: QuizGrade,
+                                            response: List[Dict],
+                                            mocker: MockFixture):
+    quizgrade_.response = response
+    quizgrade_.save()
+
+    def _mock_get_correct_choice_by_question_id(instance,
+                                                target: UUID,
+                                                stack: Optional[List[CorrectChoice]]):
+        assert isinstance(target, UUID)
+        assert stack
+
+
 def test__calculate_score(quiz_session: QuizSession,
                           quizgrade_: QuizGrade,
                           response: List[Dict],
@@ -177,7 +198,7 @@ def test__calculate_score(quiz_session: QuizSession,
     quizgrade_.save()
 
     def _mock_get_correct_choice_by_question_id(instance,
-                                                target: str,
+                                                target: UUID,
                                                 stack: Optional[List[CorrectChoice]]):
         assert target
         assert stack
@@ -206,6 +227,19 @@ def test_grading_with_valid_response(quiz_session: QuizSession,
     assert quizgrade_.grade_breakdown is not None and len(quizgrade_.grade_breakdown) != 0
 
 
+@pytest.fixture
+def question_topic_and_ki(client: FlaskClient) -> Tuple[str, str]:
+    return (
+        Questions.query.with_entities(
+            Questions.topic, Questions.knowledge_item)
+        .first())
+
+
+@pytest.fixture
+def choice_feedback(client: FlaskClient) -> str:
+    return QuestionChoice.query.first().feedback
+
+
 class TestFeedbackBuilder(object):
     @classmethod
     def setup_class(cls):
@@ -215,56 +249,79 @@ class TestFeedbackBuilder(object):
     def teardown_class(cls):
         pass
 
-    def test_build_from_question_id(self, question_: Questions) -> None:
+    def test_build_from_question_id(self,
+                                    question_topic_and_ki: Tuple[str, str],
+                                    choice_feedback: str) -> None:
         builder = Feedback()
-        for _choice in question_.choices:
-            builder.build_from_question_id(question_.id, _choice.uuid)
+
+        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
 
         assert len(builder.feedback) == 1
         assert len(builder.feedback[0].keys()) == 4
         assert [*builder.feedback[0]] == ['topic', 'knowledge_item', 'progress', 'feedback']
 
-    def test__get_topic_breakdown(self, question_: Questions, mocker: MockFixture) -> None:
+    def test__get_topic_breakdown(self,
+                                  question_topic_and_ki: Tuple[str, str],
+                                  choice_feedback: str,
+                                  mocker: MockFixture) -> None:
         builder = Feedback()
 
         @mocker.patch('server.lib.grader.Feedback._get_topic_breakdown')
         def _mock_get_topic_breakdown(self, topic):
-            assert topic == question_.topic
+            assert topic == question_topic_and_ki[0]
 
-        builder.build_from_question_id(question_.id, question_.choices[0].uuid)
+        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
 
-    def test_compute_progress_for_topic(self, question_: Questions, mocker: MockFixture) -> None:
+    def test_compute_progress_for_topic(self,
+                                        question_topic_and_ki: Tuple[str, str],
+                                        choice_feedback: str,
+                                        mocker: MockFixture) -> None:
         builder = Feedback()
 
         @mocker.patch('server.lib.grader.Feedback.compute_progress_for_topic')
         def _mock_compute_progress_for_topic(self, topic):
-            assert topic == question_.topic
+            assert topic == question_topic_and_ki[0]
 
             assert self._get_topic_breakdown(topic)
-        builder.build_from_question_id(question_.id, question_.choices[0].uuid)
+        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
 
     def test_compute_progress_for_topic_sets_progress(self,
-                                                      question_: Questions,
+                                                      question_topic_and_ki: Tuple[str, str],
+                                                      choice_feedback: str,
                                                       mocker: MockFixture) -> None:
         builder = Feedback()
 
         mocker.patch('server.lib.grader.Feedback.add_ki_to_topic')
         mocker.patch('server.lib.grader.Feedback.add_feedback_to_topic')
-        builder.build_from_question_id(question_.id, question_.choices[0].uuid)
+        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
 
         # TODO: Add more cases here
         assert builder.feedback[0]['progress'] == ['0/1']
 
     def test_compute_progress_for_topic_exception(self,
-                                                  question_: Questions,
+                                                  question_topic_and_ki: Tuple[str, str],
+                                                  choice_feedback: str,
                                                   mocker: MockFixture) -> None:
         builder = Feedback()
         mocker.patch('server.lib.grader.Feedback._get_topic_breakdown', return_value=None)
 
         @mocker.patch('server.lib.grader.Feedback.compute_progress_for_topic')
         def _mock_compute_progress_for_topic(self, topic):
-            assert topic == question_.topic
+            assert topic == question_topic_and_ki[0]
 
             assert self._get_topic_breakdown(topic)
 
-        builder.build_from_question_id(question_.id, question_.choices[0].uuid)
+        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
+
+    def test_feedback_property(self,
+                               question_topic_and_ki: Tuple[str, str],
+                               choice_feedback: str) -> None:
+        builder = Feedback()
+        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
+
+        assert builder.feedback == [{
+            "topic": question_topic_and_ki[0],
+            "knowledge_item": [question_topic_and_ki[1]],
+            "progress": ["0/1"],
+            "feedback": [choice_feedback],
+        }]

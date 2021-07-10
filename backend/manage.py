@@ -1,8 +1,11 @@
+import server.lib.tasks.data_tasks as data_tasks
 from flask.cli import FlaskGroup
 from flask_migrate import MigrateCommand
 from server import create_app, db
 
 app = create_app()
+
+
 cli = FlaskGroup(create_app=create_app)
 cli.add_command("db", MigrateCommand)
 
@@ -37,6 +40,11 @@ def routes():
     print("Method \tEndpoint \turl name")
     for rule in app.url_map.iter_rules():
         print("{} \t{} \t{}".format(rule.methods, rule.endpoint, str(rule)))
+
+
+@cli.command("trigger_quiz_regrading")
+def trigger_quiz_regrading():
+    data_tasks.trigger_quiz_regrading()
 
 
 @cli.command("seed")

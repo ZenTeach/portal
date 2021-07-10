@@ -1,7 +1,6 @@
 from celery.utils.log import get_task_logger
 from server import celery
 from server.lib import Grader
-from server.models import ClassQuiz, ClassQuizStatus
 
 logger = get_task_logger(__name__)
 
@@ -27,7 +26,15 @@ def check_all_quizzes_submitted():
     """
     # Find the active quiz, i.e in created state
     # TODO: Needs to be fixed
-    active_class_quiz = ClassQuiz.query.with_entities(ClassQuiz.id).filter(  # noqa
-        status=ClassQuizStatus.created
-    )
     # Execute a query against database
+
+
+@celery.task(bind=True)
+def regrade_quiz(self, quiz_id: int, student_id: int):
+    try:
+        Grader.from_student_and_quiz_id(student_id, quiz_id)
+    except ValueError as e:
+        raise e
+    except Exception as e:
+        logger.error(e)
+        self.retry(exc=e, countdown=2 ** self.request.retries)

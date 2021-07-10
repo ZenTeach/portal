@@ -1,7 +1,7 @@
 import json
 import logging
 from collections import namedtuple
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from uuid import UUID
 
 from server.models import (ClassQuiz, ClassQuizStatus, QuestionChoice,
@@ -27,17 +27,11 @@ class Feedback(object):
         filtered_topic = [x["topic"] == topic for x in self._feedback]
         return len(filtered_topic) != 0
 
-    def build_from_question_id(self, questionID: int, choiceID: UUID) -> None:
-        _tuple = (
-            Questions.query.with_entities(
-                Questions.topic, Questions.knowledge_item)
-            .filter_by(id=questionID)
-            .first()
-        )
-        self.build_for_topic(_tuple[0])
-        self.add_ki_to_topic(_tuple[0], _tuple[1])
-        self.add_feedback_to_topic(choiceID, _tuple[0])
-        self.compute_progress_for_topic(_tuple[0])
+    def build_from_question_id(self, topic_and_ki: Tuple[str, str], choice_feedback: str) -> None:
+        self.build_for_topic(topic_and_ki[0])
+        self.add_ki_to_topic(topic_and_ki[0], topic_and_ki[1])
+        self.add_feedback_to_topic(choice_feedback, topic_and_ki[0])
+        self.compute_progress_for_topic(topic_and_ki[0])
 
     def build_for_topic(self, topic: str) -> None:
         if self._topic_exist_in_feedback(topic):
@@ -58,10 +52,6 @@ class Feedback(object):
             ),
             None)
 
-    def _get_feedback_for_choice(self, choice_id: UUID) -> str:
-        choice = QuestionChoice.query.filter_by(uuid=choice_id).first()
-        return choice.feedback
-
     def add_ki_to_topic(self, topic: str, ki: str) -> None:
         if not self._topic_exist_in_feedback(topic):
             return
@@ -70,8 +60,7 @@ class Feedback(object):
             return
         m["knowledge_item"].append(ki)
 
-    def add_feedback_to_topic(self, choiceID: UUID, topic: str):
-        feedback = self._get_feedback_for_choice(choiceID)
+    def add_feedback_to_topic(self, feedback: str, topic: str):
         m = self._get_topic_breakdown(topic)
         if m is None:
             return
@@ -81,6 +70,7 @@ class Feedback(object):
         m = self._get_topic_breakdown(topic)
         if m is None:
             return
+        # TODO compute progress across linked KIs
         m["progress"].append("0/1")
 
     def to_json(self) -> str:
@@ -96,6 +86,22 @@ class Grader(object):
         self.class_quiz = class_quiz
         self._feedback_builder = Feedback()
         self.start_grading()
+
+    @classmethod
+    def from_student_and_quiz_id(cls, student_id: int, class_quiz_id: int) -> None:
+        quiz_grade = QuizGrade.query.filter_by(
+            student_id=student_id, class_quiz_id=class_quiz_id).first()
+        quiz_session = QuizSession.query.filter_by(
+            student_id=student_id, class_quiz_id=class_quiz_id).first()
+
+        if quiz_grade is None:
+            raise ValueError('Quiz grade not found!')
+
+        if quiz_session is None:
+            raise ValueError('Quiz session not found!')
+
+        quiz_grade.prepare_regrade_()
+        cls.from_quiz_session(quiz_session.uuid)
 
     @classmethod
     def from_quiz_session(cls, quiz_session_id: UUID) -> None:
@@ -120,11 +126,11 @@ class Grader(object):
                 )
             ).all()
 
-        logger.info(f"Found {len(administered_quiz_list)} administered quizzes!")
+        logger.debug(f"Found {len(administered_quiz_list)} administered quizzes!")
         for quiz in administered_quiz_list:
             res = QuizGrade.query.filter(
                 QuizGrade.class_quiz_id == quiz.id).all()
-            logger.info(f"Found {len(res)} submissions for quiz with id {quiz.id}")
+            logger.debug(f"Found {len(res)} submissions for quiz with id {quiz.id}")
             self._score_quiz(res, quiz)
 
     def _score_quiz(self, quiz_submissions: List[QuizGrade], quiz: ClassQuiz) -> None:
@@ -150,23 +156,24 @@ class Grader(object):
                 for vals in correct_choices_resultset
             ]
             score = self._calculate_score(correct_choices, data)
+            logger.debug(f"Setting score for quiz {score}")
             submission.update_score(score)
             submission.is_graded()
             # TODO: Step 2 get grade breakdown
             submission.update_grade_breakdown(self._feedback_builder.feedback)
 
     def _get_correct_choice_by_question_id(self,
-                                           target_question_id: str,
+                                           question_choice_uuid: UUID,
                                            haystack: Optional[List[CorrectChoice]] = None) -> Optional[str]:  # noqa
         if haystack is None:
             return
 
-        _filtered = filter(lambda value: target_question_id == value.correct_choice, haystack)
+        _filtered = filter(lambda value: question_choice_uuid == value.correct_choice, haystack)
         indexable = list(_filtered)
 
         if len(indexable) == 0:
             return None
-
+        logger.debug(f"Question is correctly answered {indexable}")
         return indexable[0][1]
 
     def _calculate_score(self,
@@ -174,13 +181,25 @@ class Grader(object):
                          submission_responses: List[Dict]) -> int:
         cum_sum = 0
         for response in submission_responses:
-            correct_choice = self._get_correct_choice_by_question_id(
-                response["questionID"], correct_responses
+            answered_correctly = self._get_correct_choice_by_question_id(
+                UUID(response["Choice_answer"]), correct_responses
             )
 
-            if correct_choice is None:
+            if answered_correctly is None:
+                logger.debug(
+                    f"Found a question answered incorrectly: ids {response['questionID']}, {response['Choice_answer']}")  # noqa
+                topic_and_ki_tuple: Tuple[str, str] = (
+                    Questions.query.with_entities(
+                        Questions.topic, Questions.knowledge_item)
+                    .filter_by(id=int(response["questionID"]))
+                    .first()
+                )
+                choice_feedback: str = QuestionChoice.query\
+                    .filter_by(uuid=UUID(response["Choice_answer"]))\
+                    .first().feedback
                 self._feedback_builder.build_from_question_id(
-                    int(response["questionID"]), UUID(response["Choice_answer"])
+                    topic_and_ki_tuple,
+                    choice_feedback
                 )
             else:
                 cum_sum += 1

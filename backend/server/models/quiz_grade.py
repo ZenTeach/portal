@@ -1,9 +1,10 @@
+from typing import Optional
 from uuid import uuid4
 
 from server import db
 from sqlalchemy.dialects.postgresql import JSON, UUID
 
-from .base_model import BaseModelMixin
+from .base_model import BaseModelMixin, unique_uuid4
 
 
 # A many-to-many relationship between a Student and ClassQuiz model
@@ -31,6 +32,28 @@ class QuizGrade(BaseModelMixin, db.Model):
     grade_breakdown = db.Column(JSON)
     responses = db.Column(JSON)
 
+    def __init__(self,
+                 student_id: int,
+                 class_quiz_id: int,
+                 score: Optional[int] = 0,
+                 graded: Optional[bool] = False,
+                 grade_breakdown: Optional[dict] = {},
+                 responses: Optional[dict] = {},
+                 uuid: Optional[UUID] = None,
+                 ):
+
+        self.student_id = student_id
+        self.class_quiz_id = class_quiz_id
+        self.score = score
+        self.graded = graded
+        self.grade_breakdown = grade_breakdown
+        self.responses = responses
+
+        if uuid is None:
+            self.uuid = unique_uuid4()
+        else:
+            self.uuid = uuid
+
     def __repr__(self):
         return "<QuizGrade {}>".format(
             self.class_quiz.subject + " " + self.student.full_name
@@ -46,4 +69,11 @@ class QuizGrade(BaseModelMixin, db.Model):
 
     def is_graded(self):
         self.graded = True
+        self.save()
+
+    def prepare_regrade_(self):
+        if not self.graded:
+            raise Exception("Quiz has not been graded yet!")
+
+        self.grade_breakdown = {}
         self.save()
