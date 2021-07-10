@@ -1,7 +1,7 @@
 import json
 import logging
 from collections import namedtuple
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from uuid import UUID
 
 from server.models import (ClassQuiz, ClassQuizStatus, QuestionChoice,
@@ -27,17 +27,11 @@ class Feedback(object):
         filtered_topic = [x["topic"] == topic for x in self._feedback]
         return len(filtered_topic) != 0
 
-    def build_from_question_id(self, questionID: int, choiceID: UUID) -> None:
-        _tuple = (
-            Questions.query.with_entities(
-                Questions.topic, Questions.knowledge_item)
-            .filter_by(id=questionID)
-            .first()
-        )
-        self.build_for_topic(_tuple[0])
-        self.add_ki_to_topic(_tuple[0], _tuple[1])
-        self.add_feedback_to_topic(choiceID, _tuple[0])
-        self.compute_progress_for_topic(_tuple[0])
+    def build_from_question_id(self, topic_and_ki: Tuple[str, str], choice_feedback: str) -> None:
+        self.build_for_topic(topic_and_ki[0])
+        self.add_ki_to_topic(topic_and_ki[0], topic_and_ki[1])
+        self.add_feedback_to_topic(choice_feedback, topic_and_ki[0])
+        self.compute_progress_for_topic(topic_and_ki[0])
 
     def build_for_topic(self, topic: str) -> None:
         if self._topic_exist_in_feedback(topic):
@@ -58,10 +52,6 @@ class Feedback(object):
             ),
             None)
 
-    def _get_feedback_for_choice(self, choice_id: UUID) -> str:
-        choice = QuestionChoice.query.filter_by(uuid=choice_id).first()
-        return choice.feedback
-
     def add_ki_to_topic(self, topic: str, ki: str) -> None:
         if not self._topic_exist_in_feedback(topic):
             return
@@ -70,8 +60,7 @@ class Feedback(object):
             return
         m["knowledge_item"].append(ki)
 
-    def add_feedback_to_topic(self, choiceID: UUID, topic: str):
-        feedback = self._get_feedback_for_choice(choiceID)
+    def add_feedback_to_topic(self, feedback: str, topic: str):
         m = self._get_topic_breakdown(topic)
         if m is None:
             return
@@ -81,6 +70,7 @@ class Feedback(object):
         m = self._get_topic_breakdown(topic)
         if m is None:
             return
+        # TODO compute progress across linked KIs
         m["progress"].append("0/1")
 
     def to_json(self) -> str:
@@ -179,8 +169,18 @@ class Grader(object):
             )
 
             if answered_correctly is None:
+                topic_and_ki_tuple: Tuple[str, str] = (
+                    Questions.query.with_entities(
+                        Questions.topic, Questions.knowledge_item)
+                    .filter_by(id=int(response["questionID"]))
+                    .first()
+                )
+                choice_feedback: str = QuestionChoice.query\
+                    .filter_by(uuid=UUID(response["Choice_answer"]))\
+                    .first().feedback
                 self._feedback_builder.build_from_question_id(
-                    int(response["questionID"]), UUID(response["Choice_answer"])
+                    topic_and_ki_tuple,
+                    choice_feedback
                 )
             else:
                 cum_sum += 1
