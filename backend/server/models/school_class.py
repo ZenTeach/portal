@@ -80,7 +80,7 @@ class SchoolClass(BaseModelMixin, db.Model):
         self.start_date = start_date
         self.teacher_id = teacher_id
         self.year_group = year_group
-        if self.uuid is None:
+        if uuid is None:
             self.uuid = unique_uuid4()
         else:
             self.uuid = uuid
