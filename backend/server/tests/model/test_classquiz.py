@@ -55,3 +55,4 @@ def test_classquiz_update_status(client: FlaskClient, classquiz_: ClassQuiz):
 def test_classquiz_max_score_is_set(client: FlaskClient, classquiz_with_questions: ClassQuiz):
     assert classquiz_with_questions.max_score is not None
     assert classquiz_with_questions.max_score > 0
+    assert classquiz_with_questions.max_score == len(classquiz_with_questions.questions)

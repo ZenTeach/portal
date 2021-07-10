@@ -1,12 +1,10 @@
 import enum
 from datetime import datetime
-from functools import reduce
 from typing import Optional
 from uuid import uuid4
 
 from flask import current_app
 from server import db
-from server.models import Questions
 from sqlalchemy import event, text
 from sqlalchemy.dialects.postgresql import JSON, UUID
 
@@ -96,14 +94,9 @@ class ClassQuiz(BaseModelMixin, db.Model):
 
     def set_maxscore(self) -> int:
         if self.questions is not None and len(self.questions) != 0:
-            try:
-                q_ids = [q["id"] for q in self.questions]
-                questions = Questions.query.filter(Questions.id.in_(q_ids)).all()
-                weights = [question.correct_choice().weight for question in questions]
-                score = reduce(lambda x, y: x + y, weights, 0)
-                return score
-            except Exception:
-                return 0
+            return len(self.questions)
+        else:
+            return 0
 
 
 @event.listens_for(ClassQuiz, 'after_insert')
