@@ -608,3 +608,22 @@ def test_updating_original_question_creates_question_on_user(client: FlaskClient
 
     assert response.status_code == 201
     assert Questions.query.filter_by(teacher_id=teacher_.id).count() == 1
+
+
+def test_get_question_search(client: FlaskClient,
+                             mocker: MockFixture,
+                             teacher_: Teacher,
+                             teacher_created_question: Questions) -> None:
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    mock_teacher = {
+        'identity': {
+            'id': teacher_.id,
+            'email': teacher_.email
+        }
+    }
+    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
+
+    response = client.get("/api/v1/question/search?query=what")
+
+    assert response.status_code == 200

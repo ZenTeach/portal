@@ -1,3 +1,4 @@
+import bleach
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -267,6 +268,35 @@ class TeacherOwnedQuestion(MethodView):
 
 
 class QuestionSearch(MethodView):
+    question_search_args = {
+        'query': fields.Str(required=True)
+    }
+
+    @jwt_required
+    @use_kwargs(question_search_args, location='query')
+    def get(self, **kwargs):
+        query = kwargs.get('query')
+        try:
+            query = bleach.clean(query)
+            questions = Questions.query.search(query).all()
+            return make_response(
+                jsonify({
+                    "questions": [dumper.dump(question) for question in questions],
+                    "message": "Search results successfully retrieved"
+                }), 200)
+        except ValidationError as e:
+            logger.error(e)
+            return make_response(
+                jsonify({
+                    "message": "Search query is not valid."
+                }), 400)
+        except Exception as e:
+            logger.exception(e)
+            return make_response(
+                jsonify({
+                    "message": "We ran into an error while searching for questions."
+                }), 500)
+
     @jwt_required
     def post(self):
         query_params = request.get_json()
