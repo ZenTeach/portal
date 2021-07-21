@@ -272,14 +272,31 @@ class QuestionSearch(MethodView):
         query_params = request.get_json()
         try:
             subject_ = Subject.query.filter(Subject.name == query_params['subject']).first()
+            if subject_ is None:
+                return make_response(jsonify({
+                    'message': 'Subject not found'
+                }), 404)
+
+            if query_params['query'] == '':
+                return make_response(jsonify({
+                    'message': 'Query cannot be empty'
+                }), 400)
 
             result_set = Questions.query.search(query_params["query"]).filter(
                 Questions.subject_id == subject_.id
-            ).filter(
-                Questions.topic.in_(query_params["topic"])
-            ).filter(
-                Questions.knowledge_item.in_(query_params["knowledge_item"])
-            ).all()
+            )
+
+            if len(query_params["topic"]) != 0:
+                result_set = result_set.filter(
+                    Questions.topic.in_(query_params["topic"])
+                )
+
+            if len(query_params["knowledge_item"]) != 0:
+                result_set = result_set.filter(
+                    Questions.knowledge_item.in_(query_params["knowledge_item"])
+                )
+
+            result_set = result_set.all()
 
             logger.debug(f"Result set length: {len(result_set)}")
             if len(result_set) != 0:
