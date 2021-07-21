@@ -8,6 +8,7 @@ import pytest
 from server import create_app, db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
+from sqlalchemy_searchable import sync_trigger
 
 getLogger('factory').setLevel(CRITICAL)
 getLogger('factory.generate').setLevel(CRITICAL)
@@ -37,6 +38,7 @@ def client():
     app.config.from_object("server.config.TestingConfig")
     with app.app_context():
         db.create_all()
+        sync_trigger(db.engine, "questions", "search_vector", ["question"])
         yield app.test_client()
         db.session.remove()  # looks like db.session.close() would work as well
         db.drop_all()
