@@ -49,7 +49,7 @@
                         <v-chip color="pink lighten-3" small>{{item.knowledge_item}}</v-chip>
                       </v-col>
                       <v-col cols="2">
-                        <v-btn color="white" elevation="0" @click="editItem(item)">
+                        <v-btn color="white" elevation="0" @click="editItem({ item: item })">
                           <v-icon small>mdi-pencil</v-icon>
                         </v-btn>
                       </v-col>
