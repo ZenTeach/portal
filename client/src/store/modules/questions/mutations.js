@@ -10,8 +10,13 @@ const UNSET_CURRENTQUESTION = (state) => {
   state.current_question = {}
 }
 
+const RESET_QUESTIONS = (state) => {
+  state.questions = []
+}
+
 export default {
   QUESTIONLIST_UPDATED,
   SET_CURRENTQUESTION,
-  UNSET_CURRENTQUESTION
+  UNSET_CURRENTQUESTION,
+  RESET_QUESTIONS
 }

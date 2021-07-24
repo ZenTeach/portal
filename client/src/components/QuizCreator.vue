@@ -59,8 +59,8 @@
         <v-card color="grey lighten-4" class="mx-auto">
           <v-card-title>Search for Questions</v-card-title>
           <v-card-text>
-            <question-search v-bind:subject="subject" v-bind:topics="topicsSelected" v-bind:knowledge_items="selectedKnowledgeItems" v-on:update:searchResult="populateSearchResult"/>
-            <question-search-result v-bind:resultSet="questionSearch" v-show="hasSearchResult">
+            <question-search :subject="subject" :topics="topicsSelected" :knowledge_items="selectedKnowledgeItems" v-on:update:searchResult="populateSearchResult"/>
+            <question-search-result :resultSet="questionSearch" v-show="hasSearchResult">
               <template v-slot:extra_actions="{ item }">
                 <v-btn :elevation="0" class="white" :ripple="false" @click.capture.stop="confirmEdit(item)">
                   <v-icon small class="m-2">

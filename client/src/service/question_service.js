@@ -49,3 +49,7 @@ export function updateUserCreatedQuestion (questionId, payload) {
     .then(handleResponse)
     .then(data => data)
 }
+
+export function searchQuestion (query) {
+  return Api.get(`/question/search?query=${encodeURIComponent(query)}`)
+}
