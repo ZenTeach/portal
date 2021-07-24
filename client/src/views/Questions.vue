@@ -16,16 +16,26 @@
             </div>
             <v-data-iterator
               :items="questionSearchList"
-              v-show="showQuestionResults"
+              v-if="showQuestionResults"
               color="white"
               class="d-flex flex-column mh-100 overflow-scroll"
               id="search_result"
               no-results-text=""
               no-data-text=""
               hide-default-footer>
-              <span>
-                <p class="">&times;</p>
-              </span>
+              <template v-slot:header>
+                <span v-show="showQuestionResults" class="mt-n2 mb-n4">
+                  <v-btn
+                    color="white grey--text"
+                    @click="hasSearchResult = false"
+                    fab
+                    small
+                    elevation="0"
+                    dark>
+                    <h1 class="heading-1" >&times;</h1>
+                  </v-btn>
+                </span>
+              </template>
               <template v-slot:item="{ item }">
                 <div class="white py-3 px-3">
                     <v-row>
@@ -48,7 +58,7 @@
                 <v-spacer class="mx-3 border-1 borderpa-0 text-center secondary rounded-0"></v-spacer>
               </template>
               <template v-slot:footer="{ pagination }">
-                <v-sheet v-show="showQuestionResults">
+                <v-sheet v-show="showQuestionResults && hasMorePages">
                   <div class="d-flex flex-column h-auto w-100 overflow-hidden white justify-center">
                     <div class="text-center py-2">
                       <a @click="nextPage">
@@ -205,8 +215,7 @@ export default {
       user_created: false,
       deleteConfirmationDialog: false,
       deletableItemId: null,
-      rpp: 5, // items per page,
-      page: 1
+      rpp: 5
     }
   },
   watch: {
@@ -233,6 +242,16 @@ export default {
     },
     rowsPerPage () {
       return this.rpp
+    },
+    page () {
+      if (this.questionSearchList.length > 0) {
+        return Math.ceil(this.questionSearchList.length / this.rpp)
+      }
+
+      return 0
+    },
+    hasMorePages () {
+      return this.page > 1
     },
     itemsPerRow () {
       switch (this.$vuetify.breakpoint.name) {
@@ -302,6 +321,7 @@ export default {
         topic: this.topics,
         knowledge_item: this.knowledgeItems
       }, { root: true })
+      this.hasSearchResult = true
     },
     processDeletion () {
       this.deleteQuestion(this.deletableItemId)
