@@ -15,6 +15,8 @@ from .student_school_class import StudentAttendedClass
 from .school_class import SchoolClass
 from .student import Student
 from .teacher import Teacher
+from .topic import Topic
+from .knowledge_item import KnowledgeItem
 from .admin import Admin
 from .migrations.seeds import run_seed
 from .invitations import Invitations
@@ -43,6 +45,8 @@ __all__ = [
     "QuestionChoice",
     "Invitations",
     "QuestionsSchema",
+    "Topic",
+    "KnowledgeItem",
     "run_seed",
 ]
 
@@ -74,6 +78,18 @@ class QuestionChoicesSchema(ma.ModelSchema):
         return False
 
 
+class TopicSchema(ma.ModelSchema):
+    class Meta:
+        model = Topic
+        fields = ("value",)
+
+
+class KnowledgeItemSchema(ma.ModelSchema):
+    class Meta:
+        model = KnowledgeItem
+        fields = ("value",)
+
+
 class QuestionsSchema(ma.ModelSchema):
     class Meta:
         model = Questions
@@ -90,6 +106,9 @@ class QuestionsSchema(ma.ModelSchema):
             "choices",
         )
 
+    # Uncomment after data migration
+    # knowledge_item = ma.Nested(KnowledgeItemSchema, only=("value",))
+    # topic = ma.Nested(TopicSchema, only=("value",))
     question_type = EnumField(QuestionTypeEnum, by_value=True)
     choices = ma.Nested(QuestionChoicesSchema, many=True)
     subject = ma.Nested(SubjectSchema, only=('name',))
