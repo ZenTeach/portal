@@ -37,7 +37,8 @@ const QuestionCRUDMixin = {
           { text: 'Short Answer', value: 'short_answer' },
           { text: 'Long Answer', value: 'long_answer' }
         ],
-        knowledge_items: []
+        knowledge_items: [],
+        retryingRequest: false
       }
     },
     processCurrentQuestion (currentQuestion) {

@@ -83,11 +83,16 @@ export default {
     },
     processSubmit () {
       if (this.validate) {
-        const payload = Object.assign({}, this.questionObject)
-        this.convertToQuillDelta(payload.choices)
+        const _payload = Object.assign({}, this.questionObject)
+        const { isActive, ...payload } = _payload
+        if (this.retryingRequest === false) {
+          this.convertToQuillDelta(payload.choices)
+        }
         this.updateQuestion({
           questionId: this.currentQuestion.id,
           payload: payload
+        }).catch(function (exception) {
+          this.retryingRequest = true
         })
       }
     }
