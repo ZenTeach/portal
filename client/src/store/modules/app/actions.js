@@ -9,14 +9,21 @@ import {
   fetchSubjects
 } from '../../../service/app_service'
 
+import * as _ from 'lodash'
+
 export default {
   QUERY_QUESTIONS ({ commit }, payload) {
     fetchQuestions(payload)
       .then(result => {
-        const { data: questions } = result
+        let { data: questions } = result
+        questions = _.each(questions, (question, i, a) => {
+          // add flag for result lazy loading
+          question.isActive = false
+        })
         commit('UPDATE_QUESTION_SEARCH', questions)
       })
       .catch(error => {
+        console.error(error)
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
         commit('TOGGLE_APP_STATUS', 'error')
       })

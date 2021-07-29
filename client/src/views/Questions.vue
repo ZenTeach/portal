@@ -14,16 +14,12 @@
                     solo
                   ></v-text-field>
             </div>
-            <v-data-iterator
-              :items="questionSearchList"
-              v-if="showQuestionResults"
-              color="white"
-              class="d-flex flex-column mh-100 overflow-scroll"
-              id="search_result"
-              no-results-text=""
-              no-data-text=""
-              hide-default-footer>
-              <template v-slot:header>
+            <v-responsive
+              v-show="showQuestionResults"
+              class="overflow-y-auto"
+              :max-height.sync="listHeight">
+              <div max-height="500">
+              <div class="mt-2 mb-n4">
                 <span v-show="showQuestionResults" class="mt-n2 mb-n4">
                   <v-btn
                     color="white grey--text"
@@ -35,40 +31,34 @@
                     <h1 class="heading-1" >&times;</h1>
                   </v-btn>
                 </span>
-              </template>
-              <template v-slot:item="{ item }">
-                <div class="white py-3 px-3">
-                    <v-row>
-                      <v-col cols="4">
-                        <h4>{{ item.question }}</h4>
-                      </v-col>
-                      <v-col cols="3">
-                        <v-chip color="green lighten-3" small>{{item.topic}}</v-chip>
-                      </v-col>
-                      <v-col cols="3">
-                        <v-chip color="pink lighten-3" small>{{item.knowledge_item}}</v-chip>
-                      </v-col>
-                      <v-col cols="2">
-                        <v-btn color="white" elevation="0" @click="editItem({ item: item })">
-                          <v-icon small>mdi-pencil</v-icon>
-                        </v-btn>
-                      </v-col>
-                    </v-row>
-                </div>
-                <v-spacer class="mx-3 border-1 borderpa-0 text-center secondary rounded-0"></v-spacer>
-              </template>
-              <template v-slot:footer="{ pagination }">
-                <v-sheet v-show="showQuestionResults && hasMorePages">
-                  <div class="d-flex flex-column h-auto w-100 overflow-hidden white justify-center">
-                    <div class="text-center py-2">
-                      <a @click="nextPage">
-                        Show {{ questionSearchList.length - (pagination.page * rpp) }} more results
-                      </a>
+              </div>
+                <div v-for="(question, idx) in questionSearchList" :key="idx">
+                  <v-lazy
+                    v-model="question.isActive"
+                    :options="{
+                      threshold: .5
+                    }"
+                    :min-height.sync="itemHeight"
+                    transition="fade-transition">
+                    <div class="white py-3 px-3">
+                      <v-row>
+                        <v-col cols="10">
+                          <h4>{{ question.question }}</h4>
+                            <v-chip color="green lighten-5 text-truncate text-center" class="mx-1" small>{{question.topic}}</v-chip>
+                            <v-chip color="pink lighten-5 text-truncate text-center" class="mx-1" small>{{question.knowledge_item}}</v-chip>
+                          </v-col>
+                        <v-col cols="2">
+                          <v-btn color="white" elevation="0" @click="editItem({ item: question })">
+                            <v-icon small>mdi-pencil</v-icon>
+                          </v-btn>
+                        </v-col>
+                      </v-row>
+                      <v-spacer></v-spacer>
                     </div>
-                  </div>
-                </v-sheet>
-              </template>
-            </v-data-iterator>
+                  </v-lazy>
+                </div>
+              </div>
+            </v-responsive>
             <v-card max-width="200px" class="white darken-4 question_search_filter" v-show="showFilter">
               <v-card-title>
                 <v-spacer></v-spacer>
@@ -123,7 +113,7 @@
                 :resultSet='this.questionList'
                 :selectable='false'
                 :show_user_created_badge='false'
-                no_data_text='User is library empty 📭'
+                no_data_text='User library is empty 📭'
               >
                 <template v-slot:extra_actions="itemSlotProps">
                   <v-icon
@@ -204,18 +194,16 @@ export default {
     return {
       subject: 'Chemistry',
       topicsSelected: [],
-      // questionSearchList: [],
       selectedKnowledgeItems: [],
       knowledgeItems: [],
       searchInput: '',
       selectedTopic: '',
-      // topics: ['foo', 'bar'],
       hasSearchResult: true,
       showFilter: false,
       user_created: false,
       deleteConfirmationDialog: false,
       deletableItemId: null,
-      rpp: 5
+      rpp: 3
     }
   },
   watch: {
@@ -234,36 +222,23 @@ export default {
     ...mapGetters({
       questionList: 'QUESTIONLIST'
     }),
+    listHeight: function () {
+      return (this.itemHeight * this.rowsPerPage) + 50
+    },
     showQuestionResults: function () {
       return this.hasSearchResult && this.questionSearchList.length > 0
-    },
-    numberOfPages () {
-      return Math.ceil(this.questionSearchList.length / this.ipp)
     },
     rowsPerPage () {
       return this.rpp
     },
-    page () {
-      if (this.questionSearchList.length > 0) {
-        return Math.ceil(this.questionSearchList.length / this.rpp)
-      }
-
-      return 0
-    },
-    hasMorePages () {
-      return this.page > 1
-    },
-    itemsPerRow () {
+    itemHeight () {
       switch (this.$vuetify.breakpoint.name) {
-        case 'xs': return 1
-        case 'sm': return 2
-        case 'md': return 3
-        case 'lg': return 4
-        case 'xl': return 6
+        case 'xs': return 50
+        case 'sm': return 50
+        case 'md': return 75
+        case 'lg': return 100
+        case 'xl': return 150
       }
-    },
-    ipp () {
-      return Math.ceil(this.rowsPerPage, this.itemsPerRow)
     }
   },
   methods: {
@@ -314,6 +289,7 @@ export default {
       this.deleteConfirmationDialog = true
     },
     searchEventListener () {
+      this.resetQuestionSearch()
       this.searchInput = this.searchInput.trim()
       this.$store.dispatch('app/QUERY_QUESTIONS', {
         query: this.searchInput,
@@ -338,16 +314,7 @@ export default {
     },
     toggleFilterView () {
       this.showFilter = !this.showFilter
-    },
-    nextPage () {
-      console.log(`Loading ${this.rpp} items`)
-      if (this.page + 1 <= this.numberOfPages) {
-        this.page += 1
-      }
     }
-    // formerPage () {
-    //   if (this.page - 1 >= 1) this.page -= 1
-    // }
   }
 }
 </script>
