@@ -15,12 +15,14 @@ export default {
   QUERY_QUESTIONS ({ commit }, payload) {
     fetchQuestions(payload)
       .then(result => {
-        let { data: questions } = result
-        questions = _.each(questions, (question, i, a) => {
-          // add flag for result lazy loading
-          question.isActive = false
-        })
-        commit('UPDATE_QUESTION_SEARCH', questions)
+        if (_.has(result, 'data')) {
+          let { data: questions } = result
+          questions = _.each(questions, (question, i, a) => {
+            // add flag for result lazy loading
+            question.isActive = false
+          })
+          commit('UPDATE_QUESTION_SEARCH', questions)
+        }
       })
       .catch(error => {
         console.error(error)
