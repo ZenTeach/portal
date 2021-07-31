@@ -160,6 +160,7 @@ webargs = "*"
 importlib-metadata = "*"
 flower = "*"
 bleach = "*"
+eventlet = "*"
 
 [requires]
 python_version = "3.7"
