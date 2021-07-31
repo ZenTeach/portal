@@ -55,7 +55,7 @@ def selenium(selenium):
 
 @pytest.fixture(scope='session')
 def celery_worker_pool():
-    return 'prefork'
+    return 'solo'
 
 
 @pytest.fixture(scope="function")
