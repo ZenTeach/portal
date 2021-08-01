@@ -45,6 +45,11 @@ def client():
         db.engine.dispose()
 
 
+@pytest.fixture(scope='session')
+def celery_worker_pool():
+    return 'eventlet'
+
+
 @pytest.fixture
 def dbsession(engine):
     """Returns an sqlalchemy session, and after the test

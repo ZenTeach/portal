@@ -15,12 +15,10 @@
                   ></v-text-field>
             </div>
             <v-responsive
-              v-show="showQuestionResults"
               class="overflow-y-auto"
               :max-height.sync="listHeight">
-              <div max-height="500">
               <div class="mt-2 mb-n4">
-                <span v-show="showQuestionResults" class="mt-n2 mb-n4">
+                <span v-show="showQuestionResults || showNoDataText" class="mt-n2 mb-n4">
                   <v-btn
                     color="white grey--text"
                     @click="hasSearchResult = false"
@@ -32,6 +30,7 @@
                   </v-btn>
                 </span>
               </div>
+              <div max-height="500" v-show="showQuestionResults">
                 <div v-for="(question, idx) in questionSearchList" :key="idx">
                   <v-lazy
                     v-model="question.isActive"
@@ -56,6 +55,11 @@
                       <v-spacer></v-spacer>
                     </div>
                   </v-lazy>
+                </div>
+              </div>
+              <div v-show="showNoDataText" min-height="350" height="350" class="pt-2 white black--text">
+                <div class="pa-4">
+                  <p class="pt-1 mb-1 text-body text--secondary leading-4 black--text" >No results found!</p>
                 </div>
               </div>
             </v-responsive>
@@ -198,7 +202,7 @@ export default {
       knowledgeItems: [],
       searchInput: '',
       selectedTopic: '',
-      hasSearchResult: true,
+      hasSearchResult: false,
       showFilter: false,
       user_created: false,
       deleteConfirmationDialog: false,
@@ -227,6 +231,9 @@ export default {
     },
     showQuestionResults: function () {
       return this.hasSearchResult && this.questionSearchList.length > 0
+    },
+    showNoDataText: function () {
+      return this.hasSearchResult === true && this.questionSearchList.length === 0
     },
     rowsPerPage () {
       return this.rpp
@@ -307,6 +314,7 @@ export default {
     },
     editItem (item) {
       this.setCurrentQuestion(item.item)
+      this.hasSearchResult = false
       this.$router.push('/question/edit')
     },
     populateSearchResult (e) {

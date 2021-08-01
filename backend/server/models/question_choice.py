@@ -9,7 +9,7 @@ from .base_model import unique_uuid4
 
 
 class QuestionChoice(db.Model, BaseModelMixin):
-    _IGNORED_COLUMNS = ["uuid"]
+    _IGNORED_COLUMNS = ["uuid", "id"]
 
     __tablename__ = "question_choice"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -57,7 +57,7 @@ class QuestionChoice(db.Model, BaseModelMixin):
         return cls(value="", feedback="")
 
     @classmethod
-    def clone(cls, instance: 'QuestionChoice', **kwargs: dict) -> 'QuestionChoice':
+    def clone(cls, instance: 'QuestionChoice', autosave=False, **kwargs: dict) -> 'QuestionChoice':
         instance.id
 
         non_pk_columns = instance.get_non_pk_columns()
@@ -66,7 +66,8 @@ class QuestionChoice(db.Model, BaseModelMixin):
 
         clone = instance.__class__(**data)
         try:
-            clone.save()
+            if autosave:
+                clone.save()
         except Exception as e:
             raise e
 
