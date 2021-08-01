@@ -65,4 +65,4 @@ class TestQuizGraderTask:
         def mocked_grader_tasks(regrade_quiz_mock):
             regrade_quiz_mock.assert_called_with(classquiz.id, student_.id)
 
-        regrade_quiz.apply_async(args=[classquiz.id, student_.id])
+        regrade_quiz(classquiz.id, student_.id)
