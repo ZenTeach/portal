@@ -1,12 +1,11 @@
 import datetime
 import os
-from contextlib import nullcontext
 from logging import CRITICAL, getLogger
 from pathlib import Path
 from shutil import which
 
 import pytest
-from server import create_app
+from server import create_app, db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy_searchable import sync_trigger
@@ -22,28 +21,8 @@ def engine():
 
 @pytest.fixture(scope="session")
 def app():
-    _app = create_app()
-    _app.config.from_object("server.config.TestingConfig")
-    _appctx = nullcontext(_app)
-    with _appctx as app:
-        app.app_context().push()
-        yield app
-        app.app_context().pop()
-
-
-@pytest.fixture(scope="function")
-@pytest.mark.usefixtures('app')
-def db(app):
-    db_connection = app.extensions['sqlalchemy'].db
-    connection = db_connection.engine.connect()
-    transaction = connection.begin()
-    db_connection.create_all()
-    sync_trigger(connection, "questions", "search_vector", ["question"])
-    session = db_connection.session
-    yield session
-    db_connection.session.close()
-    transaction.rollback()
-    connection.close()
+    app = create_app()
+    return app
 
 
 @pytest.fixture
@@ -53,20 +32,25 @@ def selenium(selenium):
     return selenium
 
 
+@pytest.fixture(scope="function")
+def client():
+    app = create_app()
+    app.config.from_object("server.config.TestingConfig")
+    with app.app_context():
+        db.create_all()
+        sync_trigger(db.engine, "questions", "search_vector", ["question"])
+        yield app.test_client()
+        db.session.remove()  # looks like db.session.close() would work as well
+        db.drop_all()
+        db.engine.dispose()
+
+
 @pytest.fixture(scope='session')
 def celery_worker_pool():
-    return 'solo'
+    return 'eventlet'
 
 
-@pytest.fixture(scope="function")
-@pytest.mark.usefixtures('app')
-@pytest.mark.usefixtures('db')
-def client(app, db):
-    with app.test_client() as client:
-        yield client
-
-
-@pytest.fixture(scope='session')
+@pytest.fixture
 def dbsession(engine):
     """Returns an sqlalchemy session, and after the test
         tears down everything properly."""
