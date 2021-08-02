@@ -6,7 +6,7 @@
           sub-group
           :ripple="false"
           :value="false"
-          :key="item.question.uuid">
+          :key="item.id">
           <template v-slot:activator>
             <v-list-item class="d-flex align-baseline">
               <template v-slot:default="{active, toggle}">
@@ -15,6 +15,8 @@
                       :ripple="false"
                       color="primary"
                       class="ma-2"
+                      :input-value.sync="item.isSelected"
+                      value
                       @click.stop="active ? removeFromSelectedQuestions(item, toggle) : addToSelectedQuestions(item, toggle)"
                     ></v-checkbox>
                 </v-list-item-action>
