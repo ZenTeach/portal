@@ -248,12 +248,20 @@ class TeacherOwnedQuestion(MethodView):
 
             if 'choices' in data:
                 choices = data['choices']
+                choice_objects = []
                 for choice in choices:
-                    QuestionChoice.query.\
+                    c = QuestionChoice.query.\
                         filter_by(uuid=choice['uuid']).\
-                        first()\
-                        .update_from_dict(choice)
+                        first()
+                    if c is not None:
+                        new_choice = QuestionChoice.clone(c, autosave=False, **dict(c))
+                        new_choice.update_from_dict(choice)
+                        # new_choice.save(refresh=True)
+                        choice_objects.append(new_choice)
                 del data['choices']
+                data.update({
+                    'choices': choice_objects
+                })
 
             question.update_from_dict(data)
             question.save()
