@@ -252,7 +252,12 @@ export default {
       })
     },
     createQuizFastTracked () {
-      this.fetchQuestionsFastTracked(this.topicsSelected, this.selectedKnowledgeItems)
+      this.resetQuestionSearch()
+      this.fetchQuestionsFastTracked(
+        {
+          topics: this.topicsSelected,
+          kis: this.selectedKnowledgeItems
+        })
         .then(() => {
           this.hasSearchResult = true
           this.curator = 3
