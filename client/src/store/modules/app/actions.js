@@ -19,6 +19,7 @@ export default {
         questions = _.each(questions, (question, i, a) => {
           // add flag for result lazy loading
           question.isActive = false
+          question.isSelected = false
         })
         commit('UPDATE_QUESTION_SEARCH', questions)
       })
@@ -55,12 +56,17 @@ export default {
   TOGGLE_APP_STATUS ({ commit }, payload = '') {
     commit('TOGGLE_APP_STATUS', payload)
   },
-  FETCH_QUESTIONS_FASTTRACKED ({ commit }, topics, kis) {
+  FETCH_QUESTIONS_FASTTRACKED ({ commit }, payload) {
+    const { topics, kis } = payload
     fetchQuestionsFromTopicsAndKIs(topics, kis)
       .then(data => {
         const questions = data.data
         commit('UPDATE_QUESTION_SEARCH', questions)
-        questions.forEach(question => commit('ADD_SELECTED_QUESTIONS', question))
+        questions.forEach(question => {
+          question.isSelected = true
+          commit('ADD_SELECTED_QUESTIONS', question)
+        }
+        )
       })
       .catch(error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })

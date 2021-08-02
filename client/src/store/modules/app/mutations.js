@@ -85,8 +85,7 @@ export default {
   },
   RESET_QUIZ_CREATOR (state) {
     state.questionSearch = []
-    delete state.knowledgeItems
-    state.knowledgeItems = {}
+    Object.assign(state.knowledgeItems, {})
     state.topics = []
     state.questionList = []
   }
