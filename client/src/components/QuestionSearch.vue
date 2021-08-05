@@ -4,6 +4,7 @@
       label="SearchInput"
       placeholder="Question.."
       @click:append="searchEventListener"
+      @keypress.enter="searchEventListener"
       v-model="searchInput"
       append-icon="search"
       solo

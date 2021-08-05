@@ -31,7 +31,19 @@
               label="Topic: "
               v-model="topicsSelected"
               :rules="[validateTopicsSelected]"
-            ></v-select>
+            >
+              <template v-slot:selection="{ item, index }">
+                <v-chip x-small v-if="index < maxTopicLength">
+                  <p style="max-width: 16ch;" class="text-caption text-truncate font-weight-bold pt-4">{{ item }}</p>
+                </v-chip>
+                <span
+                  v-if="index >= maxTopicLength"
+                  class="grey--text text-caption"
+                >
+                  (+{{ topicsSelected.length - 1 }} others)
+                </span>
+              </template>
+            </v-select>
 
             <v-spacer class="ma-3 mb-3"></v-spacer>
 
@@ -44,7 +56,28 @@
               :items="knowledgeItems"
               :rules="[validateSelectedKnowledgeItems]"
               v-model="selectedKnowledgeItems"
-            ></v-select>
+            >
+              <template v-slot:selection="{ item, index }">
+                  <v-chip x-small v-if="index < maxKILength">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <p
+                          style="max-width: 16ch;"
+                          v-bind="attrs"
+                          v-on="on"
+                          class="text-caption text-truncate font-weight-bold pt-4">{{ item }}</p>
+                      </template>
+                      <span>{{ item }}</span>
+                    </v-tooltip>
+                  </v-chip>
+                  <span
+                    v-if="index >= maxKILength"
+                    class="grey--text text-caption"
+                  >
+                    (+{{ selectedKnowledgeItems.length - 1 }} others)
+                  </span>
+              </template>
+            </v-select>
           </v-card-text>
           <v-card-actions class="justify-space-between px-5">
             <div>
@@ -190,6 +223,24 @@ export default {
     },
     formIsValid () {
       return this.firstStepValidation && (this.questionList.length > 0)
+    },
+    maxTopicLength () {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs': return 1
+        case 'sm': return 2
+        case 'md': return 3
+        case 'lg': return 4
+        case 'xl': return 5
+      }
+    },
+    maxKILength () {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs': return 3
+        case 'sm': return 5
+        case 'md': return 7
+        case 'lg': return 9
+        case 'xl': return 12
+      }
     }
   },
   data () {

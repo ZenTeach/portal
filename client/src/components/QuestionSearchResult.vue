@@ -26,6 +26,32 @@
                     <v-col cols="6" class="my-5">
                       <h3>{{item.question}}</h3>
                       <v-list-item-subtitle v-text="questionTypeMapping(item.question_type)"></v-list-item-subtitle>
+                      <v-spacer></v-spacer>
+                      <div v-if="showLabels">
+                        <v-chip color="green lighten-5" class="mx-1" small>
+                          <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                              <p
+                                  style="max-width: 16ch;"
+                                  v-bind="attrs"
+                                  v-on="on"
+                                  class="text-caption text-truncate font-weight-bold pt-4">{{item.topic}}</p>
+                            </template>
+                            <p>{{item.topic}}</p>
+                          </v-tooltip>
+                        </v-chip>
+                        <v-chip color="pink lighten-5" class="mx-1" small>
+                          <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                              <p style="max-width: 32ch;"
+                                  v-bind="attrs"
+                                  v-on="on"
+                                  class="text-caption text-truncate font-weight-bold pt-4">{{item.knowledge_item}}</p>
+                            </template>
+                            <p>{{item.knowledge_item}}</p>
+                          </v-tooltip>
+                        </v-chip>
+                      </div>
                     </v-col>
                     <v-col cols="4" v-if="show_user_created_badge">
                       <v-list-item-icon v-if="item.user_created">
@@ -65,6 +91,10 @@ export default {
       default: true
     },
     show_user_created_badge: {
+      type: Boolean,
+      default: true
+    },
+    showLabels: {
       type: Boolean,
       default: true
     },
