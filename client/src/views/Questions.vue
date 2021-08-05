@@ -8,20 +8,21 @@
               <v-text-field
                 label="SearchInput"
                 placeholder="Search for a question..."
-                @click:append="searchEventListener"
+                @click:prepend-inner="searchEventListener"
+                prepend-inner-icon="search"
+                @keypress.enter="searchEventListener"
                 v-model="searchInput"
-                append-icon="search"
                 solo
               >
-                <template v-slot:append-outer>
+                <template v-slot:append>
                   <span>
+                    <v-icon @click="toggleFilterView">mdi-filter-variant</v-icon>
                     <v-badge
                       color="primary lighten-1"
-                      offset-x="1.6rem"
-                      offset-y="1.6rem"
+                      offset-x="0.2rem"
+                      offset-y="0.4rem"
                       dot
                       left>
-                      <v-icon @click="toggleFilterView">mdi-filter-variant</v-icon>
                     </v-badge>
                   </span>
                 </template>
@@ -35,14 +36,73 @@
                   <v-card-text>
                     <v-select
                       :items="subjects"
-                      chips
+                      small-chips
                       label="Subject"
                       class="text-caption"
                       v-model="subject"
+                      @change.capture="fetchTopics(subject)"
                       />
+                      <v-select
+                        :items="topics"
+                        multiple
+                        small-chips
+                        @change="fetch_KIs()"
+                        label="Topic"
+                        class="text-caption p-2"
+                        v-model="selectedTopic"
+                        dense
+                      >
+                        <template v-slot:selection="{ item, index }">
+                          <v-chip x-small v-if="index === 0">
+                            <p style="max-width: 16ch;" class="text-caption text-truncate font-weight-bold pt-4">{{ item }}</p>
+                          </v-chip>
+                          <span
+                            v-if="index === 1"
+                            class="grey--text text-caption"
+                          >
+                            (+{{ selectedTopic.length - 1 }} others)
+                          </span>
+                        </template>
+                      </v-select>
+                      <v-select
+                        :items="knowledgeItems"
+                        multiple
+                        small-chips
+                        label="Knowledge Items"
+                        class="text-caption p-2"
+                        :style="'overflow: scroll-y;'"
+                        v-model="selectedKnowledgeItems"
+                        max-height="70px"
+                        width="70px"
+                        hide-details
+                        :menu-props="{ maxHeight: '200' }"
+                        dense
+                        >
+                        <template v-slot:selection="{ item, index }">
+                          <v-chip x-small v-if="index === 0">
+                            <v-tooltip bottom>
+                              <template v-slot:activator="{ on, attrs }">
+                                <p
+                                  style="max-width: 16ch;"
+                                  v-bind="attrs"
+                                  v-on="on"
+                                  class="text-caption text-truncate font-weight-bold pt-4">{{ item }}</p>
+                              </template>
+                              <span>{{ item }}</span>
+                            </v-tooltip>
+                          </v-chip>
+                          <span
+                            v-if="index === 1"
+                            class="grey--text text-caption"
+                          >
+                            (+{{ selectedKnowledgeItems.length - 1 }} others)
+                          </span>
+                        </template>
+                      </v-select>
                   </v-card-text>
                   <v-card-actions>
                     <v-btn color="primary" class="text-caption font-semibold" @click.stop="showFilter=false">Apply Filters</v-btn>
+                    <v-btn color="warning darken-1" class="text-caption black--text font-semibold" @click.stop="showFilter=false">Close</v-btn>
                   </v-card-actions>
                 </v-card>
               </div>
@@ -184,11 +244,6 @@ export default {
     this.fetchClasses()
     this.fetchTopics(this.subject)
     this.resetQuestions()
-    this.fetchKis({
-      topics_selected: this.topics
-    })
-    this.knowledgeItems = []
-    this.knowledgeItems = this._.flatten(this._.values(this.getKis))
   },
   created: function () {
     // re-calc on screen resize
@@ -199,11 +254,10 @@ export default {
   data: function () {
     return {
       subject: 'Chemistry',
-      topicsSelected: [],
+      selectedTopic: [],
       selectedKnowledgeItems: [],
       knowledgeItems: [],
       searchInput: '',
-      selectedTopic: '',
       hasSearchResult: false,
       showFilter: false,
       user_created: false,
@@ -257,12 +311,17 @@ export default {
   },
   methods: {
     ...appActions({
-      fetchTopics: 'FETCH_TOPICS',
+      fetch_topics: 'FETCH_TOPICS',
       fetchKis: 'FETCH_KIS'
     }),
     ...appMutations({
-      resetQuestionSearch: 'RESET_QUESTION_SEARCH'
+      resetQuestionSearch: 'RESET_QUESTION_SEARCH',
+      resetKis: 'RESET_KIS'
     }),
+    fetchTopics () {
+      this.selectedTopic = []
+      this.fetch_topics(this.subject)
+    },
     questionTypeMapping (type) {
       const types = {
         1: 'Multiple Choice',
@@ -296,6 +355,7 @@ export default {
       const payload = {
         topics_selected: this.selectedTopic
       }
+      // this.resetKis()
       this.$store.dispatch('app/FETCH_KIS', payload, { root: true })
     },
     openDeleteConfirmationDialog (e) {
@@ -308,8 +368,8 @@ export default {
       this.$store.dispatch('app/QUERY_QUESTIONS', {
         query: this.searchInput,
         subject: this.subject,
-        topic: [],
-        knowledge_item: []
+        topic: this.selectedTopic,
+        knowledge_item: this.selectedKnowledgeItems
       }, { root: true })
       this.hasSearchResult = true
     },
@@ -342,9 +402,9 @@ export default {
 }
 .filter_container {
   max-width: 200px;
-  position: relative;
+  position: absolute;
   left: 60vw;
-  top: -5vh;
+  top: 16vh;
   z-index: 100;
   margin: 0;
   padding: 0;
