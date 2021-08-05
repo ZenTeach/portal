@@ -45,6 +45,7 @@ export default {
   FETCH_TOPICS ({ commit }, subject) {
     fetchTopics(subject)
       .then(result => {
+        commit('app/RESET_KIS', {}, { root: true })
         commit('app/UPDATE_TOPICS', result, { root: true })
       })
       .catch(error => {
