@@ -1,8 +1,11 @@
 
+import logging
 from typing import Optional
 from uuid import UUID, uuid4
 
-from server import app, db
+from server import db
+
+logger = logging.getLogger(__name__)
 
 
 class BaseModelMixin(object):
@@ -31,7 +34,7 @@ class BaseModelMixin(object):
         """
         for item, value in payload.items():
             if not hasattr(self, item):
-                app.logger.warning(f"{self.__class__.__name__} does not have attribute {item}")
+                logger.warning(f"{self.__class__.__name__} does not have attribute {item}")
             else:
                 if item not in self._IGNORED_COLUMNS:
                     self.__setattr__(item, value)
