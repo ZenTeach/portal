@@ -71,6 +71,9 @@ export default {
     // state.knowledgeItems = newobj
     Vue.set(state, 'knowledgeItems', newobj)
   },
+  RESET_KIS (state, _payload) {
+    state.knowledgeItems = Object.assign(state.knowledgeItems, {})
+  },
   UPDATE_TOPICS (state, topics) {
     state.topics = []
     topics.forEach(topic => {

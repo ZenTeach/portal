@@ -4,15 +4,108 @@
       <v-row >
         <v-col cols="9">
           <v-sheet class="grey lighten-3">
-            <div class="w-100">
-                  <v-text-field
-                    label="SearchInput"
-                    placeholder="Question.."
-                    @click:append="searchEventListener"
-                    v-model="searchInput"
-                    append-icon="search"
-                    solo
-                  ></v-text-field>
+            <div class="w-100" id="search_box">
+              <v-text-field
+                label="SearchInput"
+                placeholder="Search for a question..."
+                @click:prepend-inner="searchEventListener"
+                prepend-inner-icon="search"
+                @keypress.enter="searchEventListener"
+                v-model="searchInput"
+                solo
+              >
+                <template v-slot:append>
+                  <span>
+                    <v-icon @click="toggleFilterView">mdi-filter-variant</v-icon>
+                    <v-badge
+                      color="primary lighten-1"
+                      offset-x="0.2rem"
+                      offset-y="0.4rem"
+                      dot
+                      left>
+                    </v-badge>
+                  </span>
+                </template>
+              </v-text-field>
+              <div class="w-25 filter_container">
+                <v-card class="white m-0 question_search_filter" max-width="200px" v-show="showFilter">
+                  <v-card-title>
+                    <span class="text-body float-left text-semibold">Filters</span>
+                    <v-spacer></v-spacer>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-select
+                      :items="subjects"
+                      small-chips
+                      label="Subject"
+                      class="text-caption"
+                      v-model="subject"
+                      @change.capture="fetchTopics(subject)"
+                      />
+                      <v-select
+                        :items="topics"
+                        multiple
+                        small-chips
+                        @change="fetch_KIs()"
+                        label="Topic"
+                        class="text-caption p-2"
+                        v-model="selectedTopic"
+                        dense
+                      >
+                        <template v-slot:selection="{ item, index }">
+                          <v-chip x-small v-if="index === 0">
+                            <p style="max-width: 16ch;" class="text-caption text-truncate font-weight-bold pt-4">{{ item }}</p>
+                          </v-chip>
+                          <span
+                            v-if="index === 1"
+                            class="grey--text text-caption"
+                          >
+                            (+{{ selectedTopic.length - 1 }} others)
+                          </span>
+                        </template>
+                      </v-select>
+                      <v-select
+                        :items="knowledgeItems"
+                        multiple
+                        small-chips
+                        label="Knowledge Items"
+                        class="text-caption p-2"
+                        :style="'overflow: scroll-y;'"
+                        v-model="selectedKnowledgeItems"
+                        max-height="70px"
+                        width="70px"
+                        hide-details
+                        :menu-props="{ maxHeight: '200' }"
+                        dense
+                        >
+                        <template v-slot:selection="{ item, index }">
+                          <v-chip x-small v-if="index === 0">
+                            <v-tooltip bottom>
+                              <template v-slot:activator="{ on, attrs }">
+                                <p
+                                  style="max-width: 16ch;"
+                                  v-bind="attrs"
+                                  v-on="on"
+                                  class="text-caption text-truncate font-weight-bold pt-4">{{ item }}</p>
+                              </template>
+                              <span>{{ item }}</span>
+                            </v-tooltip>
+                          </v-chip>
+                          <span
+                            v-if="index === 1"
+                            class="grey--text text-caption"
+                          >
+                            (+{{ selectedKnowledgeItems.length - 1 }} others)
+                          </span>
+                        </template>
+                      </v-select>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-btn color="primary" class="text-caption font-semibold" @click.stop="showFilter=false">Apply Filters</v-btn>
+                    <v-btn color="warning darken-1" class="text-caption black--text font-semibold" @click.stop="showFilter=false">Close</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </div>
             </div>
             <v-responsive
               class="overflow-y-auto"
@@ -63,37 +156,6 @@
                 </div>
               </div>
             </v-responsive>
-            <v-card max-width="200px" class="white darken-4 question_search_filter" v-show="showFilter">
-              <v-card-title>
-                <v-spacer></v-spacer>
-                <span class="caption text-semibold">Filters</span>
-              </v-card-title>
-              <v-card-text>
-                <v-select
-                  :items="topics"
-                  ref="topicSelection"
-                  required
-                  multiple
-                  chips
-                  background-color=""
-                  class="text-caption"
-                  @change="fetch_KIs()"
-                  label="Topic: "
-                  v-model="selectedTopic"
-                ></v-select>
-                <v-spacer class="ma-3 mb-3"></v-spacer>
-
-                <v-select
-                  label="Knowledge Items: "
-                  multiple
-                  ref="kiSelection"
-                  chips
-                  required
-                  :items="knowledgeItems"
-                  v-model="selectedKnowledgeItems"
-                ></v-select>
-              </v-card-text>
-            </v-card>
            </v-sheet>
         </v-col>
         <v-col cols="3">
@@ -182,11 +244,6 @@ export default {
     this.fetchClasses()
     this.fetchTopics(this.subject)
     this.resetQuestions()
-    this.fetchKis({
-      topics_selected: this.topics
-    })
-    this.knowledgeItems = []
-    this.knowledgeItems = this._.flatten(this._.values(this.getKis))
   },
   created: function () {
     // re-calc on screen resize
@@ -197,11 +254,10 @@ export default {
   data: function () {
     return {
       subject: 'Chemistry',
-      topicsSelected: [],
+      selectedTopic: [],
       selectedKnowledgeItems: [],
       knowledgeItems: [],
       searchInput: '',
-      selectedTopic: '',
       hasSearchResult: false,
       showFilter: false,
       user_created: false,
@@ -219,6 +275,7 @@ export default {
   computed: {
     ...appGetters({
       topics: 'getTopics',
+      getSubjects: 'getSubjects',
       getKis: 'getKis',
       questionSearchList: 'getQuestionResult',
       getError: 'getError'
@@ -231,6 +288,10 @@ export default {
     },
     showQuestionResults: function () {
       return this.hasSearchResult && this.questionSearchList.length > 0
+    },
+    subjects: function () {
+      const enabledSubjects = this._.filter(this.getSubjects, ['enabled', true])
+      return this._.map(enabledSubjects, 'name')
     },
     showNoDataText: function () {
       return this.hasSearchResult === true && this.questionSearchList.length === 0
@@ -250,12 +311,17 @@ export default {
   },
   methods: {
     ...appActions({
-      fetchTopics: 'FETCH_TOPICS',
+      fetch_topics: 'FETCH_TOPICS',
       fetchKis: 'FETCH_KIS'
     }),
     ...appMutations({
-      resetQuestionSearch: 'RESET_QUESTION_SEARCH'
+      resetQuestionSearch: 'RESET_QUESTION_SEARCH',
+      resetKis: 'RESET_KIS'
     }),
+    fetchTopics () {
+      this.selectedTopic = []
+      this.fetch_topics(this.subject)
+    },
     questionTypeMapping (type) {
       const types = {
         1: 'Multiple Choice',
@@ -289,6 +355,7 @@ export default {
       const payload = {
         topics_selected: this.selectedTopic
       }
+      // this.resetKis()
       this.$store.dispatch('app/FETCH_KIS', payload, { root: true })
     },
     openDeleteConfirmationDialog (e) {
@@ -301,8 +368,8 @@ export default {
       this.$store.dispatch('app/QUERY_QUESTIONS', {
         query: this.searchInput,
         subject: this.subject,
-        topic: this.topics,
-        knowledge_item: this.knowledgeItems
+        topic: this.selectedTopic,
+        knowledge_item: this.selectedKnowledgeItems
       }, { root: true })
       this.hasSearchResult = true
     },
@@ -330,7 +397,16 @@ export default {
 <style scoped>
 .question_search_filter {
   z-index: 100 !important;
-  position: absolute !important;
-  top: 6em !important;
+  position: relative !important;
+  top: 0 !important;
+}
+.filter_container {
+  max-width: 200px;
+  position: absolute;
+  left: 60vw;
+  top: 16vh;
+  z-index: 100;
+  margin: 0;
+  padding: 0;
 }
 </style>
