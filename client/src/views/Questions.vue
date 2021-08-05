@@ -4,15 +4,48 @@
       <v-row >
         <v-col cols="9">
           <v-sheet class="grey lighten-3">
-            <div class="w-100">
-                  <v-text-field
-                    label="SearchInput"
-                    placeholder="Question.."
-                    @click:append="searchEventListener"
-                    v-model="searchInput"
-                    append-icon="search"
-                    solo
-                  ></v-text-field>
+            <div class="w-100" id="search_box">
+              <v-text-field
+                label="SearchInput"
+                placeholder="Search for a question..."
+                @click:append="searchEventListener"
+                v-model="searchInput"
+                append-icon="search"
+                solo
+              >
+                <template v-slot:append-outer>
+                  <span>
+                    <v-badge
+                      color="primary lighten-1"
+                      offset-x="1.6rem"
+                      offset-y="1.6rem"
+                      dot
+                      left>
+                      <v-icon @click="toggleFilterView">mdi-filter-variant</v-icon>
+                    </v-badge>
+                  </span>
+                </template>
+              </v-text-field>
+              <div class="w-25 filter_container">
+                <v-card class="white m-0 question_search_filter" max-width="200px" v-show="showFilter">
+                  <v-card-title>
+                    <span class="text-body float-left text-semibold">Filters</span>
+                    <v-spacer></v-spacer>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-select
+                      :items="subjects"
+                      chips
+                      label="Subject"
+                      class="text-caption"
+                      v-model="subject"
+                      />
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-btn color="primary" class="text-caption font-semibold" @click.stop="showFilter=false">Apply Filters</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </div>
             </div>
             <v-responsive
               class="overflow-y-auto"
@@ -63,37 +96,6 @@
                 </div>
               </div>
             </v-responsive>
-            <v-card max-width="200px" class="white darken-4 question_search_filter" v-show="showFilter">
-              <v-card-title>
-                <v-spacer></v-spacer>
-                <span class="caption text-semibold">Filters</span>
-              </v-card-title>
-              <v-card-text>
-                <v-select
-                  :items="topics"
-                  ref="topicSelection"
-                  required
-                  multiple
-                  chips
-                  background-color=""
-                  class="text-caption"
-                  @change="fetch_KIs()"
-                  label="Topic: "
-                  v-model="selectedTopic"
-                ></v-select>
-                <v-spacer class="ma-3 mb-3"></v-spacer>
-
-                <v-select
-                  label="Knowledge Items: "
-                  multiple
-                  ref="kiSelection"
-                  chips
-                  required
-                  :items="knowledgeItems"
-                  v-model="selectedKnowledgeItems"
-                ></v-select>
-              </v-card-text>
-            </v-card>
            </v-sheet>
         </v-col>
         <v-col cols="3">
@@ -219,6 +221,7 @@ export default {
   computed: {
     ...appGetters({
       topics: 'getTopics',
+      getSubjects: 'getSubjects',
       getKis: 'getKis',
       questionSearchList: 'getQuestionResult',
       getError: 'getError'
@@ -231,6 +234,10 @@ export default {
     },
     showQuestionResults: function () {
       return this.hasSearchResult && this.questionSearchList.length > 0
+    },
+    subjects: function () {
+      const enabledSubjects = this._.filter(this.getSubjects, ['enabled', true])
+      return this._.map(enabledSubjects, 'name')
     },
     showNoDataText: function () {
       return this.hasSearchResult === true && this.questionSearchList.length === 0
@@ -301,8 +308,8 @@ export default {
       this.$store.dispatch('app/QUERY_QUESTIONS', {
         query: this.searchInput,
         subject: this.subject,
-        topic: this.topics,
-        knowledge_item: this.knowledgeItems
+        topic: [],
+        knowledge_item: []
       }, { root: true })
       this.hasSearchResult = true
     },
@@ -330,7 +337,16 @@ export default {
 <style scoped>
 .question_search_filter {
   z-index: 100 !important;
-  position: absolute !important;
-  top: 6em !important;
+  position: relative !important;
+  top: 0 !important;
+}
+.filter_container {
+  max-width: 200px;
+  position: relative;
+  left: 60vw;
+  top: -5vh;
+  z-index: 100;
+  margin: 0;
+  padding: 0;
 }
 </style>
