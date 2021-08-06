@@ -15,6 +15,7 @@ const QuestionCRUDMixin = {
     const enabledSubjects = this._.filter(this.getSubjects, ['enabled', true])
     this.subjects = this._.map(enabledSubjects, 'name')
 
+    this.knowledge_items = this._.flatten(this._.values(this.getKis))
     this.exam_boards = this._.reverse(this._.sortBy(this.exam_boards, ['suggested']))
   },
   // methods
@@ -42,7 +43,7 @@ const QuestionCRUDMixin = {
       }
     },
     processCurrentQuestion (currentQuestion) {
-      const { id, ...questionObject } = Object.assign({}, currentQuestion)
+      const { id, isSelected, ...questionObject } = Object.assign({}, currentQuestion)
       questionObject.question_type = 'multiple_choice'
       questionObject.subject = this._.get(questionObject, 'subject.name', '')
       return questionObject
