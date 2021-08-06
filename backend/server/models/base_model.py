@@ -34,7 +34,7 @@ class BaseModelMixin(object):
         """
         for item, value in payload.items():
             if not hasattr(self, item):
-                logger.warning(f"{self.__class__.__name__} does not have attribute {item}")
+                raise Exception(f"{self.__class__.__name__} does not have attribute {item}")
             else:
                 if item not in self._IGNORED_COLUMNS:
                     self.__setattr__(item, value)
