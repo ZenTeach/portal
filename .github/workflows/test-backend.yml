@@ -60,6 +60,11 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - name: Check out repository code
         uses: actions/checkout@v2
+      - name: Cache Pipenv dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.local/share/virtualenvs
+          key: pipenv-${{ hashFiles('Pipfile.lock') }}
       - name: Install packages
         run: |
           echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list && \
