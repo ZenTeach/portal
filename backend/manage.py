@@ -1,13 +1,13 @@
-import server.lib.tasks.data_tasks as data_tasks
 from flask.cli import FlaskGroup
-from flask_migrate import MigrateCommand
 from server import create_app, db
+from server.lib.tasks.data_tasks import (trigger_knowledge_item_migration,
+                                         trigger_quiz_regrading,
+                                         trigger_topic_migration)
 
 app = create_app()
 
 
 cli = FlaskGroup(create_app=create_app)
-cli.add_command("db", MigrateCommand)
 
 
 @cli.command("recreate_db")
@@ -29,6 +29,22 @@ def truncate_tables():
     clear_data(db.session)
 
 
+@cli.command("migrate_topics")
+def migrate_topics(ctx):
+    """
+        migrate_topics: move topics from old table to new table
+    """
+    trigger_topic_migration()
+
+
+@cli.command("migrate_knowledgeitems")
+def migrate_knowledgeitems():
+    """
+        migrate_knowledgeitems: move topics from old table to new table
+    """
+    trigger_knowledge_item_migration()
+
+
 @cli.command("db_conf")
 def db_conf():
     db.configure_mappers()
@@ -43,8 +59,8 @@ def routes():
 
 
 @cli.command("trigger_quiz_regrading")
-def trigger_quiz_regrading():
-    data_tasks.trigger_quiz_regrading()
+def start_quiz_regrading():
+    trigger_quiz_regrading()
 
 
 @cli.command("seed")
