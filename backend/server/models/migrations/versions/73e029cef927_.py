@@ -16,7 +16,7 @@ depends_on = None
 
 
 def upgrade():
-    op.create_table('topic',
+    op.create_table('topics',
                     sa.Column('id', sa.INTEGER(), autoincrement=True, nullable=False),
                     sa.Column('value', sa.VARCHAR(length=255),
                               autoincrement=False, nullable=False),
@@ -25,4 +25,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table('topic')
+    op.drop_table('topics')
