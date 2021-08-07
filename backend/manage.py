@@ -30,7 +30,7 @@ def truncate_tables():
 
 
 @cli.command("migrate_topics")
-def migrate_topics(ctx):
+def migrate_topics():
     """
         migrate_topics: move topics from old table to new table
     """
