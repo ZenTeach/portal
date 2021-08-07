@@ -2,10 +2,10 @@ import re
 
 import pytest
 from flask.testing import FlaskClient
-from server.models import (ClassQuiz, ClassQuizStatus, QuestionsSchema,
-                           SchoolClass)
-from server.tests.factories import (ClassQuizFactory, QuestionsFactory,
-                                    SchoolClassFactory)
+from server.models import (ClassQuiz, ClassQuizStatus, KnowledgeItem,
+                           QuestionsSchema, SchoolClass)
+from server.tests.factories import (ClassQuizFactory, KnowledgeItemFactory,
+                                    QuestionsFactory, SchoolClassFactory)
 
 
 @pytest.fixture
@@ -20,12 +20,18 @@ def classquiz_(client: FlaskClient, _class: SchoolClass):
 
 
 @pytest.fixture
-def classquiz_with_questions(client: FlaskClient, _class: SchoolClass) -> ClassQuiz:
-    # questions = []
-    # for _ in range(5):
-    #     questions.append(QuestionsFactory.create(multiple_choice_question_type=True, with_choices=4, weight=1))  # noqa
+def knowledge_item(client: FlaskClient) -> KnowledgeItem:
+    return KnowledgeItemFactory()
 
-    questions = QuestionsFactory.create_batch(5, multiple_choice_question_type=True, with_choices=4, weight=1)  # noqa
+
+@pytest.fixture
+def classquiz_with_questions(client: FlaskClient,
+                             _class: SchoolClass,
+                             knowledge_item: KnowledgeItem) -> ClassQuiz:
+    questions = QuestionsFactory.create_batch(5,
+                                              multiple_choice_question_type=True,
+                                              with_choices={'knowledge_item': knowledge_item},
+                                              weight=1)
     dumper = QuestionsSchema()
     questions = [dumper.dump(question) for question in questions]
     return ClassQuizFactory.create(class_id=_class.id, questions=questions)
