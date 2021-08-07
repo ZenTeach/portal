@@ -4,11 +4,12 @@ import pytest
 from factory import build
 from flask.testing import FlaskClient
 from marshmallow import ValidationError
-from server.models import KnowledgeItem, Questions, Subject
+from server.models import KnowledgeItem, Questions, Subject, Topic
 from server.tests.factories import QuestionsFactory
 from server.tests.factories.knowledge_item_factory import KnowledgeItemFactory
 from server.tests.factories.question_choice_factory import \
     QuestionChoiceFactory
+from server.tests.factories.topic_factory import TopicFactory
 
 
 @pytest.fixture
@@ -21,6 +22,11 @@ def subject_() -> Subject:
 @pytest.fixture
 def knowledge_item_() -> KnowledgeItem:
     return KnowledgeItemFactory()
+
+
+@pytest.fixture
+def topic_() -> Topic:
+    return TopicFactory()
 
 
 @pytest.fixture
@@ -111,3 +117,18 @@ def test_question_knowledge_item_relationship(client: FlaskClient,
     assert question._knowledge_item == knowledge_item_
     assert question._knowledge_item_id is not None
     assert knowledge_item_.questions == [question]
+
+
+def test_question_topic_relationship(client: FlaskClient,
+                                     knowledge_item_: KnowledgeItem) -> None:
+    question = QuestionsFactory.create(multiple_choice_question_type=True,
+                                       with_choices={
+                                           'choice_count': 4,
+                                           'choice_weight': 1,
+                                           'knowledge_item': knowledge_item_
+                                       })
+
+    t = Topic.query.first()
+    assert question._topic == t
+    assert question._topic_id == t.id
+    assert t.questions == [question]
