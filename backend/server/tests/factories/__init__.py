@@ -9,6 +9,7 @@ from .quiz_session_factory import QuizSessionFactory
 from .school_class_factory import SchoolClassFactory
 from .student_factory import StudentFactory
 from .teacher_factory import TeacherFactory
+from .topic_factory import TopicFactory
 
 __all__ = [
     "ClassQuizFactory",
@@ -20,6 +21,7 @@ __all__ = [
     "QuestionsFactory",
     "QuestionChoiceFactory",
     "AdminFactory",
+    "TopicFactory",
     "KnowledgeItemFactory",
     "InvitationFactory"
 ]
