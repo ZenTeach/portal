@@ -112,7 +112,9 @@ def existing_question_payload_as_json() -> dict:
     subject_id = Subject.query.first().id
     q = QuestionsFactory(multiple_choice_question_type=True,
                          subject_id=subject_id,
-                         with_choices=4)
+                         with_choices={
+                             'choice_count': 4
+                         })
     json_dump = QuestionsSchema().dump(q)
     json_dump['choices'][0].update({
         'is_correct_choice': True

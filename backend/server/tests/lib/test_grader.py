@@ -8,12 +8,14 @@ from pytest_mock import MockFixture
 from server.api.class_quiz_api import ClassQuiz
 from server.lib import Grader
 from server.lib.grader import CorrectChoice, Feedback
-from server.models import (ClassQuizStatus, Questions, QuizGrade, QuizSession,
-                           SchoolClass, Student, Teacher)
+from server.models import (ClassQuizStatus, KnowledgeItem, Questions,
+                           QuizGrade, QuizSession, SchoolClass, Student,
+                           Teacher)
 from server.models.question_choice import QuestionChoice
-from server.tests.factories import (QuestionsFactory, QuizGradeFactory,
-                                    QuizSessionFactory, SchoolClassFactory,
-                                    StudentFactory, TeacherFactory)
+from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
+                                    QuizGradeFactory, QuizSessionFactory,
+                                    SchoolClassFactory, StudentFactory,
+                                    TeacherFactory)
 
 
 @pytest.fixture
@@ -34,6 +36,16 @@ def student(school_class: SchoolClass, client: FlaskClient) -> Student:
 
 
 @pytest.fixture
+def knowledge_items_() -> List[KnowledgeItem]:
+    return KnowledgeItemFactory.create_batch(5)
+
+
+@pytest.fixture
+def knowledge_item_() -> KnowledgeItem:
+    return KnowledgeItemFactory()
+
+
+@pytest.fixture
 def classquiz_(school_class: SchoolClass, client: FlaskClient) -> ClassQuiz:
     return school_class.quizzes[0]
 
@@ -51,13 +63,27 @@ def quizgrade_(student: Student, classquiz_: ClassQuiz, client: FlaskClient) -> 
 
 
 @pytest.fixture
-def question_(client: FlaskClient) -> Questions:
-    return QuestionsFactory.create(multiple_choice_question_type=True, with_choices=4)
+def question_(client: FlaskClient, knowledge_item_: KnowledgeItem) -> Questions:
+    return QuestionsFactory.create(multiple_choice_question_type=True,
+                                   with_choices={
+                                       'choice_count': 4,
+                                       'choice_weight': 1,
+                                       'knowledge_item': knowledge_item_
+                                   })
 
 
 @pytest.fixture(autouse=True)
-def questions_(client: FlaskClient) -> None:
-    QuestionsFactory.create_batch(3, multiple_choice_question_type=True, with_choices=4)
+def questions_(client: FlaskClient, knowledge_items_: List[KnowledgeItem]) -> None:
+    questions = []
+    for knowledge_item in knowledge_items_:
+        questions.extend(QuestionsFactory.create_batch(2,
+                                                       multiple_choice_question_type=True,
+                                                       with_choices={
+                                                           'choice_count': 4,
+                                                           'choice_weight': 1,
+                                                           'knowledge_item': knowledge_item
+                                                       })
+                         )
 
 
 @pytest.fixture

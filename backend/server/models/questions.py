@@ -86,6 +86,8 @@ class Questions(BaseModelMixin, db.Model):
     correct_choice_id = db.Column(db.Integer, nullable=False)
     choices = db.relationship("QuestionChoice", backref="question")
     knowledge_item = db.Column(db.String(256), nullable=False)
+    _knowledge_item_id = db.Column(db.Integer, db.ForeignKey("knowledge_items.id"), nullable=True)
+    _knowledge_item = db.relationship("KnowledgeItem")
     user_created = db.Column(db.Boolean, nullable=False, default=False)
     search_vector = db.Column(TSVectorType("question"))
 

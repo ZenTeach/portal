@@ -30,6 +30,8 @@ class ClassQuizFactory(SQLAlchemyModelFactory):
             question_count = extracted or 5
             questions = QuestionsFactory.create_batch(question_count,
                                                       multiple_choice_question_type=True,
-                                                      with_choices=4)
+                                                      with_choices={
+                                                          'choice_count': 4
+                                                      })
             dumper = QuestionsSchema()
             obj.questions = [dumper.dump(question) for question in questions]

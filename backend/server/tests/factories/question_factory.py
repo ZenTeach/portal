@@ -37,7 +37,22 @@ class QuestionsFactory(SQLAlchemyModelFactory):
 
     @post_generation
     def with_choices(obj, create, extracted, **kwargs):
+        """
+            how to use
+            q = QuestionFactory(with_choices={
+                    'choice_count': 4,
+                    'choice_weight': 1,
+                    'knowledge_item': <knowledge_item>})
+        """
         if create:
-            choice_count = extracted or 4
-            choice_weight = kwargs.get('weight', 1)
-            QuestionChoiceFactory.create_batch(choice_count, question=obj.id, weight=choice_weight)
+            if isinstance(extracted, dict):
+                choice_count = extracted.get('choice_count', 4)
+                choice_weight = extracted.get('choice_weight', 1)
+                knowledge_item = extracted.get('knowledge_item', None)
+                QuestionChoiceFactory.create_batch(
+                    choice_count, question=obj.id, weight=choice_weight)
+
+                if knowledge_item is not None:
+                    obj._knowledge_item_id = knowledge_item.id
+                    obj._knowledge_item = knowledge_item
+                    obj.save()
