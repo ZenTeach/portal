@@ -3,7 +3,7 @@ on: [pull_request]
 jobs:
   cypress-run:
     runs-on: [ self-hosted, ci ]
-    container: node:13.13-slim-stretch
+    container: node:13.13.0-stretch-slim
     defaults:
       run:
         working-directory: client
