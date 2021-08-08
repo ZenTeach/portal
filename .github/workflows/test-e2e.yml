@@ -11,4 +11,11 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Run e2e tests
-        run: yarn test:e2e --headless
+        uses: cypress-io/github-action@v1
+        with:
+          start: npm run serve
+          wait-on: http://localhost:8080/
+          config_file: cypress.json
+          spec: "tests/e2e/**/*"
+        env:
+          CYPRESS_baseUrl: http://localhost:8080/
