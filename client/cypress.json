@@ -1,0 +1,10 @@
+{
+  "baseURL": "http://localhost:3000",
+  "env": {},
+  "pluginsFile": "tests/e2e/plugins/index.js",
+  "fixturesFolder": "tests/e2e/fixtures",
+  "integrationFolder": "tests/e2e/integration",
+  "screenshotsFolder": "tests/e2e/screenshots",
+  "video": false,
+  "supportFile": false
+}

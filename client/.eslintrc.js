@@ -20,6 +20,9 @@ module.exports = {
       styleCSSVariableInjection: true
     }
   },
+  extends: [
+    "plugin:cypress/recommended"
+  ],
   plugins: ['vue'],
   rules: {}
 }
