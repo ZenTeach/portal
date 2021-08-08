@@ -1,0 +1,14 @@
+name: End-to-End tests
+on: [push]
+jobs:
+  cypress-run:
+    runs-on: [ self-hosted, ci ]
+    container: node:13.13-alpine
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - name: Install dependencies
+        run: yarn install
+      - name: Run e2e tests
+        run: yarn test:e2e --headless
