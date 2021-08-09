@@ -3,7 +3,7 @@
     <nav-bar v-if="isLoggedIn && !isQuizView" />
     <nav-bar-drawer v-if="isLoggedIn && !isQuizView" />
     <v-content class="grey lighten-3">
-      <unconfirmed-account-banner :visible="isLoggedIn && !isUserConfirmed" />
+      <unconfirmed-account-banner v-if="isLoggedIn && !isUserConfirmed" />
       <div id="core-view">
         <v-container fluid>
           <v-fade-transition mode="in-out">

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`UnconfirmedAccountBanner.vue renders UnconfirmedAccountBanner component 1`] = `
-<v-banner-stub color="yellow lighten-4" tag="div" mobilebreakpoint="1264" singleline="true">
+<v-banner-stub color="yellow lighten-4" tag="div" mobilebreakpoint="1264" value="true" singleline="true">
   <div class="d-flex justify-space-between justify-space-around align-baseline">
     <div class="display-2" style="max-width: 60vw;"><span class="d-flex"><v-icon-stub slot="icon" color="red" size="36">
                 mdi-account-alert-outline
