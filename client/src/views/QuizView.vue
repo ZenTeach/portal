@@ -10,7 +10,6 @@
             prepend-icon="email"
             outline
             required
-            :error-messages="errors"
             v-model="studentEmail"
           ></v-text-field>
         </v-card-text>
@@ -35,12 +34,12 @@
               <v-radio-group>
                 <template v-for="(choice, idx) in question.choices">
                   <div :id="'div'+idx" :key="'div'+idx">
-                    <input type="radio"
-                      :key="idx"
-                      :name="question.id"
-                      :value="choice.uuid"
-                      @input.self="appendToSelection"/>
-                    <v-label :for="choice" key="'label'+idx">{{choice.value}}</v-label >
+                      <input type="radio"
+                        :key="idx"
+                        :name="question.id"
+                        :value="choice.uuid"
+                        @input.self="appendToSelection"/>
+                    <v-label :for="choice.value" key="'label'+idx">{{choice.value}}</v-label >
                   </div>
                 </template>
               </v-radio-group>
@@ -51,7 +50,7 @@
     </v-row>
 
     <v-row class="mx-10 pa-5">
-      <v-btn color="success" @click="submit()">
+      <v-btn :disabled="!isValid" color="success" @click="submit()">
         Submit Quiz
       </v-btn>
     </v-row>
@@ -77,6 +76,7 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
+
 const { mapGetters } = createNamespacedHelpers('quiz')
 export default {
   name: 'QuizView',
@@ -95,18 +95,26 @@ export default {
       quizTitle: 'subject',
       hasSubmitted: 'hasSubmitted'
     }),
-    routeId: function () {
+    routeId () {
       return this.$route.params.id
+    },
+    selectedChoicesLength () {
+      return Object.keys(this.selectedChoices).length
+    },
+    isValid () {
+      console.log(this._.keys(this.selectedChoices).length)
+      return !this._.isEmpty(this.selectedChoices) &&
+        this.selectedChoicesLength === this.quiz_questions.length
     }
   },
   methods: {
     appendToSelection (event) {
-      this.selectedChoices[event.target.name] = event.target.value
+      // Properly handle vue updates
+      this.$set(this.selectedChoices, event.target.name, event.target.val)
     },
     submit () {
       const payload = this._collect_submission()
       this.$store.dispatch('quiz/SUBMIT_QUIZ', payload, { root: true })
-
       if (this.hasSubmitted) {
         this.completedModal = true
       }
