@@ -1,4 +1,5 @@
 from json import loads
+from typing import List
 from uuid import uuid4
 
 import pytest
@@ -38,10 +39,22 @@ def unconfirmed_student(school_class: SchoolClass) -> Student:
 
 
 @pytest.fixture
-def classquiz_(school_class: SchoolClass) -> ClassQuiz:
-    cq = ClassQuizFactory.build(class_id=school_class.id)
-    cq.save()
+def classquiz_(school_class: SchoolClass,) -> ClassQuiz:
+
+    cq = ClassQuizFactory.create(class_id=school_class.id,
+                                 with_multiple_choice_questions=4)
     return cq
+
+
+@pytest.fixture
+def student_response(classquiz_: ClassQuiz) -> List[dict]:
+    return [
+        {
+            "questionID": question['id'],
+            "Choice_answer": question['choices'][0]['uuid']
+        }
+        for question in classquiz_.questions
+    ]
 
 
 @pytest.fixture
@@ -122,6 +135,7 @@ def test_post_quiz_submit(client: FlaskClient,
                           student: Student,
                           classquiz_: ClassQuiz,
                           session_: QuizSession,
+                          student_response: List[dict],
                           mocker: MockFixture):
 
     @mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
@@ -133,7 +147,7 @@ def test_post_quiz_submit(client: FlaskClient,
                            json={
                                "StudentEmail": student.email,
                                "QuizId": classquiz_.uuid,
-                               "data": []
+                               "data": student_response
                            })
 
     assert response.status_code == 201
@@ -144,6 +158,7 @@ def test_post_quiz_submit(client: FlaskClient,
 def test_post_student_not_found_error(client: FlaskClient,
                                       classquiz_: ClassQuiz,
                                       session_: QuizSession,
+                                      student_response: List[dict],
                                       mocker: MockFixture):
 
     mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
@@ -151,7 +166,7 @@ def test_post_student_not_found_error(client: FlaskClient,
                            json={
                                "StudentEmail": "dummy@example.com",
                                "QuizId": classquiz_.uuid,
-                               "data": []
+                               "data": student_response
                            })
 
     assert response.status_code == 404
@@ -163,6 +178,7 @@ def test_post_student_not_found_error(client: FlaskClient,
 
 def test_post_classquiz_not_found_error(client: FlaskClient,
                                         student: Student,
+                                        student_response: List[dict],
                                         session_: QuizSession,
                                         mocker: MockFixture):
     mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
@@ -170,7 +186,7 @@ def test_post_classquiz_not_found_error(client: FlaskClient,
                            json={
                                "StudentEmail": student.email,
                                "QuizId": uuid4(),
-                               "data": []
+                               "data": student_response
                            })
 
     assert response.status_code == 404
@@ -182,6 +198,7 @@ def test_post_classquiz_not_found_error(client: FlaskClient,
 
 def test_post_quizsession_not_found_error(client: FlaskClient,
                                           student: Student,
+                                          student_response: List[dict],
                                           classquiz_: ClassQuiz,
                                           mocker: MockFixture):
     mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
@@ -189,7 +206,7 @@ def test_post_quizsession_not_found_error(client: FlaskClient,
                            json={
                                "StudentEmail": student.email,
                                "QuizId": classquiz_.uuid,
-                               "data": []
+                               "data": student_response
                            })
 
     assert response.status_code == 404
@@ -201,6 +218,7 @@ def test_post_quizsession_not_found_error(client: FlaskClient,
 def test_post_quizsession_ended_error(client: FlaskClient,
                                       student: Student,
                                       classquiz_: ClassQuiz,
+                                      student_response: List[dict],
                                       ended_session_: QuizSession,
                                       mocker: MockFixture):
 
@@ -209,7 +227,7 @@ def test_post_quizsession_ended_error(client: FlaskClient,
                            json={
                                "StudentEmail": student.email,
                                "QuizId": classquiz_.uuid,
-                               "data": []
+                               "data": student_response
                            })
 
     assert response.status_code == 404
@@ -221,9 +239,9 @@ def test_post_quizsession_ended_error(client: FlaskClient,
 def test_post_db_exception(client: FlaskClient,
                            student: Student,
                            classquiz_: ClassQuiz,
+                           student_response: List[dict],
                            session_: QuizSession,
                            mocker: MockFixture):
-
     def _mock_student_save(*args):
         raise exc.IntegrityError('', '', '')
 
@@ -233,7 +251,7 @@ def test_post_db_exception(client: FlaskClient,
                            json={
                                "StudentEmail": student.email,
                                "QuizId": classquiz_.uuid,
-                               "data": []
+                               "data": student_response
                            })
 
     assert response.status_code == 500
@@ -245,6 +263,7 @@ def test_post_db_exception(client: FlaskClient,
 def test_post_endpoint_idempotency(client: FlaskClient,
                                    student: Student,
                                    classquiz_: ClassQuiz,
+                                   student_response: List[dict],
                                    ended_session_: QuizSession,
                                    mocker: MockFixture):
 
@@ -253,6 +272,6 @@ def test_post_endpoint_idempotency(client: FlaskClient,
                            json={
                                "StudentEmail": student.email,
                                "QuizId": classquiz_.uuid,
-                               "data": []
+                               "data": student_response
                            })
     assert response.status_code == 404
