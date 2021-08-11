@@ -67,16 +67,22 @@ class SubmitQuiz(MethodView):
     def post(self):
         post_data = request.get_json()
         student_email = post_data.get('StudentEmail')
-        student = Student.query.filter_by(
-            email=student_email).first()
+        class_quiz_id = post_data.get('QuizId')
+        student_response = post_data.get('data')
+
+        if len(student_response) == 0:
+            return make_response(jsonify({
+                'message': "Cannot submit quiz without any choices selected"
+            }), 400)
+
+        student = Student.query.filter_by(email=student_email).first()
+        class_quiz = ClassQuizModel.query.filter_by(uuid=class_quiz_id).first()
+
         if student is None:
             return make_response(jsonify({
                 'message': "Student with email {} doesn't exist".format(student_email)
             }), 404)
 
-        class_quiz = ClassQuizModel.query.filter_by(
-            uuid=post_data.get("QuizId")
-        ).first()
         if class_quiz is None:
             return make_response(jsonify({
                 'message': "Class Quiz doesn't exist"
@@ -96,7 +102,7 @@ class SubmitQuiz(MethodView):
                     'message': "Session has ended!"
                 }), 404)
 
-            student.add_quiz_score(class_quiz, post_data.get("data"))
+            student.add_quiz_score(class_quiz, student_response)
             student.save()
 
             class_quiz.update_status(ClassQuizStatus.administered)
