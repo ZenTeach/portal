@@ -16,9 +16,9 @@ depends_on = None
 
 def upgrade():
     connection = op.get_bind()
-    connection.execute("ALTER TABLE topic RENAME TO topics")
+    connection.execute("ALTER TABLE IF EXISTS topic RENAME TO topics")
 
 
 def downgrade():
     connection = op.get_bind()
-    connection.execute("ALTER TABLE topics RENAME TO topic")
+    connection.execute("ALTER TABLE IF EXISTS topics RENAME TO topic")
