@@ -539,3 +539,26 @@ class SubjectsView(BaseView):
     column_exclude_list = ["id"]
     form_excluded_columns = ["name"]
     column_filters = ("enabled",)
+
+
+class TopicView(BaseView):
+    can_create = True
+    can_edit = True
+    can_export = False
+    column_list = ["value", "linked_question_count"]
+    column_exclude_list = ["id"]
+    column_filters = ("value",)
+    column_editable_list = ["value"]
+
+    def delete_model(self, model):
+
+        if model.linked_question_count > 0:
+            flash("Cannot delete topic as it has linked questions", "error")
+            return
+        try:
+            model.delete()
+            flash("Successfully deleted topic", "success")
+        except Exception as e:
+            report_5xx_error(e)
+            logger.error("Failed to delete record: {}".format(str(e)))
+            flash("Failed to delete record: {}".format(str(e)), "error")
