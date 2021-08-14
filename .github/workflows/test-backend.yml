@@ -10,7 +10,7 @@ jobs:
     runs-on: [ self-hosted, ci ]
     container: python:3.7.5-slim-stretch
     env:
-      DATABASE_TEST_URL: postgres://zenteach:cipass@postgres:5432/zenteach
+      DATABASE_TEST_URL: postgresql://zenteach:cipass@postgres:5432/zenteach
       FLASK_ENV: test
       APP_SETTINGS: server.config.TestingConfig
       REDIS_URL: redis://redis:6379/1
