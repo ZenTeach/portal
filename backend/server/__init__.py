@@ -126,22 +126,17 @@ def create_app():
     celery.Task = ContextTask
 
     configure_logging()
-    from . import models
     from flask_migrate import Migrate
+
+    from . import models
 
     migration_directory = os.path.join("server", "models", "migrations")
     Migrate(app, db, directory=migration_directory)
 
-    from server.admin import (
-        QuestionView,
-        SchoolClassView,
-        StudentView,
-        TeacherView,
-        ClassQuizView,
-        UserInvitationView,
-        SubjectsView,
-        ZenteachAdminIndexView,
-    )
+    from server.admin import (ClassQuizView, QuestionView, SchoolClassView,
+                              StudentView, SubjectsView, TeacherView,
+                              TopicView, UserInvitationView,
+                              ZenteachAdminIndexView)
 
     admin = Admin(
         app,
@@ -168,6 +163,9 @@ def create_app():
     admin.add_view(
         UserInvitationView(models.Invitations, db.session, endpoint="admin.user_invite")
     )
+    admin.add_view(
+        TopicView(models.Topic, db.session, endpoint="admin.topic")
+    )
 
     # import background tasks after initializing celery
     # import server.tasks
@@ -186,14 +184,14 @@ def create_app():
         )
 
     # Register bluprints
-    from server.api.school_class_api import school_class_blueprint
-    from server.api.class_quiz_api import class_quiz_blueprint
-    from server.api.teacher_auth_api import teacher_auth_blueprint
-    from server.api.student_auth_api import student_auth_blueprint
-    from server.api.questions_api import question_blueprint
-    from server.api.stats_api import statistics_view_blueprint
-    from server.api.quiz_submit_api import quiz_submit_blueprint
     from server.api import root_api
+    from server.api.class_quiz_api import class_quiz_blueprint
+    from server.api.questions_api import question_blueprint
+    from server.api.quiz_submit_api import quiz_submit_blueprint
+    from server.api.school_class_api import school_class_blueprint
+    from server.api.stats_api import statistics_view_blueprint
+    from server.api.student_auth_api import student_auth_blueprint
+    from server.api.teacher_auth_api import teacher_auth_blueprint
 
     app.register_blueprint(school_class_blueprint, url_prefix="/api/v1")
     app.register_blueprint(class_quiz_blueprint, url_prefix="/api/v1")

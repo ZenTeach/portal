@@ -190,6 +190,9 @@ class Questions(BaseModelMixin, db.Model):
 
         return choice
 
+    def __repr__(self) -> str:
+        return f"Question {self.question}"
+
     @classmethod
     def empty_instance(cls):
         return cls(

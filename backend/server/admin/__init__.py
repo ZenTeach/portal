@@ -1,6 +1,6 @@
 
 from .views import (ClassQuizView, QuestionView, SchoolClassView, StudentView,
-                    SubjectsView, TeacherView, UserInvitationView,
+                    SubjectsView, TeacherView, TopicView, UserInvitationView,
                     ZenteachAdminIndexView)
 
 __all__ = [
@@ -11,5 +11,6 @@ __all__ = [
     "SubjectsView",
     "ClassQuizView",
     "UserInvitationView",
+    "TopicView",
     "ZenteachAdminIndexView",
 ]
