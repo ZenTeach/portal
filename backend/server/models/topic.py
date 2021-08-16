@@ -10,6 +10,9 @@ class Topic(db.Model, BaseModelMixin):
     value = db.Column(db.String(255), nullable=False)
     questions = db.relationship("Questions", lazy='dynamic')
 
+    def __repr__(self):
+        return f"{self.value}"
+
     @hybrid_property
     def linked_question_count(self):
         return self.questions.count()

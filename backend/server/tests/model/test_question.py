@@ -116,7 +116,7 @@ def test_question_knowledge_item_relationship(client: FlaskClient,
 
     assert question._knowledge_item == knowledge_item_
     assert question._knowledge_item_id is not None
-    assert knowledge_item_.questions == [question]
+    assert list(knowledge_item_.questions) == [question]
 
 
 def test_question_topic_relationship(client: FlaskClient,
