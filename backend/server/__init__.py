@@ -133,9 +133,9 @@ def create_app():
     migration_directory = os.path.join("server", "models", "migrations")
     Migrate(app, db, directory=migration_directory)
 
-    from server.admin import (ClassQuizView, QuestionView, SchoolClassView,
-                              StudentView, SubjectsView, TeacherView,
-                              TopicView, UserInvitationView,
+    from server.admin import (ClassQuizView, KnowledgeItemView, QuestionView,
+                              SchoolClassView, StudentView, SubjectsView,
+                              TeacherView, TopicView, UserInvitationView,
                               ZenteachAdminIndexView)
 
     admin = Admin(
@@ -166,9 +166,13 @@ def create_app():
     admin.add_view(
         TopicView(models.Topic, db.session, endpoint="admin.topic")
     )
+    admin.add_view(
+        KnowledgeItemView(models.KnowledgeItem, db.session, endpoint="admin.knowledge_item")
+    )
 
     # import background tasks after initializing celery
     # import server.tasks
+
     @jwt.token_in_blacklist_loader
     def check_if_token_is_revoked(decrypted_token):
         jti = decrypted_token["jti"]
