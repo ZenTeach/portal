@@ -131,4 +131,4 @@ def test_question_topic_relationship(client: FlaskClient,
     t = Topic.query.first()
     assert question._topic == t
     assert question._topic_id == t.id
-    assert t.questions == [question]
+    assert list(t.questions) == [question]
