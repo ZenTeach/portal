@@ -9,6 +9,8 @@ class KnowledgeItem(db.Model, BaseModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.String(255), nullable=False)
     questions = db.relationship("Questions", lazy='dynamic')
+    subject_id = db.Column(db.Integer, db.ForeignKey("subjects.id"), nullable=True)
+    subject = db.relationship("Subject", lazy='joined', uselist=False)
 
     def __repr__(self):
         return f"{self.value}"
