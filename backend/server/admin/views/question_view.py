@@ -19,7 +19,7 @@ from wtforms.validators import (DataRequired, InputRequired, Required,
 from wtforms.widgets import HTMLString, TextInput, html_params
 
 from .base_view import (BaseView, _loaded_examboard, correct_choice_formatter,
-                        json_formatter, report_5xx_error)
+                        report_5xx_error)
 
 
 class QuestionChoiceForm(Form):
@@ -156,12 +156,17 @@ class QuestionView(BaseView):
     column_exclude_list = ["search_vector", "uuid", "image_url", "knowledge_item", "topic"]
     column_filters = ("topic", "question_type", "subject", "knowledge_item", "user_created")
     column_formatters = {
-        "choices": json_formatter,
         "correct_choice_id": correct_choice_formatter,
     }
+    column_list = ['question', 'question_type', 'subject',
+                   '_knowledge_item', '_topic', 'user_created', 'teacher']
     create_template = "admin/question_create.html"
     edit_template = "admin/question_edit.html"
-    form_overrides = {"question_type": SelectField, 'exam_board': SelectField}
+    form_overrides = {
+        "question_type": SelectField,
+        'exam_board': SelectField,
+        "topic": SelectField,
+        "knowledge_item": SelectField}
     form_create_rules = ('subject',
                          'exam_board',
                          'topic',
@@ -202,6 +207,25 @@ class QuestionView(BaseView):
                                         query_factory=lambda: Subject.query.filter_by(
                                             enabled=True).all(),
                                         allow_blank=False)
+
+        return form
+
+    def create_form(self):
+        form = super().create_form()
+        # filter these values using the subject selected.
+        # Prepopulate the choices with the subject selected.
+        # form.knowledge_item = QuerySelectField('Knowledge Item',
+        #                                         validators=[Required()],
+        #                                         query_factory=lambda: KnowledgeItem.query.filter_by(  # noqa
+        #                                             subject=form.subject.data
+        #                                         ).all(),
+        #                                         allow_blank=False)
+        # form.topic = QuerySelectField('Topic',
+        #                                 validators=[Required()],
+        #                                 query_factory=lambda: Topic.query.filter_by(
+        #                                     subject=form.subject.data
+        #                                 ).all(),
+        #                                 allow_blank=False)
         return form
 
     def edit_form(self, obj):

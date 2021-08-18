@@ -29,6 +29,8 @@ def trigger_knowledge_item_migration() -> None:
                 f"Couldn't find KnowledgeItem with value {question.knowledge_item}. Creating...")
             knowledge_item = KnowledgeItem(value=question.knowledge_item)
             knowledge_item.save()
+        else:
+            knowledge_item.subject_id = question.subject_id
 
         question._knowledge_item = knowledge_item
         question._knowledge_item_id = knowledge_item.id
@@ -45,6 +47,8 @@ def trigger_topic_migration() -> None:
             logger.info(f"Couldn't find Topic with value {question.topic}. Creating...")
             topic = Topic(value=question.topic)
             topic.save()
+        else:
+            topic.subject_id = question.subject_id
 
         question._topic = topic
         question._topic_id = topic.id
