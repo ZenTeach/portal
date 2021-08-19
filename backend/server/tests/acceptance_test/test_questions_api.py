@@ -408,6 +408,28 @@ def test_question_search_with_params(client: FlaskClient,
     assert len(json.loads(response.data)['data']) > 0
 
 
+def test_question_search_with_special_character_params(client: FlaskClient,
+                                                       mocker: MockFixture,
+                                                       knowledgeitems_: List[str],
+                                                       topics_: List[str]):
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    payload = {
+        "query": '*',
+        "topic": topics_,
+        "knowledge_item": knowledgeitems_,
+        "subject": 'Chemistry'
+    }
+
+    response = client.post(
+        "/api/v1/question/search",
+        json=payload
+    )
+
+    assert response.status_code == 200
+    assert len(json.loads(response.data)['data']) > 0
+
+
 def test_question_search_optional_filter(client: FlaskClient,
                                          mocker: MockFixture,
                                          knowledgeitems_: List[str],

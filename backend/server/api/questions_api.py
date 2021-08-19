@@ -290,11 +290,17 @@ class QuestionSearch(MethodView):
                     'message': 'Query cannot be empty'
                 }), 400)
 
-            result_set = Questions.query.search(query_params["query"]).filter(
-                Questions.subject_id == subject_.id
-            )
+            if query_params['query'] == '*':
+                result_set = Questions.query.filter_by(subject_id=subject_.id)
+            else:
+                result_set = Questions.query.search(query_params["query"]).filter(
+                    Questions.subject_id == subject_.id
+                )
 
             if len(query_params["topic"]) != 0:
+                # sm.Questions.query.filter(
+                #     sm.Questions._topic==sm.Topic.query.filter_by(value='Atomic Structure').first()) # noqa
+                #     .first()
                 result_set = result_set.filter(
                     Questions.topic.in_(query_params["topic"])
                 )
