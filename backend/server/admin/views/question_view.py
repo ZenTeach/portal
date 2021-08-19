@@ -153,6 +153,7 @@ class CustomImageUploadField(ImageUploadField):
 
 
 class QuestionView(BaseView):
+    can_create = False
     column_exclude_list = ["search_vector", "uuid", "image_url", "knowledge_item", "topic"]
     column_filters = ("topic", "question_type", "subject", "knowledge_item", "user_created")
     column_formatters = {
