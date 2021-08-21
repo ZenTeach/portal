@@ -6,7 +6,7 @@ from uuid import UUID
 from flask import Blueprint, abort, jsonify, make_response, request
 from flask.views import MethodView
 from flask.wrappers import Response
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import current_user, jwt_required
 from marshmallow import INCLUDE, Schema, ValidationError, fields
 from server import db
 from server.api import logger, report_5xx_error
@@ -72,7 +72,7 @@ class ClassQuiz(MethodView):
             return make_response(error_response, 404)
 
     @with_required_roles(["Teacher", "Admin"])
-    @jwt_required
+    @jwt_required(fresh=True)
     def delete(self, class_quiz_id):
         error_response = {"message": "No Class Quiz found."}
         try:
@@ -91,7 +91,7 @@ class ClassQuiz(MethodView):
 
 class ClassQuizList(MethodView):
     @with_required_roles(["Teacher", "Admin"])
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self):
         return make_response(
             {
@@ -106,10 +106,10 @@ class ClassQuizList(MethodView):
             200,
         )
 
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self) -> Response:
         post_data: Dict = request.get_json()
-        teacher_email = get_jwt_identity()['identity']["email"]
+        teacher_email = current_user.email
         error_object = {"status": "Failed", "message": "Quiz data not given."}
         if not post_data:
             return make_response(error_object, 400)
@@ -154,7 +154,7 @@ class ClassQuizList(MethodView):
 
 # @api.resource("/class_quiz/pdf_view/<class_quiz_id>")
 # class ClassQuizPDFView(MethodView):
-#     @jwt_required
+#     @jwt_required(fresh=True)
 #     def get(self, class_quiz_id):
 #         quiz = ClassQuizModel.query.filter_by(id=class_quiz_id).first()
 #         error_object = {"status": "fail", "message": "Invalid payload."}
@@ -179,7 +179,7 @@ class ClassQuizList(MethodView):
 
 
 class ClassQuizGenerator(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self, class_quiz_uuid):
         """
             Args:
@@ -189,7 +189,7 @@ class ClassQuizGenerator(MethodView):
         error_object = {"status": "Failed",
                         "message": "Failed to generate quiz"}
 
-        teacher = get_jwt_identity()["identity"]
+        teacher = current_user
         quiz_id = ClassQuizModel.query.filter_by(uuid=class_quiz_uuid).first().id
         req_data = request.get_json()
         if req_data["type"] == "pdf":
@@ -198,7 +198,7 @@ class ClassQuizGenerator(MethodView):
                 generated = generate_pdf.delay(quiz_id)
                 generated_file_name = generated.get()
                 send_quiz_pdf.apply_async(
-                    args=[teacher["email"], generated_file_name])
+                    args=[teacher.email, generated_file_name])
             except Exception as e:
                 logger.exception(e)
                 error_object["message"] = "Error generating quiz pdf"
@@ -211,7 +211,7 @@ class ClassQuizGenerator(MethodView):
                 }),
                 200)
         elif req_data["type"] == "gform":
-            t = Teacher.query.filter_by(email=teacher["email"]).first()
+            t = Teacher.query.filter_by(email=teacher.email).first()
             teacher_uid = str(t.uuid)  # noqa
             script_id = None
             try:
@@ -236,7 +236,7 @@ class ClassQuizGenerator(MethodView):
 
 
 class QuizReportCard(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self, uuid):
         # Validate the UUID string
         # Taken from https://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
@@ -257,7 +257,7 @@ class QuizReportCard(MethodView):
 
 
 class GradedQuizzes(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self, quizUUId):
         quizId = ClassQuizModel.query.filter_by(uuid=quizUUId).first().id
         graded_quizzes = QuizGrade.query.filter_by(class_quiz_id=quizId, graded=True).all()
@@ -268,7 +268,7 @@ class GradedQuizzes(MethodView):
 
 
 class QuizAttendedStudents(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self, class_quiz_uuid):
         quiz = ClassQuizModel.query.filter_by(
             uuid=class_quiz_uuid, status=ClassQuizStatus.administered
@@ -283,7 +283,7 @@ class QuizAttendedStudents(MethodView):
 
 
 class SendReportCard(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self, quizGradeUUID: UUID) -> Union[Response, NoReturn]:
         grade = QuizGrade.query.filter_by(uuid=quizGradeUUID).first()
 

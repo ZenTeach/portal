@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import current_user, jwt_required
 from marshmallow import ValidationError
 from server import db
 from server.api import logger, report_5xx_error
@@ -23,7 +23,7 @@ question_args = {
 
 
 class QuestionList(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     @use_kwargs(question_args, location='query')
     def get(self, **kwargs):
         subject = kwargs.get('subject')
@@ -45,7 +45,7 @@ class QuestionList(MethodView):
                            for question in question_list]}, 200
         )
 
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self):
         data = request.get_json()
         error_object = jsonify(
@@ -84,12 +84,12 @@ class QuestionList(MethodView):
 
 class Question(MethodView):
 
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self, question_id):
         question = Questions.query.filter_by(id=question_id).first()
         return make_response({"question": dumper.dump(question)}, 200)
 
-    @jwt_required
+    @jwt_required(fresh=True)
     def delete(self, question_id):
         try:
             question = Questions.query.filter_by(id=question_id).first()
@@ -115,7 +115,7 @@ class Question(MethodView):
                 }),
                 500)
 
-    @jwt_required
+    @jwt_required(fresh=True)
     @with_required_roles(["Admin"])
     def put(self):
         pass
@@ -123,23 +123,22 @@ class Question(MethodView):
 
 class TeacherOwnedQuestions(MethodView):
 
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self):
-        teacher = get_jwt_identity()["identity"]
-        questions = Questions.query.filter_by(teacher_id=teacher["id"]).all()
+        teacher = current_user
+        questions = Questions.query.filter_by(teacher_id=teacher.id).all()
 
         return make_response(
             jsonify({
                 "questions": [dumper.dump(question) for question in questions]
             }), 200)
 
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self):
-        teacher = get_jwt_identity()["identity"]
+        teacher = current_user
         data = request.get_json()
         data.update({
-            'user_created': True,
-            'teacher_id': teacher['id']
+            'user_created': True
         })
 
         validation_errors = QuestionSchemaValidator().validate(data=data)
@@ -147,7 +146,7 @@ class TeacherOwnedQuestions(MethodView):
             errors = format_validation_for_api(validation_errors)
             return make_response(jsonify(errors), 422)
 
-        if teacher.get('id') != data.get('teacher_id', None):
+        if teacher.id != data.get('teacher_id', None):
             return make_response(jsonify({
                 'message': 'Teacher is not recognized'
             }), 422)
@@ -171,9 +170,9 @@ class TeacherOwnedQuestions(MethodView):
 
 
 class TeacherOwnedQuestion(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def delete(self, question_id):
-        teacher = get_jwt_identity()["identity"]
+        teacher = current_user
 
         question: Questions = Questions.query.filter_by(id=question_id).first()
 
@@ -182,7 +181,7 @@ class TeacherOwnedQuestion(MethodView):
                 'message': "Question doesn't exist."
             }), 404)
 
-        if question.teacher_id != teacher['id']:
+        if question.teacher_id != teacher.id:
             return make_response(jsonify({
                 'message': "The selected question doesn't belong to the teacher"
             }), 422)
@@ -198,10 +197,10 @@ class TeacherOwnedQuestion(MethodView):
                 'message': "We ran into a problem deleting the question."
             }), 500)
 
-    @jwt_required
+    @jwt_required(fresh=True)
     def patch(self, question_id):
         data = request.get_json()
-        teacher = get_jwt_identity()["identity"]
+        teacher = current_user
 
         success_message = {
             'message': "Question was updated successfully."
@@ -224,11 +223,10 @@ class TeacherOwnedQuestion(MethodView):
                 data.update(subject_id=subject_id)
                 del data['subject']
 
-            if question.teacher_id != teacher['id']:
+            if question.teacher_id != teacher.id:
                 question = Questions.empty_instance()
                 data.update({
-                    'user_created': True,
-                    'teacher_id': teacher['id']
+                    'user_created': True
                 })
                 success_message['message'] = "Question successfully added."
                 status_code = 201
@@ -275,7 +273,7 @@ class TeacherOwnedQuestion(MethodView):
 
 
 class QuestionSearch(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self):
         query_params = request.get_json()
         try:
@@ -328,7 +326,7 @@ class QuestionSearch(MethodView):
 
 
 class QuestionFromKIsAndTopics(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self):
         json_payload = request.get_json()
         topics = json_payload.get("topics", [])
@@ -354,7 +352,7 @@ class QuestionFromKIsAndTopics(MethodView):
 
 
 class QuestionKIFilter(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self):
         """
             POST /api/v1/question/filter/ki
@@ -390,7 +388,7 @@ class QuestionKIFilter(MethodView):
 
 
 class QuestionTopicFilter(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self, subject: str):
         try:
             subject_ = Subject.query.filter(Subject.name.op('~*')(subject)).first()

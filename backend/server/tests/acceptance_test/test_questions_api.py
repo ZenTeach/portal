@@ -176,10 +176,16 @@ def mock_get_jwt_identity():
 def test_question_list_get(client: FlaskClient,
                            mocker: MockFixture,
                            subject: str,
+                           access_token: List[str],
                            count: int,
                            status: int):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    response = client.get(f"api/v1/question?subject={subject}")
+    response = client.get(
+        f"api/v1/question?subject={subject}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == status
 
@@ -193,6 +199,7 @@ def test_question_list_get(client: FlaskClient,
 def test_knowledge_item_filter(client: FlaskClient,
                                mocker: MockFixture,
                                topics: List[str],
+                               access_token: List[str],
                                topic_count: int,
                                status_code: int):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
@@ -200,6 +207,10 @@ def test_knowledge_item_filter(client: FlaskClient,
         "/api/v1/question/filter/ki",
         json={
             "topics_selected": topics
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
         }
     )
     data = json.loads(response.data)
@@ -213,6 +224,7 @@ def test_knowledge_item_filter(client: FlaskClient,
                          pytest.param([], 404)])
 def test_knowledge_item_filter_errors(client: FlaskClient,
                                       mocker: MockFixture,
+                                      access_token: List[str],
                                       topics: Union[List[str], None],
                                       error_code: int):
 
@@ -221,6 +233,10 @@ def test_knowledge_item_filter_errors(client: FlaskClient,
         "/api/v1/question/filter/ki",
         json={
             "topics_selected": topics
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
         }
     )
 
@@ -234,9 +250,15 @@ def test_topic_filter(client: FlaskClient,
                       mocker: MockFixture,
                       param: str,
                       status_code: int,
+                      access_token: List[str],
                       topics: int):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    response = client.get(f"/api/v1/question/filter/topic/{param}")
+    response = client.get(
+        f"/api/v1/question/filter/topic/{param}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     data = json.loads(response.data)
 
     assert response.status_code == status_code
@@ -246,9 +268,15 @@ def test_topic_filter(client: FlaskClient,
 @pytest.mark.parametrize('subject', ['chemistry', 'Chemistry'])
 def test_topic_filters_with_case_normalization(client: FlaskClient,
                                                mocker: MockFixture,
+                                               access_token: List[str],
                                                subject: str):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    response = client.get(f"/api/v1/question/filter/topic/{subject}")
+    response = client.get(
+        f"/api/v1/question/filter/topic/{subject}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     data = json.loads(response.data)
 
@@ -258,13 +286,19 @@ def test_topic_filters_with_case_normalization(client: FlaskClient,
 
 def test_question_create_api(client: FlaskClient,
                              question_payload_as_json: dict,
+                             access_token: List[str],
                              mocker: MockFixture):
 
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     question_payload_as_json['question'] = fake.sentence()
 
-    response = client.post("/api/v1/question",
-                           json=question_payload_as_json)
+    response = client.post(
+        "/api/v1/question",
+        json=question_payload_as_json,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 201
 
@@ -272,6 +306,7 @@ def test_question_create_api(client: FlaskClient,
 def test_question_create_api_question_already_existing(client: FlaskClient,
                                                        question_payload: dict,
                                                        subject_id: Subject,
+                                                       access_token: List[str],
                                                        mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     existing_question = Questions.query.first()
@@ -279,61 +314,109 @@ def test_question_create_api_question_already_existing(client: FlaskClient,
     question_payload['tag'] = existing_question.tag
     question_payload['question'] = existing_question.question
 
-    response = client.post("/api/v1/question", json=question_payload)
+    response = client.post("/api/v1/question",
+                           json=question_payload,
+                           headers={
+                               'Authorization': 'Bearer {}'.format(access_token[0]),
+                               'X-CSRF-ACCESS-TOKEN': access_token[2]
+                           })
 
     assert response.status_code == 400
 
 
-def test_question_create_api_empty_data(client: FlaskClient, mocker: MockFixture):
+def test_question_create_api_empty_data(client: FlaskClient,
+                                        access_token: List[str],
+                                        mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    response = client.post("/api/v1/question")
+    response = client.post(
+        "/api/v1/question",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 400
 
 
 def test_question_create_api_exception_handling(client: FlaskClient,
                                                 question_payload_json_without_correct_choice: dict,
+                                                access_token: List[str],
                                                 mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     question_payload_json_without_correct_choice['question_type'] = 'multiple_choice'
     question_payload_json_without_correct_choice['question'] = fake.sentence()
 
-    response = client.post("/api/v1/question", json=question_payload_json_without_correct_choice)
+    response = client.post(
+        "/api/v1/question",
+        json=question_payload_json_without_correct_choice,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 500
 
 
-def test_question_get_item(client: FlaskClient, mocker: MockFixture):
+def test_question_get_item(client: FlaskClient,
+                           access_token: List[str],
+                           mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     question = Questions.query.first()
-    response = client.get(f"/api/v1/question/{question.id}")
+    response = client.get(
+        f"/api/v1/question/{question.id}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 200
     data = json.loads(response.data)
     assert data["question"]["id"] == question.id
 
 
-def test_question_delete_api(client: FlaskClient, mocker: MockFixture):
+def test_question_delete_api(client: FlaskClient,
+                             access_token: List[str],
+                             mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     question = Questions.query.first()
-    response = client.delete(f"/api/v1/question/{question.id}")
+    response = client.delete(
+        f"/api/v1/question/{question.id}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 204
 
 
-def test_question_delete_api_not_existing_id(client: FlaskClient, mocker: MockFixture):
+def test_question_delete_api_not_existing_id(client: FlaskClient,
+                                             access_token: List[str],
+                                             mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     question_id = 10000
-    response = client.delete(f"/api/v1/question/{question_id}")
+    response = client.delete(
+        f"/api/v1/question/{question_id}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 400
 
 
 @pytest.mark.xfail(reason="Broken mock")
-def test_question_delete_api_exception_handling(client: FlaskClient, mocker: MockFixture):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mocker.patch("server.db.session.delete", lambda e: Exception(""))
+def test_question_delete_api_exception_handling(client: FlaskClient,
+                                                access_token: List[str],
+                                                mocker: MockFixture):
+    @mocker.patch("server.db.session.delete")
+    def sess_delete_mock(question_object):
+        raise Exception()
     question_id = Questions.query.first().id
-    response = client.delete(f"/api/v1/question/{question_id}")
+    response = client.delete(
+        f"/api/v1/question/{question_id}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 500
 
@@ -352,13 +435,18 @@ def test_question_delete_api_exception_handling(client: FlaskClient, mocker: Moc
 ])
 def test_question_filter_by_topics_kis(client: FlaskClient,
                                        mocker: MockFixture,
+                                       access_token: List[str],
                                        payload: dict,
                                        count: int):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
 
     response = client.post(
         "/api/v1/question/fetch",
-        json=payload)
+        json=payload,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     data = json.loads(response.data)
     data = data['data']
@@ -376,11 +464,16 @@ def test_question_filter_by_topics_kis(client: FlaskClient,
 ])
 def test_question_filter_by_topics_kis_error(client: FlaskClient,
                                              mocker: MockFixture,
+                                             access_token: List[str],
                                              payload: dict):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     response = client.post(
         "/api/v1/question/fetch",
-        json=payload)
+        json=payload,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 400
 
@@ -389,6 +482,7 @@ def test_question_search_with_params(client: FlaskClient,
                                      mocker: MockFixture,
                                      knowledgeitems_: List[str],
                                      topics_: List[str],
+                                     access_token: List[str],
                                      question_query: str):
 
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
@@ -401,7 +495,11 @@ def test_question_search_with_params(client: FlaskClient,
 
     response = client.post(
         "/api/v1/question/search",
-        json=payload
+        json=payload,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
     )
 
     assert response.status_code == 200
@@ -410,6 +508,7 @@ def test_question_search_with_params(client: FlaskClient,
 
 def test_question_search_with_special_character_params(client: FlaskClient,
                                                        mocker: MockFixture,
+                                                       access_token: List[str],
                                                        knowledgeitems_: List[str],
                                                        topics_: List[str]):
 
@@ -423,7 +522,11 @@ def test_question_search_with_special_character_params(client: FlaskClient,
 
     response = client.post(
         "/api/v1/question/search",
-        json=payload
+        json=payload,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
     )
 
     assert response.status_code == 200
@@ -434,6 +537,7 @@ def test_question_search_optional_filter(client: FlaskClient,
                                          mocker: MockFixture,
                                          knowledgeitems_: List[str],
                                          topics_: List[str],
+                                         access_token: List[str],
                                          question_query: str):
 
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
@@ -447,7 +551,11 @@ def test_question_search_optional_filter(client: FlaskClient,
     }
     response = client.post(
         "/api/v1/question/search",
-        json=payload
+        json=payload,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
     )
     data = json.loads(response.data)
     assert response.status_code == 200
@@ -469,6 +577,7 @@ def test_question_search_subject_filter(client: FlaskClient,
                                         mocker: MockFixture,
                                         knowledgeitems_: List[str],
                                         topics_: List[str],
+                                        access_token: List[str],
                                         question_query: str):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     payload = {
@@ -479,7 +588,11 @@ def test_question_search_subject_filter(client: FlaskClient,
     }
     response = client.post(
         "/api/v1/question/search",
-        json=payload
+        json=payload,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
     )
     assert response.status_code == 404
 
@@ -488,6 +601,7 @@ def test_question_search_empty_query(client: FlaskClient,
                                      mocker: MockFixture,
                                      knowledgeitems_: List[str],
                                      topics_: List[str],
+                                     access_token: List[str],
                                      question_query: str):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     payload = {
@@ -498,27 +612,29 @@ def test_question_search_empty_query(client: FlaskClient,
     }
     response = client.post(
         "/api/v1/question/search",
-        json=payload
+        json=payload,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
     )
     assert response.status_code == 400
 
 
 def test_teacher_owned_question_get_action(client: FlaskClient,
                                            mocker: MockFixture,
-                                           teacher_: Teacher):
+                                           teacher_identity: Teacher,
+                                           access_token: List[str]):
     # QuestionsFactory.create(teacher_id=teacher_.id, multiple_choice_question_type=True)
-    teacher_.questions.append(Questions.query.first())
-    teacher_.save()
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mock_teacher = {
-        'identity': {
-            'id': teacher_.id,
-            'email': teacher_.email
-        }
-    }
-    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
+    teacher_identity.questions.append(Questions.query.first())
+    teacher_identity.save()
 
-    response = client.get("/api/v1/question/user_created")
+    response = client.get(
+        "/api/v1/question/user_created",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 200
     data = json.loads(response.data)
     assert len(data['questions']) == 1
@@ -526,109 +642,105 @@ def test_teacher_owned_question_get_action(client: FlaskClient,
 
 def test_teacher_owned_question_create_action(client: FlaskClient,
                                               mocker: MockFixture,
-                                              teacher_: Teacher,
+                                              teacher_identity: Teacher,
+                                              access_token: List[str],
                                               question_payload_as_json: dict):
 
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mock_teacher = {
-        'identity': {
-            'id': teacher_.id,
-            'email': teacher_.email
-        }
-    }
-    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
     question_payload_as_json.update({
         'user_created': True,
-        'teacher_id': teacher_.id
+        'teacher_id': teacher_identity.id
     })
 
-    response = client.post("/api/v1/question/user_created", json=question_payload_as_json)
+    response = client.post(
+        "/api/v1/question/user_created",
+        json=question_payload_as_json,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 201
-    teacher_.reload()
-    assert len(teacher_.questions) == 1
+    teacher_identity.reload()
+    assert len(teacher_identity.questions) == 1
 
 
 def test_teacher_owned_question_create_action_422_error(client: FlaskClient,
                                                         mocker: MockFixture,
                                                         teacher_: Teacher,
+                                                        teacher_identity: Teacher,
+                                                        access_token: List[str],
                                                         question_payload_as_json: dict):
-
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mock_teacher = {
-        'identity': {
-            'id': 100,
-            'email': teacher_.email
-        }
-    }
-    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
-
-    response = client.post("/api/v1/question/user_created", json=question_payload_as_json)
+    question_payload_as_json.update({
+        'user_created': True,
+        'teacher_id': teacher_.id
+    })
+    response = client.post(
+        "/api/v1/question/user_created",
+        json=question_payload_as_json,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 422
     assert response.data
 
 
 def test_teacher_owned_question_delete_action(client: FlaskClient,
                                               mocker: MockFixture,
-                                              teacher_: Teacher,
+                                              access_token: List[str],
+                                              teacher_identity: Teacher,
                                               teacher_created_question: Questions) -> None:
 
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mock_teacher = {
-        'identity': {
-            'id': teacher_.id,
-            'email': teacher_.email
-        }
-    }
-    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
-
-    response = client.delete(f"/api/v1/question/user_created/{teacher_created_question.id}")
+    teacher_created_question.teacher_id = teacher_identity.id
+    teacher_created_question.save()
+    response = client.delete(
+        f"/api/v1/question/user_created/{teacher_created_question.id}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 204
 
 
 def test_teacher_owned_question_update_action(client: FlaskClient,
-                                              mocker: MockFixture,
-                                              teacher_: Teacher,
+                                              teacher_identity: Teacher,
+                                              access_token: List[str],
                                               teacher_created_question: Questions) -> None:
-
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mock_teacher = {
-        'identity': {
-            'id': teacher_.id,
-            'email': teacher_.email
-        }
-    }
-
     update_params = {
         'knowledge_item': "cnacnfjocanicofncasl"
     }
-    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
-
+    teacher_created_question.teacher_id = teacher_identity.id
+    teacher_created_question.save()
     response = client.patch(
-        f"/api/v1/question/user_created/{teacher_created_question.id}", json=update_params)
+        f"/api/v1/question/user_created/{teacher_created_question.id}",
+        json=update_params,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 200
 
 
 def test_updating_original_question_creates_question_on_user(client: FlaskClient,
                                                              mocker: MockFixture,
-                                                             teacher_: Teacher,
+                                                             access_token: List[str],
+                                                             teacher_identity: Teacher,
                                                              existing_question_payload_as_json: dict) -> None:  # noqa
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mock_teacher = {
-        'identity': {
-            'id': teacher_.id,
-            'email': teacher_.email
-        }
-    }
-
     existing_question_payload_as_json['subject'] = existing_question_payload_as_json['subject']['name']  # noqa
-    assert Questions.query.filter_by(teacher_id=teacher_.id).count() == 0
+    assert Questions.query.filter_by(teacher_id=teacher_identity.id).count() == 0
 
-    mocker.patch("server.api.questions_api.get_jwt_identity", return_value=mock_teacher)
     q_id = existing_question_payload_as_json.pop('id')
+    existing_question_payload_as_json.update({
+        'teacher_id': teacher_identity.id
+    })
     response = client.patch(
-        f"/api/v1/question/user_created/{q_id}", json=existing_question_payload_as_json)
+        f"/api/v1/question/user_created/{q_id}",
+        json=existing_question_payload_as_json,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 201
-    assert Questions.query.filter_by(teacher_id=teacher_.id).count() == 1
+    assert Questions.query.filter_by(teacher_id=teacher_identity.id).count() == 1

@@ -71,62 +71,105 @@ def ended_session_(student: Student, classquiz_: ClassQuiz) -> QuizSession:
                               status=QuizSessionStatus.ended)
 
 
-def test_get_quiz_submit(client: FlaskClient, student: Student, classquiz_: ClassQuiz):
-    response = client.get(f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}")
+def test_get_quiz_submit(client: FlaskClient,
+                         student: Student,
+                         classquiz_: ClassQuiz,
+                         access_token: List[str]):
+    response = client.get(
+        f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 200
 
 
 def test_get_quiz_submit_not_confirmed_fails_with_400(client: FlaskClient,
                                                       unconfirmed_student: Student,
+                                                      access_token: List[str],
                                                       classquiz_: ClassQuiz) -> None:
     response = client.get(
-        f"/api/v1/submit_quiz?email={unconfirmed_student.email}&quiz={classquiz_.uuid}")
+        f"/api/v1/submit_quiz?email={unconfirmed_student.email}&quiz={classquiz_.uuid}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 400
 
 
 def test_get_quiz_submit_without_student_email_fails_with_404(client: FlaskClient,
+                                                              access_token: List[str],
                                                               classquiz_: ClassQuiz):
 
-    response = client.get(f"/api/v1/submit_quiz?email=cnajs@ajaksdcs.cs&quiz={classquiz_.uuid}")
+    response = client.get(
+        f"/api/v1/submit_quiz?email=cnajs@ajaksdcs.cs&quiz={classquiz_.uuid}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 404
 
 
 def test_get_quiz_submit_without_class_quiz_fails_with_404(client: FlaskClient,
+                                                           access_token: List[str],
                                                            student: Student):
 
-    response = client.get(f"/api/v1/submit_quiz?email={student.email}&quiz={uuid4()}")
+    response = client.get(
+        f"/api/v1/submit_quiz?email={student.email}&quiz={uuid4()}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 404
 
 
 def test_get_quiz_submit_with_existing_submission_fails_with_400(client: FlaskClient,
                                                                  student: Student,
                                                                  classquiz_: ClassQuiz,
+                                                                 access_token: List[str],
                                                                  ended_session_: QuizSession):
 
-    response = client.get(f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}")
+    response = client.get(
+        f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 400
 
 
 def test_get_quiz_submit_with_database_error_fails_with_500(client: FlaskClient,
                                                             student: Student,
                                                             classquiz_: ClassQuiz,
+                                                            access_token: List[str],
                                                             mocker: MockFixture):
 
     def _mock_add_student_session(*args):
         raise exc.DatabaseError('', '', '')
 
     mocker.patch.object(ClassQuiz, 'add_student_session', _mock_add_student_session)
-    response = client.get(f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}")
+    response = client.get(
+        f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 500
 
 
 def test_get_endpoint_idempotency(client: FlaskClient,
                                   student: Student,
                                   classquiz_: ClassQuiz,
+                                  access_token: List[str],
                                   session_: QuizSession,
                                   mocker: MockFixture):
 
-    response = client.get(f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}")
+    response = client.get(
+        f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 200
     assert QuizSession.query.count() == 1
 
@@ -134,6 +177,7 @@ def test_get_endpoint_idempotency(client: FlaskClient,
 def test_post_quiz_submit(client: FlaskClient,
                           student: Student,
                           classquiz_: ClassQuiz,
+                          access_token: List[str],
                           session_: QuizSession,
                           student_response: List[dict],
                           mocker: MockFixture):
@@ -143,12 +187,17 @@ def test_post_quiz_submit(client: FlaskClient,
         assert len(args) == 1
         assert args[0] == classquiz_.uuid
 
-    response = client.post("/api/v1/submit_quiz",
-                           json={
-                               "StudentEmail": student.email,
-                               "QuizId": classquiz_.uuid,
-                               "data": student_response
-                           })
+    response = client.post(
+        "/api/v1/submit_quiz",
+        json={
+            "StudentEmail": student.email,
+            "QuizId": classquiz_.uuid,
+            "data": student_response
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 201
     assert classquiz_.status == ClassQuizStatus.administered
@@ -158,16 +207,21 @@ def test_post_quiz_submit(client: FlaskClient,
 def test_post_student_not_found_error(client: FlaskClient,
                                       classquiz_: ClassQuiz,
                                       session_: QuizSession,
+                                      access_token: List[str],
                                       student_response: List[dict],
                                       mocker: MockFixture):
 
     mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
-    response = client.post("/api/v1/submit_quiz",
-                           json={
-                               "StudentEmail": "dummy@example.com",
-                               "QuizId": classquiz_.uuid,
-                               "data": student_response
-                           })
+    response = client.post(
+        "/api/v1/submit_quiz",
+        json={
+            "StudentEmail": "dummy@example.com",
+            "QuizId": classquiz_.uuid,
+            "data": student_response
+        }, headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 404
     assert session_.status == QuizSessionStatus.created
@@ -179,15 +233,21 @@ def test_post_student_not_found_error(client: FlaskClient,
 def test_post_classquiz_not_found_error(client: FlaskClient,
                                         student: Student,
                                         student_response: List[dict],
+                                        access_token: List[str],
                                         session_: QuizSession,
                                         mocker: MockFixture):
     mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
-    response = client.post("/api/v1/submit_quiz",
-                           json={
-                               "StudentEmail": student.email,
-                               "QuizId": uuid4(),
-                               "data": student_response
-                           })
+    response = client.post(
+        "/api/v1/submit_quiz",
+        json={
+            "StudentEmail": student.email,
+            "QuizId": uuid4(),
+            "data": student_response
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 404
     assert session_.status == QuizSessionStatus.created
@@ -199,15 +259,21 @@ def test_post_classquiz_not_found_error(client: FlaskClient,
 def test_post_quizsession_not_found_error(client: FlaskClient,
                                           student: Student,
                                           student_response: List[dict],
+                                          access_token: List[str],
                                           classquiz_: ClassQuiz,
                                           mocker: MockFixture):
     mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
-    response = client.post("/api/v1/submit_quiz",
-                           json={
-                               "StudentEmail": student.email,
-                               "QuizId": classquiz_.uuid,
-                               "data": student_response
-                           })
+    response = client.post(
+        "/api/v1/submit_quiz",
+        json={
+            "StudentEmail": student.email,
+            "QuizId": classquiz_.uuid,
+            "data": student_response
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 404
 
@@ -220,15 +286,21 @@ def test_post_quizsession_ended_error(client: FlaskClient,
                                       classquiz_: ClassQuiz,
                                       student_response: List[dict],
                                       ended_session_: QuizSession,
+                                      access_token: List[str],
                                       mocker: MockFixture):
 
     mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
-    response = client.post("/api/v1/submit_quiz",
-                           json={
-                               "StudentEmail": student.email,
-                               "QuizId": classquiz_.uuid,
-                               "data": student_response
-                           })
+    response = client.post(
+        "/api/v1/submit_quiz",
+        json={
+            "StudentEmail": student.email,
+            "QuizId": classquiz_.uuid,
+            "data": student_response
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 404
 
@@ -240,6 +312,7 @@ def test_post_db_exception(client: FlaskClient,
                            student: Student,
                            classquiz_: ClassQuiz,
                            student_response: List[dict],
+                           access_token: List[str],
                            session_: QuizSession,
                            mocker: MockFixture):
     def _mock_student_save(*args):
@@ -247,12 +320,17 @@ def test_post_db_exception(client: FlaskClient,
 
     mocker.patch.object(Student, 'save', _mock_student_save)
     mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
-    response = client.post("/api/v1/submit_quiz",
-                           json={
-                               "StudentEmail": student.email,
-                               "QuizId": classquiz_.uuid,
-                               "data": student_response
-                           })
+    response = client.post(
+        "/api/v1/submit_quiz",
+        json={
+            "StudentEmail": student.email,
+            "QuizId": classquiz_.uuid,
+            "data": student_response
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 500
 
@@ -263,15 +341,21 @@ def test_post_db_exception(client: FlaskClient,
 def test_post_endpoint_idempotency(client: FlaskClient,
                                    student: Student,
                                    classquiz_: ClassQuiz,
+                                   access_token: List[str],
                                    student_response: List[dict],
                                    ended_session_: QuizSession,
                                    mocker: MockFixture):
 
     mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
-    response = client.post("/api/v1/submit_quiz",
-                           json={
-                               "StudentEmail": student.email,
-                               "QuizId": classquiz_.uuid,
-                               "data": student_response
-                           })
+    response = client.post(
+        "/api/v1/submit_quiz",
+        json={
+            "StudentEmail": student.email,
+            "QuizId": classquiz_.uuid,
+            "data": student_response
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 404

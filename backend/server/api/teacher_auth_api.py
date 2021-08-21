@@ -3,12 +3,12 @@ from secrets import token_hex
 
 from flask import Blueprint, abort, jsonify, make_response, request
 from flask.views import MethodView
-from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                get_jti, get_jwt_identity, get_raw_jwt,
-                                jwt_refresh_token_required, jwt_required,
-                                set_access_cookies, set_refresh_cookies)
+from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import current_user as jwt_user
+from flask_jwt_extended import get_jti, get_jwt, jwt_required
 from server import bcrypt, jwt, redis_store
 from server.api import logger, report_5xx_error
+from server.lib.utils.jwt_fixes import set_access_cookies, set_refresh_cookies
 from server.models import Invitations, Teacher, TeacherSchema
 from server.tasks import (send_account_recovery_instructions,
                           send_confirmation_instructions, send_user_invite)
@@ -22,9 +22,9 @@ ACCESS_EXPIRES = timedelta(days=1)
 REFRESH_EXPIRES = timedelta(days=30)
 
 
-@jwt.user_identity_loader
-def load_user(identity):
-    return {"identity": dumper.dump(identity)}
+@jwt.user_lookup_loader
+def load_user(args, kwargs) -> Teacher:
+    return Teacher.query.get(kwargs["identity"])
 
 
 class TeacherRegistration(MethodView):
@@ -57,16 +57,16 @@ class TeacherRegistration(MethodView):
         )
         try:
             new_teacher.save()
-            access_token = create_access_token(identity=new_teacher)
-            refresh_token = create_refresh_token(identity=new_teacher)
+            access_token = create_access_token(new_teacher.id, fresh=True)
+            refresh_token = create_refresh_token(new_teacher.id)
             response = jsonify({
                 'message': 'Teacher {} was created'.format(new_teacher.full_name())
             })
 
             access_jti = get_jti(encoded_token=access_token)
             refresh_jti = get_jti(encoded_token=refresh_token)
-            redis_store.set(access_jti, "false", ACCESS_EXPIRES * 1.2)
-            redis_store.set(refresh_jti, "false", REFRESH_EXPIRES * 1.2)
+            redis_store.set(access_jti, "true", ACCESS_EXPIRES * 1.2)
+            redis_store.set(refresh_jti, "true", REFRESH_EXPIRES * 1.2)
 
             send_confirmation_instructions.delay(new_teacher.id)
 
@@ -99,17 +99,17 @@ class TeacherLogin(MethodView):
                 404)
 
         if current_user.check_password(data["password"]):
-            access_token = create_access_token(identity=current_user)
-            refresh_token = create_refresh_token(identity=current_user)
+            access_token = create_access_token(current_user.id, fresh=True)
+            refresh_token = create_refresh_token(current_user.id)
             response_data = jsonify({
                 'message': 'Logged in as {}'.format(current_user.email)
             })
             set_access_cookies(response_data, access_token)
             set_refresh_cookies(response_data, refresh_token)
-            access_jti = get_jti(encoded_token=access_token)
-            refresh_jti = get_jti(encoded_token=refresh_token)
-            redis_store.set(access_jti, "false", ACCESS_EXPIRES * 1.2)
-            redis_store.set(refresh_jti, "false", REFRESH_EXPIRES * 1.2)
+            access_jti = get_jti(access_token)
+            refresh_jti = get_jti(refresh_token)
+            redis_store.set(access_jti, "true", ACCESS_EXPIRES * 1.2)
+            redis_store.set(refresh_jti, "true", REFRESH_EXPIRES * 1.2)
 
             response = make_response(response_data, 200)
             return response
@@ -119,22 +119,22 @@ class TeacherLogin(MethodView):
 
 
 class TeacherLogout(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def delete(self):
-        jti = get_raw_jwt()["jti"]
-        redis_store.set(jti, "true", ACCESS_EXPIRES * 1.2)
+        jti = get_jwt()["jti"]
+        redis_store.set(jti, "false", ACCESS_EXPIRES * 1.2)
         return make_response(jsonify({"msg": "Access token revoked"}), 204)
 
 
 class TokenRefresh(MethodView):
-    @jwt_refresh_token_required
+    @jwt_required(refresh=True)
     def post(self):
-        current_identity = get_jwt_identity()["identity"]
-        current_user = Teacher.query.filter_by(email=current_identity["email"]).first()
-        access_token = create_access_token(identity=current_user)
+        current_identity = jwt_user
+        current_user = Teacher.query.filter_by(email=current_identity.email).first()
+        access_token = create_access_token(current_user.id, fresh=True)
 
-        access_jti = get_jti(encoded_token=access_token)
-        redis_store.set(access_jti, "false", ACCESS_EXPIRES * 1.2)
+        access_jti = get_jti(access_token)
+        redis_store.set(access_jti, "true", ACCESS_EXPIRES * 1.2)
 
         response = jsonify({"refresh": True})
         set_access_cookies(response, access_token)
@@ -150,11 +150,11 @@ class AllTeachers(MethodView):
 
 
 class CurrentUser(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self):
-        teacher = get_jwt_identity()["identity"]
+        teacher = jwt_user
         try:
-            t = Teacher.query.filter_by(email=teacher["email"]).first()
+            t = Teacher.query.filter_by(email=teacher.email).first()
             identity = jsonify({"user": dumper.dump(t)})
             return make_response(identity, 200)
         except Exception as e:
@@ -166,10 +166,10 @@ class CurrentUser(MethodView):
 
 
 class GAuth(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self):
-        teacher = get_jwt_identity()["identity"]
-        t = Teacher.query.filter_by(email=teacher["email"]).first()
+        teacher = jwt_user
+        t = Teacher.query.filter_by(email=teacher.email).first()
 
         request_data = request.get_json()
         try:
@@ -254,10 +254,10 @@ class ResetAccount(MethodView):
 
 
 class InviteTeacher(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self):
-        teacher = get_jwt_identity()["identity"]
-        t = Teacher.query.filter_by(email=teacher["email"]).first()
+        teacher = jwt_user
+        t = Teacher.query.filter_by(email=teacher.email).first()
 
         post_data = request.get_json()
         email = post_data["email"]
@@ -278,11 +278,10 @@ class InviteTeacher(MethodView):
 
 
 class SendConfirmation(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self):
         post_data = request.get_json()
         email = post_data["email"]
-
         if email is None:
             abort(400, "Email is required to perform this action.")
 

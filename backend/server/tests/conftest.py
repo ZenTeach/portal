@@ -3,9 +3,12 @@ import os
 from logging import CRITICAL, getLogger
 from pathlib import Path
 from shutil import which
+from typing import List
 
 import pytest
+from flask.testing import FlaskClient
 from server import create_app, db
+from server.models import Teacher
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy_searchable import sync_trigger
@@ -43,6 +46,40 @@ def client():
         db.session.remove()  # looks like db.session.close() would work as well
         db.drop_all()
         db.engine.dispose()
+
+
+@pytest.fixture(scope="function")
+def teacher_identity(client: FlaskClient) -> Teacher:
+    from server.tests.factories import TeacherFactory
+    with client.session_transaction():
+        teacher = TeacherFactory.create()
+    return teacher
+
+
+@pytest.fixture(autouse=True)
+def access_token(client: FlaskClient, teacher_identity: Teacher) -> List[str]:
+    from datetime import timedelta
+
+    from flask_jwt_extended import (create_access_token, create_refresh_token,
+                                    get_csrf_token, get_jti)
+    from server import redis_store
+    from server.lib.utils.jwt_fixes import (set_access_cookies,
+                                            set_refresh_cookies)
+
+    access_token = create_access_token(teacher_identity.id, fresh=True)
+    refresh_token = create_refresh_token(teacher_identity.id)
+    set_access_cookies(client, access_token, legacy=True)
+
+    set_refresh_cookies(client, refresh_token, legacy=True)
+    access_jti = get_jti(access_token)
+    refresh_jti = get_jti(refresh_token)
+    redis_store.set(access_jti, "true", timedelta(minutes=30) * 1.2)
+    redis_store.set(refresh_jti, "true", timedelta(minutes=30) * 1.2)
+
+    return [access_token,
+            refresh_token,
+            get_csrf_token(access_token),
+            get_csrf_token(refresh_token)]
 
 
 @pytest.fixture(scope='session')

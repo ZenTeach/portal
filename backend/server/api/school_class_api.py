@@ -1,7 +1,7 @@
 
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import current_user, jwt_required
 from marshmallow import INCLUDE, Schema, fields
 from server import db
 from server.api import logger, report_5xx_error
@@ -29,7 +29,7 @@ class PatchPayloadSchema(Schema):
 
 
 class SchoolClass(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self, school_class_id):
         error_response = jsonify({"message": "Class room doesn't exist"})
         try:
@@ -47,7 +47,7 @@ class SchoolClass(MethodView):
         except ValueError:
             return make_response(error_response, 404)
 
-    @jwt_required
+    @jwt_required(fresh=True)
     def delete(self, school_class_id):
         try:
             class_room = SchoolClassModel.query.filter_by(id=school_class_id).first()
@@ -71,7 +71,7 @@ class SchoolClass(MethodView):
                 'message': 'Encountered an error while deleting classroom.'
             }), 500)
 
-    @jwt_required
+    @jwt_required(fresh=True)
     def put(self, school_class_id):
         update_data = request.get_json()
 
@@ -107,7 +107,7 @@ class SchoolClass(MethodView):
 
 
 class SchoolClassList(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self):
         response_object = jsonify(
             {
@@ -122,12 +122,12 @@ class SchoolClassList(MethodView):
         )
         return make_response(response_object, 200)
 
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self):
         post_data = request.get_json()
         error_object = jsonify(
             {"status": "fail", "message": "Invalid payload."})
-        teacher = get_jwt_identity()["identity"]
+        teacher = current_user
         if not post_data:
             return make_response(error_object, 400)
         name = post_data.get("name")
@@ -135,7 +135,7 @@ class SchoolClassList(MethodView):
         start_date = post_data.get("start_date")
         exam_board = post_data.get("exam_board")
         year_group = post_data.get("year_group")
-        teacher_id = teacher["id"]
+        teacher_id = teacher.id
         subject = Subject.query.filter_by(name=subject).first()
         if not subject:
             return make_response(jsonify({
@@ -168,7 +168,7 @@ class SchoolClassList(MethodView):
 
 
 class SchoolClassOwned(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     @with_required_roles(["Admin"])
     def get(self, teacher_id):
         error_message = jsonify({"message": "Class room doesn't exist"})
@@ -192,13 +192,13 @@ class SchoolClassOwned(MethodView):
 
 
 class TeacherOwnedClass(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self):
         error_object = {"message": ""}
         try:
-            teacher = get_jwt_identity()["identity"]
+            teacher = current_user
             classrooms = SchoolClassModel.query.filter_by(
-                teacher_id=int(teacher["id"])
+                teacher_id=int(teacher.id)
             )
 
             if not classrooms:
@@ -221,7 +221,7 @@ class TeacherOwnedClass(MethodView):
 
 
 class SchoolClassStudent(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self, class_id):
         school_class = SchoolClassModel.query.filter_by(id=class_id).first()
         if not school_class:
@@ -261,7 +261,7 @@ class SchoolClassStudent(MethodView):
                 201,
             )
 
-    @jwt_required
+    @jwt_required(fresh=True)
     @use_kwargs(student_delete_args, location='query')
     def delete(self, class_id, student_id):
         school_class = SchoolClassModel.query.filter_by(id=class_id).first()
@@ -289,7 +289,7 @@ class SchoolClassStudent(MethodView):
                 204,
             )
 
-    @jwt_required
+    @jwt_required(fresh=True)
     def patch(self, class_id):
 
         school_class = SchoolClassModel.query.filter_by(id=class_id).first()

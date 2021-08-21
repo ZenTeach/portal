@@ -3,12 +3,10 @@ from datetime import timedelta
 from flask import Blueprint, current_app, jsonify, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                get_jti, get_jwt_claims, get_jwt_identity,
-                                get_raw_jwt, jwt_refresh_token_required,
-                                jwt_required, set_access_cookies,
-                                set_refresh_cookies)
+                                current_user, get_jti, get_jwt, jwt_required)
 from server import bcrypt, jwt, redis_store
 from server.api import logger, report_5xx_error
+from server.lib.utils.jwt_fixes import set_access_cookies, set_refresh_cookies
 from server.models import Student, StudentSchema
 from server.tasks import send_student_confirmation_instructions
 
@@ -19,18 +17,18 @@ ACCESS_EXPIRES = timedelta(days=1)
 REFRESH_EXPIRES = timedelta(days=30)
 
 
-@jwt.user_identity_loader
-def load_user(identity):
-    return {"identity": dumper.dump(identity)}
+@jwt.user_lookup_loader
+def load_user(args, kwargs) -> Student:
+    return Student.query.get(kwargs["identity"])
 
 
 class StudentRegistration(MethodView):
     def post(self):
         data = request.get_json()
         if Student.query.filter_by(email=data["email"]).first():
-            return {
+            return make_response(jsonify({
                 "message": "Student {} already exists".format(data["email"])
-            }
+            }), 400)
 
         password_hash = bcrypt.generate_password_hash(
             data["password"]).decode("utf-8")
@@ -42,8 +40,8 @@ class StudentRegistration(MethodView):
         )
         try:
             new_student.save()
-            access_token = create_access_token(identity=new_student)
-            refresh_token = create_refresh_token(identity=new_student)
+            access_token = create_access_token(new_student.id, fresh=True)
+            refresh_token = create_refresh_token(new_student.id)
             response = jsonify(
                 {"message": "Student {} was created".format(
                     new_student.full_name)}
@@ -51,11 +49,10 @@ class StudentRegistration(MethodView):
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)
 
-            access_jti = get_jti(encoded_token=access_token)
-            refresh_jti = get_jti(encoded_token=refresh_token)
-            redis_store.set(access_jti, "false", ACCESS_EXPIRES * 1.2)
-            redis_store.set(refresh_jti, "false", REFRESH_EXPIRES * 1.2)
-
+            access_jti = get_jti(access_token)
+            refresh_jti = get_jti(refresh_token)
+            redis_store.set(access_jti, "true", ACCESS_EXPIRES * 1.2)
+            redis_store.set(refresh_jti, "true", REFRESH_EXPIRES * 1.2)
             return make_response(response, 200)
         except Exception as e:
             current_app.logger.error(e)
@@ -76,8 +73,8 @@ class StudentLogin(MethodView):
                 }), 404)
 
         if bcrypt.check_password_hash(current_user.password, data["password"]):
-            access_token = create_access_token(identity=current_user)
-            refresh_token = create_refresh_token(identity=current_user)
+            access_token = create_access_token(current_user.id, fresh=True)
+            refresh_token = create_refresh_token(current_user.id)
             response = jsonify(
                 {"message": "Logged in as {}".format(current_user.email)}
             )
@@ -85,8 +82,8 @@ class StudentLogin(MethodView):
             set_refresh_cookies(response, refresh_token)
             access_jti = get_jti(encoded_token=access_token)
             refresh_jti = get_jti(encoded_token=refresh_token)
-            redis_store.set(access_jti, "false", ACCESS_EXPIRES * 1.2)
-            redis_store.set(refresh_jti, "false", REFRESH_EXPIRES * 1.2)
+            redis_store.set(access_jti, "true", ACCESS_EXPIRES * 1.2)
+            redis_store.set(refresh_jti, "true", REFRESH_EXPIRES * 1.2)
 
             return make_response(response, 200)
         else:
@@ -94,22 +91,22 @@ class StudentLogin(MethodView):
 
 
 class StudentLogout(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def post(self):
-        jti = get_raw_jwt()["jti"]
-        redis_store.set(jti, "true", ACCESS_EXPIRES * 1.2)
+        jti = get_jwt()["jti"]
+        redis_store.set(jti, "false", ACCESS_EXPIRES * 1.2)
         return jsonify({"msg": "Access token revoked"}), 200
 
 
 class TokenRefresh(MethodView):
-    @jwt_refresh_token_required
+    @jwt_required(refresh=True)
     def post(self):
-        current_user = get_jwt_claims()
-        current_identity = get_jwt_identity()["identity"]
-        current_user = Student.query.filter_by(email=current_identity["email"]).first()
-        access_token = create_access_token(identity=current_user)
-        access_jti = get_jti(encoded_token=access_token)
-        redis_store.set(access_jti, "false", ACCESS_EXPIRES * 1.2)
+        current_user = get_jwt()
+        current_identity = current_user
+        current_user = Student.query.filter_by(email=current_identity.email).first()
+        access_token = create_access_token(current_user.id, fresh=True)
+        access_jti = get_jti(access_token)
+        redis_store.set(access_jti, "true", ACCESS_EXPIRES * 1.2)
 
         response = jsonify({"refresh": True})
         set_access_cookies(response, access_token)
@@ -117,11 +114,11 @@ class TokenRefresh(MethodView):
 
 
 class CurrentUser(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self):
         # Fetches and returns the current logged in user
         try:
-            identity = jsonify({"user": get_jwt_identity()})
+            identity = current_user
             return make_response(identity, 200)
         except Exception as e:
             logger.error(
@@ -130,9 +127,9 @@ class CurrentUser(MethodView):
 
 
 class StudentAuthRefreshRevoke(MethodView):
-    @jwt_refresh_token_required
+    @jwt_required(refresh=True)
     def delete(self):
-        jti = get_raw_jwt()["jti"]
+        jti = get_jwt()["jti"]
         redis_store.set(jti, "true", REFRESH_EXPIRES * 1.2)
         return jsonify({"msg": "Refresh token revoked"}), 200
 
@@ -165,7 +162,7 @@ class ConfirmAccount(MethodView):
 
 
 class SendStudentConfirmation(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     def get(self, student_id):
         student = Student.query.filter_by(id=student_id).first()
 

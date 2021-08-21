@@ -173,8 +173,8 @@ def create_app():
     # import background tasks after initializing celery
     # import server.tasks
 
-    @jwt.token_in_blacklist_loader
-    def check_if_token_is_revoked(decrypted_token):
+    @jwt.token_in_blocklist_loader
+    def check_if_token_is_revoked(header, decrypted_token):
         jti = decrypted_token["jti"]
         entry = redis_store.get(jti)
         if entry is None:
