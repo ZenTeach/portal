@@ -77,7 +77,7 @@ class ApiService {
   csrfDoubleSubmitHeader (cookieName) {
     const csrfCookieValue = this.fetchCookieByName(cookieName)
     return {
-      'X-CSRF-TOKEN': csrfCookieValue
+      'X-CSRF-ACCESS-TOKEN': csrfCookieValue
     }
   }
 
@@ -86,7 +86,8 @@ class ApiService {
   }
 
   async get (...params) {
-    return Promise.resolve(this.session.get(...params))
+    const updatedHeaders = this.pushToHeader({}, this.csrfDoubleSubmitHeader('csrf_access_token'))
+    return Promise.resolve(this.session.get(...params, { headers: updatedHeaders }))
   }
 
   async post (...params) {

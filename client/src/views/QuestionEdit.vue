@@ -37,6 +37,7 @@ const {
 
 const { mapActions: appActions, mapGetters: appGetters } = createNamespacedHelpers('app')
 const { mapGetters: classRoomGetters } = createNamespacedHelpers('classrooms')
+const { mapGetters: userGetters } = createNamespacedHelpers('user')
 
 export default {
   name: 'QuestionEdit',
@@ -56,6 +57,9 @@ export default {
     }),
     ...classRoomGetters({
       classList: 'CLASSLIST'
+    }),
+    ...userGetters({
+      currentUser: 'getCurrentUser'
     })
   },
   beforeMount: function () {
@@ -88,12 +92,14 @@ export default {
         if (this.retryingRequest === false) {
           this.convertToQuillDelta(payload.choices)
         }
+        payload.teacher_id = payload.teacher_id || this.currentUser.id
         this.updateQuestion({
           questionId: this.currentQuestion.id,
           payload: payload
         }).catch(function (exception) {
           this.retryingRequest = true
         })
+        this.retryingRequest = !this.retryingRequest
       }
     }
   }
