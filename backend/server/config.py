@@ -25,7 +25,7 @@ class BaseConfig:
     JWT_COOKIE_CSRF_PROTECT = True
     JWT_ALGORITHM = "HS512"
     JWT_CSRF_IN_COOKIES = True
-    JWT_IDENTITY_CLAIM = "identity"
+    JWT_IDENTITY_CLAIM = "sub"
     JWT_COOKIE_SAMESITE = "None"
     JWT_ACCESS_COOKIE_PATH = "/api/v1/"
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=1)
@@ -74,6 +74,7 @@ class TestingConfig(BaseConfig):
 
 class ProductionConfig(BaseConfig):
     BROKER_TRANSPORT = os.environ.get('BROKER_TRANSPORT')
+    JWT_IDENTITY_CLAIM = "sub"
     BROKER_TRANSPORT_OPTIONS = {
         'region': os.environ.get('AWS_REGION'),
         'polling_interval': 20,
