@@ -4,7 +4,6 @@ from typing import Dict
 
 import pytest
 from factory import build
-from flask_testing import LiveServerTestCase
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -41,8 +40,8 @@ def question_params() -> Dict:
 
 class TestQuestionUI:
     @pytest.mark.e2e
-    def test_questions_ui_is_visible(self, live_server: LiveServerTestCase, selenium):
-        selenium.get(live_server.get_server_url('/admin/admin.question'))
+    def test_questions_ui_is_visible(self, selenium):
+        selenium.get('/admin/admin.question')
         el = selenium.find_element_by_xpath('//*[@id="brand"]')
         assert el.text == 'Questions list'
 

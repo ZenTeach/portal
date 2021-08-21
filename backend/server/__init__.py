@@ -1,8 +1,9 @@
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from enum import Enum
 from json import JSONEncoder
+from uuid import UUID
 
 from celery import Celery
 from flask import (Flask, current_app, has_request_context, jsonify,
@@ -107,6 +108,12 @@ class AppJSONEncoder(JSONEncoder):
         if issubclass(obj.__class__, Enum.__class__):
             return obj.value
 
+        if isinstance(obj, UUID):
+            return str(obj)
+
+        if isinstance(obj, date):
+            return obj.isoformat()
+
         to_dict = getattr(obj, 'to_dict', None)
         if to_dict:
             out = obj.to_dict()
@@ -115,13 +122,9 @@ class AppJSONEncoder(JSONEncoder):
         return JSONEncoder.default(self, obj)
 
 
-class CustomFlaskApp(Flask):
-    json_encoder = AppJSONEncoder
-
-
 def create_app():
-    app = CustomFlaskApp(__name__, template_folder="templates")
-
+    app = Flask(__name__, template_folder="templates")
+    app.json_encoder = AppJSONEncoder
     if os.environ.get("FLASK_ENV") == "production":
         if os.path.exists("/var/www/zenteach_be/application.cfg"):
             app.config.from_pyfile("/var/www/zenteach_be/application.cfg")
