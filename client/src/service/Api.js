@@ -77,7 +77,7 @@ class ApiService {
   csrfDoubleSubmitHeader (cookieName) {
     const csrfCookieValue = this.fetchCookieByName(cookieName)
     return {
-      'X-CSRF-ACCESS-TOKEN': csrfCookieValue
+      'X-CSRF-TOKEN': csrfCookieValue
     }
   }
 
