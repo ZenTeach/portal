@@ -7,7 +7,7 @@
             <div class="w-100" id="search_box">
               <v-text-field
                 label="SearchInput"
-                placeholder="Search for a question..."
+                placeholder="Use the * to view all questions..."
                 @click:prepend-inner="searchEventListener"
                 prepend-inner-icon="search"
                 @keypress.enter="searchEventListener"

@@ -34,6 +34,7 @@ const {
   mapMutations: questionsMutations
 } = createNamespacedHelpers('questions')
 const { mapGetters: classRoomGetters } = createNamespacedHelpers('classrooms')
+const { mapGetters: userGetters } = createNamespacedHelpers('user')
 
 export default {
   name: 'QuestionCreate',
@@ -56,6 +57,9 @@ export default {
     }),
     ...classRoomGetters({
       classList: 'CLASSLIST'
+    }),
+    ...userGetters({
+      currentUser: 'getCurrentUser'
     })
   },
 
@@ -102,6 +106,7 @@ export default {
     processSubmit () {
       if (this.validate()) {
         this.convertToQuillDelta(this.questionObject.choices)
+        this.questionObject.teacher_id = this.questionObject.teacher_id || this.currentUser.id
         this.postQuestion(this.questionObject).then(_res => {
           if (this.currentQuestion) {
             this.unsetCurrentQuestion()
