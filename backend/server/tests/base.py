@@ -1,6 +1,7 @@
 # services/users/project/tests/base.py
 
-from flask_testing import TestCase
+from unittest import TestCase
+
 from server import create_app, db
 
 app = create_app()
