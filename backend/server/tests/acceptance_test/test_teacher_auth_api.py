@@ -1,5 +1,5 @@
 import json
-from typing import Optional
+from typing import List, Optional
 
 import pytest
 from factory import build
@@ -38,6 +38,7 @@ def test_teacher_login_endpoint(client: FlaskClient,
                                 email: str,
                                 password: str,
                                 message: str,
+                                access_token: List[str],
                                 status_code: int):
     response = client.post(
         '/api/v1/teacher/login',
@@ -133,16 +134,8 @@ def test_teacher_account_recovery(client: FlaskClient,
 
 def test_teacher_user_invite(client: FlaskClient,
                              teacher_: Teacher,
+                             teacher_identity: Teacher,
                              mocker: MockFixture):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    invite_email = "invitee@someevent.com"
-
-    @mocker.patch('server.api.teacher_auth_api.get_jwt_identity')
-    def mock_identity():
-        return {
-            'email': teacher_.email
-        }
-
     @mocker.patch('server.api.teacher_auth_api.send_user_invite.delay')
     def test_success(send_user_invite_delay):
         response = client.post(
@@ -154,18 +147,13 @@ def test_teacher_user_invite(client: FlaskClient,
         send_user_invite_delay.assert_called_with(invite_email)
         assert response.status_code == 200
 
+    invite_email = "invitee@someevent.com"
+
 
 def test_teacher_token_refresh(client: FlaskClient,
                                teacher_: Teacher,
+                               teacher_identity: Teacher,
                                mocker: MockFixture):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mocker.patch('server.api.teacher_auth_api.jwt_refresh_token_required')
-
-    @mocker.patch('server.api.teacher_auth_api.get_jwt_identity')
-    def mock_identity():
-        return {
-            'email': teacher_.email
-        }
 
     @mocker.patch('server.api.teacher_auth_api.redis_store')
     def test_success(redis_store):
@@ -177,7 +165,7 @@ def test_teacher_token_refresh(client: FlaskClient,
 
 def test_teacher_logout(client: FlaskClient, teacher_: Teacher, mocker: MockFixture) -> None:
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mocker.patch('server.api.teacher_auth_api.get_raw_jwt')
+    mocker.patch('server.api.teacher_auth_api.get_jwt')
     mocker.patch('server.api.teacher_auth_api.redis_store')
 
     response = client.delete('/api/v1/teacher/logout')
@@ -188,11 +176,11 @@ def test_teacher_logout(client: FlaskClient, teacher_: Teacher, mocker: MockFixt
 def test_teacher_send_confirmartion(client: FlaskClient,
                                     teacher_: Teacher,
                                     mocker: MockFixture) -> None:
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-
-    @mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions')
+    @mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions', return_value=True)
     def _mocked_send_confirmation_instructions(send_confirmation_instructions):
         send_confirmation_instructions.assert_called_with(teacher_.id)
+
+    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
 
     response = client.post(
         '/api/v1/teacher/send_confirmation',
@@ -225,19 +213,22 @@ def test_teacher_send_confirmation_error(client: FlaskClient,
 
 def test_teacher_send_confirmation_exception(client: FlaskClient,
                                              teacher_: Teacher,
+                                             access_token: List[str],
                                              mocker: MockFixture) -> None:
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    # mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
 
     def _mock_send_confirmation_instructions(*args):
         return Exception()
 
     mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions',
                  _mock_send_confirmation_instructions)
-
     response = client.post(
         '/api/v1/teacher/send_confirmation',
         json={
             'email': teacher_.email
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
-
     assert response.status_code == 500

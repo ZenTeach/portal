@@ -129,13 +129,18 @@ def mock_jwt_required() -> bool:
 
 def test_classquiz_create_api(client: FlaskClient,
                               classquiz_params: Dict,
+                              teacher_identity: Teacher,
+                              access_token: List[str],
                               mocker: MockFixture):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+    # mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
-    mocker.patch('server.api.class_quiz_api.get_jwt_identity', dummy_jwt_identity)
 
     response = client.post(
         "/api/v1/class_quiz",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        },
         json=classquiz_params,
     )
 
@@ -147,14 +152,18 @@ def test_classquiz_create_api(client: FlaskClient,
 
 def test_classquiz_create_api_with_no_question_fails(client: FlaskClient,
                                                      classquiz_params: Dict,
+                                                     teacher_identity: Teacher,
+                                                     access_token: List[str],
                                                      mocker: MockFixture):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
-    mocker.patch('server.api.class_quiz_api.get_jwt_identity', dummy_jwt_identity)
 
     classquiz_params.pop('questions')
     response = client.post(
         "/api/v1/class_quiz",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        },
         json=classquiz_params,
     )
 
@@ -162,9 +171,15 @@ def test_classquiz_create_api_with_no_question_fails(client: FlaskClient,
 
 
 def test_classquiz_get_api(client: FlaskClient,
+                           access_token: List[str],
                            classquiz_: ClassQuiz):
 
-    response = client.get(f'/api/v1/class_quiz/{classquiz_.uuid}')
+    response = client.get(
+        f'/api/v1/class_quiz/{classquiz_.uuid}',
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 200
     data = json.loads(response.data.decode())
@@ -174,67 +189,96 @@ def test_classquiz_get_api(client: FlaskClient,
 def test_classquiz_report_card_fetch_api(client: FlaskClient,
                                          quiz_grade: QuizGrade,
                                          mocker: MockFixture,
+                                         access_token: List[str],
+                                         teacher_identity: Teacher,
                                          breakdown: List[List[Dict]]) -> None:  # noqa
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
-    mocker.patch('server.api.class_quiz_api.get_jwt_identity', dummy_jwt_identity)
 
     # update with gradebreakdown
     quiz_grade.update_grade_breakdown(breakdown)
 
-    response = client.get(f"/api/v1/class_quiz/report_card/{quiz_grade.uuid}")
+    response = client.get(
+        f"/api/v1/class_quiz/report_card/{quiz_grade.uuid}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 200
 
 
 def test_classquiz_report_card_fetch_api_id_validation(client: FlaskClient,
                                                        quiz_grade: QuizGrade,
+                                                       access_token: List[str],
+                                                       teacher_identity: Teacher,
                                                        mocker: MockFixture) -> None:
 
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
-    mocker.patch('server.api.class_quiz_api.get_jwt_identity', dummy_jwt_identity)
 
     from uuid import uuid4
-    response = client.get(f"/api/v1/class_quiz/report_card/{str(uuid4()).replace('-', '')}")
+    response = client.get(
+        f"/api/v1/class_quiz/report_card/{str(uuid4()).replace('-', '')}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 400
 
 
 def test_classquiz_report_card_fetch_api_errors_if_not_found(client: FlaskClient,
                                                              quiz_grade: QuizGrade,
+                                                             access_token: List[str],
+                                                             teacher_identity: Teacher,
                                                              mocker: MockFixture) -> None:
 
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
-    mocker.patch('server.api.class_quiz_api.get_jwt_identity', dummy_jwt_identity)
 
     from uuid import uuid4
-    response = client.get(f"/api/v1/class_quiz/report_card/{uuid4()}")
+    response = client.get(
+        f"/api/v1/class_quiz/report_card/{uuid4()}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 404
 
 
 def test_classquiz_send_report_card(client: FlaskClient,
                                     quiz_grade: QuizGrade,
+                                    access_token: List[str],
                                     mocker: MockFixture) -> None:
 
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.class_quiz_api.send_report_card_pdf')
 
-    response = client.get(f"/api/v1/class_quiz/{quiz_grade.uuid}/send_report")
+    response = client.get(
+        f"/api/v1/class_quiz/{quiz_grade.uuid}/send_report",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 200
 
 
 def test_classquiz_send_report_card_grade_not_found(client: FlaskClient,
+                                                    teacher_identity: dict,
+                                                    access_token: List[str],
                                                     mocker: MockFixture) -> None:
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+
     mocker.patch('server.api.class_quiz_api.send_report_card_pdf')
 
-    response = client.get(f"/api/v1/class_quiz/{uuid4()}/send_report")
+    response = client.get(
+        f"/api/v1/class_quiz/{uuid4()}/send_report",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 404
 
 
 def test_classquiz_send_report_card_exception(client: FlaskClient,
                                               quiz_grade: QuizGrade,
+                                              access_token: List[str],
                                               mocker: MockFixture) -> None:
 
     def _mock_send_report_card_pdf(*args):
@@ -243,16 +287,27 @@ def test_classquiz_send_report_card_exception(client: FlaskClient,
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.class_quiz_api.send_report_card_pdf', _mock_send_report_card_pdf)
 
-    response = client.get(f"/api/v1/class_quiz/{quiz_grade.uuid}/send_report")
+    response = client.get(
+        f"/api/v1/class_quiz/{quiz_grade.uuid}/send_report",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 500
 
 
 def test_classquiz_get_graded_quizzes(client: FlaskClient,
                                       quiz_grade: QuizGrade,
+                                      access_token: List[str],
                                       classquiz_: ClassQuiz,
                                       mocker: MockFixture) -> None:
 
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
 
-    response = client.get(f"/api/v1/class_quiz/{classquiz_.uuid}/graded")
+    response = client.get(
+        f"/api/v1/class_quiz/{classquiz_.uuid}/graded",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 200

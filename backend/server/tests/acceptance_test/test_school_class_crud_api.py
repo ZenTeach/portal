@@ -1,7 +1,7 @@
 import json
 from json import loads
 from random import choice
-from typing import Dict
+from typing import Dict, List
 
 import pytest
 from factory import build
@@ -68,10 +68,15 @@ def mock_identity(teacher_: Teacher) -> dict:
 def test_get_school_class_with_id(client: FlaskClient,
                                   student: Student,
                                   school_class: SchoolClass,
+                                  access_token: List[str],
                                   mocker: MockFixture):
     school_class.add_student(student)
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    response = client.get("/api/v1/school_class/{}".format(school_class.id))
+    response = client.get(
+        "/api/v1/school_class/{}".format(school_class.id),
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 200
 
@@ -84,13 +89,16 @@ def test_get_school_class_with_id(client: FlaskClient,
 def test_create_school_class(client: FlaskClient,
                              mocker: MockFixture,
                              mock_identity: dict,
+                             access_token: List[str],
+                             teacher_identity: Teacher,
                              school_class_param: dict):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mocker.patch('server.api.school_class_api.get_jwt_identity', return_value=mock_identity)
-
     response = client.post(
         "/api/v1/school_class",
-        json=school_class_param
+        json=school_class_param,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
     )
 
     assert response.status_code == 201
@@ -101,11 +109,17 @@ def test_create_school_class(client: FlaskClient,
     }
 
 
-def test_fetch_school_class_list(client: FlaskClient, mocker: MockFixture):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
+def test_fetch_school_class_list(client: FlaskClient,
+                                 access_token: List[str],
+                                 mocker: MockFixture):
     SchoolClassFactory.create_batch(5)
 
-    response = client.get("/api/v1/school_class")
+    response = client.get(
+        "/api/v1/school_class",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
     assert response.status_code == 200
 
     data = json.loads(response.data)
@@ -114,17 +128,22 @@ def test_fetch_school_class_list(client: FlaskClient, mocker: MockFixture):
 
 def test_delete_school_class(client: FlaskClient,
                              mocker: MockFixture,
+                             access_token: List[str],
                              school_class: SchoolClass):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    response = client.delete(f'/api/v1/school_class/{school_class.id}')
+    response = client.delete(
+        f'/api/v1/school_class/{school_class.id}',
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 204
 
 
 def test_post_add_student_to_school_class(client: FlaskClient,
                                           mocker: MockFixture,
+                                          access_token: List[str],
                                           school_class: SchoolClass):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
 
     student_payload = {
@@ -135,7 +154,11 @@ def test_post_add_student_to_school_class(client: FlaskClient,
 
     response = client.post(
         f'/api/v1/school_class/{school_class.id}/student',
-        json=student_payload
+        json=student_payload,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
     )
 
     assert len(school_class.students) == 1
@@ -145,8 +168,8 @@ def test_post_add_student_to_school_class(client: FlaskClient,
 def test_post_add_existing_student_to_school_class(client: FlaskClient,
                                                    mocker: MockFixture,
                                                    school_class: SchoolClass,
+                                                   access_token: List[str],
                                                    student: Student):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
     school_class.add_student(student)
 
@@ -158,7 +181,11 @@ def test_post_add_existing_student_to_school_class(client: FlaskClient,
 
     response = client.post(
         f'/api/v1/school_class/{school_class.id}/student',
-        json=student_payload
+        json=student_payload,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
     )
 
     assert len(school_class.students) == 1
@@ -168,15 +195,18 @@ def test_post_add_existing_student_to_school_class(client: FlaskClient,
 def test_delete_remove_student_from_school_class(client: FlaskClient,
                                                  mocker: MockFixture,
                                                  school_class: SchoolClass,
+                                                 access_token: List[str],
                                                  student: Student):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-
     school_class.add_student(student)
 
     assert len(school_class.students) != 0
 
     response = client.delete(
-        f'/api/v1/school_class/{school_class.id}/student?student_id={student.id}')
+        f'/api/v1/school_class/{school_class.id}/student?student_id={student.id}',
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 204
     assert len(school_class.students) == 0
@@ -185,18 +215,22 @@ def test_delete_remove_student_from_school_class(client: FlaskClient,
 def test_patch_update_student_email_in_school_class(client: FlaskClient,
                                                     mocker: MockFixture,
                                                     school_class: SchoolClass,
+                                                    access_token: List[str],
                                                     student: Student):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
     school_class.add_student(student)
 
     assert student.confirmed
-    response = client.patch(f'/api/v1/school_class/{school_class.id}/student',
-                            json={
-                                'old_email': student.email,
-                                'new_email': 'test@example.com'
-                            }
-                            )
+    response = client.patch(
+        f'/api/v1/school_class/{school_class.id}/student',
+        json={
+            'old_email': student.email,
+            'new_email': 'test@example.com'
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 200
     student.reload()
@@ -207,16 +241,20 @@ def test_patch_update_student_email_in_school_class(client: FlaskClient,
 def test_patch_update_student_email_if_school_class_not_found(client: FlaskClient,
                                                               mocker: MockFixture,
                                                               school_class: SchoolClass,
+                                                              access_token: List[str],
                                                               student: Student):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     school_class.add_student(student)
 
-    response = client.patch('/api/v1/school_class/10/student',
-                            json={
-                                'old_email': student.email,
-                                'new_email': 'test@example.com'
-                            }
-                            )
+    response = client.patch(
+        '/api/v1/school_class/10/student',
+        json={
+            'old_email': student.email,
+            'new_email': 'test@example.com'
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 404
     data = loads(response.data.decode("utf-8"))['message']
@@ -226,16 +264,20 @@ def test_patch_update_student_email_if_school_class_not_found(client: FlaskClien
 def test_patch_update_student_email_if_student_not_found(client: FlaskClient,
                                                          mocker: MockFixture,
                                                          school_class: SchoolClass,
+                                                         access_token: List[str],
                                                          student: Student):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     school_class.add_student(student)
 
-    response = client.patch(f'/api/v1/school_class/{school_class.id}/student',
-                            json={
-                                'old_email': 'nksl@cnajskajs.cs',
-                                'new_email': 'test@example.com'
-                            }
-                            )
+    response = client.patch(
+        f'/api/v1/school_class/{school_class.id}/student',
+        json={
+            'old_email': 'nksl@cnajskajs.cs',
+            'new_email': 'test@example.com'
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 404
     data = loads(response.data.decode("utf-8"))['message']
@@ -260,13 +302,17 @@ def test_patch_update_student_email_malformed_data_error(client: FlaskClient,
                                                          mocker: MockFixture,
                                                          school_class: SchoolClass,
                                                          student: Student,
+                                                         access_token: List[str],
                                                          payload: Dict):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     school_class.add_student(student)
 
-    response = client.patch(f'/api/v1/school_class/{school_class.id}/student',
-                            json=payload
-                            )
+    response = client.patch(
+        f'/api/v1/school_class/{school_class.id}/student',
+        json=payload,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 400
     data = loads(response.data.decode("utf-8"))['message']
@@ -276,8 +322,8 @@ def test_patch_update_student_email_malformed_data_error(client: FlaskClient,
 def test_patch_update_student_email_exceptions(client: FlaskClient,
                                                mocker: MockFixture,
                                                school_class: SchoolClass,
+                                               access_token: List[str],
                                                student: Student):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     school_class.add_student(student)
 
     def _mock_update_email(*args):
@@ -285,11 +331,16 @@ def test_patch_update_student_email_exceptions(client: FlaskClient,
 
     mocker.patch.object(Student, 'update_email', _mock_update_email)
 
-    response = client.patch(f'/api/v1/school_class/{school_class.id}/student',
-                            json={
-                                'old_email': student.email,
-                                'new_email': 'test@example.com'
-                            })
+    response = client.patch(
+        f'/api/v1/school_class/{school_class.id}/student',
+        json={
+            'old_email': student.email,
+            'new_email': 'test@example.com'
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
 
     assert response.status_code == 500
 
@@ -297,11 +348,15 @@ def test_patch_update_student_email_exceptions(client: FlaskClient,
 def test_update_school_class_api(client: FlaskClient,
                                  mocker: MockFixture,
                                  school_class: SchoolClass,
+                                 access_token: List[str],
                                  update_school_class_param: dict):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     response = client.put(
         f"/api/v1/school_class/{school_class.id}",
-        json=update_school_class_param
+        json=update_school_class_param,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
     )
     school_class.reload()
 
@@ -314,14 +369,18 @@ def test_update_school_class_api(client: FlaskClient,
 def test_update_school_class_api_with_subject(client: FlaskClient,
                                               mocker: MockFixture,
                                               school_class: SchoolClass,
+                                              access_token: List[str],
                                               update_school_class_param: dict):
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     update_school_class_param.update({
         'subject': 'Biology'
     })
     response = client.put(
         f"/api/v1/school_class/{school_class.id}",
-        json=update_school_class_param
+        json=update_school_class_param,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
     )
     school_class.reload()
 
@@ -341,13 +400,17 @@ def test_update_school_class_api_exception(client: FlaskClient,
                                            school_class: SchoolClass,
                                            school_class_param: dict,
                                            school_class_id: int,
+                                           access_token: List[str],
                                            status: int):
 
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     school_class_param["some_field"] = "cnajksnadls"
     response = client.put(
         f"/api/v1/school_class/{school_class_id}",
-        json=school_class_param
+        json=school_class_param,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
     )
 
     assert response.status_code == status

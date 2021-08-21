@@ -23,14 +23,13 @@ class StatsPing(MethodView):
 
 
 class StatsCorrectResponse(MethodView):
-    @jwt_required
+    @jwt_required(fresh=True)
     @with_required_roles(["Admin", "Teacher"])
     def get(self):
         """
             Returns a list of labels and
             results grouped by question
         """
-        # identity = get_jwt_identity()["identity"]
         pass
 
 
