@@ -18,8 +18,7 @@ from wtforms.validators import (DataRequired, InputRequired, Required,
                                 ValidationError)
 from wtforms.widgets import HTMLString, TextInput, html_params
 
-from .base_view import (BaseView, _loaded_examboard, correct_choice_formatter,
-                        report_5xx_error)
+from .base_view import BaseView, _loaded_examboard, correct_choice_formatter
 
 
 class QuestionChoiceForm(Form):
@@ -248,7 +247,6 @@ class QuestionView(BaseView):
             Questions.create_from_admin_form(data)
             return redirect(url_for("admin.question.index_view"))
         except Exception as e:
-            report_5xx_error(e)
             flash("Failed to create record: {error}s".format(error=str(e)), "error")
 
     def on_model_change(self, form, model, is_created):

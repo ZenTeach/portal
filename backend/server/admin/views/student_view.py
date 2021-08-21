@@ -1,7 +1,7 @@
 from flask import flash, redirect, url_for
 from server.models import Student
 
-from .base_view import BaseView, date_format, logger, report_5xx_error
+from .base_view import BaseView, date_format, logger
 
 
 class StudentView(BaseView):
@@ -40,7 +40,6 @@ class StudentView(BaseView):
             instance.add_from_class_list(form.data["classes"])
             return redirect(url_for("admin.student.index_view"))
         except Exception as e:
-            report_5xx_error(e)
             flash("Failed to create record: {}".format(str(e)), "error")
 
     def delete_model(self, model):
@@ -48,6 +47,5 @@ class StudentView(BaseView):
             Student.remove_model(model)
             flash("Successfully deleted student", "success")
         except Exception as e:
-            report_5xx_error(e)
             logger.error("Failed to delete record: {}".format(str(e)))
             flash("Failed to delete record: {}".format(str(e)), "error")

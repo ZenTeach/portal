@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from functools import lru_cache
 from typing import List
 
@@ -15,13 +14,6 @@ from server.models import QuestionChoice
 from wtforms.meta import DefaultMeta
 
 logger = logging.getLogger('admin::view')
-
-
-def report_5xx_error(exception: Exception):
-    sentry_dsn_key = os.environ.get("SENTRY_DSN")
-    from sentry_sdk import capture_exception, init
-    init(sentry_dsn_key)
-    capture_exception(exception)
 
 
 @lru_cache(64)

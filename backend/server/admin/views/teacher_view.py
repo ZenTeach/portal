@@ -1,7 +1,7 @@
 from flask import flash, redirect, url_for
 from server.models import Teacher
 
-from .base_view import BaseView, date_format, report_5xx_error
+from .base_view import BaseView, date_format
 
 
 class TeacherView(BaseView):
@@ -38,5 +38,4 @@ class TeacherView(BaseView):
             instance.save()
             return redirect(url_for("admin.teacher.index_view"))
         except Exception as e:
-            report_5xx_error(e)
             flash("Failed to create record: {}".format(str(e)), "error")

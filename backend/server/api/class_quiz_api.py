@@ -9,7 +9,7 @@ from flask.wrappers import Response
 from flask_jwt_extended import current_user, jwt_required
 from marshmallow import INCLUDE, Schema, ValidationError, fields
 from server import db
-from server.api import logger, report_5xx_error
+from server.api import logger
 from server.decorators import with_required_roles
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizSchema, ClassQuizStatus, QuizGrade,
@@ -145,7 +145,6 @@ class ClassQuizList(MethodView):
         except exc.IntegrityError as e:
             db.session.rollback()
             logger.error(e)
-            report_5xx_error(e)
             return make_response(jsonify({
                 "status": "failed",
                 "message": "Quiz couldn't be created!"
@@ -166,7 +165,6 @@ class ClassQuizList(MethodView):
 #             generated_file_name = generate_pdf.delay(quiz)
 #         except Exception as e:
 #             logger.exception(e)
-#             report_5xx_error(e)
 #             error_object["message"] = "Error generating quiz pdf"
 #             return make_response(error_object, 500)
 
@@ -202,7 +200,6 @@ class ClassQuizGenerator(MethodView):
             except Exception as e:
                 logger.exception(e)
                 error_object["message"] = "Error generating quiz pdf"
-                report_5xx_error(e)
                 return make_response(error_object, 500)
             return make_response(
                 jsonify({
@@ -219,7 +216,6 @@ class ClassQuizGenerator(MethodView):
             except Exception as e:
                 logger.exception(e)
                 error_object["message"] = "Error generating Google Form"
-                report_5xx_error(e)
                 return make_response(error_object, 500)
             return make_response(
                 jsonify(
@@ -292,8 +288,7 @@ class SendReportCard(MethodView):
 
         try:
             send_report_card_pdf.apply_async(args=[grade.uuid])
-        except Exception as e:
-            report_5xx_error(e)
+        except Exception:
             abort(500, "Server run into an error sending report card. We're working to resolve the issue")  # noqa
         else:
             return make_response(jsonify({

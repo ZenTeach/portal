@@ -4,7 +4,7 @@ from flask.views import MethodView
 from flask_jwt_extended import current_user, jwt_required
 from marshmallow import INCLUDE, Schema, fields
 from server import db
-from server.api import logger, report_5xx_error
+from server.api import logger
 from server.decorators import with_required_roles
 from server.models import SchoolClass as SchoolClassModel
 from server.models import SchoolClassSchema, Student, Subject
@@ -65,7 +65,6 @@ class SchoolClass(MethodView):
             }), 204)
         except Exception as e:
             logger.error(e)
-            report_5xx_error(e)
             return make_response(jsonify({
                 'status': 'success',
                 'message': 'Encountered an error while deleting classroom.'
@@ -100,7 +99,6 @@ class SchoolClass(MethodView):
             }), 200)
         except Exception as e:
             logger.error(e)
-            report_5xx_error(e)
             return make_response(jsonify({
                 'message': str(e)
             }), 500)
@@ -163,7 +161,6 @@ class SchoolClassList(MethodView):
                 return make_response(error_object, 400)
         except exc.IntegrityError as err:  # noqa
             db.session.rollback()
-            report_5xx_error(err)
             return make_response(error_object, 500)
 
 
@@ -214,7 +211,6 @@ class TeacherOwnedClass(MethodView):
                 return make_response(response_object, 200)
         except Exception as e:
             from server.api import logger
-            report_5xx_error(e)
             logger.debug(e)
             error_object["message"] = "Error processing request"
             return make_response(jsonify(error_object), 500)
@@ -248,7 +244,6 @@ class SchoolClassStudent(MethodView):
                 'message': "Student missing required data."
             }), 400)
         except exc.DatabaseError as e:  # noqa
-            report_5xx_error(e)
             return make_response(jsonify({'message': "Server got an error."}), 500)
         else:
             return make_response(
@@ -274,7 +269,6 @@ class SchoolClassStudent(MethodView):
             school_class.remove_student(student_id)
         except Exception as e:  # noqa
             logger.error(e)
-            report_5xx_error(e)
             return make_response(jsonify({
                 'message': "Server got an error."
             }), 500)
@@ -322,7 +316,6 @@ class SchoolClassStudent(MethodView):
             send_student_confirmation_instructions.apply_async(args=[student.id])
 
         except exc.DatabaseError as e:  # noqa
-            report_5xx_error(e)
             return make_response(jsonify({
                 'message': "Server got an error."
             }), 500)

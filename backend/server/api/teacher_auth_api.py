@@ -7,7 +7,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_jwt_extended import current_user as jwt_user
 from flask_jwt_extended import get_jti, get_jwt, jwt_required
 from server import bcrypt, jwt, redis_store
-from server.api import logger, report_5xx_error
+from server.api import logger
 from server.lib.utils.jwt_fixes import set_access_cookies, set_refresh_cookies
 from server.models import Invitations, Teacher, TeacherSchema
 from server.tasks import (send_account_recovery_instructions,
@@ -78,7 +78,6 @@ class TeacherRegistration(MethodView):
             return response
         except Exception as e:
             logger.error(e)
-            report_5xx_error(e)
             return make_response(
                 jsonify({
                     "message": "Something went wrong"
