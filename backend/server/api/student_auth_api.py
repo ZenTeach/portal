@@ -5,7 +5,7 @@ from flask.views import MethodView
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 current_user, get_jti, get_jwt, jwt_required)
 from server import bcrypt, jwt, redis_store
-from server.api import logger, report_5xx_error
+from server.api import logger
 from server.lib.utils.jwt_fixes import set_access_cookies, set_refresh_cookies
 from server.models import Student, StudentSchema
 from server.tasks import send_student_confirmation_instructions
@@ -56,7 +56,6 @@ class StudentRegistration(MethodView):
             return make_response(response, 200)
         except Exception as e:
             current_app.logger.error(e)
-            report_5xx_error(e)
             return make_response(
                 jsonify({"message": "Something went wrong"}),
                 500)
@@ -173,8 +172,7 @@ class SendStudentConfirmation(MethodView):
 
         try:
             send_student_confirmation_instructions.apply_async(args=[student.id])
-        except Exception as e:
-            report_5xx_error(e)
+        except Exception:
             return make_response(jsonify({
                 'message': "Server got an error sending confirmation email."
             }), 500)

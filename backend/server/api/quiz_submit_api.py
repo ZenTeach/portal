@@ -1,7 +1,7 @@
 
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
-from server.api import logger, report_5xx_error
+from server.api import logger
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizStatus, QuizSession, QuizSessionStatus,
                            Student)
@@ -51,7 +51,6 @@ class SubmitQuiz(MethodView):
                 class_quiz.save()
         except exc.DatabaseError as e:
             logger.error(e)
-            report_5xx_error(e)
             return make_response(
                 jsonify({
                     "message": "Couldn't create a new quiz session.",
@@ -115,7 +114,6 @@ class SubmitQuiz(MethodView):
             return make_response(response_object, 201)
         except exc.IntegrityError as e:
             logger.error(e)
-            report_5xx_error(e)
             return make_response(
                 jsonify({
                     "status": "error",

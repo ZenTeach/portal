@@ -3,7 +3,7 @@ from server.models import Subject
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import Required
 
-from .base_view import BaseView, logger, report_5xx_error
+from .base_view import BaseView, logger
 
 
 class KnowledgeItemView(BaseView):
@@ -33,6 +33,5 @@ class KnowledgeItemView(BaseView):
             model.delete()
             flash("Successfully deleted knowledge item", "success")
         except Exception as e:
-            report_5xx_error(e)
             logger.error("Failed to delete record: {}".format(str(e)))
             flash("Failed to delete record: {}".format(str(e)), "error")
