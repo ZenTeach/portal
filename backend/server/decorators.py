@@ -1,7 +1,7 @@
 from functools import wraps
 
 from flask import jsonify, make_response
-from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+from flask_jwt_extended import current_user, verify_jwt_in_request
 
 
 # TODO: Properly mock this in pytest
@@ -9,8 +9,8 @@ def with_required_roles(group=[]):
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            verify_jwt_in_request()
-            user = get_jwt_identity()["identity"]
+            verify_jwt_in_request(fresh=True)
+            user = current_user
 
             if user["role"] not in group:
                 error_response = jsonify(msg="Unauthorized user.")
