@@ -22,9 +22,9 @@ ACCESS_EXPIRES = timedelta(days=1)
 REFRESH_EXPIRES = timedelta(days=30)
 
 
-@jwt.user_lookup_loader
-def load_user(args, kwargs) -> Teacher:
-    return Teacher.query.get(kwargs["identity"])
+@jwt.user_identity_loader
+def load_user(*args, **kwargs) -> Teacher:
+    return Teacher.query.get(args[0])
 
 
 class TeacherRegistration(MethodView):

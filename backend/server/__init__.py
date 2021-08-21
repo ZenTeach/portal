@@ -1,6 +1,8 @@
 import logging
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
+from enum import Enum
+from json import JSONEncoder
 
 from celery import Celery
 from flask import (Flask, current_app, has_request_context, jsonify,
@@ -83,8 +85,42 @@ def ping_connection(dbapi_connection, connection_record, connection_proxy):
     cursor.close()
 
 
+class AppJSONEncoder(JSONEncoder):
+    """Custom JSON encoding function.
+
+    This class will check if the object being serialized has a function called `to_json()`, and call it if available,  # noqa
+    as well as adding a type-hint value to the output dict (`__type` key/value pair)  # noqa
+    """
+
+    def default(self, obj):
+        """Default object encoder function
+
+        Args:
+            obj (:obj:`Any`): Object to be serialized
+
+        Returns:
+            JSON string
+        """
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+
+        if issubclass(obj.__class__, Enum.__class__):
+            return obj.value
+
+        to_dict = getattr(obj, 'to_dict', None)
+        if to_dict:
+            out = obj.to_dict()
+            return out
+
+        return JSONEncoder.default(self, obj)
+
+
+class CustomFlaskApp(Flask):
+    json_encoder = AppJSONEncoder
+
+
 def create_app():
-    app = Flask(__name__, template_folder="templates")
+    app = CustomFlaskApp(__name__, template_folder="templates")
 
     if os.environ.get("FLASK_ENV") == "production":
         if os.path.exists("/var/www/zenteach_be/application.cfg"):
