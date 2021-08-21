@@ -19,7 +19,7 @@ REFRESH_EXPIRES = timedelta(days=30)
 
 @jwt.user_lookup_loader
 def lookup_user(args, kwargs) -> Student:
-    return Student.query.get(kwargs["identity"])
+    return Student.query.get(kwargs["sub"]["id"])
 
 
 @jwt.user_identity_loader
