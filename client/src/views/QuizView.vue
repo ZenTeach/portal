@@ -110,7 +110,7 @@ export default {
   methods: {
     appendToSelection (event) {
       // Properly handle vue updates
-      this.$set(this.selectedChoices, event.target.name, event.target.val)
+      this.$set(this.selectedChoices, event.target.name, event.target.value)
     },
     submit () {
       const payload = this._collect_submission()
