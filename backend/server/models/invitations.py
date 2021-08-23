@@ -1,7 +1,11 @@
 from datetime import datetime
+from functools import lru_cache
+from os import getcwd
 
 from server import db
 from server.models.base_model import BaseModelMixin
+from yaml import load
+from yamlloader.ordereddict import CLoader
 
 
 class Invitations(BaseModelMixin, db.Model):
@@ -30,8 +34,22 @@ class Invitations(BaseModelMixin, db.Model):
     @classmethod
     def use_token(cls, email, token):
         row = cls.query.filter_by(email=email, token=token, active=True).first()
+
+        EXEMPT_LIST = cls._load_exempt_list()
+        if token in EXEMPT_LIST:
+            return
         row.active = False
+
         row.save()
+
+    @classmethod
+    @lru_cache(12)
+    def _load_exempt_list(cls):
+        data = None
+        with open(f"{getcwd()}/server/exempt_list.yml") as fp:
+            data = load(fp, Loader=CLoader)  # nosec
+
+        return data
 
     @classmethod
     def validate_email_invitation_token(cls, email, token):
