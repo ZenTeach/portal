@@ -11,6 +11,7 @@ class Topic(db.Model, BaseModelMixin):
     questions = db.relationship("Questions", lazy='dynamic')
     subject_id = db.Column(db.Integer, db.ForeignKey("subjects.id"), nullable=True)
     subject = db.relationship("Subject", lazy='joined', uselist=False)
+    knowledge_items = db.relationship("KnowledgeItem", lazy='dynamic')
 
     def __repr__(self):
         return f"{self.value}"

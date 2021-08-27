@@ -107,6 +107,6 @@ def student_class_remove_listener(target, value, initiator):
 
 
 @event.listens_for(Teacher.questions, "remove")
-def student_question_remove_listener(target, value, initiator):
+def teacher_question_remove_listener(target, value, initiator):
     db.engine.execute(
         "UPDATE questions SET teacher_id=null WHERE id=%s", value.id)

@@ -143,11 +143,8 @@ class BaseModelMixin(object):
             Updates the model from a dictionary.
         """
         for item, value in payload.items():
-            if not hasattr(self, item):
-                raise Exception(f"{self.__class__.__name__} does not have attribute {item}")
-            else:
-                if item not in self._IGNORED_COLUMNS:
-                    self.__setattr__(item, value)
+            if hasattr(self, item) and item not in self._IGNORED_COLUMNS:
+                self.__setattr__(item, value)
 
     def __iter__(self):
         table = self.__table__
