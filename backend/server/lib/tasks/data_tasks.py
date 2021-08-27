@@ -34,6 +34,15 @@ def trigger_knowledge_item_migration() -> None:
 
         question._knowledge_item = knowledge_item
         question._knowledge_item_id = knowledge_item.id
+
+        topic = Topic.query.filter_by(value=question.topic).first()
+        if topic:
+            logger.info("Setting the topic..")
+            knowledge_item.topic_id = topic.id
+        else:
+            logger.warn(
+                f"Topic {question.topic} was not found in the database.\
+                Re-run this task to ensure that the knowledge items are updated.")
         question.save()
     logger.info("Update complete")
 
