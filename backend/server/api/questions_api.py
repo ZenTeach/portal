@@ -285,13 +285,11 @@ class QuestionSearch(MethodView):
                 return make_response(jsonify({
                     'message': 'Query cannot be empty'
                 }), 400)
-
             if query_params['query'] == '*':
                 result_set = Questions.query.filter_by(subject_id=subject_.id)
             else:
-                result_set = Questions.query.search(query_params["query"]).filter(
-                    Questions.subject_id == subject_.id
-                )
+                result_set = Questions.query.search(
+                    query_params["query"]).filter_by(subject_id=subject_.id)
 
             if len(query_params["topic"]) != 0:
                 # sm.Questions.query.filter(
@@ -359,7 +357,6 @@ class QuestionKIFilter(MethodView):
                 }
         """
         data = request.get_json()
-
         topics_selected = data.get("topics_selected")
 
         if topics_selected is None:
