@@ -9,8 +9,7 @@ from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import SchoolClass, Subject, Teacher
 from server.models.student import Student
-from server.tests.factories import (SchoolClassFactory, StudentFactory,
-                                    TeacherFactory)
+from server.tests.factories import SchoolClassFactory, StudentFactory
 from sqlalchemy import exc
 
 
@@ -27,7 +26,7 @@ def subject_() -> Subject:
 
 @pytest.fixture
 def teacher_() -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 @pytest.fixture
@@ -42,6 +41,7 @@ def school_class(teacher_: Teacher, subject_: Subject) -> SchoolClass:
 
 @pytest.fixture
 def school_class_param(teacher_: Teacher) -> dict:
+
     return build(dict,
                  FACTORY_CLASS=SchoolClassFactory,
                  subject=choice(['Chemistry', 'Biology', 'Physics']),
@@ -389,28 +389,3 @@ def test_update_school_class_api_with_subject(client: FlaskClient,
     assert school_class.year_group == update_school_class_param["year_group"]
     assert school_class.start_date == update_school_class_param["start_date"]
     assert school_class.subject.name == update_school_class_param["subject"]
-
-
-@pytest.mark.parametrize('school_class_id,status', [
-    pytest.param(100, 404),
-    pytest.param(1, 500)
-])
-def test_update_school_class_api_exception(client: FlaskClient,
-                                           mocker: MockFixture,
-                                           school_class: SchoolClass,
-                                           school_class_param: dict,
-                                           school_class_id: int,
-                                           access_token: List[str],
-                                           status: int):
-
-    school_class_param["some_field"] = "cnajksnadls"
-    response = client.put(
-        f"/api/v1/school_class/{school_class_id}",
-        json=school_class_param,
-        headers={
-            'Authorization': 'Bearer {}'.format(access_token[0]),
-            'X-CSRF-ACCESS-TOKEN': access_token[2]
-        }
-    )
-
-    assert response.status_code == status

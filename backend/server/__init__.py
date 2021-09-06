@@ -114,6 +114,9 @@ class AppJSONEncoder(JSONEncoder):
         if isinstance(obj, date):
             return obj.isoformat()
 
+        if isinstance(obj, dict):
+            return dict(obj)
+
         to_dict = getattr(obj, 'to_dict', None)
         if to_dict:
             out = obj.to_dict()

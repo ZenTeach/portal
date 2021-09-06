@@ -41,7 +41,6 @@ class TestImageUpload:
         key = get_image_key(filename)
         assert re.match(regex, key)
 
-    @pytest.mark.xfail
     @pytest.mark.vcr
     @pytest.mark.block_network(allowed_hosts=["localhost", "redis", "::1"])
     @vcr.use_cassette()
@@ -52,7 +51,6 @@ class TestImageUpload:
         assert url is not None
         assert re.match(url_regex, url)
 
-    @pytest.mark.xfail
     @pytest.mark.vcr
     @pytest.mark.block_network(allowed_hosts=["localhost", "redis", "::1"])
     @vcr.use_cassette()
