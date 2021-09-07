@@ -10,8 +10,8 @@ from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import QuestionsSchema, Subject, Teacher
 from server.models.questions import Questions, QuestionTypeEnum
-from server.tests.factories import (QuestionsFactory, TeacherFactory,
-                                    TopicFactory)
+from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
+                                    TeacherFactory, TopicFactory)
 from server.tests.factories.question_choice_factory import \
     QuestionChoiceFactory
 
@@ -60,11 +60,12 @@ def populate_questions(client: FlaskClient, subject_: Subject):
     subject_id = subject_.id
     topic = TopicFactory(value="testKI", subject_id=subject_id)
     topic_2 = TopicFactory(value="anotherKI", subject_id=subject_id)
+    kis = KnowledgeItemFactory(value="Testing value", subject_id=subject_id, topic_id=topic.id)
     QuestionsFactory.create_batch(5, _topic=topic, topic="testKI",
                                   subject_id=subject_id,
                                   multiple_choice_question_type=True)
     QuestionsFactory.create_batch(5, _topic=topic, topic="testKI",
-                                  subject_id=subject_id,
+                                  subject_id=subject_id, _knowledge_item=kis,
                                   knowledge_item="Testing value",
                                   multiple_choice_question_type=True)
     QuestionsFactory.create_batch(3, _topic=topic_2, topic="anotherKI",
@@ -198,8 +199,8 @@ def test_question_list_get(client: FlaskClient,
 
 
 @pytest.mark.parametrize("topics,topic_count,status_code",
-                         [pytest.param(["testKI"], 10, 200),
-                          pytest.param(["testKI", "anotherKI"], 13, 200)])
+                         [pytest.param(["testKI"], 1, 200),
+                          pytest.param(["testKI", "anotherKI"], 1, 200)])
 def test_knowledge_item_filter(client: FlaskClient,
                                mocker: MockFixture,
                                topics: List[str],
