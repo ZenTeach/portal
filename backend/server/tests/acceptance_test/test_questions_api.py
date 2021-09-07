@@ -10,7 +10,8 @@ from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import QuestionsSchema, Subject, Teacher
 from server.models.questions import Questions, QuestionTypeEnum
-from server.tests.factories import QuestionsFactory, TeacherFactory
+from server.tests.factories import (QuestionsFactory, TeacherFactory,
+                                    TopicFactory)
 from server.tests.factories.question_choice_factory import \
     QuestionChoiceFactory
 
@@ -45,25 +46,28 @@ def teacher_created_question(client: FlaskClient,
                              subject_: Subject,
                              teacher_: Teacher) -> Questions:
     subject_id = subject_.id
-    return QuestionsFactory(topic="testKI",
-                                  subject_id=subject_id,
-                                  user_created=True,
-                                  teacher_id=teacher_.id,
-                                  multiple_choice_question_type=True,
-                                  with_choices=4)
+    topic = TopicFactory(value="testKI", subject_id=subject_id)
+    return QuestionsFactory(_topic=topic, topic="testKI",
+                            subject_id=subject_id,
+                            user_created=True,
+                            teacher_id=teacher_.id,
+                            multiple_choice_question_type=True,
+                            with_choices=4)
 
 
 @pytest.fixture(autouse=True)
 def populate_questions(client: FlaskClient, subject_: Subject):
     subject_id = subject_.id
-    QuestionsFactory.create_batch(5, topic="testKI",
+    topic = TopicFactory(value="testKI", subject_id=subject_id)
+    topic_2 = TopicFactory(value="anotherKI", subject_id=subject_id)
+    QuestionsFactory.create_batch(5, _topic=topic, topic="testKI",
                                   subject_id=subject_id,
                                   multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(5, topic="testKI",
+    QuestionsFactory.create_batch(5, _topic=topic, topic="testKI",
                                   subject_id=subject_id,
                                   knowledge_item="Testing value",
                                   multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(3, topic="anotherKI",
+    QuestionsFactory.create_batch(3, _topic=topic_2, topic="anotherKI",
                                   subject_id=subject_id,
                                   multiple_choice_question_type=True)
     QuestionsFactory.create_batch(3, topic=None,
@@ -244,7 +248,7 @@ def test_knowledge_item_filter_errors(client: FlaskClient,
 
 
 @pytest.mark.parametrize('param,status_code,topics',
-                         [pytest.param('chemistry', 200, 3),
+                         [pytest.param('chemistry', 200, 2),
                           pytest.param('canjas', 400, 0)])
 def test_topic_filter(client: FlaskClient,
                       mocker: MockFixture,
@@ -281,7 +285,7 @@ def test_topic_filters_with_case_normalization(client: FlaskClient,
     data = json.loads(response.data)
 
     assert response.status_code == 200
-    assert len(data) == 3
+    assert len(data) == 2
 
 
 def test_question_create_api(client: FlaskClient,
