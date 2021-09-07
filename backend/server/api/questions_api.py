@@ -6,7 +6,7 @@ from server import db
 from server.api import logger
 from server.decorators import with_required_roles
 from server.lib import format_validation_for_api
-from server.models import Questions, QuestionsSchema, Subject
+from server.models import Questions, QuestionsSchema, Subject, Topic
 from server.models.question_choice import QuestionChoice
 from server.models.questions import \
     AdminFormValidator as QuestionSchemaValidator
@@ -387,11 +387,11 @@ class QuestionTopicFilter(MethodView):
             subject_ = Subject.query.filter(Subject.name.op('~*')(subject)).first()
             if subject_ is None:
                 return make_response(jsonify({}), 400)
-            topics = Questions.query.with_entities(Questions.topic)\
-                .filter(Questions.subject_id == subject_.id)\
-                .filter(Questions.topic.isnot(None))\
-                .filter(Questions.topic != '').distinct(Questions.topic).all()
-            response = [x for (x,) in topics]
+            topics = Topic.query.filter(Topic.subject_id == subject_.id)\
+                .filter(Topic.value.isnot(None))\
+                .filter(Topic.value != '').distinct(Topic.value).all()
+
+            response = [topic.value for topic in topics]
             return make_response(jsonify(response), 200)
         except Exception as e:
             logger.error(e)
