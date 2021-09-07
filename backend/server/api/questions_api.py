@@ -6,7 +6,8 @@ from server import db
 from server.api import logger
 from server.decorators import with_required_roles
 from server.lib import format_validation_for_api
-from server.models import Questions, QuestionsSchema, Subject, Topic
+from server.models import (KnowledgeItem, Questions, QuestionsSchema, Subject,
+                           Topic)
 from server.models.question_choice import QuestionChoice
 from server.models.questions import \
     AdminFormValidator as QuestionSchemaValidator
@@ -365,14 +366,11 @@ class QuestionKIFilter(MethodView):
         if len(topics_selected) == 0:
             return make_response("", 404)
         try:
-            kis = (
-                Questions.query.with_entities(Questions.topic, Questions.knowledge_item)
-                .filter(Questions.topic.in_(topics_selected))
-                .filter(Questions.knowledge_item.isnot(None))
-                .filter(Questions.knowledge_item != '').all()
-            )
+            filtered_kis = KnowledgeItem.query.join(Topic)\
+                .filter(Topic.value.in_(topics_selected)).all()
+            for_response = [(ki.topic.value, ki.value) for ki in filtered_kis]
 
-            return make_response(jsonify(kis), 200)
+            return make_response(jsonify(for_response), 200)
         except Exception as e:
             logger.error(e)
             return make_response(jsonify({
