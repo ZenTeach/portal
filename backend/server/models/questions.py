@@ -113,6 +113,8 @@ class Questions(BaseModelMixin, db.Model):
         subject_id: Optional[str] = None,
         teacher_id: Optional[int] = None,
         exam_board: Optional[str] = None,
+        _knowledge_item_id: Optional[int] = None,
+        _topic_id: Optional[int] = None,
         uuid: Optional[UUID] = None,
         choices: Optional[List[QuestionChoice]] = [],
         image_url: str = "",
@@ -127,6 +129,8 @@ class Questions(BaseModelMixin, db.Model):
         self.knowledge_item = knowledge_item
         self.user_created = user_created
         self.exam_board = exam_board
+        self._knowledge_item_id = _knowledge_item_id
+        self._topic_id = _topic_id
         if uuid is None:
             self.uuid = unique_uuid4()
 

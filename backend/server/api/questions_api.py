@@ -155,6 +155,15 @@ class TeacherOwnedQuestions(MethodView):
             data.update(subject_id=subject_id)
             del data['subject']
 
+        if 'knowledge_item' in data:
+            knowledge_item_id = KnowledgeItem.query.filter_by(
+                value=data.get('knowledge_item')).first().id
+            data.update(_knowledge_item_id=knowledge_item_id)
+
+        if 'topic' in data:
+            topic_id = Topic.query.filter_by(value=data.get('topic')).first().id
+            data.update(_topic_id=topic_id)
+
         question = Questions(**data)
         try:
             question.save()

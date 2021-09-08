@@ -103,6 +103,8 @@ def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
               subject=subject_.name,
               teacher_id=teacher_.id,
               with_choices=4)
+    ki = KnowledgeItem.query.first()
+    topic = ki.topic
     choices = build_batch(dict, 4,
                           is_correct_choice=False,
                           FACTORY_CLASS=QuestionChoiceFactory)
@@ -112,7 +114,9 @@ def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
     })
 
     q.update({
-        'choices': choices
+        'choices': choices,
+        'knowledge_item': ki.value,
+        'topic': topic.value
     })
 
     return q
