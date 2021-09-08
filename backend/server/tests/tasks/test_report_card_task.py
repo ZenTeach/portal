@@ -5,8 +5,7 @@ from pytest_mock import MockFixture
 from server.models import ClassQuiz, QuizGrade, SchoolClass, Student, Teacher
 from server.tasks import send_report_card_pdf
 from server.tests.factories import (ClassQuizFactory, QuizGradeFactory,
-                                    SchoolClassFactory, StudentFactory,
-                                    TeacherFactory)
+                                    SchoolClassFactory, StudentFactory)
 
 
 @pytest.fixture(scope='session')
@@ -19,7 +18,7 @@ def celery_config():
 
 @pytest.fixture
 def teacher_() -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 @pytest.fixture
