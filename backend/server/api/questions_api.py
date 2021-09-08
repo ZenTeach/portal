@@ -293,17 +293,12 @@ class QuestionSearch(MethodView):
                     query_params["query"]).filter_by(subject_id=subject_.id)
 
             if len(query_params["topic"]) != 0:
-                # sm.Questions.query.filter(
-                #     sm.Questions._topic==sm.Topic.query.filter_by(value='Atomic Structure').first()) # noqa
-                #     .first()
-                result_set = result_set.filter(
-                    Questions.topic.in_(query_params["topic"])
-                )
+                result_set = result_set.join(Topic)\
+                    .filter(Topic.value.in_(query_params["topic"]))
 
             if len(query_params["knowledge_item"]) != 0:
-                result_set = result_set.filter(
-                    Questions.knowledge_item.in_(query_params["knowledge_item"])
-                )
+                result_set = result_set.join(KnowledgeItem)\
+                    .filter(KnowledgeItem.value.in_(query_params["knowledge_item"]))
 
             result_set = result_set.all()
 
@@ -335,9 +330,9 @@ class QuestionFromKIsAndTopics(MethodView):
             }), 400)
 
         if len(topics) != 0:
-            query = query.filter(Questions.topic.in_(topics))
+            query = query.join(Topic).filter(Topic.value.in_(topics))
         if len(kis) != 0:
-            query = query.filter(Questions.knowledge_item.in_(kis))
+            query = query.join(KnowledgeItem).filter(KnowledgeItem.value.in_(kis))
 
         questions = query.all()
 

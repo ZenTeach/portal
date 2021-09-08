@@ -8,7 +8,8 @@ from factory.helpers import build_batch
 from faker import Faker
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
-from server.models import QuestionsSchema, Subject, Teacher
+from server.models import (KnowledgeItem, QuestionsSchema, Subject, Teacher,
+                           Topic)
 from server.models.questions import Questions, QuestionTypeEnum
 from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
                                     TeacherFactory, TopicFactory)
@@ -61,16 +62,21 @@ def populate_questions(client: FlaskClient, subject_: Subject):
     topic = TopicFactory(value="testKI", subject_id=subject_id)
     topic_2 = TopicFactory(value="anotherKI", subject_id=subject_id)
     kis = KnowledgeItemFactory(value="Testing value", subject_id=subject_id, topic_id=topic.id)
-    QuestionsFactory.create_batch(5, _topic=topic, topic="testKI",
-                                  subject_id=subject_id,
-                                  multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(5, _topic=topic, topic="testKI",
-                                  subject_id=subject_id, _knowledge_item=kis,
-                                  knowledge_item="Testing value",
-                                  multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(3, _topic=topic_2, topic="anotherKI",
-                                  subject_id=subject_id,
-                                  multiple_choice_question_type=True)
+    kis_2 = KnowledgeItemFactory(value="Another Testing value",
+                                 subject_id=subject_id, topic_id=topic_2.id)
+
+    for _ in range(10):
+        QuestionsFactory(topic="testKI",
+                         subject_id=subject_id,
+                         with_choices={'knowledge_item': kis, 'topic': topic},
+                         multiple_choice_question_type=True)
+
+    for _ in range(3):
+        QuestionsFactory(topic="anotherKI",
+                         subject_id=subject_id,
+                         with_choices={'knowledge_item': kis_2, topic: topic_2},
+                         multiple_choice_question_type=True)
+
     QuestionsFactory.create_batch(3, topic=None,
                                   subject_id=subject_id,
                                   multiple_choice_question_type=True)
@@ -151,13 +157,13 @@ def question_payload_json_without_correct_choice(subject_: Subject, teacher_: Te
 
 @pytest.fixture
 def knowledgeitems_() -> List[str]:
-    kis = Questions.query.with_entities(Questions.knowledge_item).distinct().all()
+    kis = KnowledgeItem.query.with_entities(KnowledgeItem.value).distinct().all()
     return [item for subl in kis for item in subl if item is not None]
 
 
 @pytest.fixture
 def topics_() -> List[str]:
-    topics = Questions.query.with_entities(Questions.topic).distinct().all()
+    topics = Topic.query.with_entities(Topic.value).distinct().all()
     return [item for subl in topics for item in subl if item is not None]
 
 
@@ -200,7 +206,7 @@ def test_question_list_get(client: FlaskClient,
 
 @pytest.mark.parametrize("topics,topic_count,status_code",
                          [pytest.param(["testKI"], 1, 200),
-                          pytest.param(["testKI", "anotherKI"], 1, 200)])
+                          pytest.param(["testKI", "anotherKI"], 2, 200)])
 def test_knowledge_item_filter(client: FlaskClient,
                                mocker: MockFixture,
                                topics: List[str],
@@ -430,13 +436,13 @@ def test_question_delete_api_exception_handling(client: FlaskClient,
     pytest.param({
         "topics": ["testKI"],
         "kis": ["Testing value"]
-    }, 5),
+    }, 10),
     pytest.param({
         "topics": ["testKI"]
     }, 10),
     pytest.param({
-        "kis": ["Testing value"]
-    }, 5)
+        "kis": ["Testing value", "Another Testing value"]
+    }, 13)
 ])
 def test_question_filter_by_topics_kis(client: FlaskClient,
                                        mocker: MockFixture,
