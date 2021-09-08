@@ -103,8 +103,8 @@ def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
               subject=subject_.name,
               teacher_id=teacher_.id,
               with_choices=4)
-    ki = KnowledgeItem.query.first()
-    topic = ki.topic
+    topic = Topic.query.first()
+    ki = topic.knowledge_items[0]
     choices = build_batch(dict, 4,
                           is_correct_choice=False,
                           FACTORY_CLASS=QuestionChoiceFactory)
@@ -125,6 +125,8 @@ def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
 @pytest.fixture
 def existing_question_payload_as_json() -> dict:
     subject_id = Subject.query.first().id
+    topic = Topic.query.first()
+    ki = topic.knowledge_items[0]
     q = QuestionsFactory(multiple_choice_question_type=True,
                          subject_id=subject_id,
                          with_choices={
@@ -135,7 +137,9 @@ def existing_question_payload_as_json() -> dict:
         'is_correct_choice': True
     })
     json_dump.update({
-        'question_type': q.question_type.name
+        'question_type': q.question_type.name,
+        'knowledge_item': ki.value,
+        'topic': topic.value
     })
     return json_dump
 
@@ -722,7 +726,7 @@ def test_teacher_owned_question_update_action(client: FlaskClient,
                                               access_token: List[str],
                                               teacher_created_question: Questions) -> None:
     update_params = {
-        'knowledge_item': "cnacnfjocanicofncasl"
+        'knowledge_item': "Another Testing value"
     }
     teacher_created_question.teacher_id = teacher_identity.id
     teacher_created_question.save()

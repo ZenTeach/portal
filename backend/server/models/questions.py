@@ -8,7 +8,9 @@ from marshmallow_enum import EnumField
 from server import db
 from server.models import QuestionChoice, Subject
 from server.models.base_model import BaseModelMixin
+from server.models.knowledge_item import KnowledgeItem
 from server.models.teacher import Teacher
+from server.models.topic import Topic
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy_searchable import SearchQueryMixin
 from sqlalchemy_utils.types import TSVectorType
@@ -85,7 +87,7 @@ class Questions(BaseModelMixin, db.Model):
     tag = db.Column(db.String(128), nullable=False)
     correct_choice_id = db.Column(db.Integer, nullable=False)
     choices = db.relationship("QuestionChoice", backref="question")
-    knowledge_item = db.Column(db.String(256), nullable=False)
+    knowledge_item = db.Column(db.String(256), nullable=True)
 
     _knowledge_item_id = db.Column(db.Integer, db.ForeignKey("knowledge_items.id"), nullable=True)
     _knowledge_item = db.relationship("KnowledgeItem")
@@ -105,11 +107,11 @@ class Questions(BaseModelMixin, db.Model):
         self,
         question: str,
         question_type: 'enum.Enum',
-        topic: str,
         tag: str,
-        knowledge_item: str,
         correct_choice_id: Optional[int] = None,
         user_created: bool = False,
+        topic: Optional[str] = None,
+        knowledge_item: Optional[str] = None,
         subject_id: Optional[str] = None,
         teacher_id: Optional[int] = None,
         exam_board: Optional[str] = None,
@@ -155,14 +157,17 @@ class Questions(BaseModelMixin, db.Model):
                 "Error creating question. Make sure that you have filled in all the required fields.", validation_errors)  # noqa
 
         subject_ = Subject.query.filter(Subject.name == data['subject']).first()
+        topic = Topic.query.filter(Topic.value == data['topic']).first()
+        ki = KnowledgeItem.query.filter(KnowledgeItem.value == data['knowledge_item']).first()
         choices = data.pop("choices")
         instance = cls(
             data["question"],
             data["question_type"],
-            data["topic"],
             data["tag"],
             data["knowledge_item"],
-            subject_id=subject_.id
+            subject_id=subject_.id,
+            _knowledge_item_id=ki.id,
+            _topic_id=topic.id
         )
         instance.choices, instance.correct_choice_id = instance.create_choices_from_list(choices)
         instance.save()
