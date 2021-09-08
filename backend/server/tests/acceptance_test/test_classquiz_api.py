@@ -7,11 +7,12 @@ from factory import build
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import (ClassQuiz, KnowledgeItem, QuestionsSchema,
-                           QuizGrade, SchoolClass, Student, Subject, Teacher)
+                           QuizGrade, SchoolClass, Student, Subject, Teacher,
+                           Topic)
 from server.tests.factories import (ClassQuizFactory, KnowledgeItemFactory,
                                     QuestionsFactory, QuizGradeFactory,
                                     SchoolClassFactory, StudentFactory,
-                                    TeacherFactory)
+                                    TeacherFactory, TopicFactory)
 
 
 @pytest.fixture
@@ -39,20 +40,27 @@ def student(school_class: SchoolClass) -> Student:
 
 
 @pytest.fixture
-def knowledge_item_() -> KnowledgeItem:
-    return KnowledgeItemFactory.create()
+def topic_(subject_: Subject) -> Topic:
+    return TopicFactory(subject_id=subject_.id)
+
+
+@pytest.fixture
+def knowledge_item_(topic_: Topic, subject_: Subject) -> KnowledgeItem:
+    return KnowledgeItemFactory(topic_id=topic_.id, subject_id=subject_.id)
 
 
 @pytest.fixture
 def classquiz_params(school_class: SchoolClass,
                      knowledge_item_: KnowledgeItem,
+                     topic_: Topic,
                      subject_: Subject) -> Dict:  # noqa
-    questions = QuestionsFactory.create_batch(5,
-                                              subject_id=subject_.id,
-                                              multiple_choice_question_type=True,
-                                              with_choices={
-                                                  'knowledge_item': knowledge_item_
-                                              })
+    questions = []
+    for _ in range(5):
+        questions.append(
+            QuestionsFactory(subject_id=subject_.id,
+                             multiple_choice_question_type=True,
+                             with_choices={'knowledge_item': knowledge_item_, 'topic': topic_})
+        )
     dumper = QuestionsSchema()
     questions = [dumper.dump(question) for question in questions]
 
