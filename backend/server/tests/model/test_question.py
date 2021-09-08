@@ -61,8 +61,15 @@ def test_question_create_from_admin_form_succeeds(client: FlaskClient,
                              exam_board=examboard.get('aqa'),
                              subject=subject_.name,
                              multiple_choice_question_type=True)
+    t = TopicFactory(subject_id=subject_.id)
+    ki = KnowledgeItemFactory(topic_id=t.id, subject_id=subject_.id)
 
-    question_payload.update({'choices': choices, 'user_created': False})
+    question_payload.update({
+        'choices': choices,
+        'user_created': False,
+        'topic': t.value,
+        'knowledge_item': ki.value
+    })
     q = Questions.create_from_admin_form(question_payload)
 
     assert q
