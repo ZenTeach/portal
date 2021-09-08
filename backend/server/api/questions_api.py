@@ -158,11 +158,13 @@ class TeacherOwnedQuestions(MethodView):
         if 'knowledge_item' in data:
             knowledge_item_id = KnowledgeItem.query.filter_by(
                 value=data.get('knowledge_item')).first().id
-            data.update(_knowledge_item_id=knowledge_item_id)
+            data.update({'_knowledge_item_id': knowledge_item_id})
+            del data['knowledge_item']
 
         if 'topic' in data:
             topic_id = Topic.query.filter_by(value=data.get('topic')).first().id
-            data.update(_topic_id=topic_id)
+            data.update({'_topic_id': topic_id})
+            del data['topic']
 
         question = Questions(**data)
         try:
@@ -230,6 +232,18 @@ class TeacherOwnedQuestion(MethodView):
                 subject_id = Subject.query.filter_by(name=data.get('subject')).first().id
                 data.update(subject_id=subject_id)
                 del data['subject']
+
+            if 'knowledge_item' in data:
+                knowledge_item_id = KnowledgeItem.query\
+                    .filter_by(value=data.get('knowledge_item'))\
+                    .first().id
+                data.update(_knowledge_item_id=knowledge_item_id)
+                del data['knowledge_item']
+
+            if 'topic' in data:
+                topic_id = Topic.query.filter_by(value=data.get('topic')).first().id
+                data.update(_topic_id=topic_id)
+                del data['topic']
 
             if question.teacher_id != teacher.id:
                 question = Questions.empty_instance()

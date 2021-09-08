@@ -1,6 +1,5 @@
 from server import db
 from server.models.base_model import BaseModelMixin
-from server.models.questions import Questions
 from sqlalchemy import event
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -23,7 +22,7 @@ class KnowledgeItem(db.Model, BaseModelMixin):
     def linked_question_count(self):
         return self.questions.count()
 
-    def add_to_questions(self, question=Questions):
+    def add_to_questions(self, question):
         self.questions.append(question)
         self.save()
 
