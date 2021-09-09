@@ -188,19 +188,21 @@ class Grader(object):
             if answered_correctly is None:
                 logger.debug(
                     f"Found a question answered incorrectly: ids {response['questionID']}, {response['Choice_answer']}")  # noqa
-                topic_and_ki_tuple: Tuple[str, str] = (
-                    Questions.query.with_entities(
-                        Questions.topic, Questions.knowledge_item)
-                    .filter_by(id=int(response["questionID"]))
-                    .first()
-                )
-                choice_feedback: str = QuestionChoice.query\
-                    .filter_by(uuid=UUID(response["Choice_answer"]))\
-                    .first().feedback
-                self._feedback_builder.build_from_question_id(
-                    topic_and_ki_tuple,
-                    choice_feedback
-                )
+                try:
+                    question = Questions.query.filter_by(id=response["questionID"]).first()
+                    topic_and_ki_tuple: Tuple[str, str] = (
+                        question._topic.value, question._knowledge_item.value
+                    )
+                    choice_feedback: str = QuestionChoice.query\
+                        .filter_by(uuid=UUID(response["Choice_answer"]))\
+                        .first().feedback
+                    self._feedback_builder.build_from_question_id(
+                        topic_and_ki_tuple,
+                        choice_feedback
+                    )
+                except Exception as e:
+                    logger.error("Errored while building topic and knowledge-item pair", e)
+                    raise e
             else:
                 cum_sum += 1
 
