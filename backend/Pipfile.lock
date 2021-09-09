@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9f52cf685274d19ed125546f70aeb43d772508684eaa8cc2a78419f48863d52f"
+            "sha256": "3f3b64e9b0bc25c6347b5a73b9474add47b2e5096edfaa524cfcaeea4be82c40"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -704,11 +704,11 @@
         },
         "google-auth": {
             "hashes": [
-                "sha256:84105be98837fb8436e9d0bcb7a279fd85fa1d97bb35a077e70ba2fb95bcc983",
-                "sha256:baf1b3f8b29a5f96f66753ad848473699322b63f4d68964e510554b12d002443"
+                "sha256:104475dc4d57bbae49017aea16fffbb763204fa2d6a70f1f3cc79962c1a383a4",
+                "sha256:cde472372e030e1e0bc64dac00fb53e6c095d7ab641f4281e2c995e85e205d8b"
             ],
             "index": "pypi",
-            "version": "==1.7.1"
+            "version": "==2.0.2"
         },
         "google-auth-httplib2": {
             "hashes": [
@@ -1814,11 +1814,11 @@
         },
         "rsa": {
             "hashes": [
-                "sha256:14ba45700ff1ec9eeb206a2ce76b32814958a98e372006c8fb76ba820211be66",
-                "sha256:1a836406405730121ae9823e19c6e806c62bbad73f890574fff50efa4122c487"
+                "sha256:78f9a9bf4e7be0c5ded4583326e7461e3a3c5aae24073648b4bdfa797d78c9d2",
+                "sha256:9d689e6ca1b3038bc82bf8d23e944b6b6037bc02301a574935b2dd946e0353b9"
             ],
             "index": "pypi",
-            "version": "==4.0"
+            "version": "==4.7.2"
         },
         "s3transfer": {
             "hashes": [
