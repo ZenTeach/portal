@@ -1,5 +1,4 @@
 import json
-from random import choice
 from typing import List, Union
 
 import pytest
@@ -10,7 +9,7 @@ from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import (KnowledgeItem, QuestionsSchema, Subject, Teacher,
                            Topic)
-from server.models.questions import Questions, QuestionTypeEnum
+from server.models.questions import Questions
 from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
                                     TeacherFactory, TopicFactory)
 from server.tests.factories.question_choice_factory import \
@@ -61,14 +60,20 @@ def populate_questions(client: FlaskClient, subject_: Subject):
     subject_id = subject_.id
     topic = TopicFactory(value="testKI", subject_id=subject_id)
     topic_2 = TopicFactory(value="anotherKI", subject_id=subject_id)
+    topic_3 = TopicFactory(value="Default Topic", subject_id=subject_id)
     kis = KnowledgeItemFactory(value="Testing value", subject_id=subject_id, topic_id=topic.id)
     kis_2 = KnowledgeItemFactory(value="Another Testing value",
                                  subject_id=subject_id, topic_id=topic_2.id)
+    kis_3 = KnowledgeItemFactory(value="Default Knowledge Item",
+                                 subject_id=subject_id, topic_id=topic_3.id)
 
     for _ in range(10):
         QuestionsFactory(topic="testKI",
                          subject_id=subject_id,
                          with_choices={'knowledge_item': kis, 'topic': topic},
+                         multiple_choice_question_type=True)
+        QuestionsFactory(subject_id=subject_id,
+                         with_choices={'knowledge_item': kis_3, topic: topic_3},
                          multiple_choice_question_type=True)
 
     for _ in range(3):
@@ -76,22 +81,20 @@ def populate_questions(client: FlaskClient, subject_: Subject):
                          subject_id=subject_id,
                          with_choices={'knowledge_item': kis_2, topic: topic_2},
                          multiple_choice_question_type=True)
-
-    QuestionsFactory.create_batch(3, topic=None,
-                                  subject_id=subject_id,
-                                  multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(5, subject_id=subject_id,
-                                  multiple_choice_question_type=True)
-    QuestionsFactory.create_batch(5,
-                                  subject_id=subject_id,
-                                  multiple_choice_question_type=True)
+        QuestionsFactory(topic=None,
+                         subject_id=subject_id,
+                         with_choices={'knowledge_item': kis_3, topic: topic_3},
+                         multiple_choice_question_type=True)
 
 
 @pytest.fixture
-def question_payload():
-    built_question = QuestionsFactory.build(
-        multiple_choice_question_type=True, subject_id=choice([1, 2, 3]))
-    built_question.question_type = getattr(QuestionTypeEnum, built_question.question_type)
+def question_payload(subject_: Subject) -> dict:
+    topic = TopicFactory(value="Test Topic", subject_id=subject_.id)
+    kis = KnowledgeItemFactory(value="Test KI", subject_id=subject_.id, topic_id=topic.id)
+    built_question = QuestionsFactory(
+        subject_id=subject_.id,
+        with_choices={'knowledge_item': kis, topic: topic},
+        multiple_choice_question_type=True)
     return QuestionsSchema().dump(built_question)
 
 
@@ -263,7 +266,7 @@ def test_knowledge_item_filter_errors(client: FlaskClient,
 
 
 @pytest.mark.parametrize('param,status_code,topics',
-                         [pytest.param('chemistry', 200, 2),
+                         [pytest.param('chemistry', 200, 3),
                           pytest.param('canjas', 400, 0)])
 def test_topic_filter(client: FlaskClient,
                       mocker: MockFixture,
@@ -300,7 +303,7 @@ def test_topic_filters_with_case_normalization(client: FlaskClient,
     data = json.loads(response.data)
 
     assert response.status_code == 200
-    assert len(data) == 2
+    assert len(data) == 3
 
 
 def test_question_create_api(client: FlaskClient,
