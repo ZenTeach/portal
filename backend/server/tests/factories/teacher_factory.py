@@ -1,4 +1,5 @@
 import logging
+import os
 from secrets import token_hex
 
 from factory import RelatedFactory, Trait
@@ -13,6 +14,7 @@ logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
 fake = Faker()
+fake.seed_instance(os.urandom(32))
 fake.add_provider(person)
 fake.add_provider(internet)
 fake.add_provider(date_time)
