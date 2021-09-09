@@ -10,7 +10,7 @@ def questions_() -> Questions:
 
 @pytest.fixture
 def teacher_() -> Teacher:
-    return TeacherFactory()
+    return Teacher.query.first()
 
 
 def test_teacher_model(client):

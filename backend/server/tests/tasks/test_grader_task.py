@@ -3,11 +3,12 @@ from flask.testing import FlaskClient
 from pytest import fail
 from pytest_mock import MockFixture
 from server.lib.grader import Grader
-from server.models import QuizGrade, QuizSession, QuizSessionStatus, Student
+from server.models import (QuizGrade, QuizSession, QuizSessionStatus, Student,
+                           Teacher)
 from server.models.class_quiz import ClassQuiz
 from server.tasks.grader_tasks import grader_administered_quizzes, regrade_quiz
 from server.tests.factories import (QuizGradeFactory, SchoolClassFactory,
-                                    StudentFactory, TeacherFactory)
+                                    StudentFactory)
 
 
 @pytest.fixture
@@ -17,7 +18,7 @@ def student_(client: FlaskClient) -> Student:
 
 @pytest.fixture
 def classquiz(client: FlaskClient) -> ClassQuiz:
-    teacher = TeacherFactory()
+    teacher = Teacher.query.first()
     sc = SchoolClassFactory(with_classquiz=True, teacher_id=teacher.id)
     return sc.quizzes[0]
 
