@@ -10,12 +10,12 @@ from server.lib import Grader
 from server.lib.grader import CorrectChoice, Feedback
 from server.models import (ClassQuizStatus, KnowledgeItem, Questions,
                            QuizGrade, QuizSession, SchoolClass, Student,
-                           Teacher)
+                           Subject, Teacher, Topic)
 from server.models.question_choice import QuestionChoice
 from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
                                     QuizGradeFactory, QuizSessionFactory,
                                     SchoolClassFactory, StudentFactory,
-                                    TeacherFactory)
+                                    TeacherFactory, TopicFactory)
 
 
 @pytest.fixture
@@ -36,13 +36,25 @@ def student(school_class: SchoolClass, client: FlaskClient) -> Student:
 
 
 @pytest.fixture
-def knowledge_items_() -> List[KnowledgeItem]:
-    return KnowledgeItemFactory.create_batch(5)
+def subject_() -> Subject:
+    subject = Subject(name='subject', enabled=True)
+    subject.save()
+    return subject
 
 
 @pytest.fixture
-def knowledge_item_() -> KnowledgeItem:
-    return KnowledgeItemFactory()
+def topic_(subject_: Subject) -> Topic:
+    return TopicFactory(subject_id=subject_.id)
+
+
+@pytest.fixture
+def knowledge_items_(topic_: Topic, subject_: Subject) -> List[KnowledgeItem]:
+    return [KnowledgeItemFactory(subject_id=subject_.id, topic_id=topic_.id) for _ in range(5)]
+
+
+@pytest.fixture
+def knowledge_item_(topic_: Topic, subject_: Subject) -> KnowledgeItem:
+    return KnowledgeItemFactory(subject_id=subject_.id)
 
 
 @pytest.fixture
@@ -255,10 +267,8 @@ def test_grading_with_valid_response(quiz_session: QuizSession,
 
 @pytest.fixture
 def question_topic_and_ki(client: FlaskClient) -> Tuple[str, str]:
-    return (
-        Questions.query.with_entities(
-            Questions.topic, Questions.knowledge_item)
-        .first())
+    q = Questions.query.first()
+    return (q._topic.value, q._knowledge_item.value)
 
 
 @pytest.fixture
