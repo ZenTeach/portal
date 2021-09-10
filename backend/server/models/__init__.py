@@ -81,7 +81,9 @@ class QuestionChoicesSchema(ma.ModelSchema):
 class TopicSchema(ma.ModelSchema):
     class Meta:
         model = Topic
-        fields = ("value",)
+        fields = ("value", "subject", "teacher_id")
+
+    subject = ma.Nested(SubjectSchema)
 
 
 class KnowledgeItemSchema(ma.ModelSchema):
