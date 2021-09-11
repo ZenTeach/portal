@@ -71,5 +71,19 @@ class TopicView(MethodView):
         }), 200)
 
 
+class TopicsSearch(MethodView):
+    @jwt_required(fresh=True)
+    def post(self):
+        search = request.get_json().get('search')
+        if not search:
+            abort(400)
+        dumper = TopicSchema(many=True)
+        topics = Topic.query.search(search).all()
+        return make_response(jsonify({
+            'data': dumper.dump(topics)
+        }), 200)
+
+
 topic_blueprint.add_url_rule('/topics', view_func=TopicsView.as_view('topics'))
 topic_blueprint.add_url_rule('/topic/<int:topic_id>', view_func=TopicView.as_view('topic'))
+topic_blueprint.add_url_rule('topics/search', view_func=TopicsSearch.as_view('topic_search'))
