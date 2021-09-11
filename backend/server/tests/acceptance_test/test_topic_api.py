@@ -19,6 +19,11 @@ def topics(client, subject_):
 
 
 @pytest.fixture
+def searchable_topic(client, subject_):
+    return TopicFactory(subject_id=subject_.id, value='Searchable Topic')
+
+
+@pytest.fixture
 def topic_():
     return Topic.query.first()
 
@@ -81,3 +86,17 @@ def test_topic_update_topic(client, access_token):
     assert response.status_code == 200
     data = json.loads(response.data)
     assert data['data']['value'] == 'New Topic'
+
+
+def test_topic_full_text_search(client, searchable_topic, access_token):
+    response = client.post(
+        '/api/v1/topics/search',
+        json={'search': 'search'},
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert len(data['data']) == 1
+    assert data['data'][0]['value'] == searchable_topic.value
