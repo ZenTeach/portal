@@ -3,13 +3,14 @@ import os
 from logging import CRITICAL, getLogger
 from pathlib import Path
 from shutil import which
-from typing import List
+from typing import List, Tuple
 
 import pytest
 from flask.testing import FlaskClient
 from server import create_app, db
 from server.models import Teacher
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from sqlalchemy_searchable import sync_trigger
 
@@ -41,11 +42,19 @@ def client():
     app.config.from_object("server.config.TestingConfig")
     with app.app_context():
         db.create_all()
-        sync_trigger(db.engine, "questions", "search_vector", ["question"])
+        sync_search_vector_triggers(db.engine, [
+            ('questions', 'question'),
+            ('topics', 'value')
+        ])
         yield app.test_client()
         db.session.remove()  # looks like db.session.close() would work as well
         db.drop_all()
         db.engine.dispose()
+
+
+def sync_search_vector_triggers(engine: Engine, table_search_entity_list: List[Tuple[str, str]]):
+    for table_search_entity in table_search_entity_list:
+        sync_trigger(engine, table_search_entity[0], "search_vector", [table_search_entity[1]])
 
 
 @pytest.fixture(scope="function")
