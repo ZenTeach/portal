@@ -74,6 +74,11 @@ export default {
   RESET_KIS (state, _payload) {
     state.knowledgeItems = Object.assign(state.knowledgeItems, {})
   },
+  ADD_TOPIC (state, topic) {
+    if (!existsInList(state.topics, topic)) {
+      state.topics.push(topic)
+    }
+  },
   UPDATE_TOPICS (state, topics) {
     state.topics = []
     topics.forEach(topic => {
