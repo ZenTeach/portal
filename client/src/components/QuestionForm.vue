@@ -14,31 +14,32 @@
               </v-col>
           </v-row>
           <v-row>
-              <v-col cols="3" lg="3" sm="12" md="6">
+              <v-col cols="2" lg="2" sm="8" md="3">
                   <ValidationProvider rules="required" name="subjects" v-slot="{ errors }">
                       <v-select
                           :items="subjects"
                           label="Subject"
                           :placeholder="question_object.subject || ''"
-                          @change="topicChangeHandler()"
                           :error-messages="errors"
                           v-model="question_object.subject"
                           outlined></v-select>
                   </ValidationProvider>
               </v-col>
-              <v-col cols="3" lg="3" sm="12" md="6">
+              <v-col cols="4" lg="4" sm="12" md="4">
                   <ValidationProvider rules="required" name="topic" v-slot="{ errors }">
-                  <v-select
-                      :items="topics"
-                      label="Topic"
-                      :placeholder="question_object.topic || ''"
-                      :error-messages="errors"
-                      @change="KIChangeHandler()"
-                      v-model="question_object.topic"
-                      outlined></v-select>
+                      <select-with-ajax
+                        :items="topics"
+                        :subject="question_object.subject"
+                        label="Topic"
+                        @focus.self="this.errors.clear()"
+                        :placeholder="question_object.topic || ''"
+                        :error-messages="errors"
+                        v-model="question_object.topic"
+                        outlined
+                      ></select-with-ajax>
                   </ValidationProvider>
               </v-col>
-              <v-col cols="3" lg="3" sm="12" md="6">
+              <v-col cols="4" lg="4" sm="12" md="4">
                   <ValidationProvider rules="required" name="knowledge_item" v-slot="{ errors }">
                       <v-select
                           :items="knowledge_items"
@@ -121,6 +122,7 @@ import { ValidationProvider } from 'vee-validate'
 import QuestionsChoices from './QuestionsChoices'
 import MaterialCard from './MaterialCard'
 import SelectsWithSuggestion from './SelectsWithSuggestion'
+import SelectWithAjax from './SelectWithAjax'
 
 export default {
   name: 'QuestionForm',
@@ -128,7 +130,8 @@ export default {
     ValidationProvider,
     SelectsWithSuggestion,
     QuestionsChoices,
-    MaterialCard
+    MaterialCard,
+    SelectWithAjax
   },
   props: {
     question_object: {
