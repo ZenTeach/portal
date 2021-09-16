@@ -5,6 +5,8 @@ import {
   fetchQuestionsFromTopicsAndKIs
 } from '../../../service/question_service'
 
+import { searchTopic, createTopic } from '../../../service/topic_service'
+
 import {
   fetchSubjects
 } from '../../../service/app_service'
@@ -51,6 +53,39 @@ export default {
       .catch(error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
         commit('TOGGLE_APP_STATUS', 'error')
+      })
+  },
+  SEARCH_TOPICS ({ commit }, payload) {
+    searchTopic(payload)
+      .then(result => {
+        const topics = result.data.map(topic => topic.value)
+
+        if (topics.length === 0) {
+          console.info('no topics found')
+        }
+
+        commit('app/RESET_KIS', {}, { root: true })
+        commit('app/UPDATE_TOPICS', topics, { root: true })
+      })
+      .catch(error => {
+        commit('app/TOGGLE_ERROR', error.response.data || error, { root: true })
+        commit('TOGGLE_APP_STATUS', 'error')
+        throw error
+      })
+  },
+  CREATE_TOPIC ({ commit }, payload) {
+    createTopic(payload)
+      .then(result => {
+        const newTopic = result.data.value
+        console.log(result, newTopic)
+
+        commit('app/RESET_KIS', {}, { root: true })
+        commit('app/ADD_TOPIC', newTopic, { root: true })
+      })
+      .catch(error => {
+        commit('app/TOGGLE_ERROR', error.response.data || error, { root: true })
+        commit('TOGGLE_APP_STATUS', 'error')
+        throw error
       })
   },
   TOGGLE_ERROR ({ commit }, payload = {}) {
