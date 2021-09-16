@@ -1,8 +1,8 @@
 from flask import Blueprint, abort, jsonify, make_response, request
 from flask.views import MethodView
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import current_user, jwt_required
 from server.api import logger
-from server.models import Topic, TopicSchema
+from server.models import Subject, Topic, TopicSchema
 
 topic_blueprint = Blueprint("topics", __name__)
 
@@ -21,6 +21,15 @@ class TopicsView(MethodView):
         topic_data = request.get_json()
         if not topic_data:
             abort(400)
+        subject_ = Subject.query.filter_by(name=topic_data.pop('subject')).first()
+        if not subject_:
+            abort(404)
+
+        topic_data.update({
+            'teacher_id': current_user.id,
+            'subject_id': subject_.id
+        })
+
         dumper = TopicSchema()
         topic = Topic(**topic_data)
         try:

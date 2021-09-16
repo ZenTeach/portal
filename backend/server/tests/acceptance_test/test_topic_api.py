@@ -37,7 +37,7 @@ def teacher_():
 def topic_create_payload(subject_, teacher_):
     return build(dict,
                  FACTORY_CLASS=TopicFactory,
-                 subject_id=subject_.id,
+                 subject=subject_.name,
                  teacher_id=teacher_.id
                  )
 

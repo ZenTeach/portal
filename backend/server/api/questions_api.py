@@ -151,20 +151,17 @@ class TeacherOwnedQuestions(MethodView):
             }), 422)
 
         if 'subject' in data:
-            subject_id = Subject.query.filter_by(name=data.get('subject')).first().id
+            subject_id = Subject.query.filter_by(name=data.pop('subject')).first().id
             data.update(subject_id=subject_id)
-            del data['subject']
 
         if 'knowledge_item' in data:
             knowledge_item_id = KnowledgeItem.query.filter_by(
-                value=data.get('knowledge_item')).first().id
+                value=data.pop('knowledge_item')).first().id
             data.update({'_knowledge_item_id': knowledge_item_id})
-            del data['knowledge_item']
 
         if 'topic' in data:
-            topic_id = Topic.query.filter_by(value=data.get('topic')).first().id
+            topic_id = Topic.query.filter_by(value=data.pop('topic')).first().id
             data.update({'_topic_id': topic_id})
-            del data['topic']
 
         question = Questions(**data)
         try:
@@ -229,21 +226,18 @@ class TeacherOwnedQuestion(MethodView):
 
         try:
             if 'subject' in data:
-                subject_id = Subject.query.filter_by(name=data.get('subject')).first().id
+                subject_id = Subject.query.filter_by(name=data.pop('subject')).first().id
                 data.update(subject_id=subject_id)
-                del data['subject']
 
             if 'knowledge_item' in data:
                 knowledge_item_id = KnowledgeItem.query\
-                    .filter_by(value=data.get('knowledge_item'))\
+                    .filter_by(value=data.pop('knowledge_item'))\
                     .first().id
                 data.update(_knowledge_item_id=knowledge_item_id)
-                del data['knowledge_item']
 
             if 'topic' in data:
-                topic_id = Topic.query.filter_by(value=data.get('topic')).first().id
+                topic_id = Topic.query.filter_by(value=data.pop('topic')).first().id
                 data.update(_topic_id=topic_id)
-                del data['topic']
 
             if question.teacher_id != teacher.id:
                 question = Questions.empty_instance()
@@ -267,7 +261,7 @@ class TeacherOwnedQuestion(MethodView):
                 })
 
             if 'choices' in data:
-                choices = data['choices']
+                choices = data.pop('choices')
                 choice_objects = []
                 for choice in choices:
                     c = QuestionChoice.query.\
@@ -278,7 +272,6 @@ class TeacherOwnedQuestion(MethodView):
                         new_choice.update_from_dict(choice)
                         # new_choice.save(refresh=True)
                         choice_objects.append(new_choice)
-                del data['choices']
                 data.update({
                     'choices': choice_objects
                 })
