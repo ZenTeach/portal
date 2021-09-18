@@ -77,7 +77,6 @@ export default {
     createTopic(payload)
       .then(result => {
         const newTopic = result.data.value
-        console.log(result, newTopic)
 
         commit('app/RESET_KIS', {}, { root: true })
         commit('app/ADD_TOPIC', newTopic, { root: true })

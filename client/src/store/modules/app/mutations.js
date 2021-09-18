@@ -87,6 +87,9 @@ export default {
       }
     })
   },
+  RESET_TOPICS (state, payload) {
+    state.topics = []
+  },
   UPDATE_SUBJECTS (state, subjects) {
     state.subjects = []
     state.subjects = subjects
