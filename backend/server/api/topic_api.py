@@ -84,10 +84,15 @@ class TopicsSearch(MethodView):
     @jwt_required(fresh=True)
     def post(self):
         search = request.get_json().get('search')
+        subject_name = request.get_json().get('subject')
+        subject = Subject.query.filter_by(name=subject_name).first()
         if not search:
             abort(400)
         dumper = TopicSchema(many=True)
-        topics = Topic.query.search(search).all()
+        topics = Topic.query.search(search)
+        if subject:
+            topics = topics.filter_by(subject_id=subject.id)
+        topics = topics.all()
         return make_response(jsonify({
             'data': dumper.dump(topics)
         }), 200)

@@ -1,21 +1,33 @@
 import json
+from typing import Tuple
 
 import pytest
 from factory import build
+from flask.testing import FlaskClient
 from server.models import Subject, Teacher, Topic
 from server.tests.factories import TopicFactory
 
 
 @pytest.fixture
-def subject_():
+def subject_() -> Subject:
     s = Subject(name='Math', enabled=True)
     s.save()
     return s
 
 
+@pytest.fixture
+def biology_subject() -> Subject:
+    s = Subject(name='Biology', enabled=True)
+    s.save()
+    return s
+
+
 @pytest.fixture(autouse=True)
-def topics(client, subject_):
-    TopicFactory.create_batch(3, subject_id=subject_.id)
+def topics(client: FlaskClient,
+           subject_: Subject,
+           biology_subject: Subject):
+    TopicFactory.create_batch(3, subject_id=subject_.id, value='abcd')
+    TopicFactory.create_batch(3, subject_id=biology_subject.id, value='abcd')
 
 
 @pytest.fixture
@@ -46,7 +58,7 @@ def test_topic_get_all(client):
     response = client.get('/api/v1/topics')
     assert response.status_code == 200
     data = json.loads(response.data)
-    assert len(data['data']) == 3
+    assert len(data['data']) == 6
 
 
 def test_topic_get_one(client):
@@ -100,3 +112,27 @@ def test_topic_full_text_search(client, searchable_topic, access_token):
     data = json.loads(response.data)
     assert len(data['data']) == 1
     assert data['data'][0]['value'] == searchable_topic.value
+
+
+@pytest.mark.parametrize('search_term,count', [
+    pytest.param('search', 1),
+    pytest.param('ab', 3)])
+def test_topic_full_text_search_with_optional_subject(client: FlaskClient,
+                                                      search_term: str,
+                                                      count: int,
+                                                      subject_: Subject,
+                                                      searchable_topic: Topic,
+                                                      access_token: Tuple[str, str, str]):
+    response = client.post(
+        '/api/v1/topics/search',
+        json={
+            'search': search_term,
+            'subject': subject_.name
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert len(data['data']) == count
