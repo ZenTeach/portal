@@ -15,10 +15,11 @@
           </v-row>
           <v-row>
               <v-col cols="2" lg="2" sm="8" md="3">
-                  <ValidationProvider rules="required" name="subjects" v-slot="{ errors }">
+                  <ValidationProvider mode="eager" rules="required" name="subjects" v-slot="{ errors }">
                       <v-select
                           :items="subjects"
                           label="Subject"
+                          @change="subjectChangeHandler()"
                           :placeholder="question_object.subject || ''"
                           :error-messages="errors"
                           v-model="question_object.subject"
@@ -26,14 +27,14 @@
                   </ValidationProvider>
               </v-col>
               <v-col cols="4" lg="4" sm="12" md="4">
-                  <ValidationProvider rules="required" name="topic" v-slot="{ errors }">
+                  <ValidationProvider mode="passive" rules="required" name="topic" v-slot="{ errors }">
                       <select-with-ajax
                         :items="topics"
                         :subject="question_object.subject"
                         label="Topic"
-                        @focus.self="this.errors.clear()"
                         :placeholder="question_object.topic || ''"
                         :error-messages="errors"
+                        @change="KIChangeHandler()"
                         v-model="question_object.topic"
                         outlined
                       ></select-with-ajax>
@@ -156,6 +157,9 @@ export default {
       type: Function
     },
     KIChangeHandler: {
+      type: Function
+    },
+    subjectChangeHandler: {
       type: Function
     },
     validate_multiple_choices: {

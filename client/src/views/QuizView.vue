@@ -102,7 +102,6 @@ export default {
       return Object.keys(this.selectedChoices).length
     },
     isValid () {
-      console.log(this._.keys(this.selectedChoices).length)
       return !this._.isEmpty(this.selectedChoices) &&
         this.selectedChoicesLength === this.quiz_questions.length
     }

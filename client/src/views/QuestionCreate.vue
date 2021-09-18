@@ -9,6 +9,7 @@
       :exam_board="exam_boards"
       :question_type="question_type"
       :topicChangeHandler="triggerTopicFetch"
+      :subjectChangeHandler="resetTopics"
       :KIChangeHandler="triggerKIFetch"
     >
       <template v-slot:form_actions>
@@ -27,7 +28,7 @@ import {
   ValidationObserver
 } from 'vee-validate'
 
-const { mapActions, mapGetters } = createNamespacedHelpers('app')
+const { mapActions, mapGetters, mapMutations } = createNamespacedHelpers('app')
 const {
   mapActions: questionActions,
   mapGetters: questionsGetters,
@@ -46,9 +47,6 @@ export default {
   computed: {
     ...questionsGetters({
       currentQuestion: 'CURRENTQUESTION'
-    }),
-    ...questionsMutations({
-      unsetCurrentQuestion: 'UNSET_CURRENTQUESTION'
     }),
     ...mapGetters({
       getSubjects: 'getSubjects',
@@ -96,6 +94,12 @@ export default {
     )
   },
   methods: {
+    ...mapMutations({
+      resetTopics: 'RESET_TOPICS'
+    }),
+    ...questionsMutations({
+      unsetCurrentQuestion: 'UNSET_CURRENTQUESTION'
+    }),
     ...mapActions({
       fetchKis: 'FETCH_KIS',
       fetchTopics: 'FETCH_TOPICS'
