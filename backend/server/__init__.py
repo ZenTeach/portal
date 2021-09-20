@@ -232,6 +232,7 @@ def create_app():
     # Register bluprints
     from server.api import root_api
     from server.api.class_quiz_api import class_quiz_blueprint
+    from server.api.knowledge_item_api import knowledge_item_blueprint
     from server.api.questions_api import question_blueprint
     from server.api.quiz_submit_api import quiz_submit_blueprint
     from server.api.school_class_api import school_class_blueprint
@@ -248,6 +249,7 @@ def create_app():
     app.register_blueprint(statistics_view_blueprint, url_prefix="/api/v1")
     app.register_blueprint(quiz_submit_blueprint, url_prefix="/api/v1")
     app.register_blueprint(topic_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(knowledge_item_blueprint, url_prefix="/api/v1")
     app.register_blueprint(root_api, url_prefix="/api/v1")
 
     default_handler.setFormatter(formatter)
