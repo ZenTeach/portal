@@ -9,7 +9,6 @@ from pytest_mock import MockFixture
 from server.models import Invitations, Teacher
 from server.tasks import (send_account_recovery_instructions,
                           send_confirmation_instructions, send_user_invite)
-from server.tests.factories import TeacherFactory
 
 
 @pytest.fixture(scope='session')
@@ -22,7 +21,7 @@ def celery_config():
 
 @pytest.fixture
 def teacher() -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 fake = Faker()
