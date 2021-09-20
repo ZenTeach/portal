@@ -12,6 +12,8 @@ class KnowledgeItem(db.Model, BaseModelMixin):
     questions = db.relationship("Questions", lazy='dynamic', viewonly=True)
     subject_id = db.Column(db.Integer, db.ForeignKey("subjects.id"), nullable=True)
     subject = db.relationship("Subject", lazy='joined', uselist=False)
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teacher.id"), nullable=True)
+    teacher = db.relationship("Teacher", lazy='joined', uselist=False)
     topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"), nullable=True)
     topic = db.relationship("Topic", lazy='joined', uselist=False, viewonly=True)
 
