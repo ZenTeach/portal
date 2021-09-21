@@ -23,12 +23,18 @@ class KnowledgeItemsView(MethodView):
         if not ki_data:
             abort(400)
         subject_ = Subject.query.filter_by(name=ki_data.pop('subject')).first()
+        topic = Topic.query.filter_by(value=ki_data.pop('topic')).first()
+
         if not subject_:
+            abort(404)
+
+        if not topic:
             abort(404)
 
         ki_data.update({
             'teacher_id': current_user.id,
-            'subject_id': subject_.id
+            'subject_id': subject_.id,
+            'topic_id': topic.id
         })
 
         dumper = KnowledgeItemSchema()
