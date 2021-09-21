@@ -44,7 +44,8 @@ def client():
         db.create_all()
         sync_search_vector_triggers(db.engine, [
             ('questions', 'question'),
-            ('topics', 'value')
+            ('topics', 'value'),
+            ('knowledge_items', 'value')
         ])
         yield app.test_client()
         db.session.remove()  # looks like db.session.close() would work as well

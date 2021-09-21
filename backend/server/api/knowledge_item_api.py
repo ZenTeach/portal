@@ -2,7 +2,7 @@ from flask import Blueprint, abort, jsonify, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import current_user, jwt_required
 from server.api import logger
-from server.models import KnowledgeItemSchema, Subject
+from server.models import KnowledgeItemSchema, Subject, Topic
 from server.models.knowledge_item import KnowledgeItem
 
 knowledge_item_blueprint = Blueprint("knowledge_items", __name__)
@@ -81,8 +81,42 @@ class KnowledgeItemView(MethodView):
         }), 200)
 
 
+class KnowledgeItemSearch(MethodView):
+    @jwt_required(fresh=True)
+    def post(self):
+        search = request.get_json().get('search')
+        subject_name = request.get_json().get('subject')
+        topic_value = request.get_json().get('topic')
+        subject = Subject.query.filter_by(name=subject_name).first()
+        topic = Topic.query.filter_by(value=topic_value).first()
+
+        if not search:
+            abort(400)
+
+        if not topic:
+            abort(400)
+
+        dumper = KnowledgeItemSchema(many=True)
+        knowledge_items = KnowledgeItem.query.search(search)
+
+        if subject:
+            knowledge_items = knowledge_items.filter_by(subject_id=subject.id)
+
+        if topic:
+            knowledge_items = knowledge_items.filter_by(topic_id=topic.id)
+
+        knowledge_items = knowledge_items.all()
+
+        return make_response(jsonify({
+            'data': dumper.dump(knowledge_items)
+        }), 200)
+
+
 knowledge_item_blueprint.add_url_rule(
     '/knowledge_items', view_func=KnowledgeItemsView.as_view('knowledge_items'))
 knowledge_item_blueprint.add_url_rule(
     '/knowledge_item/<int:knowledge_item_id>',
     view_func=KnowledgeItemView.as_view('knowledge_item'))
+knowledge_item_blueprint.add_url_rule(
+    '/knowledge_item/search',
+    view_func=KnowledgeItemSearch.as_view('knowledge_item_search'))
