@@ -1,11 +1,19 @@
+from flask_sqlalchemy import BaseQuery
 from server import db
 from server.models.base_model import BaseModelMixin
 from sqlalchemy import event
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy_searchable import SearchQueryMixin
+from sqlalchemy_utils.types import TSVectorType
+
+
+class KnowledgeItemQuery(BaseQuery, SearchQueryMixin):
+    pass
 
 
 class KnowledgeItem(db.Model, BaseModelMixin):
     __tablename__ = 'knowledge_items'
+    query_class = KnowledgeItemQuery
 
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.String(255), nullable=False)
@@ -16,6 +24,7 @@ class KnowledgeItem(db.Model, BaseModelMixin):
     teacher = db.relationship("Teacher", lazy='joined', uselist=False)
     topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"), nullable=True)
     topic = db.relationship("Topic", lazy='joined', uselist=False, viewonly=True)
+    search_vector = db.Column(TSVectorType("value"))
 
     def __repr__(self):
         return f"{self.value}"
