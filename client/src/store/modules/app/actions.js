@@ -6,6 +6,7 @@ import {
 } from '../../../service/question_service'
 
 import { searchTopic, createTopic } from '../../../service/topic_service'
+import { searchKnowledgeItems, createKnowledgeItem } from '../../../service/knowledge_item_service'
 
 import {
   fetchSubjects
@@ -87,6 +88,31 @@ export default {
         throw error
       })
   },
+  SEARCH_KNOWLEDGE_ITEMS ({ commit }, payload) {
+    searchKnowledgeItems(payload)
+      .then(result => {
+        const KIs = result.data.map(ki => [ki.topic.value, ki.value])
+        commit('app/UPDATE_KIS', KIs, { root: true })
+      })
+      .catch(error => {
+        commit('app/TOGGLE_ERROR', error.response.data || error, { root: true })
+        commit('TOGGLE_APP_STATUS', 'error')
+        throw error
+      })
+  },
+  CREATE_KNOWLEDGE_ITEM ({ commit }, payload) {
+    createKnowledgeItem(payload)
+      .then(result => {
+        const newKiItem = [[result.data.topic.value, result.data.value]]
+        commit('app/UPDATE_KIS', newKiItem, { root: true })
+      })
+      .catch(error => {
+        commit('app/TOGGLE_ERROR', error.response.data || error, { root: true })
+        commit('TOGGLE_APP_STATUS', 'error')
+        throw error
+      })
+  },
+
   TOGGLE_ERROR ({ commit }, payload = {}) {
     commit('TOGGLE_ERROR', payload)
   },
