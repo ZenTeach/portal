@@ -23,7 +23,7 @@ import { createNamespacedHelpers } from 'vuex'
 const { mapActions } = createNamespacedHelpers('app')
 
 export default {
-  name: 'SelectWithAjax',
+  name: 'TopicSelectWithAjax',
   data () {
     return {
       loading: false,

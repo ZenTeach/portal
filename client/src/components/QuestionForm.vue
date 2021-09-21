@@ -28,27 +28,30 @@
               </v-col>
               <v-col cols="4" lg="4" sm="12" md="4">
                   <ValidationProvider mode="passive" rules="required" name="topic" v-slot="{ errors }">
-                      <select-with-ajax
+                      <topic-select-with-ajax
                         :items="topics"
                         :subject="question_object.subject"
                         label="Topic"
                         :placeholder="question_object.topic || ''"
                         :error-messages="errors"
-                        @change="KIChangeHandler()"
                         v-model="question_object.topic"
                         outlined
-                      ></select-with-ajax>
+                      ></topic-select-with-ajax>
                   </ValidationProvider>
               </v-col>
               <v-col cols="4" lg="4" sm="12" md="4">
-                  <ValidationProvider rules="required" name="knowledge_item" v-slot="{ errors }">
-                      <v-select
+                  <ValidationProvider mode="passive" rules="required" name="knowledge_item" v-slot="{ errors }">
+                      <ki-select-with-ajax
                           :items="knowledge_items"
                           :error-messages="errors"
                           label="Knowledge Item"
                           :placeholder="question_object.knowledge_item || ''"
+                          :selectedTopic="question_object.topic"
+                          :subject="question_object.subject"
                           v-model="question_object.knowledge_item"
-                          outlined></v-select>
+                          outlined
+                      >
+                      </ki-select-with-ajax>
                   </ValidationProvider>
               </v-col>
           </v-row>
@@ -123,7 +126,9 @@ import { ValidationProvider } from 'vee-validate'
 import QuestionsChoices from './QuestionsChoices'
 import MaterialCard from './MaterialCard'
 import SelectsWithSuggestion from './SelectsWithSuggestion'
-import SelectWithAjax from './SelectWithAjax'
+import TopicSelectWithAjax from './TopicSelectWithAjax'
+import searchForKIListener from './KISelectWithAjax'
+import KiSelectWithAjax from './KISelectWithAjax.vue'
 
 export default {
   name: 'QuestionForm',
@@ -132,7 +137,9 @@ export default {
     SelectsWithSuggestion,
     QuestionsChoices,
     MaterialCard,
-    SelectWithAjax
+    TopicSelectWithAjax,
+    searchForKIListener,
+    KiSelectWithAjax
   },
   props: {
     question_object: {
@@ -173,6 +180,7 @@ export default {
       const it = this._.findIndex(this.exam_board, ['value', value])
       return this.exam_board[it].text
     }
+
   }
 }
 </script>
