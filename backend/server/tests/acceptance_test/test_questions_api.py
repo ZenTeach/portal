@@ -47,12 +47,12 @@ def teacher_created_question(client: FlaskClient,
                              teacher_: Teacher) -> Questions:
     subject_id = subject_.id
     topic = TopicFactory(value="testKI", subject_id=subject_id)
-    return QuestionsFactory(_topic=topic, topic="testKI",
-                            subject_id=subject_id,
+    kis = KnowledgeItemFactory(subject_id=subject_id, topic_id=topic.id)
+    return QuestionsFactory(subject_id=subject_id,
                             user_created=True,
                             teacher_id=teacher_.id,
                             multiple_choice_question_type=True,
-                            with_choices=4)
+                            with_choices={'knowledge_item': kis, 'topic': topic})
 
 
 @pytest.fixture(autouse=True)
@@ -68,8 +68,7 @@ def populate_questions(client: FlaskClient, subject_: Subject):
                                  subject_id=subject_id, topic_id=topic_3.id)
 
     for _ in range(10):
-        QuestionsFactory(topic="testKI",
-                         subject_id=subject_id,
+        QuestionsFactory(subject_id=subject_id,
                          with_choices={'knowledge_item': kis, 'topic': topic},
                          multiple_choice_question_type=True)
         QuestionsFactory(subject_id=subject_id,
@@ -77,12 +76,10 @@ def populate_questions(client: FlaskClient, subject_: Subject):
                          multiple_choice_question_type=True)
 
     for _ in range(3):
-        QuestionsFactory(topic="anotherKI",
-                         subject_id=subject_id,
+        QuestionsFactory(subject_id=subject_id,
                          with_choices={'knowledge_item': kis_2, topic: topic_2},
                          multiple_choice_question_type=True)
-        QuestionsFactory(topic=None,
-                         subject_id=subject_id,
+        QuestionsFactory(subject_id=subject_id,
                          with_choices={'knowledge_item': kis_3, topic: topic_3},
                          multiple_choice_question_type=True)
 
@@ -133,7 +130,9 @@ def existing_question_payload_as_json() -> dict:
     q = QuestionsFactory(multiple_choice_question_type=True,
                          subject_id=subject_id,
                          with_choices={
-                             'choice_count': 4
+                             'choice_count': 4,
+                             'knowledge_item': ki,
+                             'topic': topic
                          })
     json_dump = QuestionsSchema().dump(q)
     json_dump['choices'][0].update({
@@ -141,8 +140,6 @@ def existing_question_payload_as_json() -> dict:
     })
     json_dump.update({
         'question_type': q.question_type.name,
-        'knowledge_item': ki.value,
-        'topic': topic.value
     })
     return json_dump
 
@@ -750,6 +747,8 @@ def test_updating_original_question_creates_question_on_user(client: FlaskClient
                                                              teacher_identity: Teacher,
                                                              existing_question_payload_as_json: dict) -> None:  # noqa
     existing_question_payload_as_json['subject'] = existing_question_payload_as_json['subject']['name']  # noqa
+    existing_question_payload_as_json['topic'] = existing_question_payload_as_json['topic']['value']  # noqa
+    existing_question_payload_as_json['knowledge_item'] = existing_question_payload_as_json['knowledge_item']['value']  # noqa
     assert Questions.query.filter_by(teacher_id=teacher_identity.id).count() == 0
 
     q_id = existing_question_payload_as_json.pop('id')

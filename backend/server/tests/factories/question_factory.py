@@ -58,7 +58,7 @@ class QuestionsFactory(SQLAlchemyModelFactory):
                 if knowledge_item is None:
                     knowledge_item = KnowledgeItem(value=fake.word())
 
-                obj._topic = topic
-                obj._knowledge_item = knowledge_item
+                obj.topic = topic
+                obj.knowledge_item = knowledge_item
 
                 obj.save()

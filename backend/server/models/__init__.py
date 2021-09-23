@@ -111,17 +111,8 @@ class QuestionsSchema(ma.ModelSchema):
             "choices",
         )
 
-    topic = ma.Method('_topic')
-    knowledge_item = ma.Method('_knowledge_item')
-
-    def _topic(self, obj) -> str:
-        return obj._topic.value
-
-    def _knowledge_item(self, obj) -> str:
-        return obj._knowledge_item.value
-    # Uncomment after data migration
-    # knowledge_item = ma.Nested(KnowledgeItemSchema, only=("value",))
-    # topic = ma.Nested(TopicSchema, only=("value",))
+    knowledge_item = ma.Nested(KnowledgeItemSchema, only=("value",))
+    topic = ma.Nested(TopicSchema, only=("value",))
     question_type = EnumField(QuestionTypeEnum, by_value=True)
     choices = ma.Nested(QuestionChoicesSchema, many=True)
     subject = ma.Nested(SubjectSchema, only=('name',))

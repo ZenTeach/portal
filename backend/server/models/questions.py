@@ -83,17 +83,15 @@ class Questions(BaseModelMixin, db.Model):
         db.Integer, db.ForeignKey("teacher.id"), nullable=True)
 
     exam_board = db.Column(db.Text, nullable=True)
-    topic = db.Column(db.String(256), nullable=True)
     tag = db.Column(db.String(128), nullable=False)
     correct_choice_id = db.Column(db.Integer, nullable=False)
     choices = db.relationship("QuestionChoice", backref="question")
-    knowledge_item = db.Column(db.String(256), nullable=True)
 
-    _knowledge_item_id = db.Column(db.Integer, db.ForeignKey("knowledge_items.id"), nullable=True)
-    _knowledge_item = db.relationship("KnowledgeItem")
+    knowledge_item_id = db.Column(db.Integer, db.ForeignKey("knowledge_items.id"), nullable=True)
+    knowledge_item = db.relationship("KnowledgeItem")
 
-    _topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"), nullable=True)
-    _topic = db.relationship("Topic")
+    topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"), nullable=True)
+    topic = db.relationship("Topic")
 
     user_created = db.Column(db.Boolean, nullable=False, default=False)
     search_vector = db.Column(TSVectorType("question"))
@@ -115,8 +113,8 @@ class Questions(BaseModelMixin, db.Model):
         subject_id: Optional[str] = None,
         teacher_id: Optional[int] = None,
         exam_board: Optional[str] = None,
-        _knowledge_item_id: Optional[int] = None,
-        _topic_id: Optional[int] = None,
+        knowledge_item_id: Optional[int] = None,
+        topic_id: Optional[int] = None,
         uuid: Optional[UUID] = None,
         choices: Optional[List[QuestionChoice]] = [],
         image_url: str = "",
@@ -131,8 +129,8 @@ class Questions(BaseModelMixin, db.Model):
         self.knowledge_item = knowledge_item
         self.user_created = user_created
         self.exam_board = exam_board
-        self._knowledge_item_id = _knowledge_item_id
-        self._topic_id = _topic_id
+        self.knowledge_item_id = knowledge_item_id
+        self.topic_id = topic_id
         if uuid is None:
             self.uuid = unique_uuid4()
 
@@ -166,8 +164,8 @@ class Questions(BaseModelMixin, db.Model):
             data["tag"],
             data["knowledge_item"],
             subject_id=subject_.id,
-            _knowledge_item_id=ki.id,
-            _topic_id=topic.id
+            knowledge_item_id=ki.id,
+            topic_id=topic.id
         )
         instance.choices, instance.correct_choice_id = instance.create_choices_from_list(choices)
         instance.save()
