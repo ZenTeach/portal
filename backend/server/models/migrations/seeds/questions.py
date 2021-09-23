@@ -2,7 +2,8 @@ import csv
 import os
 from random import choice
 
-from server.models import QuestionChoice, Questions, QuestionTypeEnum, Subject
+from server.models import (KnowledgeItem, QuestionChoice, Questions,
+                           QuestionTypeEnum, Subject, Topic)
 
 filename = "Questions.csv"
 filepath = os.path.join(os.path.dirname(__file__), filename)
@@ -14,14 +15,20 @@ def question_seeds():
         subject_id = Subject.query.filter(Subject.name == 'Chemistry').first().id
 
         for line in reader:
+            topic = Topic(value=line["Topic"], subject_id=subject_id)
+            topic.save()
+
+            knowledge_item = KnowledgeItem(value=line["KnowledgeItem"], subject_id=subject_id)
+            knowledge_item.save()
+
             q = Questions(
                 question=line["Question"],
                 question_type=QuestionTypeEnum.multiple_choice,
                 subject_id=subject_id,
-                topic=line["Topic"],
+                topic=topic,
                 tag=line["TAG"],
                 exam_board="aqa",
-                knowledge_item=line["KnowledgeItem"],
+                knowledge_item=knowledge_item,
                 correct_choice_id=1,  # nosec
             )
             q.save()
