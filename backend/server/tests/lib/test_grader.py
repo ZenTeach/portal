@@ -268,7 +268,7 @@ def test_grading_with_valid_response(quiz_session: QuizSession,
 @pytest.fixture
 def question_topic_and_ki(client: FlaskClient) -> Tuple[str, str]:
     q = Questions.query.first()
-    return (q._topic.value, q._knowledge_item.value)
+    return (q.topic.value, q.knowledge_item.value)
 
 
 @pytest.fixture

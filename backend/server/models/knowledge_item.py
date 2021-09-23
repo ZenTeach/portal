@@ -41,12 +41,12 @@ class KnowledgeItem(db.Model, BaseModelMixin):
 @event.listens_for(KnowledgeItem.questions, "remove")
 def knowledge_item_questions_remove_listener(target, value, initiator):
     db.engine.execute(
-        "UPDATE questions SET _knowledge_item_id=null WHERE id=%s", value.id)
+        "UPDATE questions SET knowledge_item_id=null WHERE id=%s", value.id)
 
 
 @event.listens_for(KnowledgeItem.questions, "append")
 def question_knowledge_item_append_listener(target, value, initiator):
-    value._knowledge_item_id = target.id
+    value.knowledge_item_id = target.id
     value.save()
 
 

@@ -32,8 +32,8 @@ def trigger_knowledge_item_migration() -> None:
         else:
             knowledge_item.subject_id = question.subject_id
 
-        question._knowledge_item = knowledge_item
-        question._knowledge_item_id = knowledge_item.id
+        question.knowledge_item = knowledge_item
+        question.knowledge_item_id = knowledge_item.id
 
         topic = Topic.query.filter_by(value=question.topic).first()
         if topic:
@@ -59,7 +59,7 @@ def trigger_topic_migration() -> None:
         else:
             topic.subject_id = question.subject_id
 
-        question._topic = topic
-        question._topic_id = topic.id
+        question.topic = topic
+        question.topic_id = topic.id
         question.save()
     logger.info("Update complete")

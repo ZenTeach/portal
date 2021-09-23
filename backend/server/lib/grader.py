@@ -191,7 +191,7 @@ class Grader(object):
                 try:
                     question = Questions.query.filter_by(id=response["questionID"]).first()
                     topic_and_ki_tuple: Tuple[str, str] = (
-                        question._topic.value, question._knowledge_item.value
+                        question.topic.value, question.knowledge_item.value
                     )
                     choice_feedback: str = QuestionChoice.query\
                         .filter_by(uuid=UUID(response["Choice_answer"]))\
