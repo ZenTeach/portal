@@ -31,14 +31,29 @@ class ClassQuizCreateQuestionChoicesSchema(Schema):
     value = fields.Str(required=True)
 
 
+class ClassQuizCreateTopicSchema(Schema):
+    class Meta:
+        unknown = INCLUDE
+
+    value = fields.Str(required=True)
+
+
+class ClassQuizCreateKnowledgeItemSchema(Schema):
+    class Meta:
+        unknown = INCLUDE
+
+    value = fields.Str(required=True)
+
+
 class ClassQuizCreateQuestionsSchema(Schema):
     class Meta:
         unknown = INCLUDE
 
-    knowledge_item = fields.Str(required=True)
+    knowledge_item = fields.Nested(ClassQuizCreateKnowledgeItemSchema,
+                                   required=True, unknown=INCLUDE)
     question_type = fields.Int(required=True)
     choices = fields.Nested(ClassQuizCreateQuestionChoicesSchema, many=True, required=True)
-    topic = fields.Str(required=True)
+    topic = fields.Nested(ClassQuizCreateTopicSchema, required=True)
     subject = fields.Dict(keys=fields.Str, values=fields.Str, required=True)
     tag = fields.Str(required=True)
     question = fields.Str(required=True)

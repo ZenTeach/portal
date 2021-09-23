@@ -61,8 +61,8 @@ def classquiz_params(school_class: SchoolClass,
                              multiple_choice_question_type=True,
                              with_choices={'knowledge_item': knowledge_item_, 'topic': topic_})
         )
-    dumper = QuestionsSchema()
-    questions = [dumper.dump(question) for question in questions]
+    dumper = QuestionsSchema(many=True)
+    questions = dumper.dump(questions)
 
     return build(dict, FACTORY_CLASS=ClassQuizFactory, class_id=school_class.id, questions=questions)  # noqa
 
@@ -137,12 +137,9 @@ def mock_jwt_required() -> bool:
 
 def test_classquiz_create_api(client: FlaskClient,
                               classquiz_params: Dict,
-                              teacher_identity: Teacher,
                               access_token: List[str],
                               mocker: MockFixture):
-    # mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
-
     response = client.post(
         "/api/v1/class_quiz",
         headers={
