@@ -10,7 +10,7 @@ class TopicView(BaseView):
     can_create = True
     can_edit = True
     can_export = False
-    column_list = ["value", "linked_question_count"]
+    column_list = ["value", "linked_question_count", "teacher", "subject"]
     column_exclude_list = ["id"]
     column_filters = ("value",)
     column_editable_list = ["value"]

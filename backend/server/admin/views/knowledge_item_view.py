@@ -11,7 +11,7 @@ class KnowledgeItemView(BaseView):
     can_create = True
     can_edit = True
     can_export = False
-    column_list = ["value", "linked_question_count", "topic"]
+    column_list = ["value", "linked_question_count", "topic", "teacher"]
     column_exclude_list = ["id"]
     column_filters = ("value", "topic")
     column_editable_list = ["value"]
