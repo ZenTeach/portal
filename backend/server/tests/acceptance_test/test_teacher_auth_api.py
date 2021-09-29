@@ -1,4 +1,5 @@
 import json
+from secrets import token_hex
 from typing import List, Optional
 
 import pytest
@@ -13,6 +14,16 @@ from server.tests.factories import InvitationFactory, TeacherFactory
 def teacher_(client: FlaskClient) -> Teacher:
     return TeacherFactory(with_school_class=True,  # nosec
                           email="joemama@example.com", password="Asdfgh12!")
+
+
+@pytest.fixture
+def unique_email() -> str:
+    return token_hex(16) + "@example.com"
+
+
+@pytest.fixture
+def token() -> str:
+    return token_hex(8)
 
 
 @pytest.mark.parametrize(
@@ -78,6 +89,27 @@ def test_teacher_registration_endpoint(client: FlaskClient,
     assert success_response.status_code == 200
     assert success_response.headers.get_all('Set-Cookie') is not None
     assert len(success_response.headers.get_all('Set-Cookie')) == 4
+
+
+def test_teacher_registration_endpoint_with_exempted_invite_code(client: FlaskClient,
+                                                                 token: str,
+                                                                 unique_email: str,
+                                                                 mocker: MockFixture):
+    mock_exempt_list = [token]
+    mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions')
+    mocker.patch('server.models.Invitations._load_exempt_list', return_value=mock_exempt_list)
+    new_teacher = build(dict, FACTORY_CLASS=TeacherFactory, email=unique_email)
+    new_teacher.update({
+        'invitation_code': token
+    })
+    response = client.post(
+        '/api/v1/teacher/registration',
+        json=new_teacher
+    )
+
+    assert response.status_code == 200
+    assert response.headers.get_all('Set-Cookie') is not None
+    assert len(response.headers.get_all('Set-Cookie')) == 4
 
 
 def test_teacher_account_confirmation(client: FlaskClient, teacher_: Teacher):
