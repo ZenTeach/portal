@@ -54,6 +54,10 @@ class Invitations(BaseModelMixin, db.Model):
     @classmethod
     def validate_email_invitation_token(cls, email, token):
         row = cls.query.filter_by(email=email, token=token, active=True).all()
+
+        if token in cls._load_exempt_list():
+            return True
+
         if len(row) == 0:
             return False
 

@@ -43,14 +43,16 @@ class TeacherRegistration(MethodView):
         data = request.get_json()
 
         if not self.validate_invite(data["email"], data["invitation_code"]):
-            abort(400, "Registrations are only through valid invites.")
+            return make_response(jsonify({
+                "message": "Registrations are only through valid invites."
+            }), 400)
 
         self.deactivate_token(data["email"], data["invitation_code"])
 
         if Teacher.query.filter_by(email=data["email"]).first():
-            return {
+            return make_response(jsonify({
                 "message": "Teacher {} already exists".format(data["email"])
-            }
+            }, 400))
 
         new_teacher = Teacher(
             firstname=data["firstname"],
