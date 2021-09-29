@@ -4,8 +4,7 @@ from flask_mail import Message
 from pytest_mock import MockFixture
 from server.models import ClassQuiz, Teacher
 from server.tasks import send_quiz_generation_email
-from server.tests.factories import (ClassQuizFactory, SchoolClassFactory,
-                                    TeacherFactory)
+from server.tests.factories import ClassQuizFactory, SchoolClassFactory
 
 
 @pytest.fixture(scope='session')
@@ -18,7 +17,7 @@ def celery_config():
 
 @pytest.fixture
 def teacher_() -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 @pytest.fixture
