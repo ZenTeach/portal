@@ -35,9 +35,9 @@
                                   style="max-width: 16ch;"
                                   v-bind="attrs"
                                   v-on="on"
-                                  class="text-caption text-truncate font-weight-bold pt-4">{{item.topic}}</p>
+                                  class="text-caption text-truncate font-weight-bold pt-4">{{item.topic.value}}</p>
                             </template>
-                            <p>{{item.topic}}</p>
+                            <p>{{item.topic.value}}</p>
                           </v-tooltip>
                         </v-chip>
                         <v-chip color="pink lighten-5" class="mx-1" small>
@@ -46,9 +46,9 @@
                               <p style="max-width: 32ch;"
                                   v-bind="attrs"
                                   v-on="on"
-                                  class="text-caption text-truncate font-weight-bold pt-4">{{item.knowledge_item}}</p>
+                                  class="text-caption text-truncate font-weight-bold pt-4">{{item.knowledge_item.value}}</p>
                             </template>
-                            <p>{{item.knowledge_item}}</p>
+                            <p>{{item.knowledge_item.value}}</p>
                           </v-tooltip>
                         </v-chip>
                       </div>

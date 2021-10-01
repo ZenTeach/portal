@@ -92,6 +92,8 @@ export default {
         if (this.retryingRequest === false) {
           this.convertToQuillDelta(payload.choices)
         }
+        payload.topic = payload.topic.value || payload.topic
+        payload.knowledge_item = payload.knowledge_item.value || payload.knowledge_item
         payload.teacher_id = payload.teacher_id || this.currentUser.id
         this.updateQuestion({
           questionId: this.currentQuestion.id,
