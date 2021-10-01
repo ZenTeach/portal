@@ -136,8 +136,8 @@
                       <v-row>
                         <v-col cols="10">
                           <h4>{{ question.question }}</h4>
-                            <v-chip color="green lighten-5 text-truncate text-center" class="mx-1" small>{{question.topic}}</v-chip>
-                            <v-chip color="pink lighten-5 text-truncate text-center" class="mx-1" small>{{question.knowledge_item}}</v-chip>
+                            <v-chip color="green lighten-5 text-truncate text-center" class="mx-1" small>{{question.topic.value}}</v-chip>
+                            <v-chip color="pink lighten-5 text-truncate text-center" class="mx-1" small>{{question.knowledge_item.value}}</v-chip>
                           </v-col>
                         <v-col cols="2">
                           <v-btn color="white" elevation="0" @click="editItem({ item: question })">
