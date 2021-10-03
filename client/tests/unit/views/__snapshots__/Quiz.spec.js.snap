@@ -4,10 +4,11 @@ exports[`Quiz.vue matches snapshot 1`] = `
 <v-container-stub id="quiz_details_view" tag="div">
   <v-layout-stub tag="div" row="" column="" wrap="" justify-center="">
     <v-row-stub tag="div">
-      <v-col-stub cols="12" lg="5" tag="div"><a href="../quiz_view/undefined">
+      <div class="flex-lg-grow-1 flex-sm-grow-0 flex-md-grow-0"></div>
+      <v-col-stub sm="6" md="4" lg="2" tag="div"><a href="../quiz_view/undefined">
           Open Quiz in Browser
         </a></v-col-stub>
-      <v-col-stub cols="12" lg="5" tag="div">
+      <v-col-stub sm="6" md="4" lg="2" tag="div">
         <div class="text-center">
           <v-menu-stub opendelay="0" closedelay="0" contentclass="" bottom="true" maxwidth="auto" nudgebottom="0" nudgeleft="0" nudgeright="0" nudgetop="0" nudgewidth="0" openonclick="true" closeonclick="true" closeoncontentclick="true" maxheight="auto" offsety="true" origin="top left" transition="v-menu-transition">
             <v-list-stub tag="div">
@@ -23,11 +24,12 @@ exports[`Quiz.vue matches snapshot 1`] = `
     <v-divider-stub></v-divider-stub>
     <v-row-stub tag="div">
       <v-col-stub cols="12" tag="div" rows="10">
+        <h3> Graded report cards </h3>
         <v-banner-stub tag="div" mobilebreakpoint="1264" value="true">
           <v-icon-stub color="red" size="36">
             mdi-note-text-outline
           </v-icon-stub>
-          <p class="display-1 my-5">
+          <p class="text-h3 text-sm-h2 text-md-h2 my-5">
             Quizzes haven't been graded yet!
           </p>
         </v-banner-stub>

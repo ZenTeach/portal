@@ -18,13 +18,13 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-row class="ma-4 pa-3">
+    <v-row class="ma-lg-4 pa-lg-3">
       <input type="hidden" />
-      <v-col class="ma-2">
+      <v-col class="ma-lg-2">
         <h1>{{ quizTitle }} Quiz</h1>
       </v-col>
     </v-row>
-    <v-row class="mx-10 pa-3">
+    <v-row class="mx-lg-10 pa-lg-3">
       <v-col>
       <template v-for="(question, q_idx) in quiz_questions" >
         <v-card :key="q_idx" class="ma-2" ref="">
@@ -63,10 +63,11 @@
           </div>
         </v-col>
         <v-col justify="center" class="d-flex align-center">
-          <p class="text-align display-1 text--lighten-4">
+          <p class="text-align text-lg-h1 text-sm-h1 text-md-h1 text--lighten-4">
           Congrats! Your quiz has been submitted!
           <br />
-          <router-link to="/">Close page</router-link>
+          <v-spacer></v-spacer>
+          <router-link to="/" class="text-sm-caption">Close page</router-link>
           </p>
         </v-col>
       </v-row>

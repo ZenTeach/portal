@@ -6,7 +6,7 @@
     color="primary"
     floating
     dark
-    mobile-break-point="991"
+    mobile-break-point="400"
     persistent
     fixed
     app
@@ -16,7 +16,7 @@
         <span class="font-weight-light">Zen</span>
         <span>Teach Portal</span>
       </v-toolbar-title>
-      <v-img v-else src='../assets/icon.png' height="32" width="40" class="grey darken-1" aspect-ratio="1" contain></v-img>
+      <v-img v-else src='../assets/icon.png' height="32" width="32" class="grey darken-1" aspect-ratio="1" contain></v-img>
     </v-list-item>
 
     <v-divider class="mx-3 mb-3" />
@@ -104,7 +104,7 @@ export default {
           title: 'Question Library',
           icon: 'mdi-library-shelves',
           to: '/questions',
-          beta: true
+          beta: false
         }
       ]
     }

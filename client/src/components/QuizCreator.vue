@@ -80,11 +80,20 @@
             </v-select>
           </v-card-text>
           <v-card-actions class="justify-space-between px-5">
-            <div>
-              <v-btn color="primary" class="mr-2" @click="gotoStep(2, 'firstStepValidation')">Continue</v-btn>
-              <v-btn color="success" @click="createQuizFastTracked()">Finish</v-btn>
+            <div class="d-flex">
+              <v-btn color="primary" v-if="!isMobile" class="mr-2" @click="gotoStep(2, 'firstStepValidation')">Continue</v-btn>
+              <v-btn color="success" v-if="!isMobile" @click="createQuizFastTracked()">Finish</v-btn>
+              <v-btn color="primary" v-if="isMobile" class="mr-2" @click="gotoStep(2, 'firstStepValidation')">
+                <v-icon>mdi-chevron-right</v-icon>
+              </v-btn>
+              <v-btn color="success" v-if="isMobile" @click="createQuizFastTracked()">
+                <v-icon left>mdi-check-all</v-icon>
+              </v-btn>
             </div>
-            <v-btn @click.native.prevent="closeDialog()" class="float-left error">Cancel</v-btn>
+            <v-btn @click.native.prevent="closeDialog()" v-if="!isMobile" class="float-left error">Cancel</v-btn>
+            <v-btn @click.native.prevent="closeDialog()" v-if="isMobile" class="float-left error">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-stepper-content>
@@ -104,8 +113,14 @@
             </question-search-result>
           </v-card-text>
           <v-card-actions class="justify-space-between px-5">
-            <v-btn color="primary" @click="curator = 3">Continue</v-btn>
-            <v-btn @click.native.prevent="closeDialog()" class="float-left error">Cancel</v-btn>
+            <v-btn color="primary" v-if="!isMobile" @click="curator = 3">Continue</v-btn>
+            <v-btn color="primary" v-if="isMobile" @click="curator = 3">
+              <v-icon>mdi-chevron-right</v-icon>
+            </v-btn>
+            <v-btn @click.native.prevent="closeDialog()" v-if="!isMobile" class="float-left error">Cancel</v-btn>
+            <v-btn @click.native.prevent="closeDialog()" v-if="isMobile" class="float-left error">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-stepper-content>
@@ -113,8 +128,9 @@
         <v-card color="grey lighten-4" class="mx-auto">
           <v-card-title>Finalize Quiz</v-card-title>
             <v-card-text>
-              <h4 class="text-subtitle-1">Selected topics & knowledge items</h4>
-              <v-list>
+              <p v-if="isMobile"> Quiz is ready to be created! </p>
+              <h4 class="text-subtitle-1" v-if="!isMobile">Selected topics & knowledge items</h4>
+              <v-list v-if="!isMobile">
                 <v-list-group v-for="[topic, kis] in Object.entries(this.fetchedKIsfromTopic())" :key="topic">
                     <v-icon :key="topic">
                       mdi-checkbox
@@ -148,39 +164,45 @@
               </v-list>
             </v-card-text>
             <v-card-actions class="justify-space-between px-5">
-              <v-btn color="primary" @click="createQuiz()" :disabled="!formIsValid">Create</v-btn>
-              <v-btn @click.native.prevent="closeDialog()" class="float-left error">Cancel</v-btn>
+              <v-btn color="primary" v-if="!isMobile" @click="createQuiz()" :disabled="!formIsValid">Create</v-btn>
+              <v-btn color="primary" v-if="isMobile" @click="createQuiz()" :disabled="!formIsValid">
+                <v-icon>mdi-check-all</v-icon>
+              </v-btn>
+              <v-btn @click.native.prevent="closeDialog()" v-if="!isMobile" class="float-left error">Cancel</v-btn>
+              <v-btn @click.native.prevent="closeDialog()" v-if="isMobile" class="float-left error">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-      </v-stepper-items>
-      <v-dialog
-        v-model="confirmQuestionEdit"
-        persistent
-        max-width="500px"
-        transition="dialog-transition"
-      >
-      <v-card>
-        <v-card-title>
-          <v-icon color="orange lighten-1" class="mx-1">
-            mdi-alert
-          </v-icon>
-          Confirm editing question
-        </v-card-title>
-        <hr />
-        <v-card-text>
-          <p class="body-2 font-weight-normal my-2 mx-2"> Confirming this will take you to a different page for editing
-            selected Question
-          </p>
-        </v-card-text>
-        <v-card-actions>
-          <div class="flex-grow-1"></div>
-          <v-btn color="success" @click="goToQuestionEdit()" outlined>Continue editing</v-btn>
-          <v-btn color="error" @click="confirmQuestionEdit=false" text outlined>Cancel</v-btn>
-        </v-card-actions>
-      </v-card>
-      </v-dialog>
-    </v-stepper>
+      </v-stepper-content>
+    </v-stepper-items>
+    <v-dialog
+      v-model="confirmQuestionEdit"
+      persistent
+      max-width="500px"
+      transition="dialog-transition"
+    >
+    <v-card>
+      <v-card-title>
+        <v-icon color="orange lighten-1" class="mx-1">
+          mdi-alert
+        </v-icon>
+        Confirm editing question
+      </v-card-title>
+      <hr />
+      <v-card-text>
+        <p class="body-2 font-weight-normal my-2 mx-2"> Confirming this will take you to a different page for editing
+          selected Question
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <div class="flex-grow-1"></div>
+        <v-btn color="success" @click="goToQuestionEdit()" outlined>Continue editing</v-btn>
+        <v-btn color="error" @click="confirmQuestionEdit=false" text outlined>Cancel</v-btn>
+      </v-card-actions>
+    </v-card>
+    </v-dialog>
+  </v-stepper>
 </template>
 
 <script>
@@ -288,6 +310,9 @@ export default {
     gotoStep (step, validator) {
       this.validateStep(validator)
       this.curator = step
+    },
+    isMobile: function () {
+      return ['md', 'sm', 'xs'].includes(this.$vuetify.breakpoint.name)
     },
     createQuiz () {
       const payload = {

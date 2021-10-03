@@ -4,7 +4,7 @@
       <v-row>
         <v-col>
           <v-card>
-            <v-card-text>
+            <v-card-text v-if="!isMobile">
               <p>Classrooms</p>
             </v-card-text>
             <div>
@@ -32,8 +32,11 @@
                 <template v-slot:item.name="props">
                   <div class="d-flex flex-column">
                     <a :href="'/classroom/' + props.item.id" class="text-body-1">{{ props.item.name }}</a>
+                  </div>
+                </template>
+                <template v-slot:item.key_stage="{ item }">
                     <small class="grey lighten-4 black--text text-center text-caption" style="width:70%;">
-                      {{ props.item.key_stage }}
+                      {{ item.key_stage }}
                       <v-tooltip left>
                         <template v-slot:activator="{ on, attrs }">
                         <v-icon
@@ -46,7 +49,6 @@
                         <span>Key stages signify levels.</span>
                       </v-tooltip>
                     </small>
-                  </div>
                 </template>
                 <template v-slot:item.actions="{ item }">
                   <v-icon
@@ -147,40 +149,40 @@
                   </v-dialog>
                 </template>
               </v-data-table>
-              <v-dialog v-model="editDialog" max-width="500px" max-height="auto">
+              <v-dialog v-model="editDialog" max-width="600px" max-height="auto">
                 <ValidationObserver ref="edit_observer" v-slot="{ passes }">
                   <v-card>
                     <v-card-title primary-title>
                       Edit class
                     </v-card-title>
                     <v-card-text>
-                      <v-container>
-                        <v-row>
-                          <v-col cols="10" lg="12" sm="9" md="12">
+                      <v-container fluid>
+                        <v-row no-gutters>
+                          <v-col cols="12" lg="12" sm="12" md="12">
                             <ValidationProvider rules="required" name="classname">
-                                <v-text-field label="Class name" v-model="editedItem.name" color="" outlined grow></v-text-field>
-                              </ValidationProvider>
+                              <v-text-field label="Class name" v-model="editedItem.name" outlined></v-text-field>
+                            </ValidationProvider>
 
-                              <ValidationProvider rules="required" name="subject">
-                                <v-select :items="subjects" label="Subject" :placeholder="editedItem.subject.name" v-model="editedItem.subject" outlined></v-select>
-                              </ValidationProvider>
+                            <ValidationProvider rules="required" name="subject">
+                              <v-select :items="subjects" label="Subject" :placeholder="editedItem.subject.name" v-model="editedItem.subject" outlined></v-select>
+                            </ValidationProvider>
 
-                              <ValidationProvider rules="required" name="year_group">
-                                <v-select :items="yearGroupSelection" label="Year Group" v-model="editedItem.year_group" outlined></v-select>
-                              </ValidationProvider>
-                              <ValidationProvider rules="required" name="exam_board">
-                                <v-select :items="examBoardSelection" label="Exam Board" v-model="editedItem.exam_board" outlined></v-select>
-                              </ValidationProvider>
-                              <ValidationProvider name="Start date">
-                                <v-text-field
-                                  v-model="start_date"
-                                  label="Start date"
-                                  prepend-icon="event"
-                                  disabled
-                                  readonly
-                                  outlined
-                                ></v-text-field>
-                              </ValidationProvider>
+                            <ValidationProvider rules="required" name="year_group">
+                              <v-select :items="yearGroupSelection" label="Year Group" v-model="editedItem.year_group" outlined></v-select>
+                            </ValidationProvider>
+                            <ValidationProvider rules="required" name="exam_board">
+                              <v-select :items="examBoardSelection" label="Exam Board" v-model="editedItem.exam_board" outlined></v-select>
+                            </ValidationProvider>
+                            <ValidationProvider name="Start date">
+                              <v-text-field
+                                v-model="start_date"
+                                label="Start date"
+                                prepend-icon="event"
+                                disabled
+                                readonly
+                                outlined
+                              ></v-text-field>
+                            </ValidationProvider>
                           </v-col>
                         </v-row>
                       </v-container>
@@ -235,6 +237,7 @@ export default {
         { text: 'Subject', sortable: true, value: 'subject.name' },
         { text: 'Starts', sortable: false, value: 'start_date' },
         { text: 'Exam Board', sortable: true, value: 'exam_board' },
+        { text: 'Key Stage', sortable: true, value: 'key_stage' },
         { text: '', sortable: false, value: 'actions' }
       ],
       subjects: ['Physics', 'Chemistry', 'Biology'],
@@ -311,6 +314,9 @@ export default {
       deleteClass: 'DELETECLASSROOM',
       updateClassroom: 'UPDATECLASSROOM'
     }),
+    isMobile: function () {
+      return ['md', 'sm', 'xs'].includes(this.$vuetify.breakpoint.name)
+    },
     close () {
       this.dialog = false
       setTimeout(() => {
