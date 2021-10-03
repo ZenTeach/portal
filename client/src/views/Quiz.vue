@@ -2,13 +2,14 @@
   <v-container id="quiz_details_view">
     <v-layout row column wrap justify-center>
       <v-row>
-        <v-col cols="12" lg="5">
+        <div class="flex-lg-grow-1 flex-sm-grow-0 flex-md-grow-0"></div>
+        <v-col lg="2" md="4" sm="6">
           <a :href="'../quiz_view/' +  uuid">
             Open Quiz in Browser
           </a>
         </v-col>
 
-        <v-col cols="12" lg="5">
+        <v-col lg="2" md="4" sm="6">
           <template>
             <div class="text-center">
                 <v-menu bottom offset-y>
@@ -45,50 +46,55 @@
         <v-col cols="12" rows="10">
         <template v-if="this.hasGradedQuiz(this.gradedQuizzes)">
           <h3> Graded report cards </h3>
-          <v-simple-table>
+          <!-- <v-simple-table>
             <template v-slot:default v-if="gradedQuizzes">
-            <thead>
-                <tr>
-                  <th class="text-left">Student Email</th>
-                  <th class="text-left">Score</th>
-                  <th class="text-left">Report card</th>
-                  <th class="text-left"></th>
-                </tr>
-            </thead>
             <tbody>
               <template v-for="item in gradedQuizzes">
                 <tr :key="item.email">
                   <td class="tg-cly1" >{{ item.email }}</td>
                   <td class="tg-0lax">{{ item.score }}</td>
                   <td class="tg-0lax">
-                    <a :href="'/report_card/' + item.gradeId" class="text-decoration-none" target="new">
-                      <span>
-                        <v-icon>mdi-open-in-new</v-icon>
-                        View here
-                      </span>
-                    </a>
+
                   </td>
                   <td class="tg-0lax">
-                    <a>
-                      <v-tooltip bottom open-on-hover>
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-icon
-                              v-bind="attrs"
-                              v-on="on"
-                              v-on:click="sendStudentReportCard(item.gradeId)"
-                            >mdi-email-send</v-icon>
-                        </template>
-                        <span>Send report card to student as PDF.</span>
-                      </v-tooltip>
-                    </a>
                   </td>
                 </tr>
               </template>
             </tbody>
             </template>
-          </v-simple-table>
+          </v-simple-table> -->
+          <v-data-table
+            :headers="headers"
+            :items="gradedQuizzes"
+            :items-per-page="5"
+            class="elevation-1"
+          >
+            <template v-slot:item.gradeId="{ item }">
+              <a :href="'/report_card/' + item.gradeId" class="text-decoration-none" target="new">
+                <span>
+                  <v-icon>mdi-open-in-new</v-icon>
+                  View here
+                </span>
+              </a>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <a>
+                <v-tooltip bottom open-on-hover>
+                  <template v-slot:activator="{ on, attrs }">
+                      <v-icon
+                        v-bind="attrs"
+                        v-on="on"
+                        v-on:click="sendStudentReportCard(item.gradeId)"
+                      >mdi-email-send</v-icon>
+                  </template>
+                  <span>Send report card to student as PDF.</span>
+                </v-tooltip>
+              </a>
+            </template>
+          </v-data-table>
         </template>
         <template v-else>
+          <h3> Graded report cards </h3>
           <v-banner>
             <v-icon
               slot="icon"
@@ -97,7 +103,7 @@
             >
               mdi-note-text-outline
             </v-icon>
-            <p class="display-1 my-5">
+            <p class="text-h3 text-sm-h2 text-md-h2 my-5">
               Quizzes haven't been graded yet!
             </p>
 
@@ -129,6 +135,32 @@ export default {
   name: 'Quiz',
   data () {
     return {
+      headers: [
+        {
+          text: 'Student Email',
+          align: 'left',
+          sortable: false,
+          value: 'email'
+        },
+        {
+          text: 'Score',
+          align: 'left',
+          sortable: false,
+          value: 'score'
+        },
+        {
+          text: 'Report card',
+          align: 'left',
+          sortable: false,
+          value: 'gradeId'
+        },
+        {
+          text: '',
+          align: 'left',
+          sortable: false,
+          value: 'actions'
+        }
+      ],
       exportableLinks: [
         {
           title: 'PDF',

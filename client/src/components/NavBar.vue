@@ -1,8 +1,8 @@
 <template>
-  <v-app-bar app flat height="88" clipped-right id="core-bar-app">
+  <v-app-bar app flat max-height="88" height="60" min-height="40" id="core-bar-app">
     <v-toolbar-title class="tertiary--text font-weight-light align-self-center">
-      <v-btn v-if="responsive" dark icon>
-        <v-icon>mdi-view-list</v-icon>
+      <v-btn v-if="responsive" @click="toggleNavDrawer" icon>
+        <v-icon>mdi-chevron-double-right</v-icon>
       </v-btn>
       {{ title }}
     </v-toolbar-title>
@@ -23,13 +23,22 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex'
+
+const { mapMutations: appMutations } = createNamespacedHelpers('app')
+const { mapMutations: userMutations } = createNamespacedHelpers('user')
 
 export default {
   name: 'NavBar',
-  computed: {},
   methods: {
+    ...appMutations({
+      toggleNavDrawer: 'TOGGLE_APP_DRAWER'
+    }),
+    ...userMutations({
+      signoutUser: 'SIGNOUT_USER'
+    }),
     logout () {
-      this.$store.dispatch('user/SIGNOUT_USER', {}, { root: true })
+      this.signoutUser()
       this.$router.push('/login')
     },
     onResponsiveInverted () {

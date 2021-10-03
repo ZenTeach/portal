@@ -176,7 +176,7 @@ export default {
     updatedEmail: '',
     editStudentModal: false,
     headers: [
-      { text: '', align: 'right', value: 'confirmed', width: 10 },
+      { text: 'Status', align: 'right', value: 'confirmed', width: 10 },
       { text: 'First name', align: 'left', value: 'firstname', width: 20 },
       { text: 'Last Name', align: 'left', value: 'lastname', width: 20 },
       { text: 'Email', align: 'left', value: 'email', width: 30 },

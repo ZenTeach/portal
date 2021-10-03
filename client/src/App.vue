@@ -59,7 +59,7 @@ import InviteUser from '@/components/InviteUser'
 import UnconfirmedAccountBanner from '@/components/UnconfirmedAccountBanner'
 import { createNamespacedHelpers } from 'vuex'
 
-const { mapState, mapGetters } = createNamespacedHelpers('app')
+const { mapState, mapGetters, mapMutations } = createNamespacedHelpers('app')
 const { mapGetters: mapUserGetters } = createNamespacedHelpers('user')
 
 export default {
@@ -95,6 +95,9 @@ export default {
     },
     isUserConfirmed: function () {
       return this._.get(this.currentUser, 'confirmed', false)
+    },
+    isMobile: function () {
+      return ['md', 'sm', 'xs'].includes(this.$vuetify.breakpoint.name)
     }
   },
   data () {
@@ -104,6 +107,9 @@ export default {
     }
   },
   methods: {
+    ...mapMutations({
+      toggleNavDrawer: 'TOGGLE_APP_DRAWER'
+    }),
     notificationColorFromStatus () {
       switch (this.appStatus) {
         case 'error':
