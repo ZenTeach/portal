@@ -14,7 +14,7 @@
                   <v-checkbox
                       :ripple="false"
                       color="primary"
-                      class="ma-2"
+                      class="ma-lg-2"
                       :input-value.sync="item.isSelected"
                       value
                       @click.stop="active ? removeFromSelectedQuestions(item, toggle) : addToSelectedQuestions(item, toggle)"
@@ -28,7 +28,7 @@
                       <v-list-item-subtitle v-text="questionTypeMapping(item.question_type)"></v-list-item-subtitle>
                       <v-spacer></v-spacer>
                       <div v-if="showLabels">
-                        <v-chip color="green lighten-5" class="mx-1" small>
+                        <v-chip color="green lighten-5" class="mx-lg-1" small>
                           <v-tooltip bottom>
                             <template v-slot:activator="{ on, attrs }">
                               <p

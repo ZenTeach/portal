@@ -26,7 +26,7 @@
 import { createNamespacedHelpers } from 'vuex'
 
 const { mapMutations: appMutations } = createNamespacedHelpers('app')
-const { mapMutations: userMutations } = createNamespacedHelpers('user')
+const { mapActions: userActions } = createNamespacedHelpers('user')
 
 export default {
   name: 'NavBar',
@@ -34,12 +34,13 @@ export default {
     ...appMutations({
       toggleNavDrawer: 'TOGGLE_APP_DRAWER'
     }),
-    ...userMutations({
+    ...userActions({
       signoutUser: 'SIGNOUT_USER'
     }),
     logout () {
-      this.signoutUser()
-      this.$router.push('/login')
+      this.signoutUser().then(() => {
+        this.$router.push('/login')
+      })
     },
     onResponsiveInverted () {
       if (window.innerWidth < 991) {

@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <v-flex xs12 sm12 md12 lg12>
-      <v-row >
+      <v-row>
         <v-col cols="9">
           <v-sheet class="grey lighten-3">
             <div class="w-100" id="search_box">
@@ -27,10 +27,10 @@
                   </span>
                 </template>
               </v-text-field>
-              <div class="w-25 filter_container">
-                <v-card class="white m-0 question_search_filter" max-width="200px" v-show="showFilter">
+              <div :class="'w-25 ' + ($vuetify.breakpoint.mobile ? 'filter_container--mobile' : 'filter_container' )">
+                <v-card class="white m-0 question_search_filter" min-width="100px" v-show="showFilter">
                   <v-card-title>
-                    <span class="text-body float-left text-semibold">Filters</span>
+                    <span>Filters</span>
                     <v-spacer></v-spacer>
                   </v-card-title>
                   <v-card-text>
@@ -43,26 +43,25 @@
                       @change.capture="fetchTopics(subject)"
                       />
                       <v-select
-                        :items="topics"
-                        multiple
-                        small-chips
-                        @change="fetch_KIs()"
-                        label="Topic"
-                        class="text-caption p-2"
-                        v-model="selectedTopic"
-                        dense
-                      >
-                        <template v-slot:selection="{ item, index }">
-                          <v-chip x-small v-if="index === 0">
-                            <p style="max-width: 16ch;" class="text-caption text-truncate font-weight-bold pt-4">{{ item }}</p>
-                          </v-chip>
-                          <span
-                            v-if="index === 1"
-                            class="grey--text text-caption"
-                          >
-                            (+{{ selectedTopic.length - 1 }} others)
-                          </span>
-                        </template>
+                          :items="topics"
+                          multiple
+                          small-chips
+                          @change="fetch_KIs()"
+                          label="Topic"
+                          class="text-caption p-2"
+                          v-model="selectedTopic"
+                          dense>
+                          <template v-slot:selection="{ item, index }">
+                            <v-chip x-small v-if="index === 0">
+                              <p style="max-width: 16ch;" class="text-caption text-truncate font-weight-bold pt-4">{{ item }}</p>
+                            </v-chip>
+                            <span
+                              v-if="index === 1"
+                              class="grey--text text-caption"
+                            >
+                              (+{{ selectedTopic.length - 1 }} others)
+                            </span>
+                          </template>
                       </v-select>
                       <v-select
                         :items="knowledgeItems"
@@ -160,7 +159,10 @@
         </v-col>
         <v-col cols="3">
           <router-link to="/question/create" >
-            <v-btn color="primary" class="float-right mx-4" dark>Create a question</v-btn>
+            <v-btn color="primary" v-if="!isMobile" class="float-right mx-4" dark>Create a question</v-btn>
+            <v-btn color="primary" v-if="isMobile" class="float-right my-n2" dark fab>
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
           </router-link>
         </v-col>
         </v-row>
@@ -322,6 +324,9 @@ export default {
       this.selectedTopic = []
       this.fetch_topics(this.subject)
     },
+    isMobile () {
+      return this.$vuetify.mobile
+    },
     questionTypeMapping (type) {
       const types = {
         1: 'Multiple Choice',
@@ -401,7 +406,7 @@ export default {
   top: 0 !important;
 }
 .filter_container {
-  max-width: 200px;
+  max-width: 15rem;
   position: absolute;
   left: 60vw;
   top: 16vh;
@@ -409,4 +414,15 @@ export default {
   margin: 0;
   padding: 0;
 }
+
+.filter_container--mobile {
+  max-width: 100vw;
+  position: relative;
+  left: 1vw;
+  top: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+}
+
 </style>
