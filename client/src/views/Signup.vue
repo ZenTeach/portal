@@ -129,10 +129,12 @@
                     required
                   >
                     <template v-slot:label>
+                      <p class="d-sm-inline">
                       I agree to the&nbsp;
                       <a href="#" @click.stop.prevent="tos_dialog = true">Terms of Service</a>
                       &nbsp;and&nbsp;
                       <a href="#" @click.stop.prevent="privacy_policy_dialog = true">Privacy Policy</a>*
+                      </p>
                     </template>
                   </v-checkbox>
                 </ValidationProvider>
