@@ -59,7 +59,8 @@ def classquiz_params(school_class: SchoolClass,
         questions.append(
             QuestionsFactory(subject_id=subject_.id,
                              multiple_choice_question_type=True,
-                             with_choices={'knowledge_item': knowledge_item_, 'topic': topic_})
+                             knowledge_item=knowledge_item_,
+                             topic=topic_)
         )
     dumper = QuestionsSchema(many=True)
     questions = dumper.dump(questions)

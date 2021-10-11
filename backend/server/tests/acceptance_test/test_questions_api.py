@@ -2,8 +2,6 @@ import json
 from typing import List, Union
 
 import pytest
-from factory import build
-from factory.helpers import build_batch
 from faker import Faker
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
@@ -12,8 +10,6 @@ from server.models import (KnowledgeItem, QuestionsSchema, Subject, Teacher,
 from server.models.questions import Questions
 from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
                                     TeacherFactory, TopicFactory)
-from server.tests.factories.question_choice_factory import \
-    QuestionChoiceFactory
 
 fake = Faker()
 
@@ -103,29 +99,29 @@ def question_payload(subject_: Subject) -> dict:
 
 @pytest.fixture
 def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
-    q = build(dict,
-              FACTORY_CLASS=QuestionsFactory,
-              multiple_choice_question_type=True,
-              subject=subject_.name,
-              teacher_id=teacher_.id,
-              with_choices=4)
     topic = Topic.query.first()
     ki = topic.knowledge_items[0]
-    choices = build_batch(dict, 4,
-                          is_correct_choice=False,
-                          FACTORY_CLASS=QuestionChoiceFactory)
+    q = QuestionsFactory(
+        knowledge_item=ki,
+        topic=topic,
+        multiple_choice_question_type=True,
+        subject=subject_.name,
+        teacher_id=teacher_.id,
+        with_choices={
+            'choice_count': 4
+        })
 
-    choices[0].update({
-        'is_correct_choice': True
+    question_json = QuestionsSchema().dump(q)
+    correct_choice_id = q.choices[0].id
+    question_json.update({
+        'correct_choice_id': correct_choice_id,
+        'topic': topic.value,
+        'knowledge_item': ki.value,
+        'subject': subject_.name,
+        'question_type': q.question_type.name,
     })
 
-    q.update({
-        'choices': choices,
-        'knowledge_item': ki,
-        'topic': topic
-    })
-
-    return q
+    return question_json
 
 
 @pytest.fixture
@@ -154,22 +150,23 @@ def existing_question_payload_as_json() -> dict:
 def question_payload_json_without_correct_choice(subject_: Subject, teacher_: Teacher) -> dict:
     topic = Topic.query.first()
     ki = topic.knowledge_items[0]
-    q = build(dict,
-              FACTORY_CLASS=QuestionsFactory,
-              knowledge_item=ki,
-              topic=topic,
-              multiple_choice_question_type=True,
-              teacher_id=teacher_.id,
-              with_choices=4)
-    choices = build_batch(dict, 4,
-                          is_correct_choice=False,
-                          FACTORY_CLASS=QuestionChoiceFactory)
+    q = QuestionsFactory(knowledge_item=ki,
+                         topic=topic,
+                         multiple_choice_question_type=True,
+                         teacher_id=teacher_.id,
+                         with_choices={
+                             'choice_count': 4
+                         })
 
-    q.update({
-        'choices': choices
+    dumped_question = QuestionsSchema().dump(q)
+    dumped_question.update({
+        'topic': topic.value,
+        'knowledge_item': ki.value,
+        'subject': subject_.name,
+        'question_type': q.question_type.name,
     })
-
-    return q
+    q.delete()
+    return dumped_question
 
 
 @pytest.fixture
@@ -319,7 +316,6 @@ def test_question_create_api(client: FlaskClient,
 
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
     question_payload_as_json['question'] = fake.sentence()
-
     response = client.post(
         "/api/v1/question",
         json=question_payload_as_json,
@@ -371,9 +367,8 @@ def test_question_create_api_exception_handling(client: FlaskClient,
                                                 access_token: List[str],
                                                 mocker: MockFixture):
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    question_payload_json_without_correct_choice['question_type'] = 'multiple_choice'
     question_payload_json_without_correct_choice['question'] = fake.sentence()
-
+    del question_payload_json_without_correct_choice['question_type']
     response = client.post(
         "/api/v1/question",
         json=question_payload_json_without_correct_choice,
@@ -677,7 +672,6 @@ def test_teacher_owned_question_create_action(client: FlaskClient,
         'user_created': True,
         'teacher_id': teacher_identity.id
     })
-
     response = client.post(
         "/api/v1/question/user_created",
         json=question_payload_as_json,
@@ -687,6 +681,7 @@ def test_teacher_owned_question_create_action(client: FlaskClient,
         })
     assert response.status_code == 201
     teacher_identity.reload()
+    assert len(teacher_identity.questions) > 0
     assert len(teacher_identity.questions) == 1
 
 
