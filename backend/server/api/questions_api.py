@@ -125,7 +125,7 @@ class TeacherOwnedQuestions(MethodView):
     @jwt_required(fresh=True)
     def get(self):
         teacher = current_user
-        questions = Questions.query.filter_by(teacher_id=teacher.id).all()
+        questions = teacher.questions
 
         return make_response(
             jsonify({
@@ -153,15 +153,14 @@ class TeacherOwnedQuestions(MethodView):
         if 'subject' in data:
             subject_id = Subject.query.filter_by(name=data.pop('subject')).first().id
             data.update(subject_id=subject_id)
-
         if 'knowledge_item' in data:
-            knowledge_item_id = KnowledgeItem.query.filter_by(
-                value=data.pop('knowledge_item')).first().id
-            data.update({'knowledge_item_id': knowledge_item_id})
+            knowledge_item = KnowledgeItem.query.filter_by(
+                value=data.pop('knowledge_item')).first()
+            data.update({'knowledge_item': knowledge_item})
 
         if 'topic' in data:
-            topic_id = Topic.query.filter_by(value=data.pop('topic')).first().id
-            data.update({'topic_id': topic_id})
+            topic = Topic.query.filter_by(value=data.pop('topic')).first()
+            data.update({'topic': topic})
 
         question = Questions(**data)
         try:

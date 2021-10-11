@@ -1,4 +1,5 @@
 import pytest
+from flask.testing import FlaskClient
 from server.models import KnowledgeItem, Questions, Subject, Teacher, Topic
 from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
                                     TeacherFactory, TopicFactory)
@@ -34,12 +35,12 @@ def teacher_() -> Teacher:
     return Teacher.query.first()
 
 
-def test_teacher_model(client):
+def test_teacher_model(client: FlaskClient):
     teacher = TeacherFactory.create()
     assert teacher
 
 
-def test_teacher_confirmable(client):
+def test_teacher_confirmable(client: FlaskClient):
     teacher = TeacherFactory.create()
 
     assert teacher.confirmed == False  # noqa
@@ -47,14 +48,18 @@ def test_teacher_confirmable(client):
     assert teacher.confirmation_token is None
 
 
-def test_teacher_add_question(client, teacher_, questions_):
+def test_teacher_add_question(client: FlaskClient,
+                              teacher_: Teacher,
+                              questions_: Questions):
     teacher_.questions.append(questions_)
 
     assert teacher_.questions[0] == questions_
     assert questions_.teacher_id == teacher_.id
 
 
-def test_teacher_remove_question(client, teacher_, questions_):
+def test_teacher_remove_question(client: FlaskClient,
+                                 teacher_: Teacher,
+                                 questions_: Questions):
     questions_.teacher_id = teacher_.id
     questions_.save()
     teacher_.reload()
