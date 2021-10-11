@@ -1,11 +1,12 @@
 import re
 
 from flask.testing import FlaskClient
-from server.tests.factories import StudentFactory, TeacherFactory
+from server.models import Teacher
+from server.tests.factories import StudentFactory
 
 
 def test_teacher_generate_confirmation_token(client: FlaskClient) -> None:
-    teacher = TeacherFactory.create()
+    teacher = Teacher.query.first()
     token = teacher.generate_confirmation_token()
 
     assert token is not None

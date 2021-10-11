@@ -14,13 +14,12 @@ from server.lib.generators.report_card_generator import (ModelNotFound,
                                                          render_quill_delta)
 from server.models import ClassQuiz, QuizGrade, SchoolClass, Student, Teacher
 from server.tests.factories import (ClassQuizFactory, QuizGradeFactory,
-                                    SchoolClassFactory, StudentFactory,
-                                    TeacherFactory)
+                                    SchoolClassFactory, StudentFactory)
 
 
 @pytest.fixture
 def teacher_() -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 @pytest.fixture

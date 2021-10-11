@@ -6,8 +6,9 @@ from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+from server.models import Teacher
 from server.tests.factories import (AdminFactory, SchoolClassFactory,
-                                    StudentFactory, TeacherFactory)
+                                    StudentFactory)
 
 
 @pytest.fixture
@@ -18,7 +19,7 @@ def admin_(client):
 @pytest.fixture(autouse=True)
 def create_objects(client):
     students = StudentFactory.create_batch(5)
-    teacher = TeacherFactory.create()
+    teacher = Teacher.query.first()
     classes_ = SchoolClassFactory.create_batch(5, teacher_id=teacher.id)
     [st.add_from_class_list(classes_) for st in students]
 

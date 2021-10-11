@@ -9,14 +9,14 @@ from server.models import ClassQuiz, SchoolClass, Student, Teacher
 from server.models.class_quiz import ClassQuizStatus
 from server.models.quiz_session import QuizSession, QuizSessionStatus
 from server.tests.factories import (ClassQuizFactory, SchoolClassFactory,
-                                    StudentFactory, TeacherFactory)
+                                    StudentFactory)
 from server.tests.factories.quiz_session_factory import QuizSessionFactory
 from sqlalchemy import exc
 
 
 @pytest.fixture
 def teacher_() -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 @pytest.fixture

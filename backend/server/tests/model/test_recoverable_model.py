@@ -1,10 +1,10 @@
 import re
 
-from server.tests.factories import TeacherFactory
+from server.models import Teacher
 
 
 def test_reset_functions(client):
-    teacher = TeacherFactory.create()
+    teacher = Teacher.query.first()
 
     assert teacher.recovery_token is None
     assert teacher.recovered_at is None
@@ -23,7 +23,7 @@ def test_reset_functions(client):
 
 
 def test_reset_account(client):
-    teacher = TeacherFactory.create()
+    teacher = Teacher.query.first()
 
     token = teacher.get_reset_token()
     new_psswd = "FooPassword"

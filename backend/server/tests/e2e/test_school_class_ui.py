@@ -7,7 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from server.models import SchoolClass, Teacher
 from server.tests.e2e.commons import (click_button, enter_text_field,
                                       select_option)
-from server.tests.factories import AdminFactory, TeacherFactory
+from server.tests.factories import AdminFactory
 
 
 @pytest.fixture
@@ -17,7 +17,7 @@ def admin_(client):
 
 @pytest.fixture
 def teacher_(client):
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 class TestSchoolClassUI:
