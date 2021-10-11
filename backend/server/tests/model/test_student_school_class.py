@@ -5,8 +5,7 @@ import pytest
 from flask.testing import FlaskClient
 from server.models import SchoolClass, Student, Teacher
 from server.models.student_school_class import StudentAttendedClass
-from server.tests.factories import (SchoolClassFactory, StudentFactory,
-                                    TeacherFactory)
+from server.tests.factories import SchoolClassFactory, StudentFactory
 
 
 @pytest.fixture
@@ -21,7 +20,7 @@ def students_(client: FlaskClient) -> List[Student]:
 
 @pytest.fixture
 def teacher_() -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 @pytest.fixture

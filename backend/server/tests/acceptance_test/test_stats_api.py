@@ -2,12 +2,11 @@ import json
 
 import pytest
 from server.models import Teacher
-from server.tests.factories import TeacherFactory
 
 
 @pytest.fixture
 def teacher_() -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 def test_stats_api_ping(client):

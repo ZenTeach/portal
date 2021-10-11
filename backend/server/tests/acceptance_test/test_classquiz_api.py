@@ -12,12 +12,12 @@ from server.models import (ClassQuiz, KnowledgeItem, QuestionsSchema,
 from server.tests.factories import (ClassQuizFactory, KnowledgeItemFactory,
                                     QuestionsFactory, QuizGradeFactory,
                                     SchoolClassFactory, StudentFactory,
-                                    TeacherFactory, TopicFactory)
+                                    TopicFactory)
 
 
 @pytest.fixture
 def teacher_() -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 @pytest.fixture

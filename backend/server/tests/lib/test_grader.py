@@ -15,12 +15,12 @@ from server.models.question_choice import QuestionChoice
 from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
                                     QuizGradeFactory, QuizSessionFactory,
                                     SchoolClassFactory, StudentFactory,
-                                    TeacherFactory, TopicFactory)
+                                    TopicFactory)
 
 
 @pytest.fixture
 def teacher_(client: FlaskClient) -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 @pytest.fixture

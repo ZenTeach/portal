@@ -2,7 +2,7 @@ import pytest
 from flask.testing import FlaskClient
 from server.models import KnowledgeItem, Questions, Subject, Teacher, Topic
 from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
-                                    TeacherFactory, TopicFactory)
+                                    TopicFactory)
 
 
 @pytest.fixture
@@ -36,12 +36,11 @@ def teacher_() -> Teacher:
 
 
 def test_teacher_model(client: FlaskClient):
-    teacher = TeacherFactory.create()
-    assert teacher
+    assert Teacher.query.first()
 
 
 def test_teacher_confirmable(client: FlaskClient):
-    teacher = TeacherFactory.create()
+    teacher = Teacher.query.first()
 
     assert teacher.confirmed == False  # noqa
     assert teacher.confirmed_at is None

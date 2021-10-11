@@ -2,13 +2,12 @@ import pytest
 from factory import build
 from flask.testing import FlaskClient
 from server.models import SchoolClass, Student, Teacher
-from server.tests.factories import (SchoolClassFactory, StudentFactory,
-                                    TeacherFactory)
+from server.tests.factories import SchoolClassFactory, StudentFactory
 
 
 @pytest.fixture
 def teacher_() -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 @pytest.fixture

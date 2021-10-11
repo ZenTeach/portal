@@ -13,7 +13,7 @@ from server.tests.e2e.commons import (click_button, click_checkbox,
                                       fill_content_editable_field,
                                       select_option)
 from server.tests.factories import (AdminFactory, QuestionChoiceFactory,
-                                    QuestionsFactory, TeacherFactory)
+                                    QuestionsFactory)
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def admin_(client) -> Admin:
 
 @pytest.fixture
 def teacher_(client) -> Teacher:
-    return TeacherFactory.create()
+    return Teacher.query.first()
 
 
 @pytest.fixture
