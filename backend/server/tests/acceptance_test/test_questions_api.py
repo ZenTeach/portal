@@ -50,9 +50,10 @@ def teacher_created_question(client: FlaskClient,
     kis = KnowledgeItemFactory(subject_id=subject_id, topic_id=topic.id)
     return QuestionsFactory(subject_id=subject_id,
                             user_created=True,
+                            knowledge_item=kis,
+                            topic=topic,
                             teacher_id=teacher_.id,
-                            multiple_choice_question_type=True,
-                            with_choices={'knowledge_item': kis, 'topic': topic})
+                            multiple_choice_question_type=True)
 
 
 @pytest.fixture(autouse=True)
@@ -69,18 +70,22 @@ def populate_questions(client: FlaskClient, subject_: Subject):
 
     for _ in range(10):
         QuestionsFactory(subject_id=subject_id,
-                         with_choices={'knowledge_item': kis, 'topic': topic},
+                         knowledge_item=kis,
+                         topic=topic,
                          multiple_choice_question_type=True)
         QuestionsFactory(subject_id=subject_id,
-                         with_choices={'knowledge_item': kis_3, topic: topic_3},
+                         knowledge_item=kis_3,
+                         topic=topic_3,
                          multiple_choice_question_type=True)
 
     for _ in range(3):
         QuestionsFactory(subject_id=subject_id,
-                         with_choices={'knowledge_item': kis_2, topic: topic_2},
+                         knowledge_item=kis_2,
+                         topic=topic_2,
                          multiple_choice_question_type=True)
         QuestionsFactory(subject_id=subject_id,
-                         with_choices={'knowledge_item': kis_3, topic: topic_3},
+                         knowledge_item=kis_3,
+                         topic=topic_3,
                          multiple_choice_question_type=True)
 
 
@@ -90,7 +95,8 @@ def question_payload(subject_: Subject) -> dict:
     kis = KnowledgeItemFactory(value="Test KI", subject_id=subject_.id, topic_id=topic.id)
     built_question = QuestionsFactory(
         subject_id=subject_.id,
-        with_choices={'knowledge_item': kis, topic: topic},
+        knowledge_item=kis,
+        topic=topic,
         multiple_choice_question_type=True)
     return QuestionsSchema().dump(built_question)
 
@@ -115,8 +121,8 @@ def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
 
     q.update({
         'choices': choices,
-        'knowledge_item': ki.value,
-        'topic': topic.value
+        'knowledge_item': ki,
+        'topic': topic
     })
 
     return q
@@ -129,10 +135,10 @@ def existing_question_payload_as_json() -> dict:
     ki = topic.knowledge_items[0]
     q = QuestionsFactory(multiple_choice_question_type=True,
                          subject_id=subject_id,
+                         knowledge_item=ki,
+                         topic=topic,
                          with_choices={
                              'choice_count': 4,
-                             'knowledge_item': ki,
-                             'topic': topic
                          })
     json_dump = QuestionsSchema().dump(q)
     json_dump['choices'][0].update({
@@ -146,10 +152,13 @@ def existing_question_payload_as_json() -> dict:
 
 @pytest.fixture
 def question_payload_json_without_correct_choice(subject_: Subject, teacher_: Teacher) -> dict:
+    topic = Topic.query.first()
+    ki = topic.knowledge_items[0]
     q = build(dict,
               FACTORY_CLASS=QuestionsFactory,
+              knowledge_item=ki,
+              topic=topic,
               multiple_choice_question_type=True,
-              subject=subject_.name,
               teacher_id=teacher_.id,
               with_choices=4)
     choices = build_batch(dict, 4,
@@ -644,7 +653,6 @@ def test_teacher_owned_question_get_action(client: FlaskClient,
                                            mocker: MockFixture,
                                            teacher_identity: Teacher,
                                            access_token: List[str]):
-    # QuestionsFactory.create(teacher_id=teacher_.id, multiple_choice_question_type=True)
     teacher_identity.questions.append(Questions.query.first())
     teacher_identity.save()
 

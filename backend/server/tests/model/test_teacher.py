@@ -1,11 +1,32 @@
 import pytest
-from server.models import Questions, Teacher
-from server.tests.factories import QuestionsFactory, TeacherFactory
+from server.models import KnowledgeItem, Questions, Subject, Teacher, Topic
+from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
+                                    TeacherFactory, TopicFactory)
 
 
 @pytest.fixture
-def questions_() -> Questions:
-    return QuestionsFactory(multiple_choice_question_type=True, with_choices=4)
+def subject_() -> Subject:
+    subject = Subject(name='Chemistry', enabled=True)
+    subject.save()
+    return subject
+
+
+@pytest.fixture
+def topic_(subject_: Subject) -> Topic:
+    return TopicFactory(subject_id=subject_.id)
+
+
+@pytest.fixture
+def knowledge_item_(topic_: Topic, subject_: Subject) -> KnowledgeItem:
+    return KnowledgeItemFactory(subject_id=subject_.id, topic_id=topic_.id)
+
+
+@pytest.fixture
+def questions_(subject_: Subject, topic_: Topic, knowledge_item_: KnowledgeItem) -> Questions:
+    return QuestionsFactory(multiple_choice_question_type=True,
+                            topic=topic_,
+                            knowledge_item=knowledge_item_,
+                            with_choices=4)
 
 
 @pytest.fixture

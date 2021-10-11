@@ -7,10 +7,8 @@ from faker import Faker
 from faker.providers import date_time, internet, lorem, misc
 from server import db
 from server.models import Questions
-from server.tests.factories.knowledge_item_factory import KnowledgeItem
 from server.tests.factories.question_choice_factory import \
     QuestionChoiceFactory
-from server.tests.factories.topic_factory import TopicFactory
 
 fake = Faker()
 fake.add_provider(internet)
@@ -48,17 +46,5 @@ class QuestionsFactory(SQLAlchemyModelFactory):
             if isinstance(extracted, dict):
                 choice_count = extracted.get('choice_count', 4)
                 choice_weight = extracted.get('choice_weight', 1)
-                knowledge_item = extracted.get('knowledge_item', None)
-                topic = extracted.get('topic', None)
                 QuestionChoiceFactory.create_batch(
                     choice_count, question=obj.id, weight=choice_weight)
-                if topic is None:
-                    topic = TopicFactory(value=fake.word())
-
-                if knowledge_item is None:
-                    knowledge_item = KnowledgeItem(value=fake.word())
-
-                obj.topic = topic
-                obj.knowledge_item = knowledge_item
-
-                obj.save()

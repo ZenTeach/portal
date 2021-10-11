@@ -37,7 +37,7 @@ def student(school_class: SchoolClass, client: FlaskClient) -> Student:
 
 @pytest.fixture
 def subject_() -> Subject:
-    subject = Subject(name='subject', enabled=True)
+    subject = Subject(name='Physics', enabled=True)
     subject.save()
     return subject
 
@@ -54,7 +54,7 @@ def knowledge_items_(topic_: Topic, subject_: Subject) -> List[KnowledgeItem]:
 
 @pytest.fixture
 def knowledge_item_(topic_: Topic, subject_: Subject) -> KnowledgeItem:
-    return KnowledgeItemFactory(subject_id=subject_.id)
+    return KnowledgeItemFactory(subject_id=subject_.id, topic_id=topic_.id)
 
 
 @pytest.fixture
@@ -75,25 +75,31 @@ def quizgrade_(student: Student, classquiz_: ClassQuiz, client: FlaskClient) -> 
 
 
 @pytest.fixture
-def question_(client: FlaskClient, knowledge_item_: KnowledgeItem) -> Questions:
+def question_(client: FlaskClient,
+              knowledge_item_: KnowledgeItem,
+              topic_: Topic) -> Questions:
     return QuestionsFactory.create(multiple_choice_question_type=True,
+                                   knowledge_item=knowledge_item_,
+                                   topic=topic_,
                                    with_choices={
                                        'choice_count': 4,
                                        'choice_weight': 1,
-                                       'knowledge_item': knowledge_item_
                                    })
 
 
 @pytest.fixture(autouse=True)
-def questions_(client: FlaskClient, knowledge_items_: List[KnowledgeItem]) -> None:
+def questions_(client: FlaskClient,
+               topic_: Topic,
+               knowledge_items_: List[KnowledgeItem]) -> None:
     questions = []
     for knowledge_item in knowledge_items_:
         questions.extend(QuestionsFactory.create_batch(2,
                                                        multiple_choice_question_type=True,
+                                                       knowledge_item=knowledge_item,
+                                                       topic=topic_,
                                                        with_choices={
                                                            'choice_count': 4,
                                                            'choice_weight': 1,
-                                                           'knowledge_item': knowledge_item
                                                        })
                          )
 

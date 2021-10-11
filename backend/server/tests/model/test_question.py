@@ -20,18 +20,24 @@ def subject_() -> Subject:
 
 
 @pytest.fixture
-def knowledge_item_() -> KnowledgeItem:
-    return KnowledgeItemFactory()
+def knowledge_item_(topic_: Topic, subject_: Subject) -> KnowledgeItem:
+    return KnowledgeItemFactory(subject_id=subject_.id, topic_id=topic_.id)
 
 
 @pytest.fixture
-def topic_() -> Topic:
-    return TopicFactory()
+def topic_(subject_) -> Topic:
+    return TopicFactory(subject_id=subject_.id)
 
 
 @pytest.fixture
-def question_param(client: FlaskClient) -> Dict:
-    return build(dict, FACTORY_CLASS=QuestionsFactory, multiple_choice_question_type=True)
+def question_param(client: FlaskClient,
+                   topic_: Topic,
+                   knowledge_item_: KnowledgeItem) -> Dict:
+    return build(dict,
+                 knowledge_item=knowledge_item_,
+                 topic=topic_,
+                 FACTORY_CLASS=QuestionsFactory,
+                 multiple_choice_question_type=True)
 
 
 @pytest.fixture
@@ -40,16 +46,20 @@ def examboard() -> OrderedDict:
 
 
 def test_question_creation_with_multiple_choices(client: FlaskClient,
+                                                 topic_: Topic,
                                                  knowledge_item_: KnowledgeItem) -> None:
-    question = QuestionsFactory.create(multiple_choice_question_type=True,
-                                       with_choices={
-                                           'choice_count': 4,
-                                           'choice_weight': 1,
-                                           'knowledge_item': knowledge_item_
-                                       })
+    question: Questions = QuestionsFactory.create(multiple_choice_question_type=True,
+                                                  knowledge_item=knowledge_item_,
+                                                  topic=topic_,
+                                                  with_choices={
+                                                      'choice_count': 4,
+                                                      'choice_weight': 1,
+                                                      'knowledge_item': knowledge_item_
+                                                  })
 
     assert question.id is not None
     assert len(question.choices) == 4
+    assert question.knowledge_item == knowledge_item_
 
 
 def test_question_create_from_admin_form_succeeds(client: FlaskClient,
@@ -91,9 +101,12 @@ def test_question_create_from_admin_form_raises_error(client: FlaskClient) -> No
 
 def test_question_correct_choice(client: FlaskClient,
                                  question_param: Dict,
+                                 topic_: Topic,
                                  knowledge_item_: KnowledgeItem,
                                  subject_: Subject) -> None:
     q1 = QuestionsFactory.create(multiple_choice_question_type=True,
+                                 knowledge_item=knowledge_item_,
+                                 topic=topic_,
                                  with_choices={
                                      'choice_count': 4,
                                      'choice_weight': 1,
@@ -113,8 +126,11 @@ def test_question_correct_choice(client: FlaskClient,
 
 
 def test_question_knowledge_item_relationship(client: FlaskClient,
+                                              topic_: Topic,
                                               knowledge_item_: KnowledgeItem) -> None:
     question = QuestionsFactory.create(multiple_choice_question_type=True,
+                                       knowledge_item=knowledge_item_,
+                                       topic=topic_,
                                        with_choices={
                                            'choice_count': 4,
                                            'choice_weight': 1,
@@ -127,8 +143,11 @@ def test_question_knowledge_item_relationship(client: FlaskClient,
 
 
 def test_question_topic_relationship(client: FlaskClient,
+                                     topic_: Topic,
                                      knowledge_item_: KnowledgeItem) -> None:
     question = QuestionsFactory.create(multiple_choice_question_type=True,
+                                       knowledge_item=knowledge_item_,
+                                       topic=topic_,
                                        with_choices={
                                            'choice_count': 4,
                                            'choice_weight': 1,

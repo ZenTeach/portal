@@ -3,9 +3,17 @@ import re
 import pytest
 from flask.testing import FlaskClient
 from server.models import (ClassQuiz, ClassQuizStatus, KnowledgeItem,
-                           QuestionsSchema, SchoolClass)
+                           QuestionsSchema, SchoolClass, Subject, Topic)
 from server.tests.factories import (ClassQuizFactory, KnowledgeItemFactory,
-                                    QuestionsFactory, SchoolClassFactory)
+                                    QuestionsFactory, SchoolClassFactory,
+                                    TopicFactory)
+
+
+@pytest.fixture
+def subject_() -> Subject:
+    s = Subject(name="Chemistry", enabled=True)
+    s.save()
+    return s
 
 
 @pytest.fixture
@@ -20,18 +28,29 @@ def classquiz_(client: FlaskClient, _class: SchoolClass):
 
 
 @pytest.fixture
-def knowledge_item(client: FlaskClient) -> KnowledgeItem:
-    return KnowledgeItemFactory()
+def topic_(subject_: Subject) -> Topic:
+    return TopicFactory(subject_id=subject_.id)
+
+
+@pytest.fixture
+def knowledge_item(client: FlaskClient,
+                   subject_: Subject,
+                   topic_: Topic) -> KnowledgeItem:
+    return KnowledgeItemFactory(subject_id=subject_.id, topic_id=topic_.id)
 
 
 @pytest.fixture
 def classquiz_with_questions(client: FlaskClient,
                              _class: SchoolClass,
+                             topic_: Topic,
                              knowledge_item: KnowledgeItem) -> ClassQuiz:
     questions = QuestionsFactory.create_batch(5,
                                               multiple_choice_question_type=True,
-                                              with_choices={'knowledge_item': knowledge_item},
-                                              weight=1)
+                                              knowledge_item=knowledge_item,
+                                              topic=topic_,
+                                              with_choices={
+                                                  'knowledge_item': knowledge_item
+                                              })
     dumper = QuestionsSchema()
     questions = [dumper.dump(question) for question in questions]
     return ClassQuizFactory.create(class_id=_class.id, questions=questions)

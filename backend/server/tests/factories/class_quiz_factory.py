@@ -5,7 +5,8 @@ from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc, person
 from server import db
-from server.models import ClassQuiz, QuestionsSchema
+from server.models import (ClassQuiz, KnowledgeItem, QuestionsSchema, Subject,
+                           Topic)
 from server.tests.factories.question_factory import QuestionsFactory
 
 fake = Faker()
@@ -28,7 +29,19 @@ class ClassQuizFactory(SQLAlchemyModelFactory):
     def with_multiple_choice_questions(obj, create, extracted, **kwargs):
         if create:
             question_count = extracted or 5
+            subject = Subject(name=obj.subject, enabled=True)
+            subject.save()
+            topic = Topic(subject_id=subject.id, value=fake.words(3))
+            topic.save()
+            knowledge_item = KnowledgeItem(
+                subject_id=subject.id,
+                topic_id=topic.id,
+                value=fake.words(3)
+            )
+            knowledge_item.save()
             questions = QuestionsFactory.create_batch(question_count,
+                                                      topic=topic,
+                                                      knowledge_item=knowledge_item,
                                                       multiple_choice_question_type=True,
                                                       with_choices={
                                                           'choice_count': 4

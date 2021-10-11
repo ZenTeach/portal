@@ -1,7 +1,10 @@
 import pytest
 from flask.testing import FlaskClient
-from server.models import QuestionChoice, Questions
-from server.tests.factories import QuestionChoiceFactory, QuestionsFactory
+from server.models import (KnowledgeItem, QuestionChoice, Questions, Subject,
+                           Topic)
+from server.tests.factories import (KnowledgeItemFactory,
+                                    QuestionChoiceFactory, QuestionsFactory,
+                                    TopicFactory)
 
 
 @pytest.fixture
@@ -10,9 +13,31 @@ def question_choice() -> QuestionChoice:
     return QuestionChoiceFactory(question=q_id)
 
 
+@pytest.fixture
+def subject_() -> Subject:
+    s = Subject(name="Chemistry", enabled=True)
+    s.save()
+    return s
+
+
+@pytest.fixture
+def topic_(subject_: Subject) -> Topic:
+    return TopicFactory(subject_id=subject_.id)
+
+
+@pytest.fixture
+def knowledge_item(client: FlaskClient,
+                   subject_: Subject,
+                   topic_: Topic) -> KnowledgeItem:
+    return KnowledgeItemFactory(subject_id=subject_.id, topic_id=topic_.id)
+
+
 @pytest.fixture(autouse=True)
-def questions(client: FlaskClient) -> None:
-    QuestionsFactory.create_batch(5, multiple_choice_question_type=True, with_choices=4)
+def questions(client: FlaskClient, knowledge_item: KnowledgeItem, topic_: Topic) -> None:
+    QuestionsFactory.create_batch(5,
+                                  knowledge_item=knowledge_item,
+                                  topic=topic_,
+                                  multiple_choice_question_type=True, with_choices=4)
 
 
 @pytest.fixture
