@@ -87,10 +87,10 @@ class Questions(BaseModelMixin, db.Model):
     correct_choice_id = db.Column(db.Integer, nullable=False)
     choices = db.relationship("QuestionChoice", backref="question")
 
-    knowledge_item_id = db.Column(db.Integer, db.ForeignKey("knowledge_items.id"), nullable=True)
+    knowledge_item_id = db.Column(db.Integer, db.ForeignKey("knowledge_items.id"), nullable=False)
     knowledge_item = db.relationship("KnowledgeItem")
 
-    topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"), nullable=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"), nullable=False)
     topic = db.relationship("Topic")
 
     user_created = db.Column(db.Boolean, nullable=False, default=False)
@@ -106,10 +106,10 @@ class Questions(BaseModelMixin, db.Model):
         question: str,
         question_type: 'enum.Enum',
         tag: str,
+        knowledge_item: KnowledgeItem,
+        topic: Topic,
         correct_choice_id: Optional[int] = None,
         user_created: bool = False,
-        topic: Optional[str] = None,
-        knowledge_item: Optional[str] = None,
         subject_id: Optional[str] = None,
         teacher_id: Optional[int] = None,
         exam_board: Optional[str] = None,
@@ -162,10 +162,10 @@ class Questions(BaseModelMixin, db.Model):
             data["question"],
             data["question_type"],
             data["tag"],
+            ki,
+            topic,
             data["knowledge_item"],
-            subject_id=subject_.id,
-            knowledge_item_id=ki.id,
-            topic_id=topic.id
+            subject_id=subject_.id
         )
         instance.choices, instance.correct_choice_id = instance.create_choices_from_list(choices)
         instance.save()
