@@ -1,14 +1,22 @@
+import logging
 import re
 from functools import reduce
 from html import escape
+from io import BytesIO
+from typing import List, Optional
 
-from flask import flash, redirect, url_for
+from flask import flash, redirect, request, url_for
+from flask_admin.base import expose
 from flask_admin.contrib.sqla.fields import InlineModelFormList
 from flask_admin.contrib.sqla.form import InlineModelConverter
 from flask_admin.form import ImageUploadField, RenderTemplateWidget
 from flask_admin.model.form import InlineFormAdmin
 from jinja2 import Markup
-from server.models import QuestionChoice, Questions, Subject
+from pandas import read_csv
+from pandas.core.frame import DataFrame
+from server.models import QuestionChoice, Questions, Subject, Topic
+from server.models.questions import QuestionTypeEnum
+from sqlalchemy import and_
 from wtforms import (BooleanField, IntegerField, SelectField, StringField,
                      TextField)
 from wtforms.compat import text_type
@@ -19,6 +27,8 @@ from wtforms.validators import (DataRequired, InputRequired, Required,
 from wtforms.widgets import HTMLString, TextInput, html_params
 
 from .base_view import BaseView, _loaded_examboard, correct_choice_formatter
+
+logger = logging.getLogger('admin::view')
 
 
 class QuestionChoiceForm(Form):
@@ -153,6 +163,8 @@ class CustomImageUploadField(ImageUploadField):
 
 class QuestionView(BaseView):
     can_create = False
+    can_import = True
+    import_types = ['csv']
     column_exclude_list = ["search_vector", "uuid", "image_url", "knowledge_item", "topic"]
     column_filters = ("topic", "question_type", "subject", "knowledge_item", "user_created")
     column_formatters = {
@@ -259,3 +271,103 @@ class QuestionView(BaseView):
             model.correct_choice_id = _selected_correct_choice
             model.save()
             return redirect(url_for("admin.question.index_view"))
+
+    @property
+    def validation_headers(self) -> List[str]:
+        headers = [
+            "Subject", "Topic", "Knowledge item", "Question", "Option A",
+            "Option B", "Option C", "Option D", "Correct", "Tag", "Feedback A",
+            "Feedback B", "Feedback C", "Feedback D"]
+        return headers
+
+    def _validate_file(self, io_stream: BytesIO) -> Optional[DataFrame]:
+        headers = list(map(str.lower, self.validation_headers))
+        headers.pop(headers.index('knowledge item'))
+        headers.append('knowledge_item')
+        io_stream.seek(0)
+        data = read_csv(io_stream)
+        data.dropna(how='all', axis=0, inplace=True)
+        data.dropna(how='all', axis=1, inplace=True)
+        data.fillna('', inplace=True)
+        data.rename(str.lower, axis='columns', inplace=True)
+        data.rename({'knowledge item': 'knowledge_item'}, axis='columns', inplace=True)
+        data = data.filter(headers)
+        return data.to_dict(orient='index')
+
+    def _build_choices_hash(self, data: dict) -> List[dict]:
+        """
+            {
+                'value': None,
+                'feedback': None,
+                'weight': None
+            }
+        """
+        choices = []
+        correct_answer = data.get('correct').lower()
+        for i in ['a', 'b', 'c', 'd']:
+            value = str(data.pop(f"option {i}"))
+            feedback = str(data.pop(f"feedback {i}"))
+            if value == '' or feedback == '':
+                next
+            choice_obj = {
+                'value': value,
+                'feedback': feedback,
+                'weight': 0,
+                'is_correct_choice': False,
+            }
+            if i == correct_answer:
+                choice_obj.update({
+                    'is_correct_choice': True
+                })
+                choices.append(choice_obj)
+            else:
+                choices.append(choice_obj)
+        return choices
+
+    def _import_csv(self, file_obj):
+        try:
+            validated_data = self._validate_file(file_obj)
+        except Exception as e:
+            flash(str(e), "error")
+            return redirect(url_for('.index_view'))
+        count = len(validated_data.keys())
+        run_count = 0
+        skip_count = 0
+        str_fmt = "Imported {run_count}/{count} questions"
+        for _index, val in validated_data.items():
+            logger.debug(str_fmt.format(run_count=run_count, count=count))
+            try:
+                choices = self._build_choices_hash(val)
+                val.update({
+                    'choices': choices,
+                    'question_type': QuestionTypeEnum.multiple_choice.name,
+                    'exam_board': 'aqa',
+                    'user_created': False
+                })
+                # look for duplicates
+                unique_q_count = Questions.query\
+                    .join(Questions.subject)\
+                    .join(Questions.topic)\
+                    .filter(and_(Subject.name == val['subject'],
+                                 Topic.value == val['topic']))\
+                    .filter(Questions.question == val['question']).count()
+                if unique_q_count == 0:
+                    Questions.create_from_admin_form(val)
+                    run_count += 1
+                else:
+                    logger.debug("Found a question with {}, topic: {}, subject: {}".format(
+                        val['question'], val['topic'], val['subject']))
+                    skip_count += 1
+            except Exception as e:
+                logger.error(e)
+                flash(str(e), "error")
+                return redirect(url_for('.index_view'))
+        msg = f"Imported {run_count} out of {count} questions. Found {skip_count} duplicates."
+        flash(msg, "success")
+        return redirect(url_for('.index_view'))
+
+    @expose('/import/', methods=('POST',))
+    def import_(self):
+        upload_file = request.files['file']
+
+        return self._import_csv(upload_file)
