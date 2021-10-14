@@ -21,6 +21,11 @@
 			{{ new_layout.export_options() }}
 		</div>
 		{% endif %}
+    {% if admin_view.can_import %}
+    <div class="btn-group btn-menu">
+      {{ new_layout.import_options() }}
+    </div>
+    {% endif %}
     {% if actions %}
     <div class="btn-group btn-menu">
       {{ actionlib.dropdown(actions, btn_class='btn dropdown-toggle btn-title') }}

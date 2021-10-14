@@ -55,10 +55,10 @@ class AdminFormValidator(Schema):
     user_created = fields.Boolean(required=True)
     subject = fields.Str(required=True)
     topic = fields.Str(required=True)
-    tag = fields.Str(required=True)
+    tag = fields.Str(required=False)
     knowledge_item = fields.Str(required=True)
     user_created = fields.Boolean(required=True)
-    teacher_id = fields.Int(required=True,
+    teacher_id = fields.Int(required=False,
                             validate=validate_teacher_id,
                             error_messages={
                                 'invalid': 'Teacher not found.'
@@ -83,7 +83,7 @@ class Questions(BaseModelMixin, db.Model):
         db.Integer, db.ForeignKey("teacher.id"), nullable=True)
 
     exam_board = db.Column(db.Text, nullable=True)
-    tag = db.Column(db.String(128), nullable=False)
+    tag = db.Column(db.String(128), nullable=True)
     correct_choice_id = db.Column(db.Integer, nullable=False)
     choices = db.relationship("QuestionChoice", backref="question")
 
@@ -105,9 +105,9 @@ class Questions(BaseModelMixin, db.Model):
         self,
         question: str,
         question_type: 'enum.Enum',
-        tag: str,
         knowledge_item: KnowledgeItem,
         topic: Topic,
+        tag: Optional[str] = None,
         correct_choice_id: Optional[int] = None,
         user_created: bool = False,
         subject_id: Optional[str] = None,
@@ -148,23 +148,29 @@ class Questions(BaseModelMixin, db.Model):
         # We ignore all missing fields here. The most likely missing field
         # is teacher_id as this method is only called from the admin portal.
         # https://stackoverflow.com/questions/55795258/validating-optional-field-in-marshmallow
-
+        # import pdb; pdb.set_trace()
         validation_errors = AdminFormValidator().validate(data=data, partial=True)
         if validation_errors is not None and len(validation_errors) != 0:
             raise ValidationError(
-                "Error creating question. Make sure that you have filled in all the required fields.", validation_errors)  # noqa
+                f"Error creating question. Make sure that you have filled in all the required fields. Missing: {''.join(validation_errors)}")  # noqa
 
         subject_ = Subject.query.filter(Subject.name == data['subject']).first()
         topic = Topic.query.filter(Topic.value == data['topic']).first()
+        if topic is None:
+            topic = Topic(subject_id=subject_.id, value=data['topic'])
+            topic.save()
         ki = KnowledgeItem.query.filter(KnowledgeItem.value == data['knowledge_item']).first()
+        if ki is None:
+            ki = KnowledgeItem(value=data['knowledge_item'],
+                               topic_id=topic.id, subject_id=subject_.id)
+            ki.save()
         choices = data.pop("choices")
         instance = cls(
             data["question"],
             data["question_type"],
-            data["tag"],
             ki,
             topic,
-            data["knowledge_item"],
+            tag=data["tag"],
             subject_id=subject_.id
         )
         instance.choices, instance.correct_choice_id = instance.create_choices_from_list(choices)
