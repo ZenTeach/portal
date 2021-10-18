@@ -49,7 +49,7 @@ class Invitations(BaseModelMixin, db.Model):
         with open(f"{getcwd()}/server/exempt_list.yml") as fp:
             data = load(fp, Loader=CLoader)  # nosec
 
-        return data
+        return data['exempts']
 
     @classmethod
     def validate_email_invitation_token(cls, email, token):
