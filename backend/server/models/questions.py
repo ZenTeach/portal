@@ -154,24 +154,24 @@ class Questions(BaseModelMixin, db.Model):
             raise ValidationError(
                 f"Error creating question. Make sure that you have filled in all the required fields. Missing: {''.join(validation_errors)}")  # noqa
 
-        subject_ = Subject.query.filter(Subject.name == data['subject']).first()
-        topic = Topic.query.filter(Topic.value == data['topic']).first()
+        subject_ = Subject.query.filter(Subject.name == data.pop('subject')).first()
+        topic = Topic.query.filter(Topic.value == data.pop('topic')).first()
         if topic is None:
-            topic = Topic(subject_id=subject_.id, value=data['topic'])
+            topic = Topic(subject_id=subject_.id, value=data.pop('topic'))
             topic.save()
-        ki = KnowledgeItem.query.filter(KnowledgeItem.value == data['knowledge_item']).first()
+        ki = KnowledgeItem.query.filter(KnowledgeItem.value == data.pop('knowledge_item')).first()
         if ki is None:
-            ki = KnowledgeItem(value=data['knowledge_item'],
+            ki = KnowledgeItem(value=data.pop('knowledge_item'),
                                topic_id=topic.id, subject_id=subject_.id)
             ki.save()
         choices = data.pop("choices")
         instance = cls(
-            data["question"],
-            data["question_type"],
+            data.pop("question"),
+            data.pop("question_type"),
             ki,
             topic,
-            tag=data["tag"],
-            subject_id=subject_.id
+            subject_id=subject_.id,
+            **data
         )
         instance.choices, instance.correct_choice_id = instance.create_choices_from_list(choices)
         instance.save()
