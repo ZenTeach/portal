@@ -15,11 +15,17 @@ def question_seeds():
         subject_id = Subject.query.filter(Subject.name == 'Chemistry').first().id
 
         for line in reader:
-            topic = Topic(value=line["Topic"], subject_id=subject_id)
-            topic.save()
+            topic = Topic.query.filter_by(value=line["Topic"], subject_id=subject_id).first()
+            if topic is None:
+                topic = Topic(value=line["Topic"], subject_id=subject_id)
+                topic.save()
 
-            knowledge_item = KnowledgeItem(value=line["KnowledgeItem"], subject_id=subject_id)
-            knowledge_item.save()
+            knowledge_item = KnowledgeItem.query.filter_by(
+                value=line["KnowledgeItem"], subject_id=subject_id, topic_id=topic.id).first()
+            if knowledge_item is None:
+                knowledge_item = KnowledgeItem(
+                    value=line["KnowledgeItem"], subject_id=subject_id, topic_id=topic.id)
+                knowledge_item.save()
 
             q = Questions(
                 question=line["Question"],
