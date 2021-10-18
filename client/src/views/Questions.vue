@@ -271,12 +271,12 @@ export default {
   watch: {
     getKis: function (val) {
       this.knowledgeItems = []
-      this.knowledgeItems = this._.flatten(this._.values(this.getKis))
+      this.knowledgeItems = this._.flatten(this._.values(this.getKis)).sort()
     }
   },
   computed: {
     ...appGetters({
-      topics: 'getTopics',
+      unsortedTopics: 'getTopics',
       getSubjects: 'getSubjects',
       getKis: 'getKis',
       questionSearchList: 'getQuestionResult',
@@ -285,6 +285,9 @@ export default {
     ...mapGetters({
       questionList: 'QUESTIONLIST'
     }),
+    topics: function () {
+      return this.unsortedTopics.sort()
+    },
     listHeight: function () {
       return (this.itemHeight * this.rowsPerPage) + 50
     },
@@ -293,7 +296,7 @@ export default {
     },
     subjects: function () {
       const enabledSubjects = this._.filter(this.getSubjects, ['enabled', true])
-      return this._.map(enabledSubjects, 'name')
+      return this._.map(enabledSubjects, 'name').sort()
     },
     showNoDataText: function () {
       return this.hasSearchResult === true && this.questionSearchList.length === 0

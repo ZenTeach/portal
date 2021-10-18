@@ -227,7 +227,7 @@ export default {
     ...mapState({
       questionSearch: state => state.questionSearch,
       questionList: state => state.questionList,
-      questionTopics: state => state.topics
+      questionTopics: state => state.topics.sort()
     }),
     subject () {
       const classData = this.$store.getters['classrooms/CLASSLIST']
@@ -271,7 +271,7 @@ export default {
   watch: {
     getKis: function (val) {
       this.knowledgeItems = []
-      this.knowledgeItems = this._.flatten(this._.values(this.getKis))
+      this.knowledgeItems = this._.flatten(this._.values(this.getKis)).sort()
     }
   },
   methods: {
