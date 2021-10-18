@@ -84,6 +84,7 @@ def test_question_create_from_admin_form_succeeds(client: FlaskClient,
 
     assert q
     assert q.correct_choice
+    assert q.exam_board
 
 
 def test_question_create_from_admin_form_raises_error(client: FlaskClient) -> None:

@@ -325,6 +325,8 @@ def test_question_create_api(client: FlaskClient,
         })
 
     assert response.status_code == 201
+    new_question = Questions.query.all()[-1:][0]
+    assert new_question.exam_board == question_payload_as_json['exam_board']
 
 
 def test_question_create_api_question_already_existing(client: FlaskClient,
