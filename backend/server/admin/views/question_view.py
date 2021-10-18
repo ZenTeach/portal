@@ -14,7 +14,8 @@ from flask_admin.model.form import InlineFormAdmin
 from jinja2 import Markup
 from pandas import read_csv
 from pandas.core.frame import DataFrame
-from server.models import QuestionChoice, Questions, Subject, Topic
+from server.models import (KnowledgeItem, QuestionChoice, Questions, Subject,
+                           Topic)
 from server.models.questions import QuestionTypeEnum
 from sqlalchemy import and_
 from wtforms import (BooleanField, IntegerField, SelectField, StringField,
@@ -217,27 +218,18 @@ class QuestionView(BaseView):
         form.subject = QuerySelectField('Subject',
                                         validators=[Required()],
                                         query_factory=lambda: Subject.query.filter_by(
-                                            enabled=True).all(),
-                                        allow_blank=False)
+                                            enabled=True).all())
+        form.topic = QuerySelectField('Topic',
+                                      validators=[Required()],
+                                      query_factory=lambda: Topic.query.all())
+        form.knowledge_item = QuerySelectField('Knowledge Item',
+                                               validators=[Required()],
+                                               query_factory=lambda: KnowledgeItem.query.all())
 
         return form
 
     def create_form(self):
-        form = super().create_form()
-        # filter these values using the subject selected.
-        # Prepopulate the choices with the subject selected.
-        # form.knowledge_item = QuerySelectField('Knowledge Item',
-        #                                         validators=[Required()],
-        #                                         query_factory=lambda: KnowledgeItem.query.filter_by(  # noqa
-        #                                             subject=form.subject.data
-        #                                         ).all(),
-        #                                         allow_blank=False)
-        # form.topic = QuerySelectField('Topic',
-        #                                 validators=[Required()],
-        #                                 query_factory=lambda: Topic.query.filter_by(
-        #                                     subject=form.subject.data
-        #                                 ).all(),
-        #                                 allow_blank=False)
+        form = super().scaffold_form()
         return form
 
     def edit_form(self, obj):
@@ -247,6 +239,7 @@ class QuestionView(BaseView):
             if choice.id == choice_id:
                 choice.is_correct_choice = True
 
+        logger.debug(obj)
         edit_form = super().edit_form(obj=obj)
         return edit_form
 
@@ -317,7 +310,8 @@ class QuestionView(BaseView):
             }
             if i == correct_answer:
                 choice_obj.update({
-                    'is_correct_choice': True
+                    'is_correct_choice': True,
+                    'weight': 1
                 })
                 choices.append(choice_obj)
             else:
