@@ -13,9 +13,9 @@ const QuestionCRUDMixin = {
   // mounted methods
   mounted: function () {
     const enabledSubjects = this._.filter(this.getSubjects, ['enabled', true])
-    this.subjects = this._.map(enabledSubjects, 'name')
+    this.subjects = this._.map(enabledSubjects, 'name').sort()
 
-    this.knowledge_items = this._.flatten(this._.values(this.getKis))
+    this.knowledge_items = this._.flatten(this._.values(this.getKis)).sort()
     this.exam_boards = this._.reverse(this._.sortBy(this.exam_boards, ['suggested']))
   },
   // methods
