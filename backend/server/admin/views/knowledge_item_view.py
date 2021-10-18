@@ -21,8 +21,7 @@ class KnowledgeItemView(BaseView):
         form.subject = QuerySelectField('Subject',
                                         validators=[Required()],
                                         query_factory=lambda: Subject.query.filter_by(
-                                            enabled=True).all(),
-                                        allow_blank=False)
+                                            enabled=True).all())
         return form
 
     def delete_model(self, model):
