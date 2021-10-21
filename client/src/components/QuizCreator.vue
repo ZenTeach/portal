@@ -246,6 +246,9 @@ export default {
     formIsValid () {
       return this.firstStepValidation && (this.questionList.length > 0)
     },
+    isMobile () {
+      return ['md', 'sm', 'xs'].includes(this.$vuetify.breakpoint.name)
+    },
     maxTopicLength () {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs': return 1
@@ -310,9 +313,6 @@ export default {
     gotoStep (step, validator) {
       this.validateStep(validator)
       this.curator = step
-    },
-    isMobile: function () {
-      return ['md', 'sm', 'xs'].includes(this.$vuetify.breakpoint.name)
     },
     createQuiz () {
       const payload = {
