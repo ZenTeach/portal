@@ -155,13 +155,15 @@ class Questions(BaseModelMixin, db.Model):
                 f"Error creating question. Make sure that you have filled in all the required fields. Missing: {''.join(validation_errors)}")  # noqa
 
         subject_ = Subject.query.filter(Subject.name == data.pop('subject')).first()
-        topic = Topic.query.filter(Topic.value == data.pop('topic')).first()
+        topic_str = data.pop('topic')
+        ki_str = data.pop('knowledge_item')
+        topic = Topic.query.filter(Topic.value == topic_str).first()
         if topic is None:
-            topic = Topic(subject_id=subject_.id, value=data.pop('topic'))
+            topic = Topic(subject_id=subject_.id, value=topic_str)
             topic.save()
-        ki = KnowledgeItem.query.filter(KnowledgeItem.value == data.pop('knowledge_item')).first()
+        ki = KnowledgeItem.query.filter(KnowledgeItem.value == ki_str).first()
         if ki is None:
-            ki = KnowledgeItem(value=data.pop('knowledge_item'),
+            ki = KnowledgeItem(value=ki_str,
                                topic_id=topic.id, subject_id=subject_.id)
             ki.save()
         choices = data.pop("choices")
@@ -187,6 +189,8 @@ class Questions(BaseModelMixin, db.Model):
                 choice.get("feedback", ""),
                 choice.get("weight", 0)
             )
+            if interim.value == '':
+                continue
             interim.save()
             if choice.get("is_correct_choice", False) and correct_choice_id is None:
                 correct_choice_id = interim.id

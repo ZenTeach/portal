@@ -12,7 +12,7 @@ def with_required_roles(group=[]):
             verify_jwt_in_request(fresh=True)
             user = current_user
 
-            if user["role"] not in group:
+            if user.role not in group:
                 error_response = jsonify(msg="Unauthorized user.")
                 return make_response(error_response, 403)
             return fn(*args, **kwargs)
