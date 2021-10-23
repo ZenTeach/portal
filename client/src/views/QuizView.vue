@@ -21,7 +21,7 @@
     <v-row class="ma-lg-4 pa-lg-3">
       <input type="hidden" />
       <v-col class="ma-lg-2">
-        <h1>{{ quizTitle }} Quiz</h1>
+        <h1>{{ quizTitle }}</h1>
       </v-col>
     </v-row>
     <v-row class="mx-lg-10 pa-lg-3">
@@ -93,7 +93,7 @@ export default {
     ...mapGetters({
       quizUUID: 'uuid',
       quiz_questions: 'quizQuestions',
-      quizTitle: 'subject',
+      quizTitle: 'name',
       hasSubmitted: 'hasSubmitted'
     }),
     routeId () {
