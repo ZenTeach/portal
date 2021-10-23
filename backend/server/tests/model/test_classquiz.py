@@ -2,6 +2,7 @@ import re
 
 import pytest
 from flask.testing import FlaskClient
+from pytest_mock import MockFixture
 from server.models import (ClassQuiz, ClassQuizStatus, KnowledgeItem,
                            QuestionsSchema, SchoolClass, Subject, Topic)
 from server.tests.factories import (ClassQuizFactory, KnowledgeItemFactory,
@@ -66,6 +67,28 @@ def test_classquiz_set_url(client: FlaskClient):
     assert re.match(regex, quiz_instance.url) is not None
     assert extracted_uuid == str(quiz_instance.uuid)
     assert quiz_instance.status == ClassQuizStatus.created
+
+
+def test_classquiz_set_defaultname(client: FlaskClient,
+                                   classquiz_: ClassQuiz):
+    old_name = classquiz_.name
+    classquiz_.name = classquiz_.set_default_quizname()
+    classquiz_.save(refresh=True)
+    assert classquiz_.name != old_name
+
+
+def test_classquiz_set_defaultname_with_exception(client: FlaskClient,
+                                                  classquiz_: ClassQuiz,
+                                                  mocker: MockFixture):
+    @mocker.patch('server.models.ClassQuiz.query.filter_by')
+    def mocked_filter_by():
+        raise Exception('Some dummy exception')
+    old_name = classquiz_.name
+    with pytest.raises(Exception):
+        classquiz_.name = classquiz_.set_default_quizname()
+        classquiz_.save(refresh=True)
+        assert classquiz_.name != old_name
+        assert classquiz_.name == "Default Quiz Name"
 
 
 def test_classquiz_update_status(client: FlaskClient, classquiz_: ClassQuiz):
