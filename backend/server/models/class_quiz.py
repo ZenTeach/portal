@@ -59,6 +59,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
         max_score: Optional[int] = None,
         variants: Optional[int] = 0,
         questions: Optional[JSON] = None,
+        name: Optional[str] = None,
         status: 'ClassQuizStatus' = ClassQuizStatus.created,
         url: Optional[str] = None,
         uuid: Optional[UUID] = None,
@@ -80,6 +81,11 @@ class ClassQuiz(BaseModelMixin, db.Model):
         else:
             self.uuid = uuid
 
+        if name is None:
+            self.name = self.set_default_quizname()
+        else:
+            self.name = name
+
     def __repr__(self):
         return "<ClassQuiz %r>" % self.id
 
@@ -98,6 +104,13 @@ class ClassQuiz(BaseModelMixin, db.Model):
             return len(self.questions)
         else:
             return 0
+
+    def set_default_quizname(self) -> str:
+        try:
+            current_class_count = ClassQuiz.query.filter_by(class_id=self.class_id).count()
+            return f"Quiz #{current_class_count + 1}"
+        except Exception:
+            return 'Default Quiz Name'
 
 
 @event.listens_for(ClassQuiz, 'after_insert')
