@@ -15,7 +15,31 @@
               nextIcon: 'mdi-plus'
             }" >
           <template v-slot:item.name="props">
-            <a :href="'/quiz/' +  props.item.uuid"> {{ props.item.name }}</a>
+            <div class="d-flex justify-left">
+              <a :href="'/quiz/' +  props.item.uuid" class="d-inline-block mx-1">
+                <v-icon x-small>mdi-book-open-outline</v-icon>
+              </a>
+              <v-edit-dialog
+                :return-value.sync="props.item.name"
+                class="d-inline-block"
+                @save="save(props.item.name, props.item.uuid)"
+                @cancel="cancel"
+                @open="open"
+                @close="close">
+                {{ props.item.name }}
+                <template v-slot:input>
+                  <v-text-field
+                    v-model="props.item.name"
+                    :rules="[max256chars]"
+                    label="Edit"
+                    single-line
+                    class="d-inline"
+                    counter
+                  >
+                  </v-text-field>
+                </template>
+              </v-edit-dialog>
+            </div>
           </template>
           <template v-slot:item.status="{ item }">
             <v-chip :color="statusToColor[item.status]">{{ item.status }}</v-chip>
@@ -51,6 +75,7 @@ import StudentList from '@/components/StudentList'
 import QuizCreator from '@/components/QuizCreator'
 import { createNamespacedHelpers } from 'vuex'
 import moment from 'moment'
+import Api from '@/service/Api'
 
 const { mapGetters, mapActions } = createNamespacedHelpers('classrooms')
 const { mapMutations } = createNamespacedHelpers('app')
@@ -88,6 +113,10 @@ export default {
   },
   data () {
     return {
+      snack: false,
+      snackColor: '',
+      snackText: '',
+      max256chars: v => v.length <= 256 || 'Input too long!',
       defaultExamBoard: [
         { value: 'aqa', text: 'AQA', suggested: false },
         { value: 'ocr_gateway', text: 'OCR Gateway', suggested: false },
@@ -167,6 +196,33 @@ export default {
       this.dialog = false
       this.resetQuestionSearch()
       this.getCurrentClass(this.$route.params.id)
+    },
+    save (name, uuid) {
+      this.snack = true
+      this.snackColor = 'success'
+      this.snackText = 'Data saved'
+      Api.patch(`/class_quiz/${uuid}`,
+        {
+          name: name
+        })
+        .then(function (response) {
+          console.log(response)
+        })
+    },
+    cancel () {
+      this.snack = true
+      this.snackColor = 'error'
+      this.snackText = 'Canceled'
+      console.log('Canceled')
+    },
+    open () {
+      this.snack = true
+      this.snackColor = 'info'
+      this.snackText = 'Dialog opened'
+      console.log('Dialog opened')
+    },
+    close () {
+      console.log('Dialog closed')
     }
   }
 }
