@@ -24,6 +24,7 @@ class ClassQuizFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     subject = choice(["Chemistry", "Biology", "Physics"])
+    name = fake.word()
 
     @post_generation
     def with_multiple_choice_questions(obj, create, extracted, **kwargs):

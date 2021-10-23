@@ -65,6 +65,7 @@ class ClassQuizCreateSchema(Schema):
         unknown = INCLUDE
 
     subject = fields.Str(required=True)
+    name = fields.Str(required=True)
     class_id = fields.Int(required=True)
     questions = fields.Nested(ClassQuizCreateQuestionsSchema, many=True, required=True)
 
