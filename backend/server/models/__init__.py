@@ -37,7 +37,6 @@ __all__ = [
     "StudentSchema",
     "SchoolClass",
     "SchoolClassSchema",
-    "ClassQuizScore",
     "Admin",
     "QuizSession",
     "Questions",

@@ -30,6 +30,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
     subject = db.Column(db.String(256), nullable=False)
     max_score = db.Column(db.Integer, nullable=True)
     variants = db.Column(db.Integer, nullable=True, default=1)
+    name = db.Column(db.String(256), nullable=True)
     status = db.Column(
         db.Enum(ClassQuizStatus), nullable=False, default=ClassQuizStatus.created
     )
