@@ -154,6 +154,7 @@ def test_classquiz_create_api(client: FlaskClient,
     cq = ClassQuiz.query.first()
 
     assert cq.url is not None
+    assert cq.name is not None
 
 
 def test_classquiz_create_api_with_no_question_fails(client: FlaskClient,

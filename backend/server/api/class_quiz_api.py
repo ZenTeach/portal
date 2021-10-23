@@ -136,16 +136,8 @@ class ClassQuizList(MethodView):
             if validation_errors is not None and len(validation_errors) != 0:
                 raise ValidationError("Malformed data")
 
-            subject = post_data.get("subject")
-            class_id = post_data.get("class_id")
             # TODO: Validate if questions exist in db
-            questions = post_data.get("questions")
-
-            quiz = ClassQuizModel(
-                subject=subject,
-                class_id=class_id,
-                questions=questions,
-            )
+            quiz = ClassQuizModel(**post_data)
 
             quiz.save()
             response_object = {"status": "success",
