@@ -15,7 +15,7 @@
               nextIcon: 'mdi-plus'
             }" >
           <template v-slot:item.name="props">
-            <a :href="'/quiz/' +  props.item.uuid">Quiz {{ props.item.name }}</a>
+            <a :href="'/quiz/' +  props.item.uuid"> {{ props.item.name }}</a>
           </template>
           <template v-slot:item.status="{ item }">
             <v-chip :color="statusToColor[item.status]">{{ item.status }}</v-chip>

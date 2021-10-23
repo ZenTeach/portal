@@ -21,6 +21,12 @@
         <v-card color="grey lighten-4" class="mx-auto">
           <v-card-title>Select topics and knowledge items</v-card-title>
           <v-card-text>
+            <v-text-field
+              :placeholder="defaultQuizName"
+              v-model="name"
+              class="w-25"
+            />
+            <v-spacer class="ma-3 mb-3"></v-spacer>
             <v-select
               :items="questionTopics"
               ref="topicSelection"
@@ -126,9 +132,13 @@
       </v-stepper-content>
       <v-stepper-content step="3">
         <v-card color="grey lighten-4" class="mx-auto">
-          <v-card-title>Finalize Quiz</v-card-title>
+          <v-card-title>
+            <p class="d-inline mx-1">Finalize Quiz</p>
+            <p class="d-inline text-italic" v-text=" `title: ${name || defaultQuizName }`"></p>
+          </v-card-title>
             <v-card-text>
               <p v-if="isMobile"> Quiz is ready to be created! </p>
+              <p></p>
               <h4 class="text-subtitle-1" v-if="!isMobile">Selected topics & knowledge items</h4>
               <v-list v-if="!isMobile">
                 <v-list-group v-for="[topic, kis] in Object.entries(this.fetchedKIsfromTopic())" :key="topic">
@@ -229,6 +239,11 @@ export default {
       questionList: state => state.questionList,
       questionTopics: state => state.topics.sort()
     }),
+    defaultQuizName () {
+      const classData = this.$store.getters['classrooms/GETCURRENTCLASS']
+      const quizzes = classData.quizzes
+      return `Quiz #${quizzes.length + 1}`
+    },
     subject () {
       const classData = this.$store.getters['classrooms/CLASSLIST']
       const filtered = classData.find(x => {
@@ -289,6 +304,7 @@ export default {
     }),
     initial () {
       return {
+        name: null,
         curator: 1,
         questionSearchResult: [],
         hasSearchResult: false,
@@ -316,6 +332,7 @@ export default {
     },
     createQuiz () {
       const payload = {
+        name: this.name || this.defaultQuizName,
         subject: this.subject,
         class_id: this.$route.params.id,
         questions: this.questionList
