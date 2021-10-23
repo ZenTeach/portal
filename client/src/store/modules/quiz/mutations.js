@@ -24,6 +24,10 @@ export default {
     state.has_submitted = true
   },
 
+  SET_QUIZ_NAME (state, name) {
+    state.name = name
+  },
+
   UNSET_QUIZ_SUBMISSION (state) {
     state.has_submitted = false
   },

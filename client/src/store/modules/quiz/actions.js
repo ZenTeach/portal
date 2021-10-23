@@ -24,10 +24,11 @@ export default {
   LOAD_QUIZ ({ commit, dispatch }, payload) {
     fetchQuiz(payload).then(
       data => {
-        const { uuid, questions, subject } = data.data
+        const { uuid, questions, subject, name } = data.data
         commit('SET_QUIZ_SUBJECT', subject)
         commit('SET_QUIZ_UUID', uuid)
         commit('TOGGLE_QUIZ_QUESTIONS', questions)
+        commit('SET_QUIZ_NAME', name)
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
