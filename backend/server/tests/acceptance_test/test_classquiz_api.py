@@ -193,6 +193,27 @@ def test_classquiz_get_api(client: FlaskClient,
     assert data['data']['subject'] in ['Chemistry', 'Biology', 'Physics']
 
 
+def test_classquiz_update_api(client: FlaskClient,
+                              access_token: List[str],
+                              classquiz_params: dict,
+                              classquiz_: ClassQuiz):
+    old_name = classquiz_.name
+    classquiz_params = {
+        'name': "A new quiz name"
+    }
+    response = client.patch(
+        f'/api/v1/class_quiz/{classquiz_.uuid}',
+        json=classquiz_params,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
+
+    assert response.status_code == 200
+    classquiz_.reload()
+    assert old_name != classquiz_.name
+
+
 def test_classquiz_report_card_fetch_api(client: FlaskClient,
                                          quiz_grade: QuizGrade,
                                          mocker: MockFixture,

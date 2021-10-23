@@ -70,6 +70,13 @@ class ClassQuizCreateSchema(Schema):
     questions = fields.Nested(ClassQuizCreateQuestionsSchema, many=True, required=True)
 
 
+class ClassQuizUpdateSchema(Schema):
+    class Meta:
+        unknown = INCLUDE
+
+    name = fields.Str(required=True)
+
+
 class ClassQuiz(MethodView):
     def get(self, class_quiz_uuid):
         error_response = {"message": "No Class Quiz found."}
@@ -103,6 +110,38 @@ class ClassQuiz(MethodView):
                 return make_response(response_message, 200)
         except exc.DatabaseError as e:  # noqa
             return make_response(error_response, 404)
+
+    @jwt_required(fresh=True)
+    def patch(self, class_quiz_uuid):
+        post_data: Dict = request.get_json()
+        error_object = {"status": "Failed", "message": "Quiz data not given."}
+        if not post_data:
+            return make_response(error_object, 400)
+        validation_errors = None
+        class_quiz: ClassQuiz = ClassQuizModel.query.filter_by(
+            uuid=class_quiz_uuid).first()
+        try:
+            validation_errors = ClassQuizUpdateSchema().validate(data=post_data)
+            if validation_errors is not None and len(validation_errors) != 0:
+                raise ValidationError("Malformed data")
+            class_quiz.name = post_data.pop('name')
+            class_quiz.save(refresh=True)
+            return make_response(jsonify({
+                'status': 'updated',
+                'message': 'Quiz updated'
+            }), 200)
+        except ValidationError:
+            # "message": [i for x in  validation_errors.values() for i in x] # flatten errors
+            return make_response(jsonify({
+                "status": "failed",
+                "message": validation_errors
+            }), 400)
+        except Exception as e:
+            logger.error(e)
+            return make_response(jsonify({
+                "status": "failed",
+                "message": "Quiz couldn't be updated!"
+            }), 500)
 
 
 class ClassQuizList(MethodView):
