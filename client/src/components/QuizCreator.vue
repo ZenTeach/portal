@@ -141,7 +141,7 @@
               <p></p>
               <h4 class="text-subtitle-1" v-if="!isMobile">Selected topics & knowledge items</h4>
               <v-list v-if="!isMobile">
-                <v-list-group v-for="[topic, kis] in Object.entries(this.fetchedKIsfromTopic())" :key="topic">
+                <v-list-group v-for="[topic, kis] in Object.entries(this.fetchedKIsfromTopic)" :key="topic">
                     <v-icon :key="topic">
                       mdi-checkbox
                     </v-icon>
@@ -155,7 +155,7 @@
                       ></v-badge>
                     </template>
                     <v-list-item v-for="ki in kis" :key="ki">
-                      <v-list-item-title v-text="ki" class="font-weight-light"></v-list-item-title>
+                      <v-list-item-title v-text="ki" class="font-weight-normal"></v-list-item-title>
                       <v-chip
                         class="ma-2"
                         close
@@ -253,10 +253,21 @@ export default {
       return filtered.subject.name
     },
     questionKICount () {
-      return this._.countBy(this.questionList, 'knowledge_item')
+      return this._.countBy(this.questionList, 'knowledge_item.value')
     },
     questionTopicCount () {
-      return this._.countBy(this.questionList, 'topic')
+      console.log(this.questionList)
+      return this._.countBy(this.questionList, 'topic.value')
+    },
+    fetchedKIsfromTopic () {
+      const kis = this.getKis
+      const copy = {}
+      for (const key in kis) {
+        const kiCopy = kis[key]
+        copy[key] = this._.intersection(kiCopy, this.selectedKnowledgeItems)
+      }
+
+      return copy
     },
     formIsValid () {
       return this.firstStepValidation && (this.questionList.length > 0)
@@ -376,16 +387,6 @@ export default {
         topics_selected: this.topicsSelected
       }
       this.$store.dispatch('app/FETCH_KIS', payload, { root: true })
-    },
-    fetchedKIsfromTopic () {
-      const kis = this.getKis
-      const copy = {}
-      for (const key in kis) {
-        const kiCopy = kis[key]
-        copy[key] = this._.intersection(kiCopy, this.selectedKnowledgeItems)
-      }
-
-      return copy
     },
     confirmEdit (item) {
       Object.assign(this.editableQuestion, item)

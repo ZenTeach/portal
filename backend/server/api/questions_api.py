@@ -353,8 +353,9 @@ class QuestionFromKIsAndTopics(MethodView):
         if len(topics) != 0:
             query = query.join(Topic).filter(Topic.value.in_(topics))
         if len(kis) != 0:
-            query = query.join(KnowledgeItem).filter(KnowledgeItem.value.in_(kis))
-
+            selected_kis_id = [k.id for k in KnowledgeItem.query.filter(
+                KnowledgeItem.value.in_(kis)).all()]
+            query = query.filter(Questions.knowledge_item_id.in_(selected_kis_id))
         questions = query.all()
 
         response = {"data": [dumper.dump(
