@@ -25,20 +25,25 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       <th
         class="text-left"
       >
-        Learning resources
+        Feedback / Learning resources
       </th>
     </tr>
   </thead>
    
   <tbody>
-    <tr>
+    <tr
+      colspan="1"
+    >
       <td
         class="tg-cly1"
-        rowspan="5"
+        colspan="1"
+        rowspan="6"
       >
         Atoms and elements
       </td>
-       
+    </tr>
+     
+    <tr>
       <td
         class="tg-0lax"
       >
@@ -46,7 +51,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="yellow"
+        class="yellow--text"
       >
         1/2
       </td>
@@ -54,12 +59,12 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       <td
         class="tg-0lax"
       >
-        Look at this image of an atom.
+        [
+  "Look at this image of an atom."
+]
       </td>
     </tr>
     <tr>
-      <!---->
-       
       <td
         class="tg-0lax"
       >
@@ -67,7 +72,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="red"
+        class="red--text"
       >
         0/1
       </td>
@@ -75,12 +80,12 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       <td
         class="tg-0lax"
       >
-        Look at this image of an atom.
+        [
+  "Look at this image of an atom."
+]
       </td>
     </tr>
     <tr>
-      <!---->
-       
       <td
         class="tg-0lax"
       >
@@ -88,7 +93,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="red"
+        class="red--text"
       >
         0/1
       </td>
@@ -96,12 +101,12 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       <td
         class="tg-0lax"
       >
-        Look at this image of an atom.
+        [
+  "Look at this image of an atom."
+]
       </td>
     </tr>
     <tr>
-      <!---->
-       
       <td
         class="tg-0lax"
       >
@@ -109,7 +114,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="yellow"
+        class="green--text"
       >
         1/1
       </td>
@@ -117,12 +122,12 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       <td
         class="tg-0lax"
       >
-        Look at this image of an atom.
+        [
+  "Look at this image of an atom."
+]
       </td>
     </tr>
     <tr>
-      <!---->
-       
       <td
         class="tg-0lax"
       >
@@ -130,7 +135,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="yellow"
+        class="green--text"
       >
         1/1
       </td>
@@ -138,17 +143,24 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       <td
         class="tg-0lax"
       >
-        Look at this image of an atom.
+        [
+  "Look at this image of an atom."
+]
       </td>
     </tr>
-    <tr>
+    <tr
+      colspan="1"
+    >
       <td
         class="tg-cly1"
-        rowspan="3"
+        colspan="1"
+        rowspan="4"
       >
         Charges and Ions
       </td>
-       
+    </tr>
+     
+    <tr>
       <td
         class="tg-0lax"
       >
@@ -156,7 +168,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="yellow"
+        class="green--text"
       >
         1/1
       </td>
@@ -168,8 +180,6 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
     </tr>
     <tr>
-      <!---->
-       
       <td
         class="tg-0lax"
       >
@@ -177,7 +187,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="red"
+        class="red--text"
       >
         0/1
       </td>
@@ -189,8 +199,6 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
     </tr>
     <tr>
-      <!---->
-       
       <td
         class="tg-0lax"
       >
@@ -198,7 +206,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="red"
+        class="red--text"
       >
         0/1
       </td>

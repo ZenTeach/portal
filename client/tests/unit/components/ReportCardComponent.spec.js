@@ -15,46 +15,44 @@ describe('ReportCardComponent.vue Test', () => {
   const propsData = {
     reports: [
       {
-        topic: 'Atoms and elements',
-        knowledge_item: [
-          'Atoms are made up of protons, neutrons and electrons',
-          'Electrons circle the nucleus.',
-          'Protons and neutrons are located inside the nucleus.',
-          'Protons and neutrons have a mass of 1.',
-          'Electrons have a mass of 0.'
-        ],
-        progress: [
-          '1/2',
-          '0/1',
-          '0/1',
-          '1/1',
-          '1/1'
-        ],
-        feedback: [
-          'Look at this image of an atom.',
-          'Look at this image of an atom.',
-          'Look at this image of an atom.',
-          'Look at this image of an atom.',
-          'Look at this image of an atom.'
-        ]
+        'Atoms and elements': {
+          'Atoms are made up of protons, neutrons and electrons': {
+            progress: '1/2',
+            feedback: ['Look at this image of an atom.']
+          },
+          'Electrons circle the nucleus.': {
+            progress: '0/1',
+            feedback: ['Look at this image of an atom.']
+          },
+          'Protons and neutrons are located inside the nucleus.': {
+            progress: '0/1',
+            feedback: ['Look at this image of an atom.']
+          },
+          'Protons and neutrons have a mass of 1.': {
+            progress: '1/1',
+            feedback: ['Look at this image of an atom.']
+          },
+          'Electrons have a mass of 0.': {
+            progress: '1/1',
+            feedback: ['Look at this image of an atom.']
+          }
+        }
       },
       {
-        topic: 'Charges and Ions',
-        knowledge_item: [
-          'Two electrons or two protons repel each other.',
-          'Atoms have a neutral charge.',
-          'All atoms want to achieve a full outer shell (usually 8 electrons)'
-        ],
-        progress: [
-          '1/1',
-          '0/1',
-          '0/1'
-        ],
-        feedback: [
-          'This video explains electron shells quite nicely.',
-          'Revise theses lesson slides.',
-          'This video explains electron shells quite nicely.'
-        ]
+        'Charges and Ions': {
+          'Two electrons or two protons repel each other.': {
+            progress: '1/1',
+            feedback: 'This video explains electron shells quite nicely.'
+          },
+          'Atoms have a neutral charge.': {
+            progress: '0/1',
+            feedback: 'Revise theses lesson slides.'
+          },
+          'All atoms want to achieve a full outer shell (usually 8 electrons)': {
+            progress: '0/1',
+            feedback: 'This video explains electron shells quite nicely.'
+          }
+        }
       }]
   }
 
