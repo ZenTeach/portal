@@ -6,7 +6,7 @@
           <th class="text-left">Topic</th>
           <th class="text-left">Knowledge items</th>
           <th class="text-left">Progress</th>
-          <th class="text-left">Learning resources</th>
+          <th class="text-left">Feedback / Learning resources</th>
         </tr>
      </thead>
      <tbody>
@@ -18,12 +18,16 @@
          </tr>
        </template>
        <template v-for="report in reports" v-else>
-         <tr v-for="(knowledge_item, idx) in report.knowledge_item" :key="knowledge_item">
-           <td class="tg-cly1" :rowspan="report.knowledge_item.length" v-if="idx === 0">{{ report.topic }}</td>
-           <td class="tg-0lax">{{ knowledge_item}}</td>
-           <td :class="highlightProgress(report.progress[idx])">{{ report.progress[idx] }}</td>
-           <td class="tg-0lax" v-html="convertDeltaToHTML(report.feedback[idx])">{{}}</td>
-         </tr>
+         <template v-for="(topic, idx) in Object.keys(report)">
+          <tr :key="topic" colspan="1">
+           <td class="tg-cly1" :rowspan="Object.keys(report[topic]).length + 1" colspan="1">{{ topic }}</td>
+          </tr>
+          <tr v-for="(knowledge_item, idx) in Object.keys(report[topic])" :key="knowledge_item + idx">
+            <td class="tg-0lax" :key="idx">{{ knowledge_item }}</td>
+            <td :class="highlightProgress(report[topic][knowledge_item].progress) + '--text'" :key="knowledge_item + idx + 'progress'">{{ report[topic][knowledge_item].progress }}</td>
+            <td class="tg-0lax" v-html="convertDeltaToHTML(report[topic][knowledge_item].feedback)" :key="knowledge_item + idx + 'feedback'">{{}}</td>
+          </tr>
+         </template>
        </template>
      </tbody>
    </template>
@@ -48,8 +52,8 @@ export default {
   },
   methods: {
     highlightProgress (progress) {
-      const parsed = progress.split('/').map(element => parseInt(element))
-      const [nom, ...denom] = parsed
+      const [nom, denom] = progress.split('/').map(element => parseInt(element))
+      // const [nom, ...denom] = parsed
 
       if (nom === denom) {
         return 'green'
@@ -60,6 +64,9 @@ export default {
       }
     },
     convertDeltaToHTML (feedback) {
+      if (feedback.length === 0) {
+        return 'No feedback provided.'
+      }
       try {
         const deltaOps = JSON.parse(feedback)
         const cfg = {}
@@ -82,6 +89,9 @@ table, caption, tbody, tfoot, thead, tr, th, td {
   font: inherit;
   vertical-align: baseline;
 }
+table thead, table thead > th {
+  padding: 2px;
+}
 table  {
   border-collapse:collapse;
   border-spacing:0;
@@ -91,7 +101,7 @@ table td {
   font-size:14px;
   padding:10px 5px;
   border-style:solid;
-  border-width:1px;
+  border-width:0px;
   overflow:hidden;
   word-break:normal;
   border-color:black;
@@ -103,7 +113,7 @@ table th {
   font-weight:normal;
   padding:10px 5px;
   border-style:solid;
-  border-width:1px;
+  border-width:0px;
   overflow:hidden;
   word-break:normal;
   border-color:black;
