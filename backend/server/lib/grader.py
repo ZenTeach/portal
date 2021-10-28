@@ -1,11 +1,12 @@
 import json
 import logging
 from collections import namedtuple
+from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 from uuid import UUID
 
-from server.models import (ClassQuiz, ClassQuizStatus, QuestionChoice,
-                           Questions, QuizGrade, QuizSession)
+from server.models import (ClassQuiz, ClassQuizStatus, KnowledgeItem,
+                           QuestionChoice, Questions, QuizGrade, QuizSession)
 from sqlalchemy import and_
 
 CorrectChoice = namedtuple("CorrectChoice", ["id", "correct_choice"])
@@ -16,65 +17,113 @@ logger = logging.getLogger(__name__)
 class Feedback(object):
     def __init__(self):
         self._feedback = []
+        self._is_correctly_answered = False
 
     @property
     def feedback(self) -> List:
         return self._feedback
 
     def _topic_exist_in_feedback(self, topic: str) -> bool:
-        if len(self._feedback) == 0:
+        if len(self.feedback) == 0:
             return False
-        filtered_topic = [x["topic"] == topic for x in self._feedback]
-        return len(filtered_topic) != 0
+        return any([topic in x for x in self._feedback])
 
-    def build_from_question_id(self, topic_and_ki: Tuple[str, str], choice_feedback: str) -> None:
+    def build_from_question_id(self,
+                               topic_and_ki: Tuple[str, str],
+                               choice_feedback: str,
+                               is_correctly_answered: bool,
+                               ki_qcount: dict) -> None:
+        self._is_correctly_answered = is_correctly_answered
         self.build_for_topic(topic_and_ki[0])
         self.add_ki_to_topic(topic_and_ki[0], topic_and_ki[1])
-        self.add_feedback_to_topic(choice_feedback, topic_and_ki[0])
-        self.compute_progress_for_topic(topic_and_ki[0])
+        self.add_feedback_to_topic_and_ki(choice_feedback, topic_and_ki[0], topic_and_ki[1])
+        self.compute_progress_for_topic_and_knowledge_item(
+            topic_and_ki[0], topic_and_ki[1], ki_qcount)
 
-    def build_for_topic(self, topic: str) -> None:
+    def build_for_topic(self, topic: str) -> Optional[dict]:
         if self._topic_exist_in_feedback(topic):
             return
         else:
+            """
+                structure
+                feedback = {
+                    'topic_a': {
+                        'ki_a': {
+                            'progress': '0/1' | '1/3',
+                            'feedback': []
+                        }
+                    }
+                }
+            """
             interim = {
-                "topic": topic,
-                "knowledge_item": [],
-                "progress": [],
-                "feedback": [],
+                topic: {}
             }
-            self._feedback.append(interim)
+            self.feedback.append(interim)
 
     def _get_topic_breakdown(self, topic: str) -> Optional[Dict]:
         return next(
             iter(
-                item for item in self._feedback if item["topic"] == topic
+                item for item in self._feedback if item.get(topic) is not None
             ),
             None)
+
+    def _get_knowledgeitem_from_breakdown(self, topic: str, knowledge_item: str) -> Optional[Dict]:
+        t_dict = self._get_topic_breakdown(topic)
+
+        if t_dict is None:
+            return None
+        return t_dict[topic].get(knowledge_item, None)
 
     def add_ki_to_topic(self, topic: str, ki: str) -> None:
         if not self._topic_exist_in_feedback(topic):
             return
         m = self._get_topic_breakdown(topic)
-        if m is None:
+        if ki in m[topic].keys():
             return
-        m["knowledge_item"].append(ki)
+        else:
+            m[topic][ki] = {}
+            return
 
-    def add_feedback_to_topic(self, feedback: str, topic: str):
-        m = self._get_topic_breakdown(topic)
+    def add_feedback_to_topic_and_ki(self, feedback: str, topic: str, ki: str):
+        m = self._get_knowledgeitem_from_breakdown(topic, ki)
         if m is None:
             return
-        m["feedback"].append(feedback)
 
-    def compute_progress_for_topic(self, topic: str) -> None:
-        m = self._get_topic_breakdown(topic)
+        if 'feedback' not in m:
+            m['feedback'] = []
+
+        if self._is_correctly_answered:
+            return
+        else:
+            m["feedback"].append(feedback)
+            return
+
+    def compute_progress_for_topic_and_knowledge_item(self,
+                                                      topic: str,
+                                                      ki: str,
+                                                      ki_qcount: dict) -> None:
+        m = self._get_knowledgeitem_from_breakdown(topic, ki)
         if m is None:
             return
-        # TODO compute progress across linked KIs
-        m["progress"].append("0/1")
+
+        if 'progress' not in m:
+            m['progress'] = ''
+
+        progress_ratio = m["progress"]
+        if self._is_correctly_answered:
+            if progress_ratio != '':
+                nom, denom = list(map(int, progress_ratio.split('/')))
+                nom = nom + 1
+                progress_ratio = f'{nom}/{denom}'
+            else:
+                progress_ratio = f'1/{ki_qcount.get(ki)}'
+        else:
+            if progress_ratio == '':
+                progress_ratio = f'0/{ki_qcount.get(ki)}'
+        m['progress'] = progress_ratio
 
     def to_json(self) -> str:
-        return json.dumps(self._feedback)
+        return json.dumps(self.feedback)
 
 
 class Grader(object):
@@ -85,6 +134,7 @@ class Grader(object):
         self.school_class_id = school_class_id
         self.class_quiz = class_quiz
         self._feedback_builder = Feedback()
+        self.question_ki_count = {}
         self.start_grading()
 
     @classmethod
@@ -133,6 +183,20 @@ class Grader(object):
             logger.debug(f"Found {len(res)} submissions for quiz with id {quiz.id}")
             self._score_quiz(res, quiz)
 
+    @lru_cache(16)
+    def _get_question_count_per_ki_(self, quiz_questions: List[int]) -> Dict:
+        indexed_results = {}
+        results = Questions.query\
+            .with_entities(KnowledgeItem.value, Questions.id)\
+            .join(KnowledgeItem)\
+            .filter(Questions.id.in_(quiz_questions))\
+            .all()
+
+        for (knowledge_item, question_id) in results:
+            indexed_results[knowledge_item] = indexed_results.get(knowledge_item, 0) + 1
+
+        return indexed_results
+
     def _score_quiz(self, quiz_submissions: List[QuizGrade], quiz: ClassQuiz) -> None:
         for submission in quiz_submissions:
             # TODO: There are two issues with working with unvalidated
@@ -140,9 +204,9 @@ class Grader(object):
             # invalid/inexistent question. Second, the class quiz itself can contain
             # flawed/inconsistent question ids if there's no validation.
             #  Possible solution, add validation when creating quizzes.
-            data = submission.responses
+            student_response = submission.responses
             quiz_questions_id = list(map(lambda x: x["id"], quiz.questions))
-
+            self.question_ki_count = self._get_question_count_per_ki_()
             correct_choices_resultset = (
                 Questions.query.with_entities(Questions.id, QuestionChoice.uuid)
                                .filter(and_(Questions.correct_choice_id == QuestionChoice.id,
@@ -155,7 +219,7 @@ class Grader(object):
                 CorrectChoice._make([vals.id, vals.uuid])
                 for vals in correct_choices_resultset
             ]
-            score = self._calculate_score(correct_choices, data)
+            score = self._calculate_score(correct_choices, student_response)
             logger.debug(f"Setting score for quiz {score}")
             submission.update_score(score)
             submission.is_graded()
@@ -198,7 +262,8 @@ class Grader(object):
                         .first().feedback
                     self._feedback_builder.build_from_question_id(
                         topic_and_ki_tuple,
-                        choice_feedback
+                        choice_feedback,
+                        self.question_ki_count
                     )
                 except Exception as e:
                     logger.error("Errored while building topic and knowledge-item pair", e)
