@@ -24,7 +24,7 @@ fi
 
 
 celery multi start worker1 \
-    -A celery_worker.celery -B -l info
+    -A celery_worker.celery -B -l DEBUG -f tmp/celery-worker.log info
 
 python manage.py run -h 0.0.0.0
 

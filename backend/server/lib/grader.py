@@ -1,7 +1,6 @@
 import json
 import logging
 from collections import namedtuple
-from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 from uuid import UUID
 
@@ -183,7 +182,6 @@ class Grader(object):
             logger.debug(f"Found {len(res)} submissions for quiz with id {quiz.id}")
             self._score_quiz(res, quiz)
 
-    @lru_cache(16)
     def _get_question_count_per_ki_(self, quiz_questions: List[int]) -> Dict:
         indexed_results = {}
         results = Questions.query\
@@ -206,7 +204,7 @@ class Grader(object):
             #  Possible solution, add validation when creating quizzes.
             student_response = submission.responses
             quiz_questions_id = list(map(lambda x: x["id"], quiz.questions))
-            self.question_ki_count = self._get_question_count_per_ki_()
+            self.question_ki_count = self._get_question_count_per_ki_(quiz_questions_id)
             correct_choices_resultset = (
                 Questions.query.with_entities(Questions.id, QuestionChoice.uuid)
                                .filter(and_(Questions.correct_choice_id == QuestionChoice.id,
@@ -232,8 +230,8 @@ class Grader(object):
         if haystack is None:
             return
 
-        _filtered = filter(lambda value: question_choice_uuid == value.correct_choice, haystack)
-        indexable = list(_filtered)
+        indexable = list(filter(lambda value: question_choice_uuid ==
+                         value.correct_choice, haystack))
 
         if len(indexable) == 0:
             return None
@@ -249,26 +247,27 @@ class Grader(object):
                 UUID(response["Choice_answer"]), correct_responses
             )
 
+            try:
+                question = Questions.query.filter_by(id=response["questionID"]).first()
+                topic_and_ki_tuple: Tuple[str, str] = (
+                    question.topic.value, question.knowledge_item.value
+                )
+                choice_feedback: str = QuestionChoice.query\
+                    .filter_by(uuid=UUID(response["Choice_answer"]))\
+                    .first().feedback
+                self._feedback_builder.build_from_question_id(
+                    topic_and_ki_tuple,
+                    choice_feedback,
+                    answered_correctly is not None,
+                    self.question_ki_count
+                )
+            except Exception as e:
+                logger.error("Errored while building topic and knowledge-item pair", e)
+                raise e
+
             if answered_correctly is None:
                 logger.debug(
                     f"Found a question answered incorrectly: ids {response['questionID']}, {response['Choice_answer']}")  # noqa
-                try:
-                    question = Questions.query.filter_by(id=response["questionID"]).first()
-                    topic_and_ki_tuple: Tuple[str, str] = (
-                        question.topic.value, question.knowledge_item.value
-                    )
-                    choice_feedback: str = QuestionChoice.query\
-                        .filter_by(uuid=UUID(response["Choice_answer"]))\
-                        .first().feedback
-                    self._feedback_builder.build_from_question_id(
-                        topic_and_ki_tuple,
-                        choice_feedback,
-                        self.question_ki_count
-                    )
-                except Exception as e:
-                    logger.error("Errored while building topic and knowledge-item pair", e)
-                    raise e
             else:
                 cum_sum += 1
-
         return cum_sum
