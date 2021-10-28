@@ -278,6 +278,13 @@ def question_topic_and_ki(client: FlaskClient) -> Tuple[str, str]:
 
 
 @pytest.fixture
+def ki_q_count(client: FlaskClient, question_topic_and_ki: Tuple[str, str]) -> dict:
+    return {
+        question_topic_and_ki[1]: 1
+    }
+
+
+@pytest.fixture
 def choice_feedback(client: FlaskClient) -> str:
     return QuestionChoice.query.first().feedback
 
@@ -296,74 +303,70 @@ class TestFeedbackBuilder(object):
                                     choice_feedback: str) -> None:
         builder = Feedback()
 
-        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
+        builder.build_from_question_id(question_topic_and_ki, choice_feedback, False, {})
 
         assert len(builder.feedback) == 1
-        assert len(builder.feedback[0].keys()) == 4
-        assert [*builder.feedback[0]] == ['topic', 'knowledge_item', 'progress', 'feedback']
+        assert len(builder.feedback[0].keys()) == 1
+        assert [*builder.feedback[0].keys()] == [question_topic_and_ki[0]]
+        assert [*builder.feedback[0]
+                [question_topic_and_ki[0]].keys()] == [question_topic_and_ki[1]]
+        assert [*builder.feedback[0][question_topic_and_ki[0]]
+                [question_topic_and_ki[1]].keys()] == ['feedback', 'progress']
 
     def test__get_topic_breakdown(self,
-                                  question_topic_and_ki: Tuple[str, str],
-                                  choice_feedback: str,
-                                  mocker: MockFixture) -> None:
+                                  question_topic_and_ki: Tuple[str, str]) -> None:
         builder = Feedback()
+        builder.build_for_topic(question_topic_and_ki[0])
+        assert builder._get_topic_breakdown(question_topic_and_ki[0])
 
-        @mocker.patch('server.lib.grader.Feedback._get_topic_breakdown')
-        def _mock_get_topic_breakdown(self, topic):
-            assert topic == question_topic_and_ki[0]
-
-        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
-
-    def test_compute_progress_for_topic(self,
-                                        question_topic_and_ki: Tuple[str, str],
-                                        choice_feedback: str,
-                                        mocker: MockFixture) -> None:
+    def test_compute_progress_for_correct_response(self,
+                                                   question_topic_and_ki: Tuple[str, str],
+                                                   choice_feedback: str,
+                                                   ki_q_count: dict) -> None:
         builder = Feedback()
+        builder.build_from_question_id(question_topic_and_ki, choice_feedback, True, ki_q_count)
+        assert builder.feedback[0][question_topic_and_ki[0]
+                                   ][question_topic_and_ki[1]]['progress'] == '1/1'
 
-        @mocker.patch('server.lib.grader.Feedback.compute_progress_for_topic')
-        def _mock_compute_progress_for_topic(self, topic):
-            assert topic == question_topic_and_ki[0]
-
-            assert self._get_topic_breakdown(topic)
-        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
-
-    def test_compute_progress_for_topic_sets_progress(self,
-                                                      question_topic_and_ki: Tuple[str, str],
-                                                      choice_feedback: str,
-                                                      mocker: MockFixture) -> None:
+    def test_compute_progress_for_incorrect_response(self,
+                                                     question_topic_and_ki: Tuple[str, str],
+                                                     choice_feedback: str,
+                                                     ki_q_count: dict) -> None:
         builder = Feedback()
+        builder.build_from_question_id(question_topic_and_ki, choice_feedback, False, ki_q_count)
 
-        mocker.patch('server.lib.grader.Feedback.add_ki_to_topic')
-        mocker.patch('server.lib.grader.Feedback.add_feedback_to_topic')
-        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
+        assert builder.feedback[0][question_topic_and_ki[0]
+                                   ][question_topic_and_ki[1]]['progress'] == '0/1'
 
-        # TODO: Add more cases here
-        assert builder.feedback[0]['progress'] == ['0/1']
-
-    def test_compute_progress_for_topic_exception(self,
-                                                  question_topic_and_ki: Tuple[str, str],
-                                                  choice_feedback: str,
-                                                  mocker: MockFixture) -> None:
+    def test_response_feedback_when_incorrectly_answered(self,
+                                                         question_topic_and_ki: Tuple[str, str],
+                                                         choice_feedback: str):
         builder = Feedback()
-        mocker.patch('server.lib.grader.Feedback._get_topic_breakdown', return_value=None)
+        builder.build_from_question_id(question_topic_and_ki, choice_feedback, False, {})
 
-        @mocker.patch('server.lib.grader.Feedback.compute_progress_for_topic')
-        def _mock_compute_progress_for_topic(self, topic):
-            assert topic == question_topic_and_ki[0]
+        assert [*builder.feedback[0][question_topic_and_ki[0]]
+                [question_topic_and_ki[1]]['feedback']] == [choice_feedback]
 
-            assert self._get_topic_breakdown(topic)
+    def test_response_feedback_when_correctly_answered(self,
+                                                       question_topic_and_ki: Tuple[str, str],
+                                                       choice_feedback: str):
+        another_builder = Feedback()
+        another_builder.build_from_question_id(question_topic_and_ki, choice_feedback, True, {})
+        assert [*another_builder.feedback[0][question_topic_and_ki[0]]
+                [question_topic_and_ki[1]]['feedback']] == []
 
-        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
-
-    def test_feedback_property(self,
-                               question_topic_and_ki: Tuple[str, str],
-                               choice_feedback: str) -> None:
+    def test_generated_feedback_structure(self,
+                                          question_topic_and_ki: Tuple[str, str],
+                                          ki_q_count: dict,
+                                          choice_feedback: str) -> None:
         builder = Feedback()
-        builder.build_from_question_id(question_topic_and_ki, choice_feedback)
+        builder.build_from_question_id(question_topic_and_ki, choice_feedback, False, ki_q_count)
 
         assert builder.feedback == [{
-            "topic": question_topic_and_ki[0],
-            "knowledge_item": [question_topic_and_ki[1]],
-            "progress": ["0/1"],
-            "feedback": [choice_feedback],
+            question_topic_and_ki[0]: {
+                question_topic_and_ki[1]: {
+                    "progress": "0/1",
+                    "feedback": [choice_feedback],
+                }
+            }
         }]
