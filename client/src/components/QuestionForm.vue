@@ -32,7 +32,7 @@
                         :items="topics"
                         :subject="question_object.subject"
                         label="Topic"
-                        :placeholder="question_object.topic || ''"
+                        :placeholder="question_object.topic.value || ''"
                         :error-messages="errors"
                         v-model="question_object.topic"
                         outlined
@@ -45,8 +45,8 @@
                           :items="knowledge_items"
                           :error-messages="errors"
                           label="Knowledge Item"
-                          :placeholder="question_object.knowledge_item || ''"
-                          :selectedTopic="question_object.topic"
+                          :placeholder="question_object.knowledge_item.value || ''"
+                          :selectedTopic="question_object.topic.value"
                           :subject="question_object.subject"
                           v-model="question_object.knowledge_item"
                           outlined
@@ -60,7 +60,7 @@
                   <ValidationProvider rules="required" name="exam_board" v-slot="{ errors }">
                       <SelectsWithSuggestion
                         :items="exam_board"
-                        :dataModel.sync="question_object.exam_board"
+                        v-model="question_object.exam_board"
                         label="Exam Board"
                         :error-messages="errors"
                         :placeholder="translateExamBoard(question_object.exam_board)"

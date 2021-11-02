@@ -1,7 +1,6 @@
 <template>
   <v-select
-    v-model="dataModel"
-    @keyup="$emit('update:dataModel', dataModel)"
+    v-model="$attrs.value"
     :items="items"
     :label="label"
     v-bind="$attrs"
@@ -46,11 +45,6 @@ export default {
     items: {
       type: Array,
       default: []
-    },
-    dataModel: {
-      type: String,
-      default: '',
-      required: true
     },
     label: {
       type: String,
