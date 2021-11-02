@@ -297,6 +297,7 @@ export default {
       this.getSubjects
         .filter(x => x.enabled)
         .map(x => x.name)
+        .sort()
     }
   },
   computed: {
