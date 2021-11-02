@@ -24,7 +24,7 @@
           </tr>
           <tr v-for="(knowledge_item, idx) in Object.keys(report[topic])" :key="knowledge_item + idx">
             <td class="tg-0lax" :key="idx">{{ knowledge_item }}</td>
-            <td :class="highlightProgress(report[topic][knowledge_item].progress) + '--text'" :key="knowledge_item + idx + 'progress'">{{ report[topic][knowledge_item].progress }}</td>
+            <td :class="highlightProgress(report[topic][knowledge_item].progress)" :key="knowledge_item + idx + 'progress'">{{ report[topic][knowledge_item].progress }}</td>
             <td class="tg-0lax" v-html="convertDeltaToHTML(report[topic][knowledge_item].feedback)" :key="knowledge_item + idx + 'feedback'">{{}}</td>
           </tr>
          </template>
@@ -58,9 +58,9 @@ export default {
       if (nom === denom) {
         return 'green'
       } else if (nom === 0) {
-        return 'red'
+        return 'red lighten-2'
       } else {
-        return 'yellow'
+        return 'yellow darken-2'
       }
     },
     convertDeltaToHTML (feedback) {
