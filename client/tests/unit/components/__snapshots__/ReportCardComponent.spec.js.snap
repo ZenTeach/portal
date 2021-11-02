@@ -51,7 +51,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="yellow--text"
+        class="yellow darken-2"
       >
         1/2
       </td>
@@ -72,7 +72,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="red--text"
+        class="red lighten-2"
       >
         0/1
       </td>
@@ -93,7 +93,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="red--text"
+        class="red lighten-2"
       >
         0/1
       </td>
@@ -114,7 +114,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="green--text"
+        class="green"
       >
         1/1
       </td>
@@ -135,7 +135,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="green--text"
+        class="green"
       >
         1/1
       </td>
@@ -168,7 +168,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="green--text"
+        class="green"
       >
         1/1
       </td>
@@ -187,7 +187,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="red--text"
+        class="red lighten-2"
       >
         0/1
       </td>
@@ -206,7 +206,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       </td>
        
       <td
-        class="red--text"
+        class="red lighten-2"
       >
         0/1
       </td>
