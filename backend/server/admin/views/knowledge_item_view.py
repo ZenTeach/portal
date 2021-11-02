@@ -13,7 +13,7 @@ class KnowledgeItemView(BaseView):
     can_export = False
     column_list = ["value", "linked_question_count", "topic", "teacher"]
     column_exclude_list = ["id"]
-    column_filters = ("value", "topic")
+    column_filters = ("value", "topic", "subject")
     column_editable_list = ["value"]
 
     def scaffold_form(self):
