@@ -288,7 +288,7 @@ class TeacherOwnedQuestion(MethodView):
         except Exception as e:
             logger.exception(e)
             return make_response(jsonify({
-                'message': "We ran into a problem deleting the question."
+                'message': "We ran into a problem updating the question."
             }), 500)
 
 
