@@ -66,6 +66,12 @@ export default {
     this.questionObject = this.processCurrentQuestion(this.currentQuestion)
     this.suggestedExamBoardsForSubjects(this.questionObject.subject)
     this.exam_boards = this.default_exam_board
+    this.fetchTopics(this.questionObject.subject)
+    if (this.questionObject.topic && this.questionObject.topic.value) {
+      this.fetchKis({
+        topics_selected: [this.questionObject.topic.value]
+      })
+    }
   },
   data: function () {
     return this.initData()

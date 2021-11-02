@@ -244,7 +244,6 @@ export default {
     this.resetQuestionSearch()
     this.fetchQuestions()
     this.fetchClasses()
-    this.fetchTopics(this.subject)
     this.resetQuestions()
   },
   created: function () {
@@ -255,7 +254,7 @@ export default {
   },
   data: function () {
     return {
-      subject: 'Chemistry',
+      subject: '',
       selectedTopic: [],
       selectedKnowledgeItems: [],
       knowledgeItems: [],
