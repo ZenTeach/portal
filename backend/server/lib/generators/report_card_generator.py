@@ -86,7 +86,8 @@ class ReportCardGenerator(object):
             template = env.get_template(self.template_name)
             template_vars = {
                 "reports": grade.grade_breakdown,
-                "student_name": grade.student.full_name
+                "student_name": grade.student.full_name,
+                "quiz_name": grade.class_quiz.name
             }
             html_out = template.render(template_vars)
             font_config = FontConfiguration()
