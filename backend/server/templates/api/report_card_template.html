@@ -28,7 +28,7 @@
                             <tr>
                                 <td class="tg-0lax">{{ knowledge_item}}</td>
                                 <td class="{{ highlight_progress(report[topic][knowledge_item]['progress']) }}">{{ report[topic][knowledge_item]['progress'] }}</td>
-                                <td class="tg-0lax">{{ render_quill_delta('\n'.join(report[topic][knowledge_item]["feedback"])) }}</td>
+                                <td class="tg-0lax">{{ render_quill_delta('\n'.join(report[topic][knowledge_item]["feedback"])) or 'No feedback provided.' }}</td>
                             </tr>
                         {% endfor %}
                     {% endfor %}
