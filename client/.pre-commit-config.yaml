@@ -1,0 +1,37 @@
+repos:
+  # backend hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: trailing-whitespace
+        files: ^client/
+        language_version: python3.7
+      - id: end-of-file-fixer
+        language_version: python3.7
+      - id: check-yaml
+        language_version: python3.7
+      - id: check-added-large-files
+        language_version: python3.7
+      - id: debug-statements
+        language_version: python3.7
+      - id: no-commit-to-branch
+        name: Block commit to master
+        args: [--branch, master]
+        language_version: python3.7
+
+  - repo: local
+    hooks:
+    -   id: lint_files
+        name: Lint javascript files
+        language: node
+        entry: yarn run lint
+        pass_filenames: false
+        files: ^client/
+  - repo: local
+    hooks:
+    -   id: vue_unit_tests
+        name: Run vue tests
+        language: node
+        entry: yarn run test:unit
+        pass_filenames: false
+        files: ^client/
