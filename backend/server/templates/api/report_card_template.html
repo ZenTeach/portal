@@ -6,7 +6,8 @@
   <body>
         <div>
             <h1> Report Card </h1>
-            <p>Name: {{student_name}}</p>
+            <h4> Quiz: {{ quiz_name }}</h4>
+            <p>Name: {{ student_name }}</p>
         </div>
       <table>
             <thead>
@@ -19,15 +20,17 @@
             </thead>
             <tbody>
                 {% for report in reports %}
-                    {% for idx, knowledge_item in enumerate(report["knowledge_item"])%}
-                    <tr>
-                        {% if idx == 0 %}
-                            <td class="tg-cly1" rowspan="{{ report['knowledge_item']|length }}">{{ report['topic'] }}</td>
-                        {% endif %}
-                        <td class="tg-0lax">{{ knowledge_item}}</td>
-                        <td class="{{ highlight_progress(report['progress'][idx]) }}">{{ report["progress"][idx] }}</td>
-                        <td class="tg-0lax">{{ render_quill_delta(json_loads(report["feedback"][idx])) }}</td>
-                    </tr>
+                    {% for topic in report.keys()%}
+                        <tr colspan="1">
+                            <td class="tg-cly1" rowspan="{{ report[topic].keys()|length + 1 }}" colspan="1">{{ topic }}</td>
+                        </tr>
+                        {% for knowledge_item in report.get(topic).keys()%}
+                            <tr>
+                                <td class="tg-0lax">{{ knowledge_item}}</td>
+                                <td class="{{ highlight_progress(report[topic][knowledge_item]['progress']) }}">{{ report[topic][knowledge_item]['progress'] }}</td>
+                                <td class="tg-0lax">{{ render_quill_delta('\n'.join(report[topic][knowledge_item]["feedback"])) }}</td>
+                            </tr>
+                        {% endfor %}
                     {% endfor %}
                 {% endfor %}
             </tbody>
