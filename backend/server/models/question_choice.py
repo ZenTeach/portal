@@ -16,6 +16,10 @@ class QuestionChoice(db.Model, BaseModelMixin):
     question_id = db.Column(db.Integer, db.ForeignKey("questions.id"))
     value = db.Column(db.String(256), nullable=False)
     weight = db.Column(db.Integer, nullable=False, default=0)
+    user_created = db.Column(db.Boolean, nullable=True, default=False)
+    teacher_id = db.Column(
+        db.Integer, db.ForeignKey("teacher.id"), nullable=True)
+
     feedback = db.Column(db.Text, nullable=True, default="")
     uuid = db.Column(UUID(as_uuid=True), unique=True,
                      nullable=False, default=uuid4())
@@ -25,7 +29,9 @@ class QuestionChoice(db.Model, BaseModelMixin):
                  feedback: str,
                  weight: int = 0,
                  uuid: Optional[UUID] = None,
-                 question_id: Optional[int] = None):
+                 question_id: Optional[int] = None,
+                 teacher_id: Optional[int] = None,
+                 user_created: Optional[bool] = False):
         self.value = value
         self.weight = weight
         if uuid is None:
@@ -33,6 +39,8 @@ class QuestionChoice(db.Model, BaseModelMixin):
         self.feedback = feedback
         if question_id is not None:
             self.question_id = question_id
+        self.user_created = user_created
+        self.teacher_id = teacher_id
 
     @property
     def is_correct_choice(self):

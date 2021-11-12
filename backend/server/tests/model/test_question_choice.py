@@ -56,9 +56,9 @@ def test_question_choice_is_correct_choice(client: FlaskClient,
 
 def test_question_choice_get_non_pk_columns(client: FlaskClient,
                                             question_choice: QuestionChoice) -> None:
-    assert len(question_choice.get_non_pk_columns()) == 4
+    assert len(question_choice.get_non_pk_columns()) == 6
     assert sorted(question_choice.get_non_pk_columns()) == [
-        'feedback', 'question_id', 'value', 'weight']
+        'feedback', 'question_id', 'teacher_id', 'user_created', 'value', 'weight']
 
 
 def test_question_choice_empty_instance(client: FlaskClient) -> None:
@@ -88,3 +88,12 @@ def test_question_choice_clone_with_kwargs(client: FlaskClient,
     test_kwarg = {'question_id': another_choice.question_id}
     cloned = QuestionChoice.clone(question_choice, **test_kwarg)
     assert cloned.question_id != question_choice.question_id
+
+
+def test_question_choice_user_created_flag(client: FlaskClient,
+                                           question_choice: QuestionChoice) -> None:
+
+    assert not question_choice.user_created
+    question_choice.user_created = True
+    assert question_choice.user_created
+    assert question_choice.teacher_id is None
