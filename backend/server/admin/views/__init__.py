@@ -42,10 +42,10 @@ class BaseView(ModelView):
 
 class LoginForm(form.Form):
     email = fields.StringField(
-        validators=[validators.required()], render_kw={"placeholder": "email"}
+        validators=[validators.DataRequired()], render_kw={"placeholder": "email"}
     )
     password = fields.PasswordField(
-        validators=[validators.required()],
+        validators=[validators.DataRequired()],
         render_kw={"placeholder": "password"}
     )
 
