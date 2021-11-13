@@ -46,8 +46,14 @@ class QuestionsFactory(SQLAlchemyModelFactory):
             if isinstance(extracted, dict):
                 choice_count = extracted.get('choice_count', 4)
                 choice_weight = extracted.get('choice_weight', 1)
+                teacher_id = obj.teacher_id or None
+                user_created = obj.user_created or False
                 choices = QuestionChoiceFactory.create_batch(
-                    choice_count, question=obj.id, weight=choice_weight)
+                    choice_count,
+                    question=obj.id,
+                    weight=choice_weight,
+                    teacher_id=teacher_id,
+                    user_created=user_created)
 
                 obj.correct_choice_id = choices[0].id
                 obj.save()
