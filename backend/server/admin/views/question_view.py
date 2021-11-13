@@ -172,7 +172,7 @@ class QuestionView(BaseView):
         "correct_choice_id": correct_choice_formatter,
     }
     column_list = ['question', 'question_type', 'subject',
-                   'knowledge_item', 'topic', 'user_created', 'teacher']
+                   'knowledge_item', 'topic', 'user_created', 'teacher', 'correct_choice_id']
     create_template = "admin/question_create.html"
     edit_template = "admin/question_edit.html"
     form_overrides = {
