@@ -162,6 +162,15 @@ class TeacherOwnedQuestions(MethodView):
             topic = Topic.query.filter_by(value=data.pop('topic')).first()
             data.update({'topic': topic})
 
+        choices = data.pop('choices')
+        for choice in choices:
+            choice.update({
+                'user_created': True,
+                'teacher_id': teacher.id
+            })
+        data.update({
+            'choices': choices
+        })
         question = Questions(**data)
         try:
             question.save()
@@ -243,7 +252,6 @@ class TeacherOwnedQuestion(MethodView):
                     'topic': topic,
                     'topic_id': topic.id
                 })
-
             if question.teacher_id != teacher.id:
                 question = Questions.empty_instance()
                 data.update({
@@ -252,35 +260,55 @@ class TeacherOwnedQuestion(MethodView):
                 success_message['message'] = "Question successfully added."
                 status_code = 201
 
-            # update correct choice id
-            correct_choice_id = None
-            if 'choices' in data:
-                correct_choice_id = [choice['uuid']
-                                     for choice in data['choices']
-                                     if choice['is_correct_choice']][0]
-
-            if correct_choice_id is not None:
-                choice_id = QuestionChoice.query.filter_by(uuid=correct_choice_id).first().id
-                data.update({
-                    'correct_choice_id': choice_id
-                })
-
             if 'choices' in data:
                 choices = data.pop('choices')
                 choice_objects = []
-                for choice in choices:
+                correct_choice_uuid = [choice['uuid']
+                                       for choice in choices
+                                       if choice['is_correct_choice']][0]
+
+                for choice_data in choices:
                     c = QuestionChoice.query.\
-                        filter_by(uuid=choice['uuid']).\
+                        filter_by(uuid=choice_data.pop('uuid')).\
                         first()
+                    choice = None
+                    is_cloned_choice_correct = False
                     if c is not None:
-                        new_choice = QuestionChoice.clone(c, autosave=False, **dict(c))
-                        new_choice.update_from_dict(choice)
-                        # new_choice.save(refresh=True)
+                        # We clone the choices when it's created freshly by a user
+                        if not c.user_created:
+                            choice = QuestionChoice.clone(c,
+                                                          autosave=True,
+                                                          **{
+                                                              'user_created': True,
+                                                              'teacher_id': teacher.id
+                                                          })
+                            if str(c.uuid) == correct_choice_uuid:
+                                is_cloned_choice_correct = True
+                        else:
+                            choice = c
+                            choice.update_from_dict(choice_data)
+                            choice.save()
+
+                        choice_objects.append(choice)
+                        if str(choice.uuid) == correct_choice_uuid or is_cloned_choice_correct:
+                            data.update({
+                                'correct_choice_id': choice.id
+                            })
+                    else:
+                        new_choice = QuestionChoice(
+                            **choice_data,
+                            user_created=True,
+                            teacher_id=teacher.id)
+                        new_choice.save()
                         choice_objects.append(new_choice)
+                        if choice_data.get('is_correct_choice'):
+                            data.update({
+                                'correct_choice_id': new_choice.id
+                            })
+
                 data.update({
                     'choices': choice_objects
                 })
-
             question.update_from_dict(data)
             question.save()
 

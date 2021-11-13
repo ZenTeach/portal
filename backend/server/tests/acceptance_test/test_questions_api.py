@@ -49,7 +49,10 @@ def teacher_created_question(client: FlaskClient,
                             knowledge_item=kis,
                             topic=topic,
                             teacher_id=teacher_.id,
-                            multiple_choice_question_type=True)
+                            multiple_choice_question_type=True,
+                            with_choices={
+                                'choice_count': 4
+                            })
 
 
 @pytest.fixture(autouse=True)
@@ -106,7 +109,6 @@ def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
         topic=topic,
         multiple_choice_question_type=True,
         subject=subject_.name,
-        teacher_id=teacher_.id,
         with_choices={
             'choice_count': 4
         })
@@ -669,11 +671,11 @@ def test_teacher_owned_question_create_action(client: FlaskClient,
                                               teacher_identity: Teacher,
                                               access_token: List[str],
                                               question_payload_as_json: dict):
-
     question_payload_as_json.update({
         'user_created': True,
         'teacher_id': teacher_identity.id
     })
+
     response = client.post(
         "/api/v1/question/user_created",
         json=question_payload_as_json,
@@ -683,8 +685,13 @@ def test_teacher_owned_question_create_action(client: FlaskClient,
         })
     assert response.status_code == 201
     teacher_identity.reload()
+    question = teacher_identity.questions[0]
+
     assert len(teacher_identity.questions) > 0
-    assert len(teacher_identity.questions) == 1
+    assert question.user_created
+    assert len(question.choices) > 0
+    assert all([choice.user_created for choice in question.choices])  # noqa
+    assert question.correct_choice() is not None
 
 
 def test_teacher_owned_question_create_action_422_error(client: FlaskClient,
@@ -742,8 +749,65 @@ def test_teacher_owned_question_update_action(client: FlaskClient,
             'Authorization': 'Bearer {}'.format(access_token[0]),
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
-
+    question = teacher_identity.questions[0]
     assert response.status_code == 200
+    assert question.correct_choice() is not None
+    assert all([choice.user_created for choice in question.choices])  # noqa
+    assert question.correct_choice().id in list(map(lambda choice: choice.id, question.choices))
+
+
+def test_teacher_owned_question_update_choices_action(client: FlaskClient,
+                                                      teacher_identity: Teacher,
+                                                      access_token: List[str],
+                                                      teacher_created_question: Questions) -> None:
+    update_params = {
+        'knowledge_item': "Another Testing value",
+        'choices': [
+            {
+                "feedback": "choice 1 feedback",
+                "is_correct_choice": False,
+                "uuid": teacher_created_question.choices[0].uuid,
+                "value": "choice 1",
+                "weight": 1
+            },
+            {
+                "feedback": "choice 2 feedback",
+                "is_correct_choice": False,
+                "uuid": teacher_created_question.choices[1].uuid,
+                "value": "choice 2",
+                "weight": 1
+            },
+            {
+                "feedback": "choice 3 feedback",
+                "is_correct_choice": False,
+                "uuid": teacher_created_question.choices[2].uuid,
+                "value": "choice 3",
+                "weight": 1
+            },
+            {
+                "feedback": "choice 4 feedback",
+                "is_correct_choice": True,
+                "uuid": teacher_created_question.choices[3].uuid,
+                "value": "choice 4",
+                "weight": 1
+            },
+        ]
+    }
+    teacher_created_question.teacher_id = teacher_identity.id
+    teacher_created_question.save()
+    response = client.patch(
+        f"/api/v1/question/user_created/{teacher_created_question.id}",
+        json=update_params,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
+    question = teacher_identity.questions[0]
+    assert response.status_code == 200
+    assert all([choice.user_created for choice in question.choices])
+    assert question.correct_choice() is not None
+    assert question.correct_choice().value == 'choice 4'
+    assert question.correct_choice().id in list(map(lambda choice: choice.id, question.choices))
 
 
 def test_updating_original_question_creates_question_on_user(client: FlaskClient,
