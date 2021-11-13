@@ -187,7 +187,9 @@ class Questions(BaseModelMixin, db.Model):
             interim = QuestionChoice(
                 choice.get("value", ""),
                 choice.get("feedback", ""),
-                choice.get("weight", 0)
+                choice.get("weight", 0),
+                user_created=choice.get("user_created", False),
+                teacher_id=choice.get("teacher_id", None)
             )
             if interim.value == '':
                 continue
