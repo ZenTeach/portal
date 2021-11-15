@@ -1,8 +1,10 @@
 import pytest
 from factory import build
 from flask.testing import FlaskClient
-from server.models import SchoolClass, Student, Teacher
-from server.tests.factories import SchoolClassFactory, StudentFactory
+from server.models import (ClassQuizStatus, SchoolClass, Student,
+                           StudentAttendedClass, Teacher)
+from server.tests.factories import (ClassQuizFactory, SchoolClassFactory,
+                                    StudentFactory)
 
 
 @pytest.fixture
@@ -21,6 +23,16 @@ def schoolclass_params(client: FlaskClient, teacher_: Teacher) -> dict:
                  FACTORY_CLASS=SchoolClassFactory,
                  year_group='year 7',
                  teacher_id=teacher_.id)
+
+
+@pytest.fixture
+def schoolclass_with_administered_classquiz(client: FlaskClient, teacher_: Teacher) -> SchoolClass:
+    class_room = SchoolClassFactory.create(teacher_id=teacher_.id)
+    ClassQuizFactory.create(class_id=class_room.id,
+                            status=ClassQuizStatus.administered,
+                            with_multiple_choice_questions=4)
+
+    return class_room
 
 
 def test_model_is_saved(client: FlaskClient, schoolclass_params: dict):
@@ -81,3 +93,16 @@ def test_school_class_has_student(client: FlaskClient,
     assert len(class_.students) == 1
     assert class_.students == [student_]
     assert class_.has_student(student_)
+
+
+def test_school_class_delete(client: FlaskClient,
+                             student_: Student,
+                             schoolclass_with_administered_classquiz: SchoolClass):
+    schoolclass_with_administered_classquiz.add_student(student_)
+    assert len(schoolclass_with_administered_classquiz.students) == 1
+
+    schoolclass_with_administered_classquiz.delete()
+    class_count = SchoolClass.query.count()
+    assert class_count == 0
+
+    assert StudentAttendedClass.query.filter_by(student_id=student_.id).count() == 0

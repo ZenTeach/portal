@@ -15,9 +15,9 @@ class StudentAttendedClass(BaseModelMixin, db.Model):
     )
 
     student = db.relationship(
-        "Student", backref=db.backref("student_attended_classes"))
+        "Student", backref=db.backref("student_attended_classes", cascade="all, delete"))
     school_class = db.relationship(
-        "SchoolClass", backref=db.backref("student_attended_classes")
+        "SchoolClass", backref=db.backref("student_attended_classes", cascade="all, delete")
     )
 
     def __init__(self, student=None, school_class=None):
