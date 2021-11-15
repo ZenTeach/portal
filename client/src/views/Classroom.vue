@@ -52,8 +52,8 @@
           <template v-slot:footer>
             <v-dialog v-model="dialog" max-width="1000px" persistent>
               <template v-slot:activator="{ on }">
-                <v-btn color="primary" right fab dark class="ma-2 pa-2" v-on="on">
-                  <v-icon dark>mdi-plus</v-icon>
+                <v-btn color="primary" right dark class="ma-4 pa-2" v-on="on">
+                  <v-icon dark>mdi-plus</v-icon> Create a quiz
                 </v-btn>
               </template>
               <quiz-creator v-on:update:quizCreatorDialog="closeQuizCreatorDialog"/>

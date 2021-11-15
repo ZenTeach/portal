@@ -71,8 +71,8 @@
                 <template v-slot:footer>
                   <v-dialog v-model="dialog" max-width="500px" max-height="450px">
                     <template v-slot:activator="{ on }">
-                      <v-btn color="primary" right fab dark class="ma-2 pa-2" v-on="on">
-                        <v-icon>mdi-plus</v-icon>
+                      <v-btn color="primary" right  dark class="ma-4 pa-2" v-on="on">
+                        <v-icon>mdi-plus</v-icon> Add a class
                       </v-btn>
                     </template>
 
@@ -195,6 +195,28 @@
                   </v-card>
                 </ValidationObserver>
               </v-dialog>
+              <v-dialog
+                v-model="confirmDeleteDialog"
+                scrollable
+                persistent
+                :overlay="false"
+                max-width="500px"
+                transition="dialog-transition"
+              >
+                <v-card>
+                  <v-card-title>
+                    <span class="headline">⚠ Deleting this class room is irreversible.</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <h3 class="mx-5 font-weight-light"> Are you sure you want to delete the question? Performing this action will delete all quizzes and reports associated.</h3>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-btn color="error" @click="processDelete(deleteItemId)">Delete</v-btn>
+                    <v-btn color="primary" @click="confirmDeleteDialog = false">Cancel</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
             </div>
           </v-card>
         </v-col>
@@ -255,6 +277,8 @@ export default {
       yearGroup: '',
       dialog: false,
       editDialog: false,
+      confirmDeleteDialog: false,
+      deleteItemId: null,
       start_date: new Date().toISOString().substr(0, 10),
       menu: false,
       classname: '',
@@ -339,7 +363,16 @@ export default {
       this.close()
     },
     deleteItem (item) {
-      this.deleteClass(item.id)
+      // show confirmation dialog
+      this.confirmDeleteDialog = true
+      this.deleteItemId = item.id
+    },
+    processDelete (itemId) {
+      if (itemId === null || itemId === undefined) {
+        this.confirmDeleteDialog = false
+        return
+      }
+      this.deleteClass(itemId)
     },
     has_empty_examboard (item) {
       return (item.exam_board === '' || item.exam_board === null || item.exam_board === undefined)

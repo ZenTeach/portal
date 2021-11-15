@@ -62,8 +62,8 @@
         <template v-slot:footer>
           <v-menu offset-y>
             <template v-slot:activator="{ on }">
-              <v-btn color="primary" right fab dark class="ma-2 pa-2" v-on="on">
-                <v-icon>mdi-plus</v-icon>
+              <v-btn color="primary" right dark class="ma-4 pa-2" v-on="on">
+                <v-icon>mdi-plus</v-icon> Add a student
               </v-btn>
             </template>
             <v-list>
