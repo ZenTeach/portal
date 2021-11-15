@@ -61,7 +61,7 @@ class SchoolClass(BaseModelMixin, db.Model):
 
     quizzes = db.relationship("ClassQuiz",
                               backref="school_class",
-                              cascade="all, delete",
+                              cascade="all, delete-orphan",
                               lazy=True)
 
     def __init__(self,
