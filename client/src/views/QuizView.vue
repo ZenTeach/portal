@@ -30,16 +30,20 @@
         <v-card :key="q_idx" class="ma-2" ref="">
           <input type="hidden" :value="question['id']"  ref="question_id"/>
           <v-card-text ref="question_">
-              <h3> {{ question.question }} </h3>
-              <v-radio-group>
-                <template v-for="(choice, idx) in question.choices">
-                  <div :id="'div'+idx" :key="'div'+idx">
-                      <input type="radio"
-                        :key="idx"
-                        :name="question.id"
-                        :value="choice.uuid"
-                        @input.self="appendToSelection"/>
-                    <v-label :for="choice.value" key="'label'+idx">{{choice.value}}</v-label >
+            <h3> {{ question.question }} </h3>
+            <v-radio-group>
+              <template v-for="(choice, idx) in question.choices">
+                <div :id="'div'+idx" :key="'div'+idx" class="d-flex">
+                    <input type="radio"
+                      :key="idx"
+                      :name="question.id"
+                      :value="choice.uuid"
+                      @input.self="appendToSelection"/>
+                    <label :for="choice.value" key="'label'+idx">
+                      <span class="text-sm-body-2">
+                        {{choice.value}}
+                      </span>
+                    </label >
                   </div>
                 </template>
               </v-radio-group>
