@@ -23,16 +23,8 @@ const router = new Router({
       component: () =>
         import(/* webpackChunkName: "Dashboard" */ './views/Dashboard'),
       meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: '/classroom/:id',
-      name: 'Classroom',
-      component: () =>
-        import(/* webpackChunkName: "Classroom" */ './views/Classroom'),
-      meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        breadcrumb: 'Dashboard'
       }
     },
     {
@@ -41,16 +33,38 @@ const router = new Router({
       component: () =>
         import(/* webpackChunkName: "Classrooms" */ './views/Classrooms'),
       meta: {
-        requiresAuth: true
-      }
+        requiresAuth: true,
+        breadcrumb: 'Classrooms'
+      },
+      children: [
+        {
+          path: '/classroom/:id',
+          name: 'Classroom',
+          component: () =>
+            import(/* webpackChunkName: "Classroom" */ './views/Classroom'),
+          meta: {
+            requiresAuth: true,
+            breadcrumb: 'Classroom'
+          },
+          children: [
+            {
+              path: '/quiz/:uuid',
+              name: 'Quiz',
+              component: () => import(/* webpackChunkName: "Quiz" */ './views/Quiz'),
+              meta: {
+                quizView: true,
+                breadcrumb: 'Quiz'
+              }
+            }
+          ]
+        }
+      ]
     },
     {
-      path: '/quiz/:uuid',
-      name: 'Quiz',
-      component: () => import(/* webpackChunkName: "Quiz" */ './views/Quiz'),
-      meta: {
-        quizView: true
-      }
+      path: '/quiz_view/:id',
+      name: 'Quiz View',
+      component: () =>
+        import(/* webpackChunkName: "QuizView" */ './views/QuizView')
     },
     {
       path: '/students',
@@ -62,18 +76,13 @@ const router = new Router({
       }
     },
     {
-      path: '/quiz_view/:id',
-      name: 'Quiz View',
-      component: () =>
-        import(/* webpackChunkName: "QuizView" */ './views/QuizView')
-    },
-    {
       path: '/report_card/:uuid',
       name: 'Student Report Card',
       component: () =>
         import(/* webpackChunkName: "ReportCard" */ './views/ReportCard'),
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        breadcrumb: 'Report Card'
       }
     },
     {
@@ -118,7 +127,8 @@ const router = new Router({
       component: () =>
         import(/* webpackChunkName: "UserProfileView" */ './views/UserProfile'),
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        breadcrumb: 'Profile'
       }
     },
     {
@@ -127,7 +137,8 @@ const router = new Router({
       component: () =>
         import(/* webpackChunkName: "QuestionsView" */ './views/Questions'),
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        breadcrumb: 'Question Library'
       }
     },
     {
@@ -136,7 +147,8 @@ const router = new Router({
       component: () =>
         import(/* webpackChunkName: "QuestionCreateView" */ './views/QuestionCreate'),
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        breadcrumb: 'Create a question'
       }
     },
     {
@@ -145,7 +157,8 @@ const router = new Router({
       component: () =>
         import(/* webpackChunkName: "QuestionCreateView" */ './views/QuestionEdit'),
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        breadcrumb: 'Edit question'
       }
     },
     {
