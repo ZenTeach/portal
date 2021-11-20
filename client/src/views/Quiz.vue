@@ -70,15 +70,12 @@
         <v-col lg="4" sm="12" md="12">
           <v-card color="grey lighten-3" class="rounded-0" elevation="1">
             <v-card-title>
-              <p class="text-h6" v-text="name"></p>
+              <p class="text-h6" v-text="quizName"></p>
             </v-card-title>
             <v-card-subtitle>
               <p class="text-caption">Quiz Activities</p>
             </v-card-subtitle>
             <v-divider></v-divider>
-            <v-card-text>
-              <p></p>
-            </v-card-text>
             <v-card-actions>
               <v-btn
                 color="black lighten-4"
@@ -86,11 +83,13 @@
               >
                 More actions
               </v-btn>
-
               <v-spacer></v-spacer>
-
               <v-btn
                 icon
+                fab
+                x-small
+                elevation="2"
+                outlined
                 @click="show = !show"
               >
                 <v-icon>{{ show ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
@@ -188,7 +187,7 @@ export default {
     ...mapGetters({
       subject: 'subject',
       uuid: 'uuid',
-      name: 'name',
+      quizName: 'name',
       quizQuestions: 'quizQuestions',
       gradedQuizzes: 'gradedQuizzes'
     }),
