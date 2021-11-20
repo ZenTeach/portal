@@ -1,5 +1,8 @@
 <template>
   <div>
+    <span class="text-lg-h5 text-sm-body-2 font-weight-bold text-caption">
+      <p>My Students</p>
+    </span>
     <v-data-table
           :headers="headers"
           :items="students"
@@ -63,7 +66,9 @@
           <v-menu offset-y>
             <template v-slot:activator="{ on }">
               <v-btn color="primary" right dark class="ma-4 pa-2" v-on="on">
-                <v-icon>mdi-plus</v-icon> Add a student
+                <span class="text-caption center d-flex justify-center align-center">
+                  <v-icon>mdi-plus</v-icon> Add a student
+                </span>
               </v-btn>
             </template>
             <v-list>

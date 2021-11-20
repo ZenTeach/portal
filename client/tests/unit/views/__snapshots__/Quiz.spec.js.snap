@@ -32,15 +32,12 @@ exports[`Quiz.vue matches snapshot 1`] = `
             <p class="text-caption">Quiz Activities</p>
           </v-card-subtitle-stub>
           <v-divider-stub></v-divider-stub>
-          <v-card-text-stub>
-            <p></p>
-          </v-card-text-stub>
           <v-card-actions-stub>
             <v-btn-stub color="black lighten-4" tag="button" activeclass="" text="true" type="button">
               More actions
             </v-btn-stub>
             <v-spacer-stub></v-spacer-stub>
-            <v-btn-stub tag="button" activeclass="" icon="true" type="button">
+            <v-btn-stub elevation="2" outlined="true" tag="button" activeclass="" xsmall="true" fab="true" icon="true" type="button">
               <v-icon-stub>mdi-chevron-down</v-icon-stub>
             </v-btn-stub>
           </v-card-actions-stub>

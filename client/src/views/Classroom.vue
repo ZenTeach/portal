@@ -2,6 +2,9 @@
   <v-container>
     <v-layout row column wrap justify-center>
       <v-flex sm-8 md-10 lg-10 class="ma-6">
+        <span class="text-lg-h5 text-sm-body-2 font-weight-bold text-caption">
+          <p>My Quizzes</p>
+        </span>
         <v-data-table
           :headers="headers"
           :items="current_class.quizzes"
@@ -17,7 +20,7 @@
           <template v-slot:item.name="props">
             <div class="d-flex justify-left">
               <a :href="'/quiz/' +  props.item.uuid" class="d-inline-block mx-1">
-                <v-icon x-small>mdi-book-open-outline</v-icon>
+                <v-icon medium color="primary" elevation="12">mdi-open-in-app</v-icon>
               </a>
               <v-edit-dialog
                 :return-value.sync="props.item.name"
@@ -53,7 +56,9 @@
             <v-dialog v-model="dialog" max-width="1000px" persistent>
               <template v-slot:activator="{ on }">
                 <v-btn color="primary" right dark class="ma-4 pa-2" v-on="on">
-                  <v-icon dark>mdi-plus</v-icon> Create a quiz
+                  <span class="text-caption center d-flex justify-center align-center">
+                    <v-icon dark>mdi-plus</v-icon> Create a quiz
+                  </span>
                 </v-btn>
               </template>
               <quiz-creator v-on:update:quizCreatorDialog="closeQuizCreatorDialog"/>

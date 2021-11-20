@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`StudentList.vue renders correctly 1`] = `
-<div>
+<div><span class="text-lg-h5 text-sm-body-2 font-weight-bold text-caption"><p>My Students</p></span>
   <v-data-table-stub mobilebreakpoint="600" items="" options="[object Object]" sortby="" sortdesc="" customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
   if (sortBy === null || !sortBy.length) return items;
   var stringCollator = new Intl.Collator(locale, {
