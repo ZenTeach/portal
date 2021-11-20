@@ -2,7 +2,9 @@
 
 exports[`App.vue matches snapshot 1`] = `
 <v-app-stub id="inspire">
-  <nav-bar-stub></nav-bar-stub>
+  <keep-alive-stub>
+    <nav-bar-stub></nav-bar-stub>
+  </keep-alive-stub>
   <nav-bar-drawer-stub></nav-bar-drawer-stub>
   <v-content-stub tag="main" class="grey lighten-3">
     <unconfirmed-account-banner-stub visible="true"></unconfirmed-account-banner-stub>
@@ -12,7 +14,9 @@ exports[`App.vue matches snapshot 1`] = `
           <!---->
         </v-fade-transition-stub>
         <v-fade-transition-stub mode="out-in" origin="top center 0">
-          <router-view-stub name="default"></router-view-stub>
+          <keep-alive-stub max="10">
+            <router-view-stub name="default"></router-view-stub>
+          </keep-alive-stub>
         </v-fade-transition-stub>
         <v-dialog-stub opendelay="0" closedelay="0" contentclass="" maxwidth="500px" origin="center center" persistent="true" retainfocus="true" scrollable="true" transition="dialog-transition" width="auto">
           <invite-user-stub></invite-user-stub>

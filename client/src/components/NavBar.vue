@@ -1,10 +1,10 @@
 <template>
   <v-app-bar app flat max-height="88" height="60" min-height="40" id="core-bar-app">
-    <v-toolbar-title class="tertiary--text font-weight-light align-self-center">
+    <v-toolbar-title class="tertiary--text font-weight-light d-flex align-center align-self-center">
       <v-btn v-if="responsive" @click="toggleNavDrawer" icon>
-        <v-icon>mdi-chevron-double-right</v-icon>
+        <v-icon small>mdi-chevron-double-right</v-icon>
       </v-btn>
-      {{ title }}
+      <breadcrumb />
     </v-toolbar-title>
 
     <v-spacer />
@@ -24,12 +24,15 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
-
+import Breadcrumb from './Breadcrumb.vue'
 const { mapMutations: appMutations } = createNamespacedHelpers('app')
 const { mapActions: userActions } = createNamespacedHelpers('user')
 
 export default {
   name: 'NavBar',
+  components: {
+    Breadcrumb
+  },
   methods: {
     ...appMutations({
       toggleNavDrawer: 'TOGGLE_APP_DRAWER'
