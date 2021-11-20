@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-flex xs12 sm12 md12 lg12>
+    <v-flex xs12 sm12 md12 lg12 v-if="$route.fullPath == '/classrooms'">
       <v-row>
         <v-col>
           <v-card>
@@ -31,7 +31,8 @@
                 </template>
                 <template v-slot:item.name="props">
                   <div class="d-flex flex-column">
-                    <a :href="'/classroom/' + props.item.id" class="text-body-1">{{ props.item.name }}</a>
+                    <!-- <a :href="'/classrooms/classroom/' + props.item.id" class="text-body-1">{{ props.item.name }}</a> -->
+                    <router-link :to="'/classroom/' + props.item.id" class="text-body-1">{{ props.item.name }}</router-link>
                   </div>
                 </template>
                 <template v-slot:item.key_stage="{ item }">
@@ -222,6 +223,7 @@
         </v-col>
       </v-row>
     </v-flex>
+    <router-view v-else></router-view>
   </v-container>
 </template>
 

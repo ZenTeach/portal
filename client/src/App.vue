@@ -1,6 +1,8 @@
 <template>
   <v-app id="inspire">
-    <nav-bar v-if="isLoggedIn && !isQuizView" />
+    <keep-alive>
+      <nav-bar v-if="isLoggedIn && !isQuizView" />
+    </keep-alive>
     <nav-bar-drawer v-if="isLoggedIn && !isQuizView" />
     <v-content class="grey lighten-3">
       <unconfirmed-account-banner v-if="isLoggedIn && !isUserConfirmed" />
@@ -19,7 +21,10 @@
             </material-notification>
           </v-fade-transition>
           <v-fade-transition mode="out-in">
-            <router-view />
+            <keep-alive max="10">
+              <router-view>
+              </router-view>
+            </keep-alive>
           </v-fade-transition>
           <v-dialog
               v-model="isInviteVisible"

@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-layout row column wrap justify-center>
+    <v-layout row column wrap justify-center v-if="$route.name == 'Classroom'">
       <v-flex sm-8 md-10 lg-10 class="ma-6">
         <span class="text-lg-h5 text-sm-body-2 font-weight-bold text-caption">
           <p>My Quizzes</p>
@@ -71,6 +71,9 @@
         <student-list v-bind:students="current_class.students" />
       </v-flex>
     </v-layout>
+    <keep-alive v-else>
+      <router-view></router-view>
+    </keep-alive>
   </v-container>
 </template>
 
@@ -93,7 +96,9 @@ export default {
     QuizCreator
   },
   mounted () {
-    this.getCurrentClass(this.$route.params.id)
+    if (this.$route.name === 'Classroom') {
+      this.getCurrentClass(this.$route.params.id)
+    }
   },
   filters: {
     formatDate: function (value) {
