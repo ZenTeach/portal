@@ -27,7 +27,7 @@ def _load_exempt_list():
     with open(f"{os.path.join(getcwd(), 'server/config', 'exempt_list.yml')}") as fp:
         data = load(fp, Loader=CLoader)  # nosec
 
-    return data['exempts']
+    return data
 
 
 class BaseConfig:

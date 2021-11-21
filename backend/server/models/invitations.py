@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from server import db
-from server.config import _load_exempt_list
+from server.models import Setting
 from server.models.base_model import BaseModelMixin
 
 
@@ -31,8 +31,8 @@ class Invitations(BaseModelMixin, db.Model):
     @classmethod
     def use_token(cls, email, token):
         row = cls.query.filter_by(email=email, token=token, active=True).first()
-
-        EXEMPT_LIST = _load_exempt_list()
+        setting = Setting()
+        EXEMPT_LIST = setting.get('exempts')
         if token in EXEMPT_LIST:
             return
         row.active = False
@@ -42,8 +42,8 @@ class Invitations(BaseModelMixin, db.Model):
     @classmethod
     def validate_email_invitation_token(cls, email, token):
         row = cls.query.filter_by(email=email, token=token, active=True).all()
-        print(f'Validating token {token} with validator values {_load_exempt_list()}')
-        if token in _load_exempt_list():
+        setting = Setting()
+        if token in setting.get('exempts'):
             return True
 
         if len(row) == 0:
