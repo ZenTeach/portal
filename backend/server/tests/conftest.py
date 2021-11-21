@@ -16,6 +16,7 @@ from sqlalchemy_searchable import sync_trigger
 
 getLogger('factory').setLevel(CRITICAL)
 getLogger('factory.generate').setLevel(CRITICAL)
+getLogger('faker.factory').setLevel(CRITICAL)
 
 
 @pytest.fixture(scope="session")
