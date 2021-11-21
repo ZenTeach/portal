@@ -19,6 +19,7 @@ from .topic import Topic
 from .knowledge_item import KnowledgeItem
 from .admin import Admin
 from .migrations.seeds import run_seed
+from .setting import Setting
 from .invitations import Invitations
 
 __all__ = [
@@ -37,6 +38,7 @@ __all__ = [
     "StudentSchema",
     "SchoolClass",
     "SchoolClassSchema",
+    "Setting",
     "Admin",
     "QuizSession",
     "Questions",

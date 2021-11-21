@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 from secrets import token_hex
 from typing import List, Optional
 
@@ -97,7 +98,11 @@ def test_teacher_registration_endpoint_with_exempted_invite_code(client: FlaskCl
                                                                  mocker: MockFixture):
     mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions')
 
-    mocker.patch('server.models.invitations._load_exempt_list', return_value=[token])
+    def mock__load_exempt_list():
+        return OrderedDict({'exempts': [token]})
+
+    mocker.patch('server.config._load_exempt_list', autospec=mock__load_exempt_list,
+                 side_effect=mock__load_exempt_list)
 
     new_teacher = build(dict, FACTORY_CLASS=TeacherFactory, email=unique_email)
     new_teacher.update({
