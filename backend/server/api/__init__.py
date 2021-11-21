@@ -27,3 +27,12 @@ def subjects():
     return make_response(jsonify({
         'subjects': response
     }), 200)
+
+
+@root_api.route("/settings", methods=['GET'])
+def settings():
+    from server.models import Setting, SettingSchema
+
+    dumper = SettingSchema()
+    setting = Setting()
+    return make_response(jsonify(dumper.dump(setting)), 200)
