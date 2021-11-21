@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from functools import lru_cache
 from os import getcwd
 from pathlib import Path
 from secrets import token_urlsafe
@@ -7,13 +8,26 @@ from secrets import token_urlsafe
 from yaml import load
 from yamlloader.ordereddict import CLoader
 
+__all__ = ["BaseConfig", "DevelopmentConfig", "TestingConfig",
+           "ProductionConfig", "_load_examboard", "_load_exempt_list"]
 
+
+@lru_cache(256)
 def _load_examboard():
     data = None
-    with open(f"{getcwd()}/server/exam_board.yml") as fp:
+    with open(f"{os.path.join(getcwd(), 'server/config', 'exam_board.yml')}") as fp:
         data = load(fp, Loader=CLoader)  # nosec
 
     return data
+
+
+@lru_cache(256)
+def _load_exempt_list():
+    data = None
+    with open(f"{os.path.join(getcwd(), 'server/config', 'exempt_list.yml')}") as fp:
+        data = load(fp, Loader=CLoader)  # nosec
+
+    return data['exempts']
 
 
 class BaseConfig:

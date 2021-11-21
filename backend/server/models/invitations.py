@@ -1,11 +1,8 @@
 from datetime import datetime
-from functools import lru_cache
-from os import getcwd
 
 from server import db
+from server.config import _load_exempt_list
 from server.models.base_model import BaseModelMixin
-from yaml import load
-from yamlloader.ordereddict import CLoader
 
 
 class Invitations(BaseModelMixin, db.Model):
@@ -35,7 +32,7 @@ class Invitations(BaseModelMixin, db.Model):
     def use_token(cls, email, token):
         row = cls.query.filter_by(email=email, token=token, active=True).first()
 
-        EXEMPT_LIST = cls._load_exempt_list()
+        EXEMPT_LIST = _load_exempt_list()
         if token in EXEMPT_LIST:
             return
         row.active = False
@@ -43,19 +40,10 @@ class Invitations(BaseModelMixin, db.Model):
         row.save()
 
     @classmethod
-    @lru_cache(12)
-    def _load_exempt_list(cls):
-        data = None
-        with open(f"{getcwd()}/server/exempt_list.yml") as fp:
-            data = load(fp, Loader=CLoader)  # nosec
-
-        return data['exempts']
-
-    @classmethod
     def validate_email_invitation_token(cls, email, token):
         row = cls.query.filter_by(email=email, token=token, active=True).all()
-
-        if token in cls._load_exempt_list():
+        print(f'Validating token {token} with validator values {_load_exempt_list()}')
+        if token in _load_exempt_list():
             return True
 
         if len(row) == 0:

@@ -95,9 +95,10 @@ def test_teacher_registration_endpoint_with_exempted_invite_code(client: FlaskCl
                                                                  token: str,
                                                                  unique_email: str,
                                                                  mocker: MockFixture):
-    mock_exempt_list = [token]
     mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions')
-    mocker.patch('server.models.Invitations._load_exempt_list', return_value=mock_exempt_list)
+
+    mocker.patch('server.models.invitations._load_exempt_list', return_value=[token])
+
     new_teacher = build(dict, FACTORY_CLASS=TeacherFactory, email=unique_email)
     new_teacher.update({
         'invitation_code': token
