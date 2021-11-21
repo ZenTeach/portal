@@ -3,6 +3,7 @@
 """
 
 from marshmallow_enum import EnumField
+from marshmallow import Schema, fields
 from server import ma
 
 from .question_choice import QuestionChoice
@@ -39,6 +40,7 @@ __all__ = [
     "SchoolClass",
     "SchoolClassSchema",
     "Setting",
+    "SettingSchema",
     "Admin",
     "QuizSession",
     "Questions",
@@ -199,3 +201,10 @@ class QuizGradeSchema(ma.ModelSchema):
                   "student")
 
     student = ma.Nested(StudentSchema)
+
+
+class SettingSchema(Schema):
+    appsettings = fields.Method('_appsettings')
+
+    def _appsettings(self, obj):
+        return obj.configuration
