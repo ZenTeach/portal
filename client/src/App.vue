@@ -105,11 +105,9 @@ export default {
       return ['md', 'sm', 'xs'].includes(this.$vuetify.breakpoint.name)
     }
   },
-  data () {
-    return {
-      drawer: false,
-      errorColor: 'error'
-    }
+  mounted () {
+    console.log('Calling mounted function')
+    this.$store.dispatch('settings/fetchExamBoards', {}, { root: true })
   },
   methods: {
     ...mapMutations({
