@@ -29,7 +29,6 @@ export default {
         }
       })
       .catch(error => {
-        console.error(error)
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
         commit('TOGGLE_APP_STATUS', 'error')
       })

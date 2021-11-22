@@ -6,6 +6,7 @@ import user from '@/store/modules/user'
 import classrooms from '@/store/modules/classrooms'
 import quiz from '@/store/modules/quiz'
 import questions from '@/store/modules/questions'
+import settings from '@/store/modules/settings'
 
 Vue.use(Vuex)
 
@@ -19,6 +20,7 @@ const store = new Vuex.Store({
     user: user,
     classrooms: classrooms,
     quiz: quiz,
+    settings: settings,
     questions: questions
   },
   state: {
