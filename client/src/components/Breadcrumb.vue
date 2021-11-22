@@ -19,7 +19,6 @@ export default {
   },
   computed: {
     breadcrumbs () {
-    //   console.log("Computing breadcrumbs", this.getCrumbs())
       return this.getCrumbs()
     }
   },
@@ -45,18 +44,12 @@ export default {
       var crumbs = []
 
       var matched = this.$route.matched
-      //   console.log("Matched", matched)
       matched.forEach(function (route) {
-        // Backwards compatibility
-        // console.log("Route component", route.components)
         var hasBreadcrumb = route.meta && route.meta.breadcrumb
-        // console.log("Has breadcrumb", hasBreadcrumb)
         if (hasBreadcrumb) {
           crumbs.push(route)
         }
       })
-      //   console.log(crumbs)
-      //   console.log(crumbs, this.$router.getMatchedComponents())
       return crumbs
     }
   },
