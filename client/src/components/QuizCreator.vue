@@ -256,7 +256,6 @@ export default {
       return this._.countBy(this.questionList, 'knowledge_item.value')
     },
     questionTopicCount () {
-      console.log(this.questionList)
       return this._.countBy(this.questionList, 'topic.value')
     },
     fetchedKIsfromTopic () {

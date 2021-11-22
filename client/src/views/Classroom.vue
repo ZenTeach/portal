@@ -216,23 +216,19 @@ export default {
           name: name
         })
         .then(function (response) {
-          console.log(response)
         })
     },
     cancel () {
       this.snack = true
       this.snackColor = 'error'
       this.snackText = 'Canceled'
-      console.log('Canceled')
     },
     open () {
       this.snack = true
       this.snackColor = 'info'
       this.snackText = 'Dialog opened'
-      console.log('Dialog opened')
     },
     close () {
-      console.log('Dialog closed')
     }
   }
 }
