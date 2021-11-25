@@ -8,6 +8,9 @@ const state = {
   uuid: '',
   has_started: false,
   has_submitted: false,
+  error: null,
+  has_error: false,
+  loading: false,
   report_card: [],
   graded_quizzes: []
 }

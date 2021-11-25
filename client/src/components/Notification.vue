@@ -31,7 +31,7 @@ export default {
     }
   },
   mounted: function () {
-    window.setTimeout(this.toggleOffError, 3000)
+    window.setTimeout(this.toggleOffError, 5000)
   },
   methods: {
     toggleOffError () {

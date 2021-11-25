@@ -106,7 +106,6 @@ export default {
     }
   },
   mounted () {
-    console.log('Calling mounted function')
     this.$store.dispatch('settings/fetchExamBoards', {}, { root: true })
   },
   methods: {

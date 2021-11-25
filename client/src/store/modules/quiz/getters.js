@@ -7,6 +7,22 @@ export default {
     return state.subject
   },
 
+  error (state) {
+    return state.error
+  },
+
+  errorState (state) {
+    return state.has_error
+  },
+
+  loading (state) {
+    return state.loading
+  },
+
+  has_started (state) {
+    return state.has_started
+  },
+
   uuid (state) {
     return state.uuid
   },
