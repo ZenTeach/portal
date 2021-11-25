@@ -24,6 +24,26 @@ export default {
     state.has_submitted = true
   },
 
+  SET_ERROR (state, payload) {
+    state.error = payload
+  },
+
+  RESET_ERROR (state) {
+    state.error = null
+  },
+
+  SET_ERROR_STATE (state, payload) {
+    state.has_error = payload
+  },
+
+  SET_LOADING (state, payload) {
+    state.loading = payload
+  },
+
+  SET_STARTED (state, payload) {
+    state.has_started = payload
+  },
+
   SET_QUIZ_NAME (state, name) {
     state.name = name
   },

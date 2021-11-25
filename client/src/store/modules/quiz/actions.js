@@ -10,18 +10,33 @@ import {
 export default {
   START_QUIZ ({ commit, dispatch }, payload) {
     const { studentEmail, quizUUID } = payload
+    // set a loading state
+    commit('RESET_ERROR')
+    commit('SET_ERROR_STATE', false)
+    commit('SET_LOADING', true)
+    commit('SET_STARTED', false)
     startQuiz(studentEmail, quizUUID).then(
       data => {
         commit('SET_QUIZ_SESSION')
+        commit('SET_ERROR_STATE', false)
+        commit('SET_LOADING', false)
+        commit('SET_STARTED', true)
+        setTimeout(
+          function () {
+            dispatch('LOAD_QUIZ', quizUUID)
+          }, 2000
+        )
       },
       error => {
-        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+        commit('SET_ERROR', error.response.data)
+        commit('SET_ERROR_STATE', true)
+        commit('SET_LOADING', false)
       }
     )
   },
 
   LOAD_QUIZ ({ commit, dispatch }, payload) {
+    commit('SET_LOADING', true)
     fetchQuiz(payload).then(
       data => {
         const { uuid, questions, subject, name } = data.data
@@ -29,10 +44,12 @@ export default {
         commit('SET_QUIZ_UUID', uuid)
         commit('TOGGLE_QUIZ_QUESTIONS', questions)
         commit('SET_QUIZ_NAME', name)
+        commit('SET_LOADING', false)
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
         dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+        commit('SET_LOADING', false)
       }
     )
   },
