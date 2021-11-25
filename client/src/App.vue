@@ -105,12 +105,6 @@ export default {
       return ['md', 'sm', 'xs'].includes(this.$vuetify.breakpoint.name)
     }
   },
-  data () {
-    return {
-      drawer: false,
-      errorColor: 'error'
-    }
-  },
   methods: {
     ...mapMutations({
       toggleNavDrawer: 'TOGGLE_APP_DRAWER'
