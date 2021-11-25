@@ -31,7 +31,6 @@ class Setting(object):
     def update_configuration(self, value: OrderedDict) -> None:
         if isinstance(value, dict):
             value = OrderedDict(value)
-        print(f'Updating configuration with {value}')
         self._configuration.update(value)
 
     def run_loaders(self) -> None:

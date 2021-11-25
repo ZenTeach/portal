@@ -105,6 +105,9 @@ export default {
       return ['md', 'sm', 'xs'].includes(this.$vuetify.breakpoint.name)
     }
   },
+  mounted () {
+    this.$store.dispatch('settings/fetchExamBoards', {}, { root: true })
+  },
   methods: {
     ...mapMutations({
       toggleNavDrawer: 'TOGGLE_APP_DRAWER'
