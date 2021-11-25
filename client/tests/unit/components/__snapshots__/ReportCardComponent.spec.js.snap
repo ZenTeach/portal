@@ -59,9 +59,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       <td
         class="tg-0lax"
       >
-        [
-  "Look at this image of an atom."
-]
+        Look at this image of an atom.
       </td>
     </tr>
     <tr>
@@ -80,9 +78,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       <td
         class="tg-0lax"
       >
-        [
-  "Look at this image of an atom."
-]
+        Look at this image of an atom.
       </td>
     </tr>
     <tr>
@@ -101,9 +97,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       <td
         class="tg-0lax"
       >
-        [
-  "Look at this image of an atom."
-]
+        Look at this image of an atom.
       </td>
     </tr>
     <tr>
@@ -122,9 +116,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       <td
         class="tg-0lax"
       >
-        [
-  "Look at this image of an atom."
-]
+        Look at this image of an atom.
       </td>
     </tr>
     <tr>
@@ -143,9 +135,7 @@ exports[`ReportCardComponent.vue Test renders component with data 1`] = `
       <td
         class="tg-0lax"
       >
-        [
-  "Look at this image of an atom."
-]
+        Look at this image of an atom.
       </td>
     </tr>
     <tr

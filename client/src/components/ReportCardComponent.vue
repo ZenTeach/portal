@@ -18,7 +18,7 @@
          </tr>
        </template>
        <template v-for="report in reports" v-else>
-         <template v-for="(topic, idx) in Object.keys(report)">
+         <template v-for="(topic,) in Object.keys(report)">
           <tr :key="topic" colspan="1">
            <td class="tg-cly1" :rowspan="Object.keys(report[topic]).length + 1" colspan="1">{{ topic }}</td>
           </tr>
@@ -71,8 +71,15 @@ export default {
         const deltaOps = JSON.parse(feedback)
         const cfg = {}
         const converter = new QuillDeltaToHtmlConverter(deltaOps, cfg)
-        return converter.convert()
+        let converted_ = converter.convert()
+        if (converted_ instanceof Array) {
+          converted_ = converted_.join('\n')
+        }
+        return converted_
       } catch (error) {
+        if (feedback instanceof Array) {
+          return feedback.join('\n')
+        }
         return feedback
       }
     }
