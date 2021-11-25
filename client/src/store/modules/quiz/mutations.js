@@ -40,10 +40,6 @@ export default {
     state.loading = payload
   },
 
-  SET_STARTED (state, payload) {
-    state.has_started = payload
-  },
-
   SET_QUIZ_NAME (state, name) {
     state.name = name
   },
