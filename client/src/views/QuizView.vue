@@ -76,7 +76,7 @@
     </v-row>
 
     <v-row class="mx-10 pa-5">
-      <v-btn :disabled="!isValid" color="success" @click="submit()">
+      <v-btn :disabled="!isValid" :loading="loading" color="success" @click="submit()">
         Submit Quiz
       </v-btn>
     </v-row>
@@ -145,7 +145,7 @@ export default {
       }
     },
     setDialogState () {
-      this.dialog = !this.hasStarted || this.hasError
+      this.dialog = !(this.hasStarted || this.hasSubmitted) || this.hasError
     }
   },
   watch: {
