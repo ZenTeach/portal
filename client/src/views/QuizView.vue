@@ -4,17 +4,39 @@
       <v-card class="mx-auto px-auto" outlined>
         <v-card-title class="font-weight-light"> Quiz Procotor </v-card-title>
         <v-card-text class="headline font-weight-bold">
-          <p> Please enter your email to start your quiz: </p>
-          <v-text-field
-            single-line
-            prepend-icon="email"
-            outline
-            required
-            v-model="studentEmail"
-          ></v-text-field>
+          <div>
+            <p> Please enter your email to start your quiz: </p>
+            <v-text-field
+              single-line
+              prepend-icon="email"
+              outline
+              required
+              v-model="studentEmail"
+            ></v-text-field>
+            <v-banner
+              color="error"
+              v-model="showSessionErrors"
+              icon="warning"
+            >
+              <div class="d-flex align-content-center flex-wrap ml-auto">
+                <p class="white--text mt-0 mb-2 font-weight-light text-h6 text-md-h5">
+                  {{ (error &&  error.message) || "We've run into an error, please try again later." }}
+                </p>
+                <v-btn
+                  text
+                  color="white"
+                  outlined
+                  class="mb-2 text-md-h6"
+                  @click="showSessionErrors=!showSessionErrors"
+                >
+                  Dismiss
+                </v-btn>
+              </div>
+            </v-banner>
+          </div>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary lighten-2" outlined class="mr-4" @click="startQuizSession">Proceed</v-btn>
+          <v-btn color="primary lighten-2" outlined class="mr-4" @click="startQuizSession" :loading="loading">Proceed</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -90,6 +112,7 @@ export default {
       dialog: true,
       studentEmail: '',
       selectedChoices: {},
+      showSessionErrors: false,
       completedModal: false
     }
   },
@@ -98,7 +121,11 @@ export default {
       quizUUID: 'uuid',
       quiz_questions: 'quizQuestions',
       quizTitle: 'name',
-      hasSubmitted: 'hasSubmitted'
+      hasSubmitted: 'hasSubmitted',
+      error: 'error',
+      hasError: 'errorState',
+      loading: 'loading',
+      hasStarted: 'has_started'
     }),
     routeId () {
       return this.$route.params.id
@@ -109,6 +136,23 @@ export default {
     isValid () {
       return !this._.isEmpty(this.selectedChoices) &&
         this.selectedChoicesLength === this.quiz_questions.length
+    },
+    qid () {
+      if (this.quizUUID == null) {
+        return this.quizUUID
+      } else {
+        return this.routeId
+      }
+    },
+    setDialogState () {
+      this.dialog = !this.hasStarted || this.hasError
+    }
+  },
+  watch: {
+    hasError: function (val) {
+      if (val) {
+        this.showSessionErrors = this.hasError
+      }
     }
   },
   methods: {
@@ -141,20 +185,10 @@ export default {
       }
     },
     startQuizSession () {
-      let qid = null
-      if (this.quizUUID == null) {
-        qid = this.quizUUID
-      } else {
-        qid = this.routeId
-      }
-
       this.$store.dispatch('quiz/START_QUIZ', {
         studentEmail: this.studentEmail,
-        quizUUID: qid
+        quizUUID: this.qid
       }, { root: true })
-
-      this.dialog = !this.dialog
-      this.$store.dispatch('quiz/LOAD_QUIZ', qid, { root: true })
     }
   },
   beforeDestroy: function () {
