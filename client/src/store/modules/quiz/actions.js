@@ -14,13 +14,11 @@ export default {
     commit('RESET_ERROR')
     commit('SET_ERROR_STATE', false)
     commit('SET_LOADING', true)
-    commit('SET_STARTED', false)
     startQuiz(studentEmail, quizUUID).then(
       data => {
         commit('SET_QUIZ_SESSION')
         commit('SET_ERROR_STATE', false)
         commit('SET_LOADING', false)
-        commit('SET_STARTED', true)
         setTimeout(
           function () {
             dispatch('LOAD_QUIZ', quizUUID)
@@ -68,6 +66,7 @@ export default {
     )
   },
   SUBMIT_QUIZ ({ commit, dispatch }, payload) {
+    commit('SET_LOADING', true)
     submitQuiz(payload).then(
       data => {
         commit('UNSET_QUIZ_SESSION')
@@ -75,10 +74,12 @@ export default {
         commit('UNSET_QUIZ_UUID')
         commit('UNSET_QUIZ_SUBJECT')
         commit('TOGGLE_QUIZ_QUESTIONS', {})
+        commit('SET_LOADING', false)
         dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
         dispatch('app/TOGGLE_ERROR', { message: 'Quiz submitted!' }, { root: true })
       },
       error => {
+        commit('SET_LOADING', false)
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
         dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
       }
