@@ -10,8 +10,14 @@ import settings from '@/store/modules/settings'
 
 Vue.use(Vuex)
 
-const vuexLocalStore = new VuexPersistence({
-  storage: window.sessionStorage
+const vuexLocalSessionStore = new VuexPersistence({
+  storage: window.sessionStorage,
+  modules: ['user', 'questions', 'classrooms']
+})
+
+const vuexLocalStorageStore = new VuexPersistence({
+  storage: window.localStorage,
+  modules: ['app', 'settings']
 })
 
 const store = new Vuex.Store({
@@ -29,7 +35,7 @@ const store = new Vuex.Store({
   mutations: {},
   actions: {},
   getters: {},
-  plugins: [vuexLocalStore.plugin]
+  plugins: [vuexLocalSessionStore.plugin, vuexLocalStorageStore.plugin]
 })
 
 export default store
