@@ -12,18 +12,15 @@ export default {
     const { studentEmail, quizUUID } = payload
     // set a loading state
     commit('RESET_ERROR')
+    commit('UNSET_QUIZ_SESSION')
     commit('SET_ERROR_STATE', false)
     commit('SET_LOADING', true)
     startQuiz(studentEmail, quizUUID).then(
       data => {
-        commit('SET_QUIZ_SESSION')
         commit('SET_ERROR_STATE', false)
+        commit('SET_QUIZ_SESSION')
         commit('SET_LOADING', false)
-        setTimeout(
-          function () {
-            dispatch('LOAD_QUIZ', quizUUID)
-          }, 2000
-        )
+        dispatch('LOAD_QUIZ', quizUUID)
       },
       error => {
         commit('SET_ERROR', error.response.data)

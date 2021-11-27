@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-dialog v-model="dialog" max-width="1000px" persistent>
       <v-card class="mx-auto px-auto" outlined>
-        <v-card-title class="font-weight-light"> Quiz Procotor </v-card-title>
+        <v-card-title class="font-weight-light"> Start a quizzing session </v-card-title>
         <v-card-text class="headline font-weight-bold">
           <div>
             <p> Please enter your email to start your quiz: </p>
@@ -43,7 +43,7 @@
     <v-row class="ma-lg-4 pa-lg-3">
       <input type="hidden" />
       <v-col class="ma-lg-2">
-        <h1>{{ quizTitle }}</h1>
+        <h1>{{ name }}</h1>
       </v-col>
     </v-row>
     <v-row class="mx-lg-10 pa-lg-3">
@@ -109,7 +109,6 @@ export default {
   name: 'QuizView',
   data () {
     return {
-      dialog: true,
       studentEmail: '',
       selectedChoices: {},
       showSessionErrors: false,
@@ -120,7 +119,7 @@ export default {
     ...mapGetters({
       quizUUID: 'uuid',
       quiz_questions: 'quizQuestions',
-      quizTitle: 'name',
+      quizName: 'name',
       hasSubmitted: 'hasSubmitted',
       error: 'error',
       hasError: 'errorState',
@@ -144,13 +143,18 @@ export default {
         return this.routeId
       }
     },
-    setDialogState () {
-      this.dialog = !(this.hasStarted || this.hasSubmitted) || this.hasError
+    name () {
+      return this.quizName
+    },
+    dialog () {
+      // if quiz has started or has been submitted, don't show dialog
+      // regardless of the above case, always show dialog if quiz has error
+      return !(this.hasStarted ^ this.hasSubmitted) || this.hasError
     }
   },
   watch: {
     hasError: function (val) {
-      if (val) {
+      if (val !== null || val !== undefined) {
         this.showSessionErrors = this.hasError
       }
     }
