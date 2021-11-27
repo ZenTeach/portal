@@ -11,6 +11,7 @@ const state = {
   error: null,
   has_error: false,
   loading: false,
+  name: '',
   report_card: [],
   graded_quizzes: []
 }
