@@ -19,6 +19,7 @@
     "axios": "^0.21.1",
     "axios-auth-refresh": "^2.2.0",
     "bootstrap": "^4.3.1",
+    "browserlist": "^1.0.1",
     "css-base": "^1.0.0",
     "css-loader": "^3.2.0",
     "jquery": "^3.4.1",
@@ -97,5 +98,10 @@
       "vue-cli-service lint",
       "git add"
     ]
-  }
+  },
+  "browserslist": [
+    "defaults",
+    "since 2015",
+    "not ie <= 8"
+  ]
 }
