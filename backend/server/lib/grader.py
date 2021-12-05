@@ -223,6 +223,8 @@ class Grader(object):
             submission.is_graded()
             # TODO: Step 2 get grade breakdown
             submission.update_grade_breakdown(self._feedback_builder.feedback)
+            del self._feedback_builder
+            self._feedback_builder = Feedback()
 
     def _get_correct_choice_by_question_id(self,
                                            question_choice_uuid: UUID,
