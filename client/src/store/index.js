@@ -12,12 +12,12 @@ Vue.use(Vuex)
 
 const vuexLocalSessionStore = new VuexPersistence({
   storage: window.sessionStorage,
-  modules: ['user', 'questions', 'classrooms']
+  modules: ['app', 'user', 'questions', 'classrooms']
 })
 
 const vuexLocalStorageStore = new VuexPersistence({
   storage: window.localStorage,
-  modules: ['app', 'settings']
+  modules: ['settings']
 })
 
 const store = new Vuex.Store({
