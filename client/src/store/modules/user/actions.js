@@ -20,11 +20,13 @@ const LOGIN_USER = ({ commit, dispatch }, payload) => {
   loginUser(payload).then(
     _data => {
       commit('app/TOGGLE_APP_LOGGED_IN', true, { root: true })
+      commit('app/TOGGLE_APP_LOADING', true, { root: true })
       dispatch('FETCHCURRENTUSER')
       dispatch('app/FETCH_SUBJECTS', {}, { root: true })
       router.push('/')
     },
     error => {
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
       commit('app/TOGGLE_ERROR', error.response.data, { root: true })
       dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
     }
@@ -34,17 +36,18 @@ const LOGIN_USER = ({ commit, dispatch }, payload) => {
 
 const SIGNOUT_USER = ({ commit, dispatch }) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
-  logoutUser().then(data => {
-    Vue.prototype.$cookies.remove('csrf_access_token')
-    commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
-    commit('TOGGLECURRENTUSER', {})
-    commit('app/TOGGLE_APP_LOADING', false, { root: true })
-  },
-  error => {
-    commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
-    commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-    dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
-  }
+  logoutUser().then(
+    _data => {
+      commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+      commit('TOGGLECURRENTUSER', {})
+      Vue.prototype.$cookies.remove('csrf_access_token')
+    },
+    error => {
+      commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
+      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+    }
   )
 }
 
