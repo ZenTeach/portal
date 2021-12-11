@@ -37,7 +37,7 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn :disabled="!valid" text dark class="mr-4 primary" @click="login_user" outlined>Login</v-btn>
+              <v-btn :disabled="!valid" text dark class="mr-4 primary" @click="login_user" :loading="loading" outlined>Login</v-btn>
             </v-card-actions>
             <v-spacer></v-spacer>
             <v-divider class="mx-3 mb-3" />
@@ -61,6 +61,10 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex'
+
+const { mapGetters } = createNamespacedHelpers('app')
+
 export default {
   name: 'Login',
   data: () => ({
@@ -74,7 +78,11 @@ export default {
     checkbox: false,
     lazy: false
   }),
-  computed: {},
+  computed: {
+    ...mapGetters({
+      loading: 'loading'
+    })
+  },
   methods: {
     validate () {
       if (this.$refs.form.validate()) {
