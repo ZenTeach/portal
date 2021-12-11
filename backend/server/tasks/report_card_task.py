@@ -33,7 +33,7 @@ def send_report_card_pdf(self, report_card_id: UUID):
         msg = Message(subject="Hi! Your Report Card PDF has arrived")
         msg.recipients = ["{}".format(grade.student.email)]
 
-        with open(generator.report_file_name) as fp:
+        with open(generator.report_file_name, 'rb') as fp:
             msg.attach("ReportCard.pdf", "application/pdf", fp.read())
 
         send_mail_with_html(msg, "report_card.html.j2",
