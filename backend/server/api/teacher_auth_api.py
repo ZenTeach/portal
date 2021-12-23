@@ -76,7 +76,7 @@ class TeacherRegistration(MethodView):
             redis_store.set(refresh_jti, "true", REFRESH_EXPIRES * 1.2)
 
             send_confirmation_instructions.delay(new_teacher.id)
-
+            Invitations.associate_invitee(new_teacher, data["invitation_code"])
             response = make_response(response, 200)
 
             set_access_cookies(response, access_token)
