@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from server import db
-from server.models import Setting
+from server.models import Setting, Teacher
 from server.models.base_model import BaseModelMixin
 
 
@@ -14,6 +14,9 @@ class Invitations(BaseModelMixin, db.Model):
     active = db.Column(db.Boolean, nullable=False, default=False)
     invitation_from_id = db.Column(db.Integer, db.ForeignKey(
         "teacher.id"), nullable=False)
+    invitee_id = db.Column(db.Integer, db.ForeignKey(
+        "teacher.id", name="invitations_invitee_id_fkey"), nullable=True)
+    invitee = db.relationship("Teacher", backref="invitation", foreign_keys=[invitee_id])
 
     def __init__(self,
                  email,
@@ -38,6 +41,15 @@ class Invitations(BaseModelMixin, db.Model):
         row.active = False
 
         row.save()
+
+    @classmethod
+    def associate_invitee(cls, teacher: Teacher, token: str) -> None:
+        _invitation = cls.query.filter_by(token=token, active=False).first()
+        if _invitation is None:
+            return
+
+        _invitation.invitee = teacher
+        _invitation.save()
 
     @classmethod
     def validate_email_invitation_token(cls, email, token):
