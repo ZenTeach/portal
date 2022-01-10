@@ -281,7 +281,7 @@ export default {
       editDialog: false,
       confirmDeleteDialog: false,
       deleteItemId: null,
-      start_date: new Date().toISOString().substr(0, 10),
+      start_date: '',
       menu: false,
       classname: '',
       subject: [],
@@ -352,6 +352,13 @@ export default {
         this.editDialog = false
       }, 100)
     },
+    resetClassAdd () {
+      this.classname = ''
+      this.subject = []
+      this.examBoard = ''
+      this.start_date = ''
+      this.yearGroup = ''
+    },
     addClass () {
       const payload = {
         name: this.classname,
@@ -363,6 +370,7 @@ export default {
 
       this.createClass(payload)
       this.close()
+      this.resetClassAdd()
     },
     deleteItem (item) {
       // show confirmation dialog
@@ -375,6 +383,7 @@ export default {
         return
       }
       this.deleteClass(itemId)
+      this.confirmDeleteDialog = false
     },
     has_empty_examboard (item) {
       return (item.exam_board === '' || item.exam_board === null || item.exam_board === undefined)
