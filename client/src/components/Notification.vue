@@ -5,6 +5,7 @@
     :value="value"
     :dark="dark"
     v-on="$listeners"
+    id="notification_alert"
   >
     <slot />
   </v-alert>
@@ -30,12 +31,16 @@ export default {
       default: true
     }
   },
+  created: function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  },
   mounted: function () {
     window.setTimeout(this.toggleOffError, 5000)
   },
   methods: {
     toggleOffError () {
       this.$store.dispatch('app/TOGGLE_ERROR', {}, { root: true })
+      this.$store.dispatch('app/TOGGLE_APP_STATUS', '', { root: true })
     }
   }
 }
