@@ -5,6 +5,7 @@
     :value="value"
     :dark="dark"
     v-on="$listeners"
+    id="notification_alert"
   >
     <slot />
     <template v-slot:append v-if="appStatus === 'error'">
@@ -50,6 +51,8 @@ export default {
     ...appGetters({
       appStatus: 'statusText'
     })
+  created: function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   },
   mounted: function () {
     window.setTimeout(this.toggleOffError, 5000)
@@ -70,6 +73,7 @@ export default {
     },
     toggleOffError () {
       this.$store.dispatch('app/TOGGLE_ERROR', {}, { root: true })
+      this.$store.dispatch('app/TOGGLE_APP_STATUS', '', { root: true })
     }
   }
 }
