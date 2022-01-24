@@ -51,6 +51,7 @@ export default {
     ...appGetters({
       appStatus: 'statusText'
     })
+  },
   created: function () {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   },
