@@ -6,7 +6,7 @@
             <ValidationProvider name="choice" rules="required" v-slot="{ errors }">
               <v-text-field
                 v-model="choice.value"
-                label="Choice"
+                label="Enter a multiple-choice answer here..."
                 :error-messages="errors"
                 outlined>
               </v-text-field>

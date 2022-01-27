@@ -68,29 +68,6 @@
                   </ValidationProvider>
 
               </v-col>
-              <v-col cols="3" lg="3" sm="12" md="6">
-                  <ValidationProvider name="question_type" rules="required" v-slot="{ errors }">
-                  <v-select :items="question_type"
-                      :error-messages="errors"
-                      value="multiple_choice"
-                      placeholder="Multiple Choice"
-                      :disabled="true"
-                      v-model="question_object.question_type" label="Question Type" outlined
-                  ></v-select>
-                  </ValidationProvider>
-              </v-col>
-              <v-col cols="12" lg="12" sm="12" md="12">
-                  <ValidationProvider name="tag" rules="required" v-slot="{ errors }">
-                  <v-text-field
-                      v-model="question_object.tag"
-                      :placeholder="question_object.tag || ''"
-                      label="Tag"
-                      single-line
-                      :error-messages="errors"
-                      outlined
-                  ></v-text-field>
-                  </ValidationProvider>
-              </v-col>
           </v-row>
           <v-row>
             <span class="inline-flex">

@@ -148,7 +148,7 @@ const router = new Router({
         import(/* webpackChunkName: "QuestionCreateView" */ './views/QuestionCreate'),
       meta: {
         requiresAuth: true,
-        breadcrumb: 'Create a question'
+        breadcrumb: 'Create a question (Multiple Choice)'
       }
     },
     {
@@ -158,7 +158,7 @@ const router = new Router({
         import(/* webpackChunkName: "QuestionCreateView" */ './views/QuestionEdit'),
       meta: {
         requiresAuth: true,
-        breadcrumb: 'Edit question'
+        breadcrumb: 'Edit question (Multiple Choice)'
       }
     },
     {
