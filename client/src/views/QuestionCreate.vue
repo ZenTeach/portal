@@ -79,10 +79,10 @@ export default {
       question_type: 'multiple_choice',
       question: '',
       choices: [
-        { value: '', weight: 0, is_correct_choice: false, feedback: '' },
-        { value: '', weight: 0, is_correct_choice: false, feedback: '' },
-        { value: '', weight: 0, is_correct_choice: false, feedback: '' },
-        { value: '', weight: 0, is_correct_choice: false, feedback: '' }
+        { value: '', weight: 0, is_correct_choice: false, feedback: 'Enter a choice feedback.' },
+        { value: '', weight: 0, is_correct_choice: false, feedback: 'Enter a choice feedback.' },
+        { value: '', weight: 0, is_correct_choice: false, feedback: 'Enter a choice feedback.' },
+        { value: '', weight: 0, is_correct_choice: false, feedback: 'Enter a choice feedback.' }
       ]
     }
 
