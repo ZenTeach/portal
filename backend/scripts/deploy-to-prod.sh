@@ -67,5 +67,5 @@ for server in '5.1.10.218'; do
 
     ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
     -o "StrictHostKeyChecking=no" \
-    "sudo supervisorctl restart zenteach_be zenteach_celery_processor"
+    "sudo systemctl restart zenteach_be zenteach_be_celery"
 done
