@@ -7,6 +7,7 @@ Create Date: 2022-01-28 23:22:33.946550
 """
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.sql.expression import text
 
 # revision identifiers, used by Alembic.
 revision = 'c7fc56d7ee51'
@@ -16,34 +17,62 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('admin', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('admin', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('class_quiz', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('class_quiz', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('invitations', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('invitations', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('knowledge_items', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('knowledge_items', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('question_choice', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('question_choice', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('questions', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('questions', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('quiz_grade', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('quiz_grade', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('quiz_session', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('quiz_session', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('school_class', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('school_class', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('student', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('student', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('student_attended_class', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('student_attended_class', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('subjects', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('subjects', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('teacher', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('teacher', sa.Column('updated', sa.DateTime(), nullable=True))
-    op.add_column('topics', sa.Column('created', sa.DateTime(), nullable=True))
-    op.add_column('topics', sa.Column('updated', sa.DateTime(), nullable=True))
+    op.add_column('admin', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('admin', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('class_quiz', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('class_quiz', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('invitations', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('invitations', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('knowledge_items', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('knowledge_items', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('question_choice', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('question_choice', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('questions', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('questions', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('quiz_grade', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('quiz_grade', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('quiz_session', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('quiz_session', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('school_class', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('school_class', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('student', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('student', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('student_attended_class', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('student_attended_class', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('subjects', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('subjects', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('teacher', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('teacher', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('topics', sa.Column('created', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    op.add_column('topics', sa.Column('updated', sa.DateTime(),
+                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
 
 
 def downgrade():
