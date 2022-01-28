@@ -56,5 +56,5 @@ for server in '35.176.160.133'; do
     "cd /var/www/zenteach_be && mkdir zenteach/instance && cp /var/www/zenteach_be/application.cfg zenteach/instance/"
 
     ssh -i $REMOTE_KEYS $REMOTE_USER@$server -o StrictHostKeyChecking=no \
-    "sudo supervisorctl restart zenteach_be zenteach_celery_processor"
+    "sudo systemctl restart zenteach_be zenteach_be_celery"
 done
