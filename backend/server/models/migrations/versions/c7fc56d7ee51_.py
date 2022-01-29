@@ -27,10 +27,10 @@ def upgrade():
                                        nullable=True, server_default=text('CURRENT_TIMESTAMP')))
         op.add_column(table, sa.Column('updated', sa.DateTime(),
                                        nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-        op.execute(f"UPDATE {table} SET created = CURRENT_TIMESTAMP;")
-        op.execute(f"UPDATE {table} SET updated = CURRENT_TIMESTAMP;")
-        op.alter_column(table, 'created', nullable=False)
-        op.alter_column(table, 'updated', nullable=False)
+        # op.execute(f"UPDATE {table} SET created = CURRENT_TIMESTAMP;")
+        # op.execute(f"UPDATE {table} SET updated = CURRENT_TIMESTAMP;")
+        # op.alter_column(table, 'created', nullable=False)
+        # op.alter_column(table, 'updated', nullable=False)
 
 
 def downgrade():
