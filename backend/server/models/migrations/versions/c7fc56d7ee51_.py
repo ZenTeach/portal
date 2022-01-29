@@ -17,90 +17,28 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('admin', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('admin', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('class_quiz', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('class_quiz', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('invitations', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('invitations', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('knowledge_items', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('knowledge_items', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('question_choice', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('question_choice', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('questions', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('questions', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('quiz_grade', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('quiz_grade', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('quiz_session', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('quiz_session', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('school_class', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('school_class', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('student', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('student', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('student_attended_class', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('student_attended_class', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('subjects', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('subjects', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('teacher', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('teacher', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('topics', sa.Column('created', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
-    op.add_column('topics', sa.Column('updated', sa.DateTime(),
-                  nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+    tables = ['admin', 'class_quiz', 'invitations',
+              'knowledge_items', 'question_choice', 'questions',
+              'quiz_grade', 'quiz_session', 'school_class',
+              'student', 'student_attended_class', 'subjects',
+              'teacher', 'topics']
+    for table in tables:
+        op.add_column(table, sa.Column('created', sa.DateTime(),
+                                       nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+        op.add_column(table, sa.Column('updated', sa.DateTime(),
+                                       nullable=True, server_default=text('CURRENT_TIMESTAMP')))
+        op.execute(f"UPDATE {table} SET created = CURRENT_TIMESTAMP;")
+        op.execute(f"UPDATE {table} SET updated = CURRENT_TIMESTAMP;")
+        op.alter_column(table, 'created', nullable=False)
+        op.alter_column(table, 'updated', nullable=False)
 
 
 def downgrade():
-    op.drop_column('topics', 'updated')
-    op.drop_column('topics', 'created')
-    op.drop_column('teacher', 'updated')
-    op.drop_column('teacher', 'created')
-    op.drop_column('subjects', 'updated')
-    op.drop_column('subjects', 'created')
-    op.drop_column('student_attended_class', 'updated')
-    op.drop_column('student_attended_class', 'created')
-    op.drop_column('student', 'updated')
-    op.drop_column('student', 'created')
-    op.drop_column('school_class', 'updated')
-    op.drop_column('school_class', 'created')
-    op.drop_column('quiz_session', 'updated')
-    op.drop_column('quiz_session', 'created')
-    op.drop_column('quiz_grade', 'updated')
-    op.drop_column('quiz_grade', 'created')
-    op.drop_column('questions', 'updated')
-    op.drop_column('questions', 'created')
-    op.drop_column('question_choice', 'updated')
-    op.drop_column('question_choice', 'created')
-    op.drop_column('knowledge_items', 'updated')
-    op.drop_column('knowledge_items', 'created')
-    op.drop_column('invitations', 'updated')
-    op.drop_column('invitations', 'created')
-    op.drop_column('class_quiz', 'updated')
-    op.drop_column('class_quiz', 'created')
-    op.drop_column('admin', 'updated')
-    op.drop_column('admin', 'created')
+    tables = ['admin', 'class_quiz', 'invitations',
+              'knowledge_items', 'question_choice', 'questions',
+              'quiz_grade', 'quiz_session', 'school_class',
+              'student', 'student_attended_class', 'subjects',
+              'teacher', 'topics']
+    for table in tables:
+        op.drop_column(table, 'created')
+        op.drop_column(table, 'updated')

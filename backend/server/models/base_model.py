@@ -1,23 +1,19 @@
 
 import json
 import logging
-from datetime import datetime
 from typing import Optional
 from uuid import UUID, uuid4
 
-import sqlalchemy as sa
 from server import db
 from sqlalchemy.orm.attributes import QueryableAttribute
+from sqlalchemy_utils.models import Timestamp
 
 logger = logging.getLogger(__name__)
 
 
-class BaseModelMixin(object):
+class BaseModelMixin(Timestamp, object):
     """ Abstract class adding common functionalities """
     _IGNORED_COLUMNS = []
-
-    created = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)
-    updated = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)
 
     def to_dict(self, show=None, _hide=[], _path=None):
         """Return a dictionary representation of this model."""
@@ -156,13 +152,6 @@ class BaseModelMixin(object):
         for key in table.columns.keys():
             if key not in table.primary_key and key not in self._IGNORED_COLUMNS:
                 yield(key, getattr(self, key))
-
-
-@sa.event.listens_for(BaseModelMixin, 'before_update', propagate=True)
-def timestamp_before_update(mapper, connection, target):
-    # When a model with a timestamp is updated; force update the updated
-    # timestamp.
-    target.updated = datetime.utcnow()
 
 
 def unique_uuid4(x: Optional[UUID] = None) -> UUID:
