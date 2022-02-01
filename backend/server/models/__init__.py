@@ -22,8 +22,10 @@ from .admin import Admin
 from .migrations.seeds import run_seed
 from .setting import Setting
 from .invitations import Invitations
+from .activity_log import ActivityLog
 
 __all__ = [
+    "ActivityLog",
     "ClassQuiz",
     "ClassQuizStatus",
     "ClassQuizSchema",
