@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from flask_bcrypt import generate_password_hash
 from server.models import Admin, SchoolClass, Student, Subject, Teacher
+from server.models.activity_log import ActivityLog
 
 from .questions import question_seeds
 
@@ -11,7 +12,7 @@ from .questions import question_seeds
 def seeds():
     # Teacher seed
     password = "Asdfgh12!"  # nosec
-    Teacher(
+    t = Teacher(
         firstname="john",
         lastname="doe",
         email="connect@ngetahun.me",
@@ -20,7 +21,8 @@ def seeds():
         role="Teacher",
         uuid=uuid4(),
         confirmed=True
-    ).save()
+    )
+    t.save()
     # Admin Teacher seed
     Admin(
         firstname="jane",
@@ -66,7 +68,21 @@ def seeds():
             uuid=uuid4(),
         )
         s.save()
+        ActivityLog.log(
+            t,
+            'create',
+            'school_class',
+            s.id,
+            f'Create class {s.name}'
+        )
         s.add_student(class_student)
+        ActivityLog.log(
+            t,
+            'create',
+            'student_attended_class',
+            s.id,
+            f'Added a student {class_student.full_name} class {s.name}'
+        )
 
 
 def run_seed():
