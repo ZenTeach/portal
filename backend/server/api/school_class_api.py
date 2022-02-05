@@ -4,7 +4,7 @@ from flask.views import MethodView
 from flask_jwt_extended import current_user, jwt_required
 from marshmallow import INCLUDE, Schema, fields
 from server import db
-from server.api import logger
+from server.api import log_activity, logger
 from server.decorators import with_required_roles
 from server.models import SchoolClass as SchoolClassModel
 from server.models import SchoolClassSchema, Student, Subject
@@ -59,6 +59,13 @@ class SchoolClass(MethodView):
                 }), 404)
 
             SchoolClassModel.remove_classroom(class_room)
+            log_activity(
+                current_user,
+                'delete',
+                'school_class',
+                class_room.id,
+                f'Removed class {class_room.name}'
+            )
             return make_response(jsonify({
                 'status': 'success',
                 'message': 'Classroom was successfully deleted.'
@@ -94,6 +101,13 @@ class SchoolClass(MethodView):
                 })
             class_room.update_from_dict(update_data)
             class_room.save()
+            log_activity(
+                current_user,
+                'update',
+                'school_class',
+                class_room.id,
+                f'Updated class {class_room.name}'
+            )
             return make_response(jsonify({
                 'message': 'Update classroom succeeded!'
             }), 200)
@@ -151,6 +165,13 @@ class SchoolClassList(MethodView):
                     year_group=year_group
                 )
                 school_class.save()
+                log_activity(
+                    current_user,
+                    'create',
+                    'student_class',
+                    school_class.id,
+                    ''
+                )
                 response_object = jsonify(
                     {"status": "success",
                         "message": "{} was added!".format(name)}
@@ -237,6 +258,13 @@ class SchoolClassStudent(MethodView):
             if not school_class.has_student(student):
                 school_class.add_student(student)
                 school_class.save()
+                log_activity(
+                    current_user,
+                    'create',
+                    'student_attended_class',
+                    school_class.id,
+                    f'Added student {student.full_name} to class {school_class.name}'
+                )
 
             send_student_confirmation_instructions.apply_async(args=[student.id])
         except exc.IntegrityError:
@@ -267,6 +295,13 @@ class SchoolClassStudent(MethodView):
 
         try:
             school_class.remove_student(student_id)
+            log_activity(
+                current_user,
+                'delete',
+                'student_attended_class',
+                school_class.id,
+                f'Deleted student from class {school_class.name}'
+            )
         except Exception as e:  # noqa
             logger.error(e)
             return make_response(jsonify({
@@ -313,6 +348,13 @@ class SchoolClassStudent(MethodView):
                 student.confirmed = False
 
             student.update_email(new_email)
+            log_activity(
+                current_user,
+                'update',
+                'student_attended_class',
+                school_class.id,
+                f'Updated student {student.full_name} from class {school_class.name}'
+            )
             send_student_confirmation_instructions.apply_async(args=[student.id])
 
         except exc.DatabaseError as e:  # noqa

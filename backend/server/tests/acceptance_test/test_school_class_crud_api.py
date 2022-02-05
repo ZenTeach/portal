@@ -92,6 +92,9 @@ def test_create_school_class(client: FlaskClient,
                              access_token: List[str],
                              teacher_identity: Teacher,
                              school_class_param: dict):
+    def patch_activity_log(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
     response = client.post(
         "/api/v1/school_class",
         json=school_class_param,
@@ -130,6 +133,10 @@ def test_delete_school_class(client: FlaskClient,
                              mocker: MockFixture,
                              access_token: List[str],
                              school_class: SchoolClass):
+    def patch_activity_log(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+
     response = client.delete(
         f'/api/v1/school_class/{school_class.id}',
         headers={
@@ -144,6 +151,11 @@ def test_post_add_student_to_school_class(client: FlaskClient,
                                           mocker: MockFixture,
                                           access_token: List[str],
                                           school_class: SchoolClass):
+    def patch_activity_log(*args):
+        assert len(args) == 5
+        assert args[2] == 'student_attended_class'
+
+    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
     mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
 
     student_payload = {
@@ -170,6 +182,10 @@ def test_post_add_existing_student_to_school_class(client: FlaskClient,
                                                    school_class: SchoolClass,
                                                    access_token: List[str],
                                                    student: Student):
+    def patch_activity_log(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+
     mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
     school_class.add_student(student)
 
@@ -199,6 +215,10 @@ def test_delete_remove_student_from_school_class(client: FlaskClient,
                                                  student: Student):
     school_class.add_student(student)
 
+    def patch_activity_log(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+
     assert len(school_class.students) != 0
 
     response = client.delete(
@@ -219,6 +239,10 @@ def test_patch_update_student_email_in_school_class(client: FlaskClient,
                                                     student: Student):
     mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
     school_class.add_student(student)
+
+    def patch_activity_log(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
 
     assert student.confirmed
     response = client.patch(
@@ -350,6 +374,10 @@ def test_update_school_class_api(client: FlaskClient,
                                  school_class: SchoolClass,
                                  access_token: List[str],
                                  update_school_class_param: dict):
+    def patch_activity_log(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+
     response = client.put(
         f"/api/v1/school_class/{school_class.id}",
         json=update_school_class_param,
@@ -371,6 +399,10 @@ def test_update_school_class_api_with_subject(client: FlaskClient,
                                               school_class: SchoolClass,
                                               access_token: List[str],
                                               update_school_class_param: dict):
+    def patch_activity_log(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+
     update_school_class_param.update({
         'subject': 'Biology'
     })

@@ -2,6 +2,7 @@ import logging
 
 from flask import Blueprint, current_app, jsonify
 from flask.helpers import make_response
+from server.models import ActivityLog
 
 root_api = Blueprint("root", __name__)
 
@@ -9,6 +10,16 @@ if current_app:
     logger = current_app.logger
 else:
     logger = logging.getLogger(__name__)
+
+
+def log_activity(user, action, item_type, item_id, note=None):
+    ActivityLog.log(
+        user,
+        action,
+        item_type,
+        item_id,
+        note
+    )
 
 
 def has_no_empty_params(rule):
