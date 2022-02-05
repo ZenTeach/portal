@@ -671,6 +671,10 @@ def test_teacher_owned_question_create_action(client: FlaskClient,
                                               teacher_identity: Teacher,
                                               access_token: List[str],
                                               question_payload_as_json: dict):
+    def mocked_log_activity(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.questions_api.log_activity', mocked_log_activity)
+
     question_payload_as_json.update({
         'user_created': True,
         'teacher_id': teacher_identity.id

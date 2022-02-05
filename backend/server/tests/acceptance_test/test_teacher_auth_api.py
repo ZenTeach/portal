@@ -211,9 +211,9 @@ def test_teacher_logout(client: FlaskClient, teacher_: Teacher, mocker: MockFixt
     assert response.status_code == 204
 
 
-def test_teacher_send_confirmartion(client: FlaskClient,
-                                    teacher_: Teacher,
-                                    mocker: MockFixture) -> None:
+def test_teacher_send_confirmation(client: FlaskClient,
+                                   teacher_: Teacher,
+                                   mocker: MockFixture) -> None:
     @mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions', return_value=True)
     def _mocked_send_confirmation_instructions(send_confirmation_instructions):
         send_confirmation_instructions.assert_called_with(teacher_.id)

@@ -3,7 +3,7 @@ from flask.views import MethodView
 from flask_jwt_extended import current_user, jwt_required
 from marshmallow import ValidationError
 from server import db
-from server.api import logger
+from server.api import log_activity, logger
 from server.decorators import with_required_roles
 from server.lib import format_validation_for_api
 from server.models import (KnowledgeItem, Questions, QuestionsSchema, Subject,
@@ -174,6 +174,13 @@ class TeacherOwnedQuestions(MethodView):
         question = Questions(**data)
         try:
             question.save()
+            log_activity(
+                current_user,
+                'create',
+                'question',
+                question.id,
+                f'{teacher.full_name} created question {question.id}'
+            )
             return make_response(jsonify({
                 'message': 'Question successfully added'
             }), 201)
