@@ -1,7 +1,8 @@
 
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
-from server.api import logger
+from flask_jwt_extended import current_user
+from server.api import log_activity, logger
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizStatus, QuizSession, QuizSessionStatus,
                            Student)
@@ -49,6 +50,12 @@ class SubmitQuiz(MethodView):
             else:
                 class_quiz.add_student_session(student)
                 class_quiz.save()
+                log_activity(
+                    current_user,
+                    'create',
+                    'quiz_session',
+                    class_quiz.id,
+                    f'{student.full_name} has started a quiz session for {class_quiz.name}')
         except exc.DatabaseError as e:
             logger.error(e)
             return make_response(
@@ -106,7 +113,12 @@ class SubmitQuiz(MethodView):
 
             class_quiz.update_status(ClassQuizStatus.administered)
             quiz_session.update_status(QuizSessionStatus.ended)
-
+            log_activity(
+                current_user,
+                'update',
+                'quiz_session',
+                class_quiz.id,
+                f'{student.full_name} has completed a quiz session for {class_quiz.name}')
             grader_administered_quizzes.apply_async(args=[quiz_session.uuid])
 
             response_object = {"status": "success",
