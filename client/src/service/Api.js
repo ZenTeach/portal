@@ -37,6 +37,7 @@ class ApiService {
               })
               store.dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
               store.dispatch('user/SIGNOUT_USER', {}, { root: true })
+              store.commit('app/TOGGLE_APP_LOADING', false, { root: true })
               router.push({ name: 'login' })
               reject(error)
             })
