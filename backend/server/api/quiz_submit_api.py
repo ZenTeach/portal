@@ -1,11 +1,10 @@
 
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
-from flask_jwt_extended import current_user
 from server.api import log_activity, logger
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizStatus, QuizSession, QuizSessionStatus,
-                           Student)
+                           SchoolClass, Student)
 from server.tasks import grader_administered_quizzes
 from sqlalchemy import exc
 from webargs import fields, validate
@@ -50,8 +49,9 @@ class SubmitQuiz(MethodView):
             else:
                 class_quiz.add_student_session(student)
                 class_quiz.save()
+                teacher = SchoolClass.query.filter_by(id=class_quiz.class_id).first().teacher
                 log_activity(
-                    current_user,
+                    teacher,
                     'create',
                     'quiz_session',
                     class_quiz.id,
@@ -113,8 +113,9 @@ class SubmitQuiz(MethodView):
 
             class_quiz.update_status(ClassQuizStatus.administered)
             quiz_session.update_status(QuizSessionStatus.ended)
+            teacher = SchoolClass.query.filter_by(id=class_quiz.class_id).first().teacher
             log_activity(
-                current_user,
+                teacher,
                 'update',
                 'quiz_session',
                 class_quiz.id,
