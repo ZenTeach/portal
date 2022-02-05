@@ -724,6 +724,9 @@ def test_teacher_owned_question_delete_action(client: FlaskClient,
                                               access_token: List[str],
                                               teacher_identity: Teacher,
                                               teacher_created_question: Questions) -> None:
+    def mocked_log_activity(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.questions_api.log_activity', mocked_log_activity)
 
     teacher_created_question.teacher_id = teacher_identity.id
     teacher_created_question.save()
@@ -739,8 +742,13 @@ def test_teacher_owned_question_delete_action(client: FlaskClient,
 
 def test_teacher_owned_question_update_action(client: FlaskClient,
                                               teacher_identity: Teacher,
+                                              mocker: MockFixture,
                                               access_token: List[str],
                                               teacher_created_question: Questions) -> None:
+    def mocked_log_activity(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.questions_api.log_activity', mocked_log_activity)
+
     update_params = {
         'knowledge_item': "Another Testing value"
     }
@@ -762,8 +770,13 @@ def test_teacher_owned_question_update_action(client: FlaskClient,
 
 def test_teacher_owned_question_update_choices_action(client: FlaskClient,
                                                       teacher_identity: Teacher,
+                                                      mocker: MockFixture,
                                                       access_token: List[str],
                                                       teacher_created_question: Questions) -> None:
+    def mocked_log_activity(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.questions_api.log_activity', mocked_log_activity)
+
     update_params = {
         'knowledge_item': "Another Testing value",
         'choices': [
@@ -823,6 +836,10 @@ def test_updating_original_question_creates_question_on_user(client: FlaskClient
     existing_question_payload_as_json['topic'] = existing_question_payload_as_json['topic']['value']  # noqa
     existing_question_payload_as_json['knowledge_item'] = existing_question_payload_as_json['knowledge_item']['value']  # noqa
     assert Questions.query.filter_by(teacher_id=teacher_identity.id).count() == 0
+
+    def mocked_log_activity(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.questions_api.log_activity', mocked_log_activity)
 
     q_id = existing_question_payload_as_json.pop('id')
     existing_question_payload_as_json.update({

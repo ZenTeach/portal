@@ -179,7 +179,7 @@ class TeacherOwnedQuestions(MethodView):
                 'create',
                 'question',
                 question.id,
-                f'{teacher.full_name} created question {question.id}'
+                f'{current_user.full_name()} created question {question.id}'
             )
             return make_response(jsonify({
                 'message': 'Question successfully added'
@@ -209,7 +209,15 @@ class TeacherOwnedQuestion(MethodView):
             }), 422)
 
         try:
+            question_id = question.id
             question.delete()
+            log_activity(
+                current_user,
+                'delete',
+                'question',
+                question.id,
+                f'{current_user.full_name()} deleted question {question_id}'
+            )
             return make_response(jsonify({
                 'message': "Question deleted successfully!"
             }), 204)
@@ -318,6 +326,13 @@ class TeacherOwnedQuestion(MethodView):
                 })
             question.update_from_dict(data)
             question.save()
+            log_activity(
+                current_user,
+                'update',
+                'question',
+                question.id,
+                f'{current_user.full_name()} updated question {question.id}'
+            )
 
             return make_response(jsonify(success_message), status_code)
         except Exception as e:
