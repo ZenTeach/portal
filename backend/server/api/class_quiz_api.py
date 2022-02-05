@@ -9,7 +9,7 @@ from flask.wrappers import Response
 from flask_jwt_extended import current_user, jwt_required
 from marshmallow import INCLUDE, Schema, ValidationError, fields
 from server import db
-from server.api import logger
+from server.api import log_activity, logger
 from server.decorators import with_required_roles
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizSchema, ClassQuizStatus, QuizGrade,
@@ -104,7 +104,15 @@ class ClassQuiz(MethodView):
             if not class_quiz:
                 return make_response(error_response, 404)
             else:
+                class_quiz_id = class_quiz.id
                 class_quiz.delete()
+                log_activity(
+                    current_user,
+                    'delete',
+                    'class_quiz',
+                    class_quiz_id,
+                    'Deleted Class Quiz.'
+                )
                 response_message = {"status": "success",
                                     "message": "Deleted Quiz"}
                 return make_response(response_message, 200)
@@ -126,6 +134,13 @@ class ClassQuiz(MethodView):
                 raise ValidationError("Malformed data")
             class_quiz.name = post_data.pop('name')
             class_quiz.save(refresh=True)
+            log_activity(
+                current_user,
+                'update',
+                'class_quiz',
+                class_quiz.id,
+                'Updated Class Quiz.'
+            )
             return make_response(jsonify({
                 'status': 'updated',
                 'message': 'Quiz updated'
@@ -179,6 +194,13 @@ class ClassQuizList(MethodView):
             quiz = ClassQuizModel(**post_data)
 
             quiz.save()
+            log_activity(
+                current_user,
+                'create',
+                'class_quiz',
+                quiz.id,
+                f'{current_user} created a quiz for class {quiz.class_id}',
+            )
             response_object = {"status": "success",
                                "message": "Quiz was added!"}
             send_quiz_generation_email.apply_async(args=[teacher_email, quiz.id])

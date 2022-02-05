@@ -140,6 +140,11 @@ def test_classquiz_create_api(client: FlaskClient,
                               classquiz_params: Dict,
                               access_token: List[str],
                               mocker: MockFixture):
+    def patch_log_activity(*args):
+        assert len(args) == 5
+
+    mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
+
     mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
     response = client.post(
         "/api/v1/class_quiz",
@@ -162,6 +167,10 @@ def test_classquiz_create_api_with_no_question_fails(client: FlaskClient,
                                                      teacher_identity: Teacher,
                                                      access_token: List[str],
                                                      mocker: MockFixture):
+    def patch_log_activity(*args):
+        assert len(args) == 5
+
+    mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
     mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
 
     classquiz_params.pop('questions')
@@ -195,8 +204,13 @@ def test_classquiz_get_api(client: FlaskClient,
 
 def test_classquiz_update_api(client: FlaskClient,
                               access_token: List[str],
+                              mocker: MockFixture,
                               classquiz_params: dict,
                               classquiz_: ClassQuiz):
+    def patch_log_activity(*args):
+        assert len(args) == 5
+
+    mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
     old_name = classquiz_.name
     classquiz_params = {
         'name': "A new quiz name"
