@@ -73,8 +73,12 @@ def ended_session_(student: Student, classquiz_: ClassQuiz) -> QuizSession:
 
 def test_get_quiz_submit(client: FlaskClient,
                          student: Student,
+                         mocker: MockFixture,
                          classquiz_: ClassQuiz,
                          access_token: List[str]):
+    def mocker_log_activity(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.quiz_submit_api.log_activity')
     response = client.get(
         f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}",
         headers={
@@ -163,6 +167,9 @@ def test_get_endpoint_idempotency(client: FlaskClient,
                                   access_token: List[str],
                                   session_: QuizSession,
                                   mocker: MockFixture):
+    def mocker_log_activity(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.quiz_submit_api.log_activity')
 
     response = client.get(
         f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}",
@@ -181,6 +188,10 @@ def test_post_quiz_submit(client: FlaskClient,
                           session_: QuizSession,
                           student_response: List[dict],
                           mocker: MockFixture):
+
+    def mocker_log_activity(*args):
+        assert len(args) == 5
+    mocker.patch('server.api.quiz_submit_api.log_activity')
 
     @mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
     def _mock_grader_administered_quizzes(*args):
