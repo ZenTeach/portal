@@ -6,13 +6,12 @@ from uuid import UUID, uuid4
 
 from server import db
 from sqlalchemy.orm.attributes import QueryableAttribute
-
-# TODO: Add Timestamp after release 23
+from sqlalchemy_utils import Timestamp
 
 logger = logging.getLogger(__name__)
 
 
-class BaseModelMixin(object):
+class BaseModelMixin(object, Timestamp):
     """ Abstract class adding common functionalities """
     _IGNORED_COLUMNS = []
 
