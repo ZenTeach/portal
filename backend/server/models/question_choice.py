@@ -9,7 +9,7 @@ from .base_model import unique_uuid4
 
 
 class QuestionChoice(db.Model, BaseModelMixin):
-    _IGNORED_COLUMNS = ["uuid", "id"]
+    _IGNORED_COLUMNS = ["uuid", "id", "created", "updated"]
 
     __tablename__ = "question_choice"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
