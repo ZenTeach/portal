@@ -11,7 +11,7 @@ from sqlalchemy_utils import Timestamp
 logger = logging.getLogger(__name__)
 
 
-class BaseModelMixin(object, Timestamp):
+class BaseModelMixin(Timestamp):
     """ Abstract class adding common functionalities """
     _IGNORED_COLUMNS = []
 
