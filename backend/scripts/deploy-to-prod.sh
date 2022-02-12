@@ -5,7 +5,7 @@ DIST='../dist'
 
 if [[ -d $DIST ]]; then
     echo "Cleaning old builds"
-    rm -fr $DIST
+    rm -fr $DIST 2> /dev/null || true
 fi
 
 # invoke packaging
@@ -28,7 +28,7 @@ FOLDERNAME=$(echo $DISTRO | tr '.' '\n' | head -n 1)
 for server in '5.1.10.218'; do
     echo "Performing clean up. Leaving only last 5 builds."
     ssh -i $REMOTE_KEYS $REMOTE_USER@$server -o StrictHostKeyChecking=no \
-    "ls -lt /var/www/zenteach_be/ | grep -E 'zenteach-build-*' | tail -n +7 | awk '{print \$9}' | xargs -I {} rm -fr /var/www/zenteach_be/{}"
+    "ls -lt /var/www/zenteach_be/ | grep -E 'zenteach-build-*' | tail -n +7 | awk '{print \$9}' | xargs -I {} rm -fr /var/www/zenteach_be/{} 2> /dev/null || true"
 
 
     echo "\n Copying distro $DISTRO to $server"
@@ -43,7 +43,7 @@ for server in '5.1.10.218'; do
     echo "Removing current symbolic link"
     ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
     -o "StrictHostKeyChecking=no" \
-    "rm /var/www/zenteach_be/zenteach"
+    "rm /var/www/zenteach_be/zenteach 2> /dev/null || true"
 
     echo "Recreating Symbolic link"
     ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
@@ -53,7 +53,7 @@ for server in '5.1.10.218'; do
     echo "Cleaning up tmp"
     ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
     -o "StrictHostKeyChecking=no"  \
-    "rm -r /tmp/$DISTRO"
+    "rm -r /tmp/$DISTRO 2> /dev/null || true"
 
     echo "Run migrations"
     ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
