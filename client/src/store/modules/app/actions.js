@@ -9,7 +9,8 @@ import { searchTopic, createTopic } from '../../../service/topic_service'
 import { searchKnowledgeItems, createKnowledgeItem } from '../../../service/knowledge_item_service'
 
 import {
-  fetchSubjects
+  fetchSubjects,
+  fetchActivities
 } from '../../../service/app_service'
 
 import * as _ from 'lodash'
@@ -143,5 +144,8 @@ export default {
       .catch(error => {
         commit('TOGGLE_ERROR', error.response.data)
       })
+  },
+  async FETCH_ACTIVITIES ({ _commit }) {
+    return await fetchActivities()
   }
 }
