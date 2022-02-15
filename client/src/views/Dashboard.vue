@@ -2,7 +2,8 @@
   <div class="mx-auto">
     <v-container fluid>
       <v-layout fill-height row column>
-        <v-flex xs12 sm12 md4 lg6>
+        <v-flex xs12 sm12 md4 lg6 class="d-flex order-2 justify-space-between">
+          <div style="width: 500px;"></div>
           <activity-list />
         </v-flex>
       </v-layout>
