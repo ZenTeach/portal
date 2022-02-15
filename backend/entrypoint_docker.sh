@@ -2,28 +2,28 @@
 
 echo "Waiting for postgres..."
 
-while ! nc -z localhost 5432; do
-    sleep 0.1
+while ! nc -z zenteach_db 5432; do
+    sleep 3
 done
 
 echo "PostgreSQL started"
 
-python manage.py db upgrade
+pipenv run python manage.py db upgrade
 
-python manage.py db_conf
+pipenv run python manage.py db_conf
 
 # Run migrations before booting up the app
 if [[ "$1" == "init" ]] ;then
     echo "Deleting database schema"
-    python manage.py truncate_tables
+    pipenv run python manage.py truncate_tables
 fi
 
-python manage.py seed
+pipenv run python manage.py seed
 
-celery multi start worker1 \
+pipenv run celery multi start worker1 \
     -A celery_worker.celery -B -l info
 
-python manage.py run -h 0.0.0.0
+pipenv run python manage.py run -h 0.0.0.0
 
 trap "Killing celery workers" SIGINT
 
