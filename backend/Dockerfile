@@ -1,4 +1,4 @@
-FROM python:3.7.5-slim-stretch
+FROM python:3.7.12-slim-stretch
 
 RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list
 RUN echo "deb http://deb.debian.org/debian stretch-backports main" >> /etc/apt/sources.list.d/sources.list
