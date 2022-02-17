@@ -17,6 +17,7 @@ jobs:
       VUE_APP_CORS_ORIGIN: https://service.stage.portal.zenteach.co.uk
       VUE_APP_SENTRY_DSN: https://57d2692e63644741b5f061d9ba9e54c6@o328466.ingest.sentry.io/5372591
       REMOTE_HOST_KEYS: ../backend/scripts/fabric_deploy_keys
+      SERVER_NAME: ${{ secrets.STAGE_SERVER_IP }}
       REMOTE_HOST: ${{ secrets.STAGE_SERVER_IP }}
       REMOTE_USER: ubuntu
       REMOTE_DEST: /var/www/stage.portal.zenteach.co.uk
