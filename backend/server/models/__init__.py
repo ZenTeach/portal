@@ -205,6 +205,12 @@ class QuizGradeSchema(ma.ModelSchema):
     student = ma.Nested(StudentSchema)
 
 
+class ActivityLogSchema(ma.ModelSchema):
+    class Meta:
+        model = ActivityLog
+        fields = ("item_id", "item_type", "action", "note", "created")
+
+
 class SettingSchema(Schema):
     appsettings = fields.Method('_appsettings')
 

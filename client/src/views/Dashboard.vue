@@ -1,9 +1,10 @@
 <template>
   <div class="mx-auto">
     <v-container fluid>
-      <v-layout fill-height align-center row column>
-        <v-flex xs12 sm10 md6 lg12 grow>
-          <p class="heading black--text">Welcome to your dashboard</p>
+      <v-layout fill-height row column>
+        <v-flex xs12 sm12 md4 lg6 class="d-flex order-2 justify-space-between">
+          <div style="width: 500px;"></div>
+          <activity-list />
         </v-flex>
       </v-layout>
     </v-container>
@@ -11,8 +12,13 @@
 </template>
 
 <script>
+import ActivityList from '../components/ActivityList.vue'
+
 export default {
   name: 'Dashboard',
+  components: {
+    ActivityList
+  },
   methods: {},
   data () {
     return {}
