@@ -9,6 +9,7 @@
           </p>
     </div>
     <v-responsive
+      v-if="has_logs"
       class="overflow-y-auto rounded-0"
       :max-height.sync="listHeight"
     >
@@ -32,6 +33,12 @@
         </v-list-item-group>
       </v-list>
     </v-responsive>
+    <div v-else class="p-5 white" style="width: 500px;">
+      <span class="d-flex justify-center align-center">
+        <v-icon class="mx-2" medium>cloud</v-icon>
+        <p class="text-h5 mb-0 font-weight-light">No recent activity!</p>
+      </span>
+    </div>
     <div class="white py-3 rounded">
       <p class="text-body-2 text--disabled text-center font-weight-black">
         Showing {{ logs.length }} items
@@ -62,6 +69,9 @@ export default {
         case 'lg': return 100
         case 'xl': return 150
       }
+    },
+    has_logs () {
+      return this.logs.length > 0
     }
   },
   data: function () {
