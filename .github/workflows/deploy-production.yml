@@ -11,6 +11,7 @@ jobs:
       run:
         working-directory: client/
     env:
+      RUNNER_ALLOW_RUNASROOT: 1
       VUE_APP_API_ENDPOINT: https://service.portal.zenteach.co.uk/api/v1
       VUE_APP_CORS_ORIGIN: https://service.portal.zenteach.co.uk
       VUE_APP_SENTRY_DSN: https://6474c2d922534f9a9acc9a83b1553a5b@o328466.ingest.sentry.io/5417325
@@ -47,6 +48,7 @@ jobs:
       run:
         working-directory: backend
     env:
+      RUNNER_ALLOW_RUNASROOT: 1
       PYTHON-VERSION: 3.7.5
       TMP_DIR: ./server/tmp
 
