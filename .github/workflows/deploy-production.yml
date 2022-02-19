@@ -18,7 +18,7 @@ jobs:
       JUMPHOST_KEYS: ../backend/scripts/fabric_bastion_host_connection
       JUMPHOST: 18.132.248.142
       REMOTE_HOST_KEYS: ../backend/scripts/fabric_deploy_keys
-      REMOTE_HOST: 5.1.10.218
+      REMOTE_HOST: ${{ secrets.PRODUCTION_SERVER_IP }}
       REMOTE_USER: ubuntu
       REMOTE_DEST: /var/www/portal.zenteach.co.uk
 
@@ -49,6 +49,7 @@ jobs:
         working-directory: backend
     env:
       RUNNER_ALLOW_RUNASROOT: 1
+      SERVER_NAME: ${{ secrets.PRODUCTION_SERVER_IP }}
       PYTHON-VERSION: 3.7.5
       TMP_DIR: ./server/tmp
 
