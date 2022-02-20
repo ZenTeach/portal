@@ -197,11 +197,6 @@ class Grader(object):
 
     def _score_quiz(self, quiz_submissions: List[QuizGrade], quiz: ClassQuiz) -> None:
         for submission in quiz_submissions:
-            # TODO: There are two issues with working with unvalidated
-            # input. One, the quiz submission can be flawed if they're referencing
-            # invalid/inexistent question. Second, the class quiz itself can contain
-            # flawed/inconsistent question ids if there's no validation.
-            #  Possible solution, add validation when creating quizzes.
             student_response = submission.responses
             quiz_questions_id = list(map(lambda x: x["id"], quiz.questions))
             self.question_ki_count = self._get_question_count_per_ki_(quiz_questions_id)
@@ -221,7 +216,6 @@ class Grader(object):
             logger.debug(f"Setting score for quiz {score}")
             submission.update_score(score)
             submission.is_graded()
-            # TODO: Step 2 get grade breakdown
             submission.update_grade_breakdown(self._feedback_builder.feedback)
             del self._feedback_builder
             self._feedback_builder = Feedback()

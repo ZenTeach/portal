@@ -152,9 +152,6 @@ def _get_ignore_from_manifest_lines(lines):
             # not contain a path separator, as it actually has no
             # effect in that case, but that could differ per python
             # version.  We strip it here to avoid double separators.
-            # XXX: mg: I'm not 100% sure the above is correct, AFAICS
-            # all pythons from 2.6 complain if the path has a leading or
-            # trailing slash -- on Windows, that is.
             rest = rest.rstrip("/\\")
             ignore.append(rest)
             ignore.append(rest + os.path.sep + "*")
