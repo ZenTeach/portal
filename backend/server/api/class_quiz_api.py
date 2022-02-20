@@ -7,13 +7,14 @@ from flask import Blueprint, abort, jsonify, make_response, request
 from flask.views import MethodView
 from flask.wrappers import Response
 from flask_jwt_extended import current_user, jwt_required
-from marshmallow import INCLUDE, Schema, ValidationError, fields
+from marshmallow import (INCLUDE, Schema, ValidationError, fields,
+                         validates_schema)
 from server import db
 from server.api import log_activity, logger
 from server.decorators import with_required_roles
 from server.models import ClassQuiz as ClassQuizModel
-from server.models import (ClassQuizSchema, ClassQuizStatus, QuizGrade,
-                           QuizGradeSchema, StudentSchema, Teacher)
+from server.models import (ClassQuizSchema, ClassQuizStatus, Questions,
+                           QuizGrade, QuizGradeSchema, StudentSchema, Teacher)
 from server.tasks import (generate_pdf, send_quiz_generation_email,
                           send_quiz_pdf, send_report_card_pdf)
 from sqlalchemy import exc
@@ -68,6 +69,14 @@ class ClassQuizCreateSchema(Schema):
     name = fields.Str(required=True)
     class_id = fields.Int(required=True)
     questions = fields.Nested(ClassQuizCreateQuestionsSchema, many=True, required=True)
+
+    @validates_schema(pass_original=True)
+    def validate_selected_questions(self, *values, **kwargs):
+        data = values[0]
+        question_ids = [question['id'] for question in data['questions']]
+        questions = Questions.query.filter(Questions.id.in_(question_ids))
+        if questions.count() != len(question_ids):
+            raise ValidationError('Invalid question found! Please report this so we can fix it!')
 
 
 class ClassQuizUpdateSchema(Schema):
@@ -190,7 +199,6 @@ class ClassQuizList(MethodView):
             if validation_errors is not None and len(validation_errors) != 0:
                 raise ValidationError("Malformed data")
 
-            # TODO: Validate if questions exist in db
             quiz = ClassQuizModel(**post_data)
 
             quiz.save()

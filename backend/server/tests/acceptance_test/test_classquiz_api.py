@@ -186,6 +186,32 @@ def test_classquiz_create_api_with_no_question_fails(client: FlaskClient,
     assert response.status_code == 400
 
 
+def test_classquiz_create_api_with_nonexisting_question_fails(client: FlaskClient,
+                                                              classquiz_params: Dict,
+                                                              teacher_identity: Teacher,
+                                                              access_token: List[str],
+                                                              mocker: MockFixture):
+    def patch_log_activity(*args):
+        assert len(args) == 5
+
+    mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
+    mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
+
+    questions = classquiz_params.pop('questions')
+    questions[1]['id'] = 0
+    classquiz_params['questions'] = questions
+    response = client.post(
+        "/api/v1/class_quiz",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        },
+        json=classquiz_params,
+    )
+
+    assert response.status_code == 400
+
+
 def test_classquiz_get_api(client: FlaskClient,
                            access_token: List[str],
                            classquiz_: ClassQuiz):
