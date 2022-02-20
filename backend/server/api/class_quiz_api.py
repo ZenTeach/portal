@@ -335,7 +335,6 @@ class GradedQuizzes(MethodView):
         quizId = ClassQuizModel.query.filter_by(uuid=quizUUId).first().id
         graded_quizzes = QuizGrade.query.filter_by(class_quiz_id=quizId, graded=True).all()
 
-        # TODO: Check against non-existing student email
         serializer = QuizGradeSchema(many=True)
         return make_response(jsonify(serializer.dump(graded_quizzes)), 200)
 
