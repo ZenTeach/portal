@@ -18,6 +18,7 @@ from flask_mail import Mail
 from flask_marshmallow import Marshmallow
 from flask_redis import FlaskRedis
 from flask_sqlalchemy import SQLAlchemy
+from healthcheck import HealthCheck
 from sqlalchemy import event
 from sqlalchemy.pool import Pool
 from sqlalchemy_searchable import make_searchable
@@ -64,6 +65,7 @@ cors = CORS(supports_credentials=True,
             })
 ma = Marshmallow()
 mail = Mail()
+health = HealthCheck()
 celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
 app = None
@@ -228,6 +230,9 @@ def create_app():
         return make_response(
             jsonify({"status": "error", "message": "Session expired"}), 401
         )
+
+    # Registry healthcheck
+    app.add_url_rule("/healthcheck", "healthcheck", view_func=lambda: health.run())
 
     # Register bluprints
     from server.api import root_api
