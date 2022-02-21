@@ -11,19 +11,29 @@
     fixed
     app
   >
-    <v-list-item two-line>
-      <v-toolbar-title v-if="!drawerMinified" class="align-self-center text-center">
-        <span class="font-weight-light">Zen</span>
-        <span>Teach Portal</span>
-      </v-toolbar-title>
-      <v-img v-else src='../assets/icon.png' height="32" width="32" class="grey darken-1" aspect-ratio="1" contain></v-img>
-    </v-list-item>
+    <template v-slot:prepend>
+      <div class="d-flex my-3">
+        <v-toolbar-title v-if="!drawerMinified" class="white--text mx-4 px-9 align-content-center text-center">
+          <span class="font-weight-light">Zen</span>
+          <span>Teach</span>
+        </v-toolbar-title>
 
-    <v-divider class="mx-3 mb-3" />
+        <v-img v-else src='../assets/icon.png' height="32" width="32" class="blue darken-1" aspect-ratio="1" contain></v-img>
+        <v-spacer class="m-12" fill-height></v-spacer>
+        <div>
+          <v-btn fab x-small class="white blue--text mx-n4" @click="toggleMiniview()">
+            <v-icon>{{ drawerMinified ? "mdi-arrow-right" : "mdi-arrow-left" }}</v-icon>
+          </v-btn>
+        </div>
+      </div>
+    </template>
+
+    <v-divider class="mx-1 mb-1 white" inset/>
 
     <v-list nav>
+      <v-subheader v-if="!drawerMinified">Main Menu</v-subheader>
       <v-list-item
-        v-for="item in items"
+        v-for="item in main_menu_items"
         :key="item.title"
         link
         :to="item.to"
@@ -50,29 +60,49 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-list-item active-class="primary white--text" @click.capture.stop="toggleInviteUserDialog">
+      <v-divider class="mx-3 mb-3" />
+
+      <v-subheader v-if="!drawerMinified">My Content</v-subheader>
+      <v-list-item
+        v-for="item in my_content_items"
+        :key="item.title"
+        link
+        :to="item.to"
+        active-class="primary white--text"
+      >
         <v-list-item-icon>
-          <v-icon>mdi-email</v-icon>
+          <v-icon>{{ item.icon }}</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>Invite</v-list-item-title>
+          <v-badge v-if="item.beta"
+            color="primary darken-3"
+            content="NEW"
+            offset-x="2.9rem"
+            offset-y="1.2rem"
+            right>
+            <v-list-item-title>
+              {{ item.title }}
+            </v-list-item-title>
+          </v-badge>
+          <v-list-item-title v-else>
+            {{ item.title }}
+          </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
     </v-list>
-
     <template v-slot:append>
-      <v-list nav>
-        <v-list-item>
-          <v-list-item-action>
-            <v-btn text @click="toggleMiniview()">
-              <v-icon>{{ drawerMinified ? "mdi-format-horizontal-align-right" : "mdi-format-horizontal-align-left" }}</v-icon>
-            </v-btn>
-          </v-list-item-action>
-
-          <v-list-item-title class="font-weight-light" v-if="!drawerMinified">Minimize</v-list-item-title>
-        </v-list-item>
-      </v-list>
+      <div v-if="!drawerMinified" class="my-5 mx-4 px-3 py-5 white--text invite_box_border">
+        <div class="text-center py-1">
+          <v-icon class="my-1">
+            mdi-help-circle-outline
+          </v-icon>
+        </div>
+        <p class="px-2 body-1 text-center">Do you like our app? Invite your friends</p>
+        <v-btn text class="primary darken-3 mx-3" @click.capture.stop="toggleInviteUserDialog">
+          Send an invite
+        </v-btn>
+      </div>
     </template>
   </v-navigation-drawer>
 </template>
@@ -89,12 +119,14 @@ export default {
   },
   data: function () {
     return {
-      items: [
+      main_menu_items: [
         {
           title: 'Dashboard',
           icon: 'mdi-view-dashboard',
           to: '/'
-        },
+        }
+      ],
+      my_content_items: [
         {
           title: 'Classrooms',
           icon: 'mdi-book-minus-multiple',
@@ -122,4 +154,10 @@ export default {
 </script>
 
 <style scoped>
+.invite_box_border {
+  border: 2px solid #017EFA;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
 </style>
