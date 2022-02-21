@@ -3,7 +3,7 @@
 exports[`MaterialCard.vue renders component 1`] = `
 <v-card-stub loaderheight="4" tag="div">
   <!---->
-  <v-card-text-stub></v-card-text-stub>
+  <v-card-text-stub tag="div"></v-card-text-stub>
   <!---->
   <!---->
 </v-card-stub>
