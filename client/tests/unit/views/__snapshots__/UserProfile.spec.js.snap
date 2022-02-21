@@ -9,7 +9,7 @@ exports[`UserProfile.vue has renders the view correctly 1`] = `
         <v-avatar-stub color="indigo" size="130" class="mx-auto d-block elevation-6">
           <v-icon-stub dark="">mdi-account-circle</v-icon-stub>
         </v-avatar-stub>
-        <v-card-text-stub class="text-center">
+        <v-card-text-stub tag="div" class="text-center">
           <h6 class="overline mb-3">
             Teacher
           </h6>
