@@ -8,9 +8,9 @@ exports[`AccountConfirmation.vue has renders the view correctly 1`] = `
       <v-row-stub tag="div" nogutters="true" class="flex-column white lighten-4 justify-center pby-6">
         <v-img-stub height="350" aspectratio="2.5" contain="true" options="[object Object]" position="center center" src="../assets/Join.png" transition="fade-transition" class="white lighten-4 background_image"></v-img-stub>
         <h3 class="subheading foreground_text text-center">Account confirmation succeeded!</h3>
-        <v-spacer-stub tag="div" class="my-5"></v-spacer-stub>
+        <v-spacer-stub class="my-5"></v-spacer-stub>
         <v-btn-stub color="primary lighten-2" tag="button" activeclass="" to="/login" text="true" type="button">Log me back in.</v-btn-stub>
-        <v-spacer-stub tag="div" class="my-5"></v-spacer-stub>
+        <v-spacer-stub class="my-5"></v-spacer-stub>
       </v-row-stub>
     </v-layout-stub>
   </v-container-stub>

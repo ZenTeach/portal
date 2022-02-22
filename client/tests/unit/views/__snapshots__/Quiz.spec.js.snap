@@ -7,11 +7,11 @@ exports[`Quiz.vue matches snapshot 1`] = `
     <v-row-stub tag="div" class="d-flex flex-column">
       <v-col-stub sm="12" md="12" lg="8" tag="div" rows="10">
         <v-card-stub loaderheight="4" tag="div" color="grey lighten-3" elevation="1" class="rounded-0">
-          <v-card-title-stub tag="div">
+          <v-card-title-stub>
             <p class="text-h5"> Graded report cards </p>
           </v-card-title-stub>
           <v-divider-stub></v-divider-stub>
-          <v-card-text-stub tag="div">
+          <v-card-text-stub>
             <v-banner-stub tag="div" mobilebreakpoint="1264" value="true">
               <v-icon-stub color="yellow darken-4" size="24">
                 mdi-note-text-outline
@@ -25,18 +25,18 @@ exports[`Quiz.vue matches snapshot 1`] = `
       </v-col-stub>
       <v-col-stub sm="12" md="12" lg="4" tag="div">
         <v-card-stub loaderheight="4" tag="div" color="grey lighten-3" elevation="1" class="rounded-0">
-          <v-card-title-stub tag="div">
+          <v-card-title-stub>
             <p class="text-h6"></p>
           </v-card-title-stub>
-          <v-card-subtitle-stub tag="div">
+          <v-card-subtitle-stub>
             <p class="text-caption">Quiz Activities</p>
           </v-card-subtitle-stub>
           <v-divider-stub></v-divider-stub>
-          <v-card-actions-stub tag="div">
+          <v-card-actions-stub>
             <v-btn-stub color="black lighten-4" tag="button" activeclass="" text="true" type="button">
               More actions
             </v-btn-stub>
-            <v-spacer-stub tag="div"></v-spacer-stub>
+            <v-spacer-stub></v-spacer-stub>
             <v-btn-stub elevation="2" outlined="true" tag="button" activeclass="" xsmall="true" fab="true" icon="true" type="button">
               <v-icon-stub>mdi-chevron-down</v-icon-stub>
             </v-btn-stub>
@@ -44,7 +44,7 @@ exports[`Quiz.vue matches snapshot 1`] = `
           <v-expand-transition-stub mode="in-out">
             <div style="display: none;">
               <v-divider-stub></v-divider-stub>
-              <v-card-text-stub tag="div">
+              <v-card-text-stub>
                 <v-row-stub tag="div">
                   <v-col-stub tag="div"><a href="../quiz_view/undefined">
                       Open Quiz in Browser
