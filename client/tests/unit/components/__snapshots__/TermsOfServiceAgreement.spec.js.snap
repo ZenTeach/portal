@@ -5,9 +5,7 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
   loaderheight="4"
   tag="div"
 >
-  <v-card-title-stub
-    tag="div"
-  >
+  <v-card-title-stub>
     <p
       class="display-3 text--primary"
     >
@@ -17,17 +15,13 @@ exports[`TermsOfServiceAgreement.vue Test renders TOS component 1`] = `
     <br />
   </v-card-title-stub>
    
-  <v-card-subtitle-stub
-    tag="div"
-  >
+  <v-card-subtitle-stub>
     <small>
       Last updated: February 20, 2020
     </small>
   </v-card-subtitle-stub>
    
-  <v-card-text-stub
-    tag="div"
-  >
+  <v-card-text-stub>
     <div>
       <p
         class="text--primary"

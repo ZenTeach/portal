@@ -2,12 +2,12 @@
 
 exports[`NavBar.vue renders component 1`] = `
 <v-app-bar-stub height="60" maxheight="88" minheight="40" tag="header" extensionheight="48" flat="true" src="" value="true" app="true" id="core-bar-app">
-  <v-toolbar-title-stub tag="div" class="tertiary--text font-weight-light d-flex align-center align-self-center">
+  <v-toolbar-title-stub class="tertiary--text font-weight-light d-flex align-center align-self-center">
     <!---->
     <breadcrumb-stub separator="/"></breadcrumb-stub>
   </v-toolbar-title-stub>
-  <v-spacer-stub tag="div"></v-spacer-stub>
-  <v-toolbar-items-stub tag="div">
+  <v-spacer-stub></v-spacer-stub>
+  <v-toolbar-items-stub>
     <v-row-stub tag="div" align="center" class="mx-0">
       <v-btn-stub tag="button" activeclass="" to="/user-profile" icon="true" type="button">
         <v-icon-stub color="tertiary">mdi-account</v-icon-stub>
