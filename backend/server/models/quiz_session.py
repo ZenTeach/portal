@@ -15,8 +15,7 @@ class QuizSessionStatus(enum.Enum):
 
 class QuizSession(BaseModelMixin, db.Model):
     __tablename__ = "quiz_session"
-
-    uuid = db.Column(UUID(as_uuid=True), unique=True,
+    uuid = db.Column(UUID(as_uuid=True), primary_key=True, unique=True,
                      nullable=False, default=uuid4())
 
     student_id = db.Column(db.Integer, db.ForeignKey(
@@ -45,10 +44,6 @@ class QuizSession(BaseModelMixin, db.Model):
         return "<QuizSession {}>".format(
             self.class_quiz.subject + " " + self.student.full_name
         )
-
-    def update_status(self, new_status):
-        self.status = new_status
-        self.save()
 
     def has_session_ended(self):
         return self.status == QuizSessionStatus.ended
