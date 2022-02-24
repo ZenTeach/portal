@@ -1,10 +1,12 @@
 
+from datetime import datetime
+
 from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
-from server.api import log_activity, logger
+from server.api import logger
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizStatus, QuizSession, QuizSessionStatus,
-                           SchoolClass, Student)
+                           Student)
 from server.tasks import grader_administered_quizzes
 from sqlalchemy import exc
 from webargs import fields, validate
@@ -49,13 +51,6 @@ class SubmitQuiz(MethodView):
             else:
                 class_quiz.add_student_session(student)
                 class_quiz.save()
-                teacher = SchoolClass.query.filter_by(id=class_quiz.class_id).first().teacher
-                log_activity(
-                    teacher,
-                    'create',
-                    'quiz_session',
-                    class_quiz.id,
-                    f'{student.full_name} has started a quiz session for {class_quiz.name}')
         except exc.DatabaseError as e:
             logger.error(e)
             return make_response(
@@ -111,15 +106,10 @@ class SubmitQuiz(MethodView):
             student.add_quiz_score(class_quiz, student_response)
             student.save()
 
-            class_quiz.update_status(ClassQuizStatus.administered)
-            quiz_session.update_status(QuizSessionStatus.ended)
-            teacher = SchoolClass.query.filter_by(id=class_quiz.class_id).first().teacher
-            log_activity(
-                teacher,
-                'update',
-                'quiz_session',
-                class_quiz.id,
-                f'{student.full_name} has completed a quiz session for {class_quiz.name}')
+            class_quiz.update_and_save(status=ClassQuizStatus.administered)
+            quiz_session.update_and_save(
+                status=QuizSessionStatus.ended,
+                end_time=datetime.now())
             grader_administered_quizzes.apply_async(args=[quiz_session.uuid])
 
             response_object = {"status": "success",
