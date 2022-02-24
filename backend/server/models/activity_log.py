@@ -4,14 +4,24 @@ from marshmallow import ValidationError, validates, validates_schema
 from server import db, ma
 from server.models import Teacher
 from server.models.base_model import BaseModelMixin
-from sqlalchemy_utils import generic_relationship
+from sqlalchemy import MetaData, Table
+from sqlalchemy_utils import generic_relationship, get_primary_keys
 
 CREATE = 1
 UPDATE = 2
 DELETE = 3
 
+LOGGABLE_ITEM_TYPES = [
+    'teacher', 'class_quiz', 'invitations',
+    'topics', 'subjects', 'question_choice',
+    'knowledge_items', 'questions', 'school_class',
+    'student_attended_class', 'quiz_session', 'quiz_grade']
+
+DB_VALIDATABLE_ITEMS = list(set(LOGGABLE_ITEM_TYPES) - set(['quiz_session', 'quiz_grade']))
 
 # Teacher activity log
+
+
 class ActivityLog(BaseModelMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
@@ -56,11 +66,7 @@ class ActivityLogSchema(ma.ModelSchema):
 
     @validates('item_type')
     def validate_item_type(self, item_type: str) -> bool:
-        return item_type in [
-            'teacher', 'class_quiz', 'invitations',
-            'topics', 'subjects', 'question_choice',
-            'knowledge_items', 'questions', 'school_class',
-            'student_attended_class']
+        return item_type in LOGGABLE_ITEM_TYPES
 
     @validates('actor_id')
     def validate_teacher_id(self, id: int) -> bool:
@@ -69,13 +75,17 @@ class ActivityLogSchema(ma.ModelSchema):
     @validates_schema(pass_original=True)
     def validate_item_id(self, *values, **kwargs) -> bool:
         data = values[0]
-
+        if data['item_type'] not in DB_VALIDATABLE_ITEMS:
+            # don't validate if item_type is not in DB_VALIDATABLE_ITEMS
+            return True
         if data['action'] in ('create', 'update'):
             item_type = data['item_type']
             item_id = data['item_id']
             # do db level validation
+            item_table = Table(item_type, MetaData(), autoload=True, autoload_with=db.get_engine())
+            primary_key = get_primary_keys(item_table).popitem()[1]
             res = db.get_engine().execute(
-                f'SELECT * FROM { item_type } WHERE id={item_id}')  # nosec
+                f'SELECT * FROM { item_type } WHERE {primary_key.name}={item_id}')  # nosec
             if res.rowcount == 0:
                 raise ValidationError(f'Item { item_type } with id {item_id} does not exist')
         else:
