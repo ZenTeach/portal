@@ -7,7 +7,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_jwt_extended import current_user as jwt_user
 from flask_jwt_extended import get_jti, get_jwt, jwt_required
 from server import bcrypt, jwt, redis_store
-from server.api import logger
+from server.api import log_activity, logger
 from server.lib.utils.jwt_fixes import set_access_cookies, set_refresh_cookies
 from server.models import Invitations, Teacher, TeacherSchema
 from server.tasks import (send_account_recovery_instructions,
@@ -268,7 +268,10 @@ class InviteTeacher(MethodView):
         post_data = request.get_json()
         email = post_data["email"]
         try:
-            Invitations(email, token_hex(8), t.id).save()
+            invite = Invitations(email, token_hex(8), t.id)
+            invite.save(refresh=True)
+            log_activity(t, 'create', 'user_invite', invite.id,
+                         f'Invited user with email {invite.email}')
             send_user_invite.delay(email)
 
             return make_response(jsonify({

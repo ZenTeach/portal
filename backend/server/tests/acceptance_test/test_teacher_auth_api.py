@@ -173,19 +173,30 @@ def test_teacher_account_recovery(client: FlaskClient,
 def test_teacher_user_invite(client: FlaskClient,
                              teacher_: Teacher,
                              teacher_identity: Teacher,
+                             access_token: List[str],
                              mocker: MockFixture):
-    @mocker.patch('server.api.teacher_auth_api.send_user_invite.delay')
-    def test_success(send_user_invite_delay):
-        response = client.post(
-            '/api/v1/teacher/invite',
-            json={
-                'email': invite_email
-            }
-        )
-        send_user_invite_delay.assert_called_with(invite_email)
-        assert response.status_code == 200
 
     invite_email = "invitee@someevent.com"
+
+    @mocker.patch('server.api.teacher_auth_api.send_user_invite.delay')
+    def test_invite_email(send_user_invite_delay):
+        send_user_invite_delay.assert_called_with(invite_email)
+
+    def patch_activity_log(*args):
+        assert len(args) != 5
+    mocker.patch('server.api.teacher_auth_api.log_activity', patch_activity_log)
+
+    response = client.post(
+        '/api/v1/teacher/invite',
+        json={
+            'email': invite_email
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
+    )
+    assert response.status_code == 200
 
 
 def test_teacher_token_refresh(client: FlaskClient,
