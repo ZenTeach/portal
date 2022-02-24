@@ -99,7 +99,7 @@ class SchoolClass(MethodView):
                 update_data.update({
                     'subject_id': subject.id
                 })
-            class_room.update_from_dict(update_data)
+            class_room.update_and_save(**update_data)
             class_room.save()
             log_activity(
                 current_user,
