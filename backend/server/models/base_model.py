@@ -137,13 +137,13 @@ class BaseModelMixin(Timestamp):
     def reload(self):
         db.session.refresh(self)
 
-    def update_from_dict(self, payload: dict) -> None:
+    def update_and_save(self, **kwargs: dict) -> None:
         """
-            update_from_dict
+            update_and_save
 
-            Updates the model from a dictionary.
+            Updates the model from a dictionary and save it in db.
         """
-        for item, value in payload.items():
+        for item, value in kwargs.items():
             if hasattr(self, item) and item not in self._IGNORED_COLUMNS:
                 self.__setattr__(item, value)
 

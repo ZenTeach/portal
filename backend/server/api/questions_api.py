@@ -301,7 +301,7 @@ class TeacherOwnedQuestion(MethodView):
                                 is_cloned_choice_correct = True
                         else:
                             choice = c
-                            choice.update_from_dict(choice_data)
+                            choice.update_and_save(**choice_data)
                             choice.save()
 
                         choice_objects.append(choice)
@@ -324,7 +324,7 @@ class TeacherOwnedQuestion(MethodView):
                 data.update({
                     'choices': choice_objects
                 })
-            question.update_from_dict(data)
+            question.update_and_save(**data)
             question.save()
             log_activity(
                 current_user,

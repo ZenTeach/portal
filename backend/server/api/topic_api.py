@@ -70,7 +70,7 @@ class TopicView(MethodView):
             abort(400)
         dumper = TopicSchema()
         try:
-            topic.update_from_dict(topic_data)
+            topic.update_and_save(**topic_data)
             topic.save()
         except Exception as e:
             logger.error(e)

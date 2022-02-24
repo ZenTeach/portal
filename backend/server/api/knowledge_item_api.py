@@ -77,7 +77,7 @@ class KnowledgeItemView(MethodView):
             abort(400)
         dumper = KnowledgeItemSchema()
         try:
-            knowledge_item.update_from_dict(ki_data)
+            knowledge_item.update_and_save(**ki_data)
             knowledge_item.save()
         except Exception as e:
             logger.error(e)
