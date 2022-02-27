@@ -59,16 +59,20 @@ def student_response(classquiz_: ClassQuiz) -> List[dict]:
 
 @pytest.fixture
 def session_(student: Student, classquiz_: ClassQuiz) -> QuizSession:
-    return QuizSessionFactory(student=student,
-                              class_quiz=classquiz_,
-                              status=QuizSessionStatus.created)
+    qsession = QuizSessionFactory(student=student,
+                                  class_quiz=classquiz_,
+                                  status=QuizSessionStatus.created)
+    qsession.save()
+    return qsession
 
 
 @pytest.fixture
 def ended_session_(student: Student, classquiz_: ClassQuiz) -> QuizSession:
-    return QuizSessionFactory(student=student,
-                              class_quiz=classquiz_,
-                              status=QuizSessionStatus.ended)
+    qsession = QuizSessionFactory(student=student,
+                                  class_quiz=classquiz_,
+                                  status=QuizSessionStatus.ended)
+    qsession.save()
+    return qsession
 
 
 def test_get_quiz_submit(client: FlaskClient,
@@ -76,9 +80,6 @@ def test_get_quiz_submit(client: FlaskClient,
                          mocker: MockFixture,
                          classquiz_: ClassQuiz,
                          access_token: List[str]):
-    def mocker_log_activity(*args):
-        assert len(args) == 5
-    mocker.patch('server.api.quiz_submit_api.log_activity')
     response = client.get(
         f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}",
         headers={
@@ -164,12 +165,7 @@ def test_get_quiz_submit_with_database_error_fails_with_500(client: FlaskClient,
 def test_get_endpoint_idempotency(client: FlaskClient,
                                   student: Student,
                                   classquiz_: ClassQuiz,
-                                  access_token: List[str],
-                                  session_: QuizSession,
-                                  mocker: MockFixture):
-    def mocker_log_activity(*args):
-        assert len(args) == 5
-    mocker.patch('server.api.quiz_submit_api.log_activity')
+                                  access_token: List[str]):
 
     response = client.get(
         f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}",
@@ -188,10 +184,6 @@ def test_post_quiz_submit(client: FlaskClient,
                           session_: QuizSession,
                           student_response: List[dict],
                           mocker: MockFixture):
-
-    def mocker_log_activity(*args):
-        assert len(args) == 5
-    mocker.patch('server.api.quiz_submit_api.log_activity')
 
     @mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
     def _mock_grader_administered_quizzes(*args):
