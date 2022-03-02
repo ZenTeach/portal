@@ -4,8 +4,9 @@ from collections import namedtuple
 from typing import Dict, List, Optional, Tuple
 from uuid import UUID
 
-from server.models import (ClassQuiz, ClassQuizStatus, KnowledgeItem,
-                           QuestionChoice, Questions, QuizGrade, QuizSession)
+from server.models import (ActivityLog, ClassQuiz, ClassQuizStatus,
+                           KnowledgeItem, QuestionChoice, Questions, QuizGrade,
+                           QuizSession, Teacher)
 from sqlalchemy import and_
 
 CorrectChoice = namedtuple("CorrectChoice", ["id", "correct_choice"])
@@ -164,6 +165,12 @@ class Grader(object):
 
         cls(quiz.class_id, quiz)
 
+    @property
+    def teacher(self) -> Optional[Teacher]:
+        if (self.class_quiz is None):
+            return None
+        return self.class_quiz.school_class.teacher
+
     def start_grading(self):
         if self.class_quiz:
             administered_quiz_list = [self.class_quiz]
@@ -217,14 +224,13 @@ class Grader(object):
             submission.update_score(score)
             submission.is_graded()
             submission.update_grade_breakdown(self._feedback_builder.feedback)
-            # teacher = self.class_quiz.school_class.teacher
-            # ActivityLog.log(
-            #     teacher,
-            #     'create',
-            #     'quiz_grade',
-            #     submission.uuid,
-            #     'note'
-            # )
+            ActivityLog.log(
+                self.teacher,
+                'create',
+                'quiz_grade',
+                quiz.id,
+                f'Quiz grade finished with score {score}'
+            )
 
             del self._feedback_builder
             self._feedback_builder = Feedback()

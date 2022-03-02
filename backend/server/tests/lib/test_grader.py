@@ -8,9 +8,9 @@ from pytest_mock import MockFixture
 from server.api.class_quiz_api import ClassQuiz
 from server.lib import Grader
 from server.lib.grader import CorrectChoice, Feedback
-from server.models import (ClassQuizStatus, KnowledgeItem, Questions,
-                           QuizGrade, QuizSession, SchoolClass, Student,
-                           Subject, Teacher, Topic)
+from server.models import (ActivityLog, ClassQuizStatus, KnowledgeItem,
+                           Questions, QuizGrade, QuizSession, SchoolClass,
+                           Student, Subject, Teacher, Topic)
 from server.models.question_choice import QuestionChoice
 from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
                                     QuizGradeFactory, QuizSessionFactory,
@@ -155,6 +155,20 @@ def test_start_grading(quiz_session: QuizSession,
         _score_quiz.assert_called_with(response, classquiz_)
 
 
+def test_grader_teacher_property(quiz_session: QuizSession,
+                                 teacher_: Teacher,
+                                 classquiz_: ClassQuiz,
+                                 school_class: SchoolClass,
+                                 mocker: MockFixture):
+
+    grader = Grader(school_class.id, classquiz_)
+    assert grader.teacher is not None
+    assert grader.teacher == teacher_
+
+    grader = Grader(school_class.id)
+    assert grader.teacher is None
+
+
 def test__score_quiz(quiz_session: QuizSession,
                      quizgrade_: QuizGrade,
                      classquiz_: ClassQuiz,
@@ -171,8 +185,8 @@ def test__score_quiz(quiz_session: QuizSession,
         Grader.from_quiz_session(quiz_session.uuid)
 
         _score_quiz.assert_called_with(response, classquiz_)
-        # assert ActivityLog.query.filter_by(
-        #     item_id=quizgrade_.uuid, item_type='quiz_grade').count() == 1
+        assert ActivityLog.query.filter_by(
+            item_id=quizgrade_.uuid, item_type='quiz_grade').count() == 1
 
 
 def test__score_quiz_call_arguments(quiz_session: QuizSession,
@@ -224,8 +238,8 @@ def test__score_quiz_score_calculation_and_updates(quiz_session: QuizSession,
         Grader.from_quiz_session(quiz_session.uuid)
 
         _score_quiz.assert_called_with(response, classquiz_)
-        # assert ActivityLog.query.filter_by(
-        #     item_id=quizgrade_.uuid, item_type='quiz_grade').count() == 1
+        assert ActivityLog.query.filter_by(
+            item_id=quizgrade_.uuid, item_type='quiz_grade').count() == 1
 
     Grader.from_quiz_session(quiz_session.uuid)
 
@@ -266,9 +280,9 @@ def test__calculate_score(quiz_session: QuizSession,
     mocker.patch('server.models.quiz_grade.QuizGrade.is_graded')
     mocker.patch('server.models.quiz_grade.QuizGrade.update_grade_breakdown')
 
-    # @mocker.patch('server.lib.grader.ActivityLog.log')
-    # def patch_log_meth(*args):
-    #     assert len(args) == 5
+    @mocker.patch('server.lib.grader.ActivityLog.log')
+    def patch_log_meth(*args):
+        assert len(args) == 5
 
     Grader.from_quiz_session(quiz_session.uuid)
 
@@ -280,9 +294,9 @@ def test_grading_with_valid_response(quiz_session: QuizSession,
     quizgrade_.responses = response
     quizgrade_.save()
 
-    # @mocker.patch('server.lib.grader.ActivityLog.log')
-    # def patch_log_meth(*args):
-    #     assert len(args) == 5
+    @mocker.patch('server.lib.grader.ActivityLog.log')
+    def patch_log_meth(*args):
+        assert len(args) == 5
 
     Grader.from_quiz_session(quiz_session.uuid)
     assert quizgrade_.score is not None or quizgrade_.score != 0
