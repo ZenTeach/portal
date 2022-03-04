@@ -13,9 +13,11 @@
   >
     <template v-slot:prepend>
       <div class="d-flex my-3">
-        <v-toolbar-title v-if="!drawerMinified" class="white--text mx-4 px-9 align-content-center text-center">
-          <span class="font-weight-light">Zen</span>
-          <span>Teach</span>
+        <v-toolbar-title v-if="!drawerMinified" class="white--text mx-4 px-9">
+          <a class="text-decoration-none white--text d-flex align-content-center text-center" href="/">
+            <p class="font-weight-light">Zen</p>
+            <p>Teach</p>
+          </a>
         </v-toolbar-title>
 
         <v-img v-else src='../assets/icon.png' height="32" width="32" class="blue darken-1" aspect-ratio="1" contain></v-img>
