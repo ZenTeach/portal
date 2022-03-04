@@ -9,12 +9,34 @@ exports[`NavBar.vue renders component 1`] = `
   <v-spacer-stub></v-spacer-stub>
   <v-toolbar-items-stub>
     <v-row-stub tag="div" align="center" class="mx-0">
-      <v-btn-stub tag="button" activeclass="" to="/user-profile" icon="true" type="button">
-        <v-icon-stub color="tertiary">mdi-account</v-icon-stub>
-      </v-btn-stub>
-      <v-btn-stub tag="button" activeclass="" depressed="true" icon="true" text="true" type="button">
-        <v-icon-stub right="">exit_to_app</v-icon-stub>
-      </v-btn-stub>
+      <v-col-stub tag="div" class="d-flex align-center">
+        <v-btn-stub tag="button" activeclass="" icon="true" type="button" flat="">
+          <v-icon-stub medium="" class="text--disabled">mdi-bell</v-icon-stub>
+        </v-btn-stub>
+      </v-col-stub>
+      <v-menu-stub opendelay="0" closedelay="0" contentclass="" bottom="true" left="true" maxwidth="auto" nudgebottom="0" nudgeleft="0" nudgeright="0" nudgetop="0" nudgewidth="0" openonclick="true" closeonclick="true" closeoncontentclick="true" maxheight="auto" origin="top left" transition="v-menu-transition">
+        <v-list-stub tag="div">
+          <v-list-item-stub activeclass="" tag="div">
+            <v-list-item-title-stub>
+              <v-icon-stub>mdi-account</v-icon-stub> <a href="/user-profile" class="text-decoration-none text--primary ">
+                Profile
+              </a>
+            </v-list-item-title-stub>
+          </v-list-item-stub>
+          <v-list-item-stub activeclass="" tag="div">
+            <v-list-item-title-stub>
+              <v-icon-stub>mdi-settings</v-icon-stub> <a class="text-decoration-none text--primary text--disabled">
+                Account Settings
+              </a>
+            </v-list-item-title-stub>
+          </v-list-item-stub>
+          <v-list-item-stub activeclass="" tag="div">
+            <v-list-item-title-stub class="text-decoration-none text--primary">
+              <v-icon-stub>mdi-logout</v-icon-stub> Logout
+            </v-list-item-title-stub>
+          </v-list-item-stub>
+        </v-list-stub>
+      </v-menu-stub>
     </v-row-stub>
   </v-toolbar-items-stub>
 </v-app-bar-stub>

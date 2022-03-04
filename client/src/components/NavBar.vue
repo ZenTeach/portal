@@ -11,12 +11,48 @@
 
     <v-toolbar-items>
       <v-row align="center" class="mx-0">
-        <v-btn to="/user-profile" icon>
-          <v-icon color="tertiary">mdi-account</v-icon>
-        </v-btn>
-        <v-btn @click="logout" depressed text icon>
-          <v-icon right>exit_to_app</v-icon>
-        </v-btn>
+        <v-col class="d-flex align-center">
+          <v-btn flat icon>
+            <v-icon medium class="text--disabled">mdi-bell</v-icon>
+          </v-btn>
+        </v-col>
+        <v-menu
+          bottom
+          left
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              icon
+              v-bind="attrs"
+              v-on="on"
+            >
+            <v-avatar size="36px" color="blue">
+              <span class="white--text text-h6">{{ initials }}</span>
+            </v-avatar>
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item
+              v-for="(item, i) in user_account_items"
+              :key="i"
+            >
+              <template v-if="item.click_action">
+                <v-list-item-title @click="item.click_action" class="text-decoration-none text--primary">
+                  <v-icon>{{ item.icon }}</v-icon> {{ item.title }}
+                </v-list-item-title>
+              </template>
+              <template v-else>
+                <v-list-item-title>
+                  <v-icon>{{ item.icon }}</v-icon>
+                  <a :class="'text-decoration-none text--primary ' + (item.to === undefined ? 'text--disabled' : '')" :href="item.to">
+                    {{ item.title }}
+                  </a>
+                </v-list-item-title>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-row>
     </v-toolbar-items>
   </v-app-bar>
@@ -26,12 +62,22 @@
 import { createNamespacedHelpers } from 'vuex'
 import Breadcrumb from './Breadcrumb.vue'
 const { mapMutations: appMutations } = createNamespacedHelpers('app')
-const { mapActions: userActions } = createNamespacedHelpers('user')
+const { mapActions: userActions, mapGetters: userGetters } = createNamespacedHelpers('user')
 
 export default {
   name: 'NavBar',
   components: {
     Breadcrumb
+  },
+  computed: {
+    ...userGetters({
+      currentUser: 'getCurrentUser'
+    }),
+    initials () {
+      const fNameInitial = this.currentUser.firstname.charAt(0)
+      const lNameInitial = this.currentUser.lastname.charAt(0)
+      return `${fNameInitial}${lNameInitial}`
+    }
   },
   methods: {
     ...appMutations({
@@ -69,7 +115,25 @@ export default {
     return {
       profile: {},
       responsive: false,
-      title: null
+      title: null,
+      user_account_items: [
+        {
+          title: 'Profile',
+          icon: 'mdi-account',
+          to: '/user-profile'
+        },
+        {
+          title: 'Account Settings',
+          icon: 'mdi-settings'
+          // to: '/user-settings'
+        },
+        {
+          title: 'Logout',
+          icon: 'mdi-logout',
+          to: '/logout',
+          click_action: this.logout
+        }
+      ]
     }
   }
 }
