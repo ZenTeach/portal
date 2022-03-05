@@ -1,6 +1,8 @@
 from celery.utils.log import get_task_logger
 from server import celery
 from server.lib import Grader
+from server.models import (ClassQuiz, ClassQuizStatus, QuizGrade, QuizSession,
+                           QuizSessionStatus)
 
 logger = get_task_logger(__name__)
 
@@ -9,14 +11,13 @@ logger = get_task_logger(__name__)
 def grader_administered_quizzes(self, quiz_session_id):
     try:
         Grader.from_quiz_session(quiz_session_id)
-        # grader.start_grading()
     except Exception as e:
         logger.error(e)
         self.retry(exc=e, countdown=2 ** self.request.retries)
 
 
-@celery.task
-def check_all_quizzes_submitted():
+@celery.task(bind=True)
+def check_all_quizzes_administered(self):
     """
         Periodically check if all the students submitted their quiz
         by checking ig no. of submissions == no. of students
@@ -24,9 +25,50 @@ def check_all_quizzes_submitted():
         TODO: Next step for this task would be to used MATERIALIZED VIEWS
         with triggers to reduce the number of reads.
     """
-    # Find the active quiz, i.e in created state
-    # TODO: Needs to be fixed
-    # Execute a query against database
+    try:
+        # Find the active quiz, i.e in created state
+        quizzes = ClassQuiz.query.filter_by(status=ClassQuizStatus.created).all()
+        logger.info(f"Checking {len(quizzes)} created quizzes")
+        for quiz in quizzes:
+            # Find the students who have submitted the quiz
+            students = quiz.school_class.students
+            # Find the students who have not submitted the quiz
+            completed_quiz_sessions = QuizSession.query.filter_by(
+                class_quiz_id=quiz.id, status=QuizSessionStatus.ended).count()
+            # Check if the no. of students == no. of completed quiz sessions
+            if len(students) == completed_quiz_sessions:
+                quiz.status = ClassQuizStatus.administered
+                quiz.save()
+    except Exception as e:
+        logger.error(e)
+        self.retry(exc=e, countdown=2 ** self.request.retries)
+
+
+@celery.task(bind=True)
+def check_all_quizzes_graded(self):
+    """
+        Periodically check if all the students submitted their quiz
+        by checking ig no. of submissions == no. of students
+
+        TODO: Next step for this task would be to used MATERIALIZED VIEWS
+        with triggers to reduce the number of reads.
+    """
+    try:
+        # Find the active quiz, i.e in created state
+        quizzes = ClassQuiz.query.filter_by(status=ClassQuizStatus.created).all()
+        logger.info(f"Checking {len(quizzes)} created quizzes")
+        for quiz in quizzes:
+            # Find the students who have submitted the quiz
+            students = quiz.school_class.students
+            # Find the students who have not submitted the quiz
+            graded_quizzes = QuizGrade.query.filter_by(class_quiz_id=quiz.id, graded=True).count()
+            # Check if the no. of students == no. of completed quiz sessions
+            if len(students) == graded_quizzes:
+                quiz.status = ClassQuizStatus.graded
+                quiz.save()
+    except Exception as e:
+        logger.error(e)
+        self.retry(exc=e, countdown=2 ** self.request.retries)
 
 
 @celery.task(bind=True)
