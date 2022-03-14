@@ -156,6 +156,7 @@ flask = "==2.0.0"
 sqlalchemy = "<1.4.0"
 sqlalchemy-utils = "*"
 py-healthcheck = "*"
+celery-redbeat = "*"
 
 [requires]
 python_version = "3.7"
