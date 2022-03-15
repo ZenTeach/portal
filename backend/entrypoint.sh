@@ -26,6 +26,8 @@ fi
 celery multi start worker1 \
     -A celery_worker.celery -B -l DEBUG -f tmp/celery-worker.log info
 
+celery -A celery_worker.celery beat -s celery_scheduler.DatabaseScheduler -l DEBUG -f tmp/celery-beat.log --detach --max-interval 60
+
 python manage.py run -h 0.0.0.0
 
 trap "Killing celery workers" SIGINT

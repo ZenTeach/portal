@@ -159,7 +159,11 @@ def create_app():
     def load_user(admin_id):
         return db.session.query(AdminModel).get(admin_id)
 
-    celery.conf.update(app.config)
+    from server.config import celery_configuration
+
+    celery.conf.update(celery_configuration)
+    # Add database uri for db scheduler
+    app.config.update(database_url=app.config.get('SQLALCHEMY_DATABASE_URI', ''))
     TaskBase = celery.Task
 
     class ContextTask(TaskBase):
