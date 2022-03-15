@@ -5,8 +5,7 @@ from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
 from server.api import logger
 from server.models import ClassQuiz as ClassQuizModel
-from server.models import (ClassQuizStatus, QuizSession, QuizSessionStatus,
-                           Student)
+from server.models import QuizSession, QuizSessionStatus, Student
 from server.tasks import grader_administered_quizzes
 from sqlalchemy import exc
 from webargs import fields, validate
@@ -106,7 +105,7 @@ class SubmitQuiz(MethodView):
             student.add_quiz_score(class_quiz, student_response)
             student.save()
 
-            class_quiz.update_and_save(status=ClassQuizStatus.administered)
+            # class_quiz.update_and_save(status=ClassQuizStatus.administered)
             quiz_session.update_and_save(
                 status=QuizSessionStatus.ended,
                 end_time=datetime.now())
