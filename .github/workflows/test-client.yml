@@ -8,7 +8,7 @@ on:
 jobs:
   client:
     runs-on: [ self-hosted, ci ]
-    container: node:13.13-alpine
+    container: node:16.14-alpine
     defaults:
       run:
         working-directory: client
