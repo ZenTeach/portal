@@ -37,8 +37,7 @@ def check_all_quizzes_administered(self):
                 class_quiz_id=quiz.id, status=QuizSessionStatus.ended).count()
             # Check if the no. of students == no. of completed quiz sessions
             if len(students) == completed_quiz_sessions:
-                quiz.status = ClassQuizStatus.administered
-                quiz.save()
+                quiz.update_and_save(status=ClassQuizStatus.administered)
     except Exception as e:
         logger.error(e)
         self.retry(exc=e, countdown=2 ** self.request.retries)
@@ -64,8 +63,7 @@ def check_all_quizzes_graded(self):
             graded_quizzes = QuizGrade.query.filter_by(class_quiz_id=quiz.id, graded=True).count()
             # Check if the no. of students == no. of completed quiz sessions
             if len(students) == graded_quizzes:
-                quiz.status = ClassQuizStatus.graded
-                quiz.save()
+                quiz.update_and_save(status=ClassQuizStatus.graded)
     except Exception as e:
         logger.error(e)
         self.retry(exc=e, countdown=2 ** self.request.retries)
