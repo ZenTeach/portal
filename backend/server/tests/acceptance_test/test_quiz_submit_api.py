@@ -6,7 +6,6 @@ import pytest
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import ClassQuiz, SchoolClass, Student, Teacher
-from server.models.class_quiz import ClassQuizStatus
 from server.models.quiz_session import QuizSession, QuizSessionStatus
 from server.tests.factories import (ClassQuizFactory, SchoolClassFactory,
                                     StudentFactory)
@@ -203,7 +202,6 @@ def test_post_quiz_submit(client: FlaskClient,
         })
 
     assert response.status_code == 201
-    assert classquiz_.status == ClassQuizStatus.administered
     assert session_.status == QuizSessionStatus.ended
 
 
