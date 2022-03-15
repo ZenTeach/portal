@@ -1,4 +1,4 @@
-FROM node:10.16-alpine
+FROM node:16.14-alpine
 # RUN addgroup ci
 RUN addgroup -S ci && adduser -S -G ci ci_user
 # RUN adduser -ms /bin/bash -G ci ci_user
