@@ -4,6 +4,7 @@ from functools import lru_cache
 from os import getcwd
 from pathlib import Path
 from secrets import token_urlsafe
+from typing import NamedTuple
 
 from yaml import load
 from yamlloader.ordereddict import CLoader
@@ -30,6 +31,43 @@ def _load_exempt_list():
     return data
 
 
+class CeleryConfig(NamedTuple):
+    """
+        Celery configuration options for the application.
+    """
+    result_backend: str = os.environ.get("RESULT_BACKEND")
+    worker_task_log_format: str = os.environ.get("CELERYD_TASK_LOG_FORMAT",
+                                                 "[%(asctime)s: %(levelname)s/%(processName)s] - [%(task_name)s(%(task_id)s)] %(message)s")  # noqa
+    broker_url: str = os.environ.get("BROKER_URL")
+    broker_transport: str = os.environ.get('BROKER_TRANSPORT')
+
+    broker_transport_options: dict = {
+        'region': os.environ.get('AWS_REGION'),
+        'polling_interval': 20,
+        'visibility_timeout': 10800,
+        'task_default_queue': os.environ.get('DEFAULT_QUEUE')
+    }
+    task_default_queue: str = os.environ.get('DEFAULT_QUEUE')
+    worker_enable_remote_control: bool = False
+    worker_send_task_events: bool = False
+    task_track_started: bool = True
+
+    # Configuration builder for celery-redbeat scheduler
+    redbeat_key_prefix: str = os.environ.get('REDBEAT_KEY_PREFIX', None)
+    redbeat_lock_key: bool = os.environ.get('REDBEAT_LOCK_KEY', False)
+    redbeat_lock_timeout: int = os.environ.get('REDBEAT_LOCK_TIMEOUT', 300)
+    redbeat_redis_url: str = os.environ.get('REDBEAT_REDIS_URL', 'redis://localhost')
+    redbeat_redis_use_ssl: bool = os.environ.get('REDBEAT_REDIS_USE_SSL', False)
+
+    # TODO: Add task routing
+
+    def __repr__(self) -> str:
+        return str(self._asdict())
+
+
+celery_configuration = CeleryConfig()._asdict()
+
+
 class BaseConfig:
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -49,11 +87,8 @@ class BaseConfig:
     JWT_REFRESH_CSRF_HEADER_NAME = "X-CSRF-REFRESH-TOKEN"
     REDIS_URL = os.environ.get("REDIS_URL")
     FLASK_ADMIN_SWATCH = "journal"
-    CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
-    CELERYD_TASK_LOG_FORMAT = os.environ.get("CELERYD_TASK_LOG_FORMAT")
-    CELERY_TRACK_STARTED = True
+
     CORS_VARY_HEADER = True
-    CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     DEFAULT_MAIL_SENDER = os.environ.get("DEFAULT_MAIL_SENDER")
     ALLOWED_CORS_ORIGIN = os.environ.get('ALLOWED_CORS_ORIGIN')
@@ -87,20 +122,8 @@ class TestingConfig(BaseConfig):
 
 
 class ProductionConfig(BaseConfig):
-    BROKER_TRANSPORT = os.environ.get('BROKER_TRANSPORT')
     JWT_IDENTITY_CLAIM = "sub"
-    BROKER_TRANSPORT_OPTIONS = {
-        'region': os.environ.get('AWS_REGION'),
-        'polling_interval': 20,
-        'visibility_timeout': 10800,
-        'task_default_queue': os.environ.get('CELERY_DEFAULT_QUEUE')
-    }
-    BROKER_USER = os.getenv('BROKER_USER')
-    BROKER_PASSWORD = os.getenv('BROKER_PASSWORD')
     JWT_COOKIE_SAMESITE = "Strict"
-    CELERY_DEFAULT_QUEUE = os.environ.get('CELERY_DEFAULT_QUEUE')
-    CELERY_ENABLE_REMOTE_CONTROL = False
-    CELERY_SEND_EVENTS = False
     JWT_COOKIE_SECURE = True
     JWT_COOKIE_DOMAIN = os.environ.get('JWT_COOKIE_DOMAIN', None)
     PROPAGATE_EXCEPTIONS = True
