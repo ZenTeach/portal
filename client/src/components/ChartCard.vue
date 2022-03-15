@@ -57,7 +57,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style>
 .v-card--material-chart {
   .v-card--material__header {
     .ct-label {

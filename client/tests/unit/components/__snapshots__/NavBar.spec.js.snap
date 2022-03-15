@@ -2,36 +2,36 @@
 
 exports[`NavBar.vue renders component 1`] = `
 <v-app-bar-stub height="60" maxheight="88" minheight="40" tag="header" extensionheight="48" flat="true" src="" value="true" app="true" id="core-bar-app">
-  <v-toolbar-title-stub class="tertiary--text font-weight-light d-flex align-center align-self-center">
+  <v-toolbar-title-stub tag="div" class="tertiary--text font-weight-light d-flex align-center align-self-center">
     <!---->
     <breadcrumb-stub separator="/"></breadcrumb-stub>
   </v-toolbar-title-stub>
-  <v-spacer-stub></v-spacer-stub>
-  <v-toolbar-items-stub>
+  <v-spacer-stub tag="div"></v-spacer-stub>
+  <v-toolbar-items-stub tag="div">
     <v-row-stub tag="div" align="center" class="mx-0">
       <v-col-stub tag="div" class="d-flex align-center">
         <v-btn-stub tag="button" activeclass="" icon="true" type="button" flat="">
           <v-icon-stub medium="" class="text--disabled">mdi-bell</v-icon-stub>
         </v-btn-stub>
       </v-col-stub>
-      <v-menu-stub opendelay="0" closedelay="0" contentclass="" bottom="true" left="true" maxwidth="auto" nudgebottom="0" nudgeleft="0" nudgeright="0" nudgetop="0" nudgewidth="0" openonclick="true" closeonclick="true" closeoncontentclick="true" maxheight="auto" origin="top left" transition="v-menu-transition">
+      <v-menu-stub opendelay="0" closedelay="0" bottom="true" left="true" openonclick="true" contentclass="" maxwidth="auto" nudgebottom="0" nudgeleft="0" nudgeright="0" nudgetop="0" nudgewidth="0" closeonclick="true" closeoncontentclick="true" maxheight="auto" origin="top left" transition="v-menu-transition">
         <v-list-stub tag="div">
           <v-list-item-stub activeclass="" tag="div">
-            <v-list-item-title-stub>
+            <v-list-item-title-stub tag="div">
               <v-icon-stub>mdi-account</v-icon-stub> <a href="/user-profile" class="text-decoration-none text--primary ">
                 Profile
               </a>
             </v-list-item-title-stub>
           </v-list-item-stub>
           <v-list-item-stub activeclass="" tag="div">
-            <v-list-item-title-stub>
+            <v-list-item-title-stub tag="div">
               <v-icon-stub>mdi-settings</v-icon-stub> <a class="text-decoration-none text--primary text--disabled">
                 Account Settings
               </a>
             </v-list-item-title-stub>
           </v-list-item-stub>
           <v-list-item-stub activeclass="" tag="div">
-            <v-list-item-title-stub class="text-decoration-none text--primary">
+            <v-list-item-title-stub tag="div" class="text-decoration-none text--primary">
               <v-icon-stub>mdi-logout</v-icon-stub> Logout
             </v-list-item-title-stub>
           </v-list-item-stub>

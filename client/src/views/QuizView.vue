@@ -201,7 +201,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 @supports(-webkit-appearance: none) or (-moz-appearance: none) {
   div > input[type='radio'] {
     display: inline-block;

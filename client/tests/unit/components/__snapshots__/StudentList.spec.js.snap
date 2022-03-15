@@ -2,7 +2,7 @@
 
 exports[`StudentList.vue renders correctly 1`] = `
 <div><span class="text-lg-h5 text-sm-body-2 font-weight-bold text-caption"><p>My Students</p></span>
-  <v-data-table-stub mobilebreakpoint="600" items="" options="[object Object]" sortby="" sortdesc="" customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
+  <v-data-table-stub mobilebreakpoint="600" items="" options="[object Object]" customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
   if (sortBy === null || !sortBy.length) return items;
   var stringCollator = new Intl.Collator(locale, {
     sensitivity: 'accent',
@@ -29,6 +29,11 @@ exports[`StudentList.vue renders correctly 1`] = `
 
       if (sortA === null &amp;&amp; sortB === null) {
         continue;
+      } // Dates should be compared numerically
+
+
+      if (sortA instanceof Date &amp;&amp; sortB instanceof Date) {
+        return sortA.getTime() - sortB.getTime();
       }
 
       _b = __read([sortA, sortB].map(function (s) {
@@ -46,16 +51,16 @@ exports[`StudentList.vue renders correctly 1`] = `
 }" page="1" itemsperpage="10" groupby="" groupdesc="" customgroup="function groupItems(items, groupBy, groupDesc) {
   var key = groupBy[0];
   var groups = [];
-  var current = null;
+  var current;
 
   for (var i = 0; i < items.length; i++) {
     var item = items[i];
-    var val = getObjectValueByPath(item, key);
+    var val = getObjectValueByPath(item, key, null);
 
     if (current !== val) {
       current = val;
       groups.push({
-        name: val,
+        name: val !== null &amp;&amp; val !== void 0 ? val : '',
         items: []
       });
     }
@@ -67,33 +72,33 @@ exports[`StudentList.vue renders correctly 1`] = `
 }" locale="en-US" customfilter="function defaultFilter(value, search, item) {
   return value != null &amp;&amp; search != null &amp;&amp; typeof value !== 'boolean' &amp;&amp; value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
 }" serveritemslength="-1" itemkey="name" value="" expanded="" noresultstext="$vuetify.dataIterator.noResultsText" nodatatext="$vuetify.noDataText" loadingtext="$vuetify.dataIterator.loadingText" selectablekey="isSelectable" loaderheight="4" headers="[object Object],[object Object],[object Object],[object Object],[object Object]" expandicon="$expand" itemclass=""></v-data-table-stub>
-  <v-dialog-stub opendelay="0" closedelay="0" contentclass="" maxwidth="500px" origin="center center" persistent="true" retainfocus="true" transition="dialog-transition" width="auto">
+  <v-dialog-stub contentclass="" opendelay="0" closedelay="0" openonclick="true" maxwidth="500px" origin="center center" persistent="true" retainfocus="true" transition="dialog-transition">
     <v-card-stub loaderheight="4" tag="div" class="d-flex flex-column align-left pa-3">
-      <v-card-title-stub primarytitle="" primary-title="">
+      <v-card-title-stub tag="div" primary-title="">
         <h3 class="title font-weight-bold mb-2">
           Confirm student deletion
         </h3>
       </v-card-title-stub>
-      <v-card-text-stub>
+      <v-card-text-stub tag="div">
         <p class="font-weight-medium body-1 ">
           This action will remove the student from the classroom and in effect remove all
           quiz performance data. Are you sure to delete a student from your classroom?
         </p>
       </v-card-text-stub>
-      <v-card-actions-stub class="justify-space-between px-5">
+      <v-card-actions-stub tag="div" class="justify-space-between px-5">
         <v-btn-stub color="error" tag="button" activeclass="" type="button" class="mr-4">Delete</v-btn-stub>
         <v-btn-stub color="secondary" outlined="true" tag="button" activeclass="" type="button" class="mr-4">Cancel</v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-  <v-dialog-stub opendelay="0" closedelay="0" contentclass="" maxwidth="500px" origin="center center" persistent="true" retainfocus="true" transition="dialog-transition" width="auto">
+  <v-dialog-stub contentclass="" opendelay="0" closedelay="0" openonclick="true" maxwidth="500px" origin="center center" persistent="true" retainfocus="true" transition="dialog-transition">
     <v-card-stub loaderheight="4" tag="div" class="d-flex flex-column align-left pa-3">
-      <v-card-title-stub primarytitle="" primary-title="">
+      <v-card-title-stub tag="div" primary-title="">
         <h3 class="title font-weight-bold mb-2">
           Edit student data
         </h3>
       </v-card-title-stub>
-      <v-card-text-stub>
+      <v-card-text-stub tag="div">
         <v-container-stub tag="div">
           <v-row-stub tag="div">
             <v-col-stub tag="div">
@@ -102,7 +107,7 @@ exports[`StudentList.vue renders correctly 1`] = `
           </v-row-stub>
         </v-container-stub>
       </v-card-text-stub>
-      <v-card-actions-stub class="justify-space-between px-5">
+      <v-card-actions-stub tag="div" class="justify-space-between px-5">
         <v-btn-stub color="primary" tag="button" activeclass="" type="button" class="mr-4">Update</v-btn-stub>
         <v-btn-stub color="error" outlined="true" tag="button" activeclass="" type="button" class="mr-4">Cancel</v-btn-stub>
       </v-card-actions-stub>
