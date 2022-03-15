@@ -22,7 +22,7 @@ class BaseModelMixin(Timestamp):
 
         hidden = self._hidden_fields if hasattr(self, "_hidden_fields") else []
         default = self._default_fields if hasattr(self, "_default_fields") else []
-        default.extend(['id', 'modified_at', 'created_at'])
+        default.extend(['id', 'updated', 'created'])
 
         if not _path:
             _path = self.__tablename__.lower()
@@ -146,6 +146,8 @@ class BaseModelMixin(Timestamp):
         for item, value in kwargs.items():
             if hasattr(self, item) and item not in self._IGNORED_COLUMNS:
                 self.__setattr__(item, value)
+
+        self.save(refresh=kwargs.get('refresh', False))
 
     def __iter__(self):
         table = self.__table__
