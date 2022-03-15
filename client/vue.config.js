@@ -1,7 +1,6 @@
 /* eslint-disable indent */
 module.exports = {
   chainWebpack: config => {
-    config.module.rule('eslint').use('eslint-loader')
     // svg loader
     config.module
       .rule('inline-svgo-loader')
