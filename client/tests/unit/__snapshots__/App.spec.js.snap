@@ -18,7 +18,7 @@ exports[`App.vue matches snapshot 1`] = `
             <router-view-stub name="default"></router-view-stub>
           </keep-alive-stub>
         </v-fade-transition-stub>
-        <v-dialog-stub opendelay="0" closedelay="0" contentclass="" maxwidth="500px" origin="center center" persistent="true" retainfocus="true" scrollable="true" transition="dialog-transition" width="auto">
+        <v-dialog-stub contentclass="" opendelay="0" closedelay="0" openonclick="true" maxwidth="500px" origin="center center" persistent="true" retainfocus="true" scrollable="true" transition="dialog-transition">
           <invite-user-stub></invite-user-stub>
         </v-dialog-stub>
       </v-container-stub>

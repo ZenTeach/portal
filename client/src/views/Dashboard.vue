@@ -26,7 +26,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .div-dashboard {
   margin: 0;
   padding: 0;
