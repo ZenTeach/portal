@@ -7,7 +7,7 @@ from server.api import logger
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import QuizSession, QuizSessionStatus, Student
 from server.tasks import grader_administered_quizzes
-from sqlalchemy import exc
+from sqlalchemy import exc, func
 from webargs import fields, validate
 from webargs.flaskparser import use_kwargs
 
@@ -25,8 +25,8 @@ class SubmitQuiz(MethodView):
         """
             Creates a quiz session object
         """
-
-        student = Student.query.filter_by(email=email).first()
+        student_email = email.lower()
+        student = Student.query.filter(func.lower(Student.email) == student_email).first()
         if not student:
             return make_response(jsonify({'message': "Student email doesn't exist"}), 404)
 
