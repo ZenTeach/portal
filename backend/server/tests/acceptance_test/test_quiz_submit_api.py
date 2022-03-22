@@ -79,8 +79,9 @@ def test_get_quiz_submit(client: FlaskClient,
                          mocker: MockFixture,
                          classquiz_: ClassQuiz,
                          access_token: List[str]):
+    student_email = student.email.capitalize()
     response = client.get(
-        f"/api/v1/submit_quiz?email={student.email}&quiz={classquiz_.uuid}",
+        f"/api/v1/submit_quiz?email={student_email}&quiz={classquiz_.uuid}",
         headers={
             'Authorization': 'Bearer {}'.format(access_token[0]),
             'X-CSRF-ACCESS-TOKEN': access_token[2]
