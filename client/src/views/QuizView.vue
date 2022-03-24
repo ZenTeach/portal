@@ -56,19 +56,16 @@
             <v-radio-group>
               <template v-for="(choice, idx) in question.choices">
                 <div :id="'div'+idx" :key="'div'+idx" class="d-flex">
-                    <input type="radio"
+                  <v-radio
                       :key="idx"
-                      :name="question.id"
+                      :name="'' + question.id"
                       :value="choice.uuid"
-                      @input.self="appendToSelection"/>
-                    <label :for="choice.value" key="'label'+idx">
-                      <span class="text-sm-body-2">
-                        {{choice.value}}
-                      </span>
-                    </label >
-                  </div>
-                </template>
-              </v-radio-group>
+                      :label="choice.value"
+                      @click.stop="appendToSelection(question.id, choice.uuid)">
+                  </v-radio>
+                </div>
+              </template>
+            </v-radio-group>
           </v-card-text>
         </v-card>
       </template>
@@ -160,9 +157,9 @@ export default {
     }
   },
   methods: {
-    appendToSelection (event) {
+    appendToSelection (name, value) {
       // Properly handle vue updates
-      this.$set(this.selectedChoices, event.target.name, event.target.value)
+      this.$set(this.selectedChoices, name, value)
     },
     submit () {
       const payload = this._collect_submission()
