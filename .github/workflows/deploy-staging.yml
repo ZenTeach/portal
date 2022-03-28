@@ -8,7 +8,7 @@ on:
 jobs:
   deploy_frontend:
     runs-on: self-hosted 
-    container: node:13.13-stretch
+    container: node:16.14-alpine
     defaults:
       run:
         working-directory: client/
