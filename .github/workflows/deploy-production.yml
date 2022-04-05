@@ -30,7 +30,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           cache: yarn
-          node-version-file: '.nvmrc'
+          node-version: 16.14
+          node-version-file: 'client/.nvmrc'
 
       - name: Install dependencies
         run: yarn install
