@@ -27,9 +27,14 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Use Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.14
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+
+      - name: Install Yarn
+        run: npm install -g yarn
 
       - name: Install dependencies
         run: yarn install
@@ -41,6 +46,9 @@ jobs:
         run: |
          chmod 400 $REMOTE_HOST_KEYS && chmod 400 $JUMPHOST_KEYS && scp -r -i $REMOTE_HOST_KEYS -o "StrictHostKeyChecking=no" ./dist $REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST
 
+      - name: Uninstall Yarn
+        if: always()
+        run: npm uninstall -g yarn
 
   deploy_backend:
     runs-on: [self-hosted, production, deployment]
