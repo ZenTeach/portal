@@ -11,21 +11,18 @@ from flask_admin.contrib.sqla.fields import InlineModelFormList
 from flask_admin.contrib.sqla.form import InlineModelConverter
 from flask_admin.form import ImageUploadField, RenderTemplateWidget
 from flask_admin.model.form import InlineFormAdmin
-from jinja2 import Markup
+from markupsafe import Markup
 from pandas import read_csv
 from pandas.core.frame import DataFrame
 from server.models import (KnowledgeItem, QuestionChoice, Questions, Subject,
                            Topic)
 from server.models.questions import QuestionTypeEnum
 from sqlalchemy import and_
-from wtforms import (BooleanField, IntegerField, SelectField, StringField,
-                     TextField)
-from wtforms.compat import text_type
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from wtforms import BooleanField, IntegerField, SelectField, StringField
 from wtforms.form import Form
-from wtforms.validators import (DataRequired, InputRequired, Required,
-                                ValidationError)
-from wtforms.widgets import HTMLString, TextInput, html_params
+from wtforms.validators import DataRequired, ValidationError
+from wtforms.widgets import TextInput, html_params
+from wtforms_alchemy.fields import QuerySelectField
 
 from .base_view import BaseView, _loaded_examboard, correct_choice_formatter
 
@@ -34,7 +31,7 @@ logger = logging.getLogger('admin::view')
 
 class QuestionChoiceForm(Form):
     value = StringField("Choice value", validators=[
-                        InputRequired()])
+                        DataRequired()])
     feedback = StringField("Choice Feedback", validators=[
                            DataRequired()])
     weight = IntegerField("Choice weight")
@@ -61,20 +58,20 @@ class CustomInlineModelConverter(InlineModelConverter):
 class CKTextAreaWidget(TextInput):
     def __call__(self, field, **kwargs):
         kwargs.setdefault('id', field.id)
-        if 'required' not in kwargs and 'required' in getattr(field, 'flags', []):
-            kwargs['required'] = True
-        return HTMLString('<div> \
+        if 'DataRequired' not in kwargs and 'DataRequired' in getattr(field, 'flags', []):
+            kwargs['DataRequired'] = True
+        return Markup('<div> \
                             <input type="hidden" {html_params}/>\
                             <div class="editor" {html_params}>\
                                 <p>{escaped_content}</p>\
                             </div>\
                           </div>'.format(
             html_params=html_params(name=field.id, **kwargs),
-            escaped_content=escape(text_type(field._value()), quote=False)
+            escaped_content=escape(str(field._value()), quote=False)
         ))
 
 
-class CKTextAreaField(TextField):
+class CKTextAreaField(StringField):
     widget = CKTextAreaWidget()
 
 
@@ -216,14 +213,14 @@ class QuestionView(BaseView):
     def scaffold_form(self):
         form = super().scaffold_form()
         form.subject = QuerySelectField('Subject',
-                                        validators=[Required()],
+                                        validators=[DataRequired()],
                                         query_factory=lambda: Subject.query.filter_by(
                                             enabled=True).all())
         form.topic = QuerySelectField('Topic',
-                                      validators=[Required()],
+                                      validators=[DataRequired()],
                                       query_factory=lambda: Topic.query.all())
         form.knowledge_item = QuerySelectField('Knowledge Item',
-                                               validators=[Required()],
+                                               validators=[DataRequired()],
                                                query_factory=lambda: KnowledgeItem.query.all())
 
         return form

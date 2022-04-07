@@ -1,8 +1,8 @@
 from flask import flash, redirect, url_for
 from server.models import Subject
 from server.models.knowledge_item import KnowledgeItem
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import Required
+from wtforms.validators import DataRequired
+from wtforms_alchemy.fields import QuerySelectField
 
 from .base_view import BaseView, logger
 
@@ -19,7 +19,7 @@ class KnowledgeItemView(BaseView):
     def scaffold_form(self):
         form = super().scaffold_form()
         form.subject = QuerySelectField('Subject',
-                                        validators=[Required()],
+                                        validators=[DataRequired()],
                                         query_factory=lambda: Subject.query.filter_by(
                                             enabled=True).all())
         return form

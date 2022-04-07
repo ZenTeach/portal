@@ -1,7 +1,7 @@
 from flask import flash
 from server.models import Subject
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import Required
+from wtforms.validators import DataRequired
+from wtforms_alchemy.fields import QuerySelectField
 
 from .base_view import BaseView, logger
 
@@ -18,7 +18,7 @@ class TopicView(BaseView):
     def scaffold_form(self):
         form = super().scaffold_form()
         form.subject = QuerySelectField('Subject',
-                                        validators=[Required()],
+                                        validators=[DataRequired()],
                                         query_factory=lambda: Subject.query.filter_by(
                                             enabled=True).all())
         return form
