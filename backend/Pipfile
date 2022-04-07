@@ -159,6 +159,7 @@ py-healthcheck = "*"
 celery-redbeat = "*"
 celery-scheduler = {editable = true, git = "https://github.com/Explarry/celery-scheduler"}
 freezegun = "*"
+wtforms-alchemy = "*"
 
 [requires]
 python_version = "3.7"
