@@ -8,7 +8,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import SecureForm
 from flask_login import current_user
 from flask_wtf.csrf import _FlaskFormCSRF
-from jinja2 import Markup
+from markupsafe import Markup
 from server.config import _load_examboard
 from server.models import QuestionChoice
 from wtforms.meta import DefaultMeta

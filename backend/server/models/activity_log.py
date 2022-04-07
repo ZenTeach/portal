@@ -17,7 +17,9 @@ LOGGABLE_ITEM_TYPES = [
     'knowledge_items', 'questions', 'school_class',
     'student_attended_class', 'quiz_session', 'quiz_grade']
 
-DB_VALIDATABLE_ITEMS = list(set(LOGGABLE_ITEM_TYPES) - set(['quiz_session', 'quiz_grade']))
+DB_EXEMPT_LIST = ['quiz_session', 'quiz_grade']
+
+DB_VALIDATABLE_ITEMS = list(set(LOGGABLE_ITEM_TYPES) - set(DB_EXEMPT_LIST))
 
 # Teacher activity log
 
@@ -57,7 +59,7 @@ class ActivityLog(BaseModelMixin, db.Model):
         log.save()
 
 
-class ActivityLogSchema(ma.ModelSchema):
+class ActivityLogSchema(ma.Schema):
     class Meta:
         model = ActivityLog
         load_instance = True

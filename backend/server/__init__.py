@@ -194,28 +194,28 @@ def create_app():
         index_view=ZenteachAdminIndexView(),
     )
     admin.add_view(ClassQuizView(models.ClassQuiz,
-                                 db.session, endpoint="admin.quiz"))
+                                 db.session, endpoint="admin_quiz"))
     admin.add_view(TeacherView(
-        models.Teacher, db.session, endpoint="admin.teacher"))
+        models.Teacher, db.session, endpoint="admin_teacher"))
     admin.add_view(StudentView(
-        models.Student, db.session, endpoint="admin.student"))
+        models.Student, db.session, endpoint="admin_student"))
     admin.add_view(
-        SubjectsView(models.Subject, db.session, endpoint="admin.subjects")
+        SubjectsView(models.Subject, db.session, endpoint="admin_subjects")
     )
     admin.add_view(
-        SchoolClassView(models.SchoolClass, db.session, endpoint="admin.class")
+        SchoolClassView(models.SchoolClass, db.session, endpoint="admin_class")
     )
     admin.add_view(
-        QuestionView(models.Questions, db.session, endpoint="admin.question")
+        QuestionView(models.Questions, db.session, endpoint="admin_question")
     )
     admin.add_view(
-        UserInvitationView(models.Invitations, db.session, endpoint="admin.user_invite")
+        UserInvitationView(models.Invitations, db.session, endpoint="admin_user_invite")
     )
     admin.add_view(
-        TopicView(models.Topic, db.session, endpoint="admin.topic")
+        TopicView(models.Topic, db.session, endpoint="admin_topic")
     )
     admin.add_view(
-        KnowledgeItemView(models.KnowledgeItem, db.session, endpoint="admin.knowledge_item")
+        KnowledgeItemView(models.KnowledgeItem, db.session, endpoint="admin_knowledge_item")
     )
 
     # import background tasks after initializing celery

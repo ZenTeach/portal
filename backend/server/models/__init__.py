@@ -56,7 +56,7 @@ __all__ = [
 ]
 
 
-class SubjectSchema(ma.ModelSchema):
+class SubjectSchema(ma.Schema):
     class Meta:
         model = Subject
         fields = ("id",
@@ -65,7 +65,7 @@ class SubjectSchema(ma.ModelSchema):
                   "remark")
 
 
-class QuestionChoicesSchema(ma.ModelSchema):
+class QuestionChoicesSchema(ma.Schema):
     class Meta:
         model = QuestionChoice
         fields = ("value", "uuid", "feedback", "weight", "is_correct_choice")
@@ -83,7 +83,7 @@ class QuestionChoicesSchema(ma.ModelSchema):
         return False
 
 
-class TopicSchema(ma.ModelSchema):
+class TopicSchema(ma.Schema):
     class Meta:
         model = Topic
         fields = ("value", "subject", "teacher_id")
@@ -91,7 +91,7 @@ class TopicSchema(ma.ModelSchema):
     subject = ma.Nested(SubjectSchema)
 
 
-class KnowledgeItemSchema(ma.ModelSchema):
+class KnowledgeItemSchema(ma.Schema):
     class Meta:
         model = KnowledgeItem
         fields = ("value", "subject", "teacher_id", "topic")
@@ -100,7 +100,7 @@ class KnowledgeItemSchema(ma.ModelSchema):
     topic = ma.Nested(TopicSchema, only=("value",))
 
 
-class QuestionsSchema(ma.ModelSchema):
+class QuestionsSchema(ma.Schema):
     class Meta:
         model = Questions
         fields = (
@@ -123,14 +123,14 @@ class QuestionsSchema(ma.ModelSchema):
     subject = ma.Nested(SubjectSchema, only=('name',))
 
 
-class ClassQuizSchema(ma.ModelSchema):
+class ClassQuizSchema(ma.Schema):
     class Meta:
         model = ClassQuiz
 
     status = EnumField(ClassQuizStatus)
 
 
-class StudentSchema(ma.ModelSchema):
+class StudentSchema(ma.Schema):
     class Meta:
         model = Student
         fields = (
@@ -149,7 +149,7 @@ class StudentSchema(ma.ModelSchema):
     )
 
 
-class AdminSchema(ma.ModelSchema):
+class AdminSchema(ma.Schema):
     class Meta:
         model = Admin
         fields = (
@@ -163,7 +163,7 @@ class AdminSchema(ma.ModelSchema):
         )
 
 
-class SchoolClassSchema(ma.ModelSchema):
+class SchoolClassSchema(ma.Schema):
     class Meta:
         model = SchoolClass
         fields = ("id", "name", "subject", "exam_board", "key_stage",
@@ -178,7 +178,7 @@ class SchoolClassSchema(ma.ModelSchema):
         return obj.key_stage_for_front_end()
 
 
-class TeacherSchema(ma.ModelSchema):
+class TeacherSchema(ma.Schema):
     class Meta:
         fields = (
             "id",
@@ -194,7 +194,7 @@ class TeacherSchema(ma.ModelSchema):
     classes = ma.Nested(SchoolClassSchema, many=True)
 
 
-class QuizGradeSchema(ma.ModelSchema):
+class QuizGradeSchema(ma.Schema):
     class Meta:
         model = QuizGrade
         fields = ("uuid",
@@ -205,7 +205,7 @@ class QuizGradeSchema(ma.ModelSchema):
     student = ma.Nested(StudentSchema)
 
 
-class ActivityLogSchema(ma.ModelSchema):
+class ActivityLogSchema(ma.Schema):
     class Meta:
         model = ActivityLog
         fields = ("item_id", "item_type", "action", "note", "created")

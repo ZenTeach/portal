@@ -5,7 +5,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from server.models import ClassQuiz as ClassQuizModel
 from weasyprint import CSS, HTML
-from weasyprint.fonts import FontConfiguration
+from weasyprint.text.fonts import FontConfiguration
 
 logger = logging.getLogger(__name__)
 
