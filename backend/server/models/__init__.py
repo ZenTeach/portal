@@ -55,6 +55,8 @@ __all__ = [
     "run_seed",
 ]
 
+# TODO: Include timestamps in serializers
+
 
 class SubjectSchema(ma.Schema):
     class Meta:
@@ -126,8 +128,19 @@ class QuestionsSchema(ma.Schema):
 class ClassQuizSchema(ma.Schema):
     class Meta:
         model = ClassQuiz
-
+        fields = (
+            'id',
+            'uuid',
+            'subject',
+            'max_score',
+            'variants',
+            'name',
+            'status',
+            'created',
+            'questions'
+        )
     status = EnumField(ClassQuizStatus)
+    questions = ma.Nested(QuestionsSchema)
 
 
 class StudentSchema(ma.Schema):
@@ -169,9 +182,9 @@ class SchoolClassSchema(ma.Schema):
         fields = ("id", "name", "subject", "exam_board", "key_stage",
                   "start_date", "year_group", "students", "quizzes")
 
-    quizzes = ma.Nested(ClassQuizSchema, many=True)
-    students = ma.Nested(StudentSchema, many=True)
-    subject = ma.Nested(SubjectSchema, only=('name',))
+    quizzes = ma.Nested(lambda: ClassQuizSchema, many=True)
+    students = ma.Nested(lambda: StudentSchema, many=True, exclude=('classes',))
+    subject = ma.Nested(lambda: SubjectSchema, only=('name',))
     key_stage = ma.Method('_key_stage_for_api')
 
     def _key_stage_for_api(self, obj):
