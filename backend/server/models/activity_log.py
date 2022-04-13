@@ -1,7 +1,8 @@
 from typing import Optional
 
-from marshmallow import ValidationError, validates, validates_schema
-from server import db, ma
+from marshmallow import (Schema, ValidationError, post_load, validates,
+                         validates_schema)
+from server import db
 from server.models import Teacher
 from server.models.base_model import BaseModelMixin
 from sqlalchemy import MetaData, Table
@@ -49,6 +50,7 @@ class ActivityLog(BaseModelMixin, db.Model):
             item_type: str,
             item_id: int,
             note: Optional[str] = None):
+
         log = ActivityLogSchema().load({
             'actor_id': actor.id,
             'action': action,
@@ -59,7 +61,7 @@ class ActivityLog(BaseModelMixin, db.Model):
         log.save()
 
 
-class ActivityLogSchema(ma.Schema):
+class ActivityLogSchema(Schema):
     class Meta:
         model = ActivityLog
         load_instance = True
@@ -92,3 +94,7 @@ class ActivityLogSchema(ma.Schema):
                 raise ValidationError(f'Item { item_type } with id {item_id} does not exist')
         else:
             pass
+
+    @post_load
+    def make_log(self, data, **kwargs):
+        return ActivityLog(**data)

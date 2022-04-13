@@ -36,11 +36,14 @@ class ClassQuiz(BaseModelMixin, db.Model):
     )
     class_id = db.Column(db.Integer, db.ForeignKey(
         "school_class.id"), nullable=False)
+
+    # TODO: Delete these
     held_on = db.Column(db.DateTime, nullable=True)
+    gform_id = db.Column(db.String(128), nullable=True)
+    script_id = db.Column(db.String(128), nullable=True, default=None)
+
     created_at = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow)
-    script_id = db.Column(db.String(128), nullable=True, default=None)
-    gform_id = db.Column(db.String(128), nullable=True)
     questions = db.Column(JSON)
     url = db.Column(db.String(256), nullable=True, default=None)
 
