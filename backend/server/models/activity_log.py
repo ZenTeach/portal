@@ -18,7 +18,9 @@ LOGGABLE_ITEM_TYPES = [
     'knowledge_items', 'questions', 'school_class',
     'student_attended_class', 'quiz_session', 'quiz_grade']
 
-DB_EXEMPT_LIST = ['quiz_session', 'quiz_grade']
+SUMMARIZED_ITEM_TYPES = [f'summarize_{item_type}' for item_type in LOGGABLE_ITEM_TYPES]
+
+DB_EXEMPT_LIST = list(set(['quiz_session', 'quiz_grade']).union(set(SUMMARIZED_ITEM_TYPES)))
 
 DB_VALIDATABLE_ITEMS = list(set(LOGGABLE_ITEM_TYPES) - set(DB_EXEMPT_LIST))
 
