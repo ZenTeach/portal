@@ -23,8 +23,10 @@ class Summarizer(object):
         self.teacher = teacher
         self.logs: List[Log] = []
 
-    def __call__(self):
-        pass
+    def __call__(self, interval: int) -> None:
+        self.get_logs_by_temporal_grouping(interval)
+        self.get_crosstab_from_dims()
+        self.generate_human_friendly_summary()
 
     @property
     def processed_logs(self) -> List[Log]:
