@@ -4,7 +4,9 @@
 
 from marshmallow_enum import EnumField
 from marshmallow import Schema, fields
-from server import ma
+from marshmallow_sqlalchemy.fields import Nested
+from marshmallow_sqlalchemy import SQLAlchemySchema
+from server import ma, db
 
 from .question_choice import QuestionChoice
 from .subjects import Subject
@@ -55,10 +57,24 @@ __all__ = [
     "run_seed",
 ]
 
+
+class _SmartNested(Nested):
+    def serialize(self, attr, obj, accessor=None):
+        if attr not in obj.__dict__:
+            return {"id": int(getattr(obj, attr + "_id"))}
+        return super(_SmartNested, self).serialize(attr, obj, accessor)
+
+
+class _BaseSchema(SQLAlchemySchema):
+    class Meta:
+        sqla_session = db.session
+        fields = ('created', 'updated')
+
 # TODO: Include timestamps in serializers
+# TODO: Test auto serializer creation
 
 
-class SubjectSchema(ma.Schema):
+class SubjectSchema(_BaseSchema):
     class Meta:
         model = Subject
         fields = ("id",
@@ -67,7 +83,7 @@ class SubjectSchema(ma.Schema):
                   "remark")
 
 
-class QuestionChoicesSchema(ma.Schema):
+class QuestionChoicesSchema(_BaseSchema):
     class Meta:
         model = QuestionChoice
         fields = ("value", "uuid", "feedback", "weight", "is_correct_choice")
@@ -85,7 +101,7 @@ class QuestionChoicesSchema(ma.Schema):
         return False
 
 
-class TopicSchema(ma.Schema):
+class TopicSchema(_BaseSchema):
     class Meta:
         model = Topic
         fields = ("value", "subject", "teacher_id")
@@ -93,7 +109,7 @@ class TopicSchema(ma.Schema):
     subject = ma.Nested(SubjectSchema)
 
 
-class KnowledgeItemSchema(ma.Schema):
+class KnowledgeItemSchema(_BaseSchema):
     class Meta:
         model = KnowledgeItem
         fields = ("value", "subject", "teacher_id", "topic")
@@ -102,7 +118,7 @@ class KnowledgeItemSchema(ma.Schema):
     topic = ma.Nested(TopicSchema, only=("value",))
 
 
-class QuestionsSchema(ma.Schema):
+class QuestionsSchema(_BaseSchema):
     class Meta:
         model = Questions
         fields = (
@@ -125,7 +141,7 @@ class QuestionsSchema(ma.Schema):
     subject = ma.Nested(SubjectSchema, only=('name',))
 
 
-class ClassQuizSchema(ma.Schema):
+class ClassQuizSchema(_BaseSchema):
     class Meta:
         model = ClassQuiz
         fields = (
@@ -140,10 +156,9 @@ class ClassQuizSchema(ma.Schema):
             'questions'
         )
     status = EnumField(ClassQuizStatus)
-    questions = ma.Nested(QuestionsSchema)
 
 
-class StudentSchema(ma.Schema):
+class StudentSchema(_BaseSchema):
     class Meta:
         model = Student
         fields = (
@@ -162,7 +177,7 @@ class StudentSchema(ma.Schema):
     )
 
 
-class AdminSchema(ma.Schema):
+class AdminSchema(_BaseSchema):
     class Meta:
         model = Admin
         fields = (
@@ -176,7 +191,7 @@ class AdminSchema(ma.Schema):
         )
 
 
-class SchoolClassSchema(ma.Schema):
+class SchoolClassSchema(_BaseSchema):
     class Meta:
         model = SchoolClass
         fields = ("id", "name", "subject", "exam_board", "key_stage",
@@ -191,7 +206,7 @@ class SchoolClassSchema(ma.Schema):
         return obj.key_stage_for_front_end()
 
 
-class TeacherSchema(ma.Schema):
+class TeacherSchema(_BaseSchema):
     class Meta:
         fields = (
             "id",
@@ -207,18 +222,19 @@ class TeacherSchema(ma.Schema):
     classes = ma.Nested(SchoolClassSchema, many=True)
 
 
-class QuizGradeSchema(ma.Schema):
+class QuizGradeSchema(_BaseSchema):
     class Meta:
         model = QuizGrade
+        include_relationships = True
         fields = ("uuid",
                   "score",
                   "grade_breakdown",
                   "student")
 
-    student = ma.Nested(StudentSchema)
+    student = Nested(StudentSchema, include=('email'))
 
 
-class ActivityLogSchema(ma.Schema):
+class ActivityLogSchema(_BaseSchema):
     class Meta:
         model = ActivityLog
         fields = ("item_id", "item_type", "action", "note", "created")

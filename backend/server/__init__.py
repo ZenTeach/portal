@@ -273,6 +273,6 @@ def create_app():
     @app.shell_context_processor
     def ctx():
         import server.models as sm
-        return {"app": app, "db": db, "globalConfig": globalConfig, "sm": sm}
+        return {"app": app, "db": db, "globalConfig": globalConfig, "sm": sm, "celery": celery}
 
     return app
