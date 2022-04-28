@@ -6,7 +6,6 @@ from flask.views import MethodView
 from server.api import logger
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import QuizSession, QuizSessionStatus, Student
-from server.tasks import grader_administered_quizzes
 from sqlalchemy import exc, func
 from webargs import fields, validate
 from webargs.flaskparser import use_kwargs
@@ -105,11 +104,9 @@ class SubmitQuiz(MethodView):
             student.add_quiz_score(class_quiz, student_response)
             student.save()
 
-            # class_quiz.update_and_save(status=ClassQuizStatus.administered)
             quiz_session.update_and_save(
                 status=QuizSessionStatus.ended,
                 end_time=datetime.now())
-            grader_administered_quizzes.apply_async(args=[quiz_session.uuid])
 
             response_object = {"status": "success",
                                "message": "Quiz submitted!"}

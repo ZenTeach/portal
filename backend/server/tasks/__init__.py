@@ -1,5 +1,6 @@
 from .grader_tasks import (check_all_quizzes_administered,
                            check_all_quizzes_graded,
+                           grade_all_administered_quizzes,
                            grader_administered_quizzes, regrade_quiz)
 from .image_upload import delete_image_from_s3, upload_image_to_s3
 from .quiz_generator_tasks import (generate_pdf, send_quiz_generation_email,
@@ -16,6 +17,7 @@ __all__ = [
     "regrade_quiz",
     "send_quiz_generation_email",
     "grader_administered_quizzes",
+    "grade_all_administered_quizzes",
     "send_confirmation_instructions",
     "send_student_confirmation_instructions",
     "send_account_recovery_instructions",
