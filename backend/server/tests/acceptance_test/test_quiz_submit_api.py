@@ -76,7 +76,6 @@ def ended_session_(student: Student, classquiz_: ClassQuiz) -> QuizSession:
 
 def test_get_quiz_submit(client: FlaskClient,
                          student: Student,
-                         mocker: MockFixture,
                          classquiz_: ClassQuiz,
                          access_token: List[str]):
     student_email = student.email.capitalize()
@@ -182,13 +181,7 @@ def test_post_quiz_submit(client: FlaskClient,
                           classquiz_: ClassQuiz,
                           access_token: List[str],
                           session_: QuizSession,
-                          student_response: List[dict],
-                          mocker: MockFixture):
-
-    @mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
-    def _mock_grader_administered_quizzes(*args):
-        assert len(args) == 1
-        assert args[0] == classquiz_.uuid
+                          student_response: List[dict]):
 
     response = client.post(
         "/api/v1/submit_quiz",
@@ -210,10 +203,8 @@ def test_post_student_not_found_error(client: FlaskClient,
                                       classquiz_: ClassQuiz,
                                       session_: QuizSession,
                                       access_token: List[str],
-                                      student_response: List[dict],
-                                      mocker: MockFixture):
+                                      student_response: List[dict]):
 
-    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
     response = client.post(
         "/api/v1/submit_quiz",
         json={
@@ -236,9 +227,7 @@ def test_post_classquiz_not_found_error(client: FlaskClient,
                                         student: Student,
                                         student_response: List[dict],
                                         access_token: List[str],
-                                        session_: QuizSession,
-                                        mocker: MockFixture):
-    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
+                                        session_: QuizSession):
     response = client.post(
         "/api/v1/submit_quiz",
         json={
@@ -262,9 +251,7 @@ def test_post_quizsession_not_found_error(client: FlaskClient,
                                           student: Student,
                                           student_response: List[dict],
                                           access_token: List[str],
-                                          classquiz_: ClassQuiz,
-                                          mocker: MockFixture):
-    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
+                                          classquiz_: ClassQuiz):
     response = client.post(
         "/api/v1/submit_quiz",
         json={
@@ -290,8 +277,6 @@ def test_post_quizsession_ended_error(client: FlaskClient,
                                       ended_session_: QuizSession,
                                       access_token: List[str],
                                       mocker: MockFixture):
-
-    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
     response = client.post(
         "/api/v1/submit_quiz",
         json={
@@ -321,7 +306,6 @@ def test_post_db_exception(client: FlaskClient,
         raise exc.IntegrityError('', '', '')
 
     mocker.patch.object(Student, 'save', _mock_student_save)
-    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
     response = client.post(
         "/api/v1/submit_quiz",
         json={
@@ -344,11 +328,8 @@ def test_post_endpoint_idempotency(client: FlaskClient,
                                    student: Student,
                                    classquiz_: ClassQuiz,
                                    access_token: List[str],
-                                   student_response: List[dict],
-                                   ended_session_: QuizSession,
-                                   mocker: MockFixture):
+                                   student_response: List[dict]):
 
-    mocker.patch('server.api.quiz_submit_api.grader_administered_quizzes')
     response = client.post(
         "/api/v1/submit_quiz",
         json={
