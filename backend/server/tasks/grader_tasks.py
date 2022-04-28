@@ -10,10 +10,24 @@ logger = get_task_logger(__name__)
 @celery.task(bind=True)
 def grader_administered_quizzes(self, quiz_session_id):
     try:
+        logger.debug(f"grader_administered_quizzes: {quiz_session_id}")
         Grader.from_quiz_session(quiz_session_id)
     except Exception as e:
         logger.error(e)
         self.retry(exc=e, countdown=2 ** self.request.retries)
+
+
+@celery.task(bind=True)
+def grade_all_administered_quizzes(self):
+    """
+    Grades all quizzes that are currently being administered.
+    """
+    logger.info("Grading all administered quizzes")
+    ended_sessions = QuizSession.query.filter_by(
+        status=QuizSessionStatus.ended).all()
+    for session in ended_sessions:
+        celery.send_task('server.tasks.grader_tasks.grader_administered_quizzes',
+                         args=[session.uuid])
 
 
 @celery.task(bind=True)
