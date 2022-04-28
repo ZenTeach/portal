@@ -24,7 +24,9 @@ fi
 
 
 celery multi start worker1 \
-    -A celery_worker.celery -B -l DEBUG -f tmp/celery-worker.log info
+    -A celery_worker.celery -B -l DEBUG \
+    --pidfile=tmp/pid/celery/%n.pid \
+    -f tmp/celery-worker.log info
 
 celery -A celery_worker.celery beat -s celery_scheduler.DatabaseScheduler -l DEBUG -f tmp/celery-beat.log --detach --max-interval 60
 
