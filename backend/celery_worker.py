@@ -5,7 +5,6 @@ from celery.schedules import crontab
 from server import celery, create_app  # noqa
 from server.tasks import (check_all_quizzes_administered,
                           check_all_quizzes_graded,
-                          enqueue_summary_for_teacher,
                           grade_all_administered_quizzes)
 
 
@@ -29,22 +28,22 @@ def setup_periodic_tasks(sender, **kwargs):
         name='checking all graded quizzes')
 
     # Monthly summarizer
-    sender.add_periodic_task(
-        crontab(day_of_month='1'),
-        enqueue_summary_for_teacher.s(),
-        name='Enqueue summary for teacher: monthly')
+    # sender.add_periodic_task(
+    #     crontab(day_of_month='1'),
+    #     enqueue_summary_for_teacher.s(),
+    #     name='Enqueue summary for teacher: monthly')
 
     # Weekly summarizer
-    sender.add_periodic_task(
-        crontab(day_of_week='', month_of_year='*'),
-        enqueue_summary_for_teacher.s(),
-        name='Enqueue summary for teacher: weekly')
+    # sender.add_periodic_task(
+    #     crontab(day_of_week='', month_of_year='*'),
+    #     enqueue_summary_for_teacher.s(),
+    #     name='Enqueue summary for teacher: weekly')
 
     # Daily summarizer
-    sender.add_periodic_task(
-        crontab(hour='22', minute='1', day_of_week='*'),
-        enqueue_summary_for_teacher.s(),
-        name='Enqueue summary for teacher: daily')
+    # sender.add_periodic_task(
+    #     crontab(hour='22', minute='1', day_of_week='*'),
+    #     enqueue_summary_for_teacher.s(),
+    #     name='Enqueue summary for teacher: daily')
 
 
 sentry_dsn_key = os.environ.get("SENTRY_DSN")
