@@ -76,19 +76,19 @@ jobs:
           wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
           apt-get update && apt-get install -y libpq-dev && pip install pipenv
 
-      - name: Install Google Chrome Binary
-        run: |
-          cd /tmp && wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-          apt-get install -y ./google-chrome-stable_current_amd64.deb
+      # - name: Install Google Chrome Binary
+      #   run: |
+      #     cd /tmp && wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+      #     apt-get install -y ./google-chrome-stable_current_amd64.deb
 
-      - name: Setup Chromedriver
-        uses: nanasess/setup-chromedriver@master
+      # - name: Setup Chromedriver
+      #   uses: nanasess/setup-chromedriver@master
 
-      - name: Setup display adapters
-        run: |
-          export DISPLAY=:99
-          chromedriver --url-base=/wd/hub &
-          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+      # - name: Setup display adapters
+      #   run: |
+      #     export DISPLAY=:99
+      #     chromedriver --url-base=/wd/hub &
+      #     sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
 
       - name: Install dependencies
         run: pipenv install
