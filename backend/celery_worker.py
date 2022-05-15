@@ -3,9 +3,13 @@ import os
 
 from celery.schedules import crontab
 from server import celery, create_app  # noqa
+from server.config import CeleryConfig
 from server.tasks import (check_all_quizzes_administered,
                           check_all_quizzes_graded,
                           grade_all_administered_quizzes)
+
+# update celery config
+celery.conf.update(**CeleryConfig()._asdict())
 
 
 @celery.on_after_configure.connect
