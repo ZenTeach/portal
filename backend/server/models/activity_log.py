@@ -62,6 +62,10 @@ class ActivityLog(BaseModelMixin, db.Model):
         })
         log.save()
 
+    def __repr__(self):
+        return f'Log for {self.item_type} by {self.actor_id} \
+               performing {self.action}. Note: {self.note}'
+
 
 class ActivityLogSchema(Schema):
     class Meta:
