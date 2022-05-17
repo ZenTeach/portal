@@ -273,6 +273,17 @@ def create_app():
     @app.shell_context_processor
     def ctx():
         import server.models as sm
-        return {"app": app, "db": db, "globalConfig": globalConfig, "sm": sm, "celery": celery}
+
+        def ap(mappable):
+            import pprint
+            pprint(mappable.dict())
+        return {
+            "app": app,
+            "db": db,
+            "globalConfig": globalConfig,
+            "sm": sm,
+            "celery": celery,
+            "ap": ap
+        }
 
     return app
