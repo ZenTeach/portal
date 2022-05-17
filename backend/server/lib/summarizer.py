@@ -15,13 +15,21 @@ Log: NamedTuple = namedtuple(
     'Log',
     ['actor_id', 'action', 'item_type', 'item_id'])
 
+EVENTS = {
+    'daily': ['quiz_grade', 'class_quiz'],
+    'week': ['class_quiz'],
+    'month': ['topics', 'knowledge_items', 'invitations', 'questions']
+}
+
 
 class Summarizer(object):
     crosstab = None
+    _all_event: dict = EVENTS
 
     def __init__(self, teacher: Teacher):
         self.teacher = teacher
         self.logs: List[Log] = []
+        self.mode: str = ''
 
     def __call__(self, interval: int) -> None:
         self.get_logs_by_temporal_grouping(interval)
@@ -45,15 +53,28 @@ class Summarizer(object):
             logger.exception(f'Unrecognized time interval: {n_interval_ago}')
             raise Exception(f'Unrecognized time interval: {n_interval_ago}')
 
+        if n_interval_ago == 30:
+            self.mode = 'month'
+        elif n_interval_ago == 7:
+            self.mode = 'week'
+        else:
+            self.mode = 'daily'
+
         interval_delta = datetime.now() - timedelta(days=n_interval_ago)
-        activity_logs = ActivityLog.query\
-            .filter(ActivityLog.actor == self.teacher,
-                    cast(ActivityLog.created, Date) < interval_delta).all()
+        activity_logs = self._construct_query(self.teacher, interval_delta)
 
         for log in activity_logs:
             self.logs.append(Log(log.actor_id, log.action, log.item_type, log.item_id))
 
     # Step 2: Compute the cross-tabulation of the logs. Dimensions are action and item_type
+    def _construct_query(self, teacher: Teacher, delta):
+        # get event types
+        events = self._all_event[self.mode]
+        logs = ActivityLog.query\
+            .filter(ActivityLog.actor == teacher,
+                    ActivityLog.item_type.in_(events),
+                    cast(ActivityLog.created, Date) < delta).all()
+        return logs
 
     def get_crosstab_from_dims(self):
         dims = ['action', 'item_type']
