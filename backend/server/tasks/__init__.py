@@ -1,3 +1,4 @@
+from .activity_log_tasks import enqueue_summary_for_teacher
 from .grader_tasks import (check_all_quizzes_administered,
                            check_all_quizzes_graded,
                            grade_all_administered_quizzes,
@@ -18,6 +19,7 @@ __all__ = [
     "send_quiz_generation_email",
     "grader_administered_quizzes",
     "grade_all_administered_quizzes",
+    "enqueue_summary_for_teacher",
     "send_confirmation_instructions",
     "send_student_confirmation_instructions",
     "send_account_recovery_instructions",

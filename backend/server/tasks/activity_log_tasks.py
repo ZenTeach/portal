@@ -1,14 +1,22 @@
+
 from celery.utils.log import get_task_logger
+from server import celery
+from server.lib import Summarizer
+from server.models import Teacher
 
 logger = get_task_logger(__name__)
 
 
-class SummarizerTask:
-    def __init__(self, task_id, task_name, task_args, task_kwargs):
-        self.task_id = task_id
-        self.task_name = task_name
-        self.task_args = task_args
-        self.task_kwargs = task_kwargs
+@celery.task(bind=True)
+def enqueue_summary_for_teacher(self, days_before: int):
+    try:
+        for teacher in Teacher.query.all():
 
-    def __call__(self):
-        pass
+            logger.debug(f'Calling summarizer for teacher {teacher}')
+            s = Summarizer(teacher)
+            s(days_before)
+            logger.debug('Finished summarizer')
+        return None
+    except Exception as e:
+        logger.error(e)
+        self.retry(exc=e, countdown=2 ** self.request.retries)
