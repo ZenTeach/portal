@@ -8,6 +8,7 @@ from .quiz_grade_factory import QuizGradeFactory
 from .quiz_session_factory import QuizSessionFactory
 from .school_class_factory import SchoolClassFactory
 from .student_factory import StudentFactory
+from .subject_factory import SubjectFactory
 from .teacher_factory import TeacherFactory
 from .topic_factory import TopicFactory
 
@@ -21,6 +22,7 @@ __all__ = [
     "QuestionsFactory",
     "QuestionChoiceFactory",
     "AdminFactory",
+    "SubjectFactory",
     "TopicFactory",
     "KnowledgeItemFactory",
     "InvitationFactory"
