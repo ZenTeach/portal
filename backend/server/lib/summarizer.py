@@ -17,9 +17,13 @@ Log: NamedTuple = namedtuple(
 
 EVENTS = {
     'daily': ['quiz_grade', 'class_quiz'],
-    'week': ['class_quiz'],
+    'week': ['class_quiz', 'school_class'],
     'month': ['topics', 'knowledge_items', 'invitations', 'questions']
 }
+
+
+class EmptyLogException(Exception):
+    pass
 
 
 class Summarizer(object):
@@ -32,9 +36,13 @@ class Summarizer(object):
         self.mode: str = ''
 
     def __call__(self, interval: int) -> None:
-        self.get_logs_by_temporal_grouping(interval)
-        self.get_crosstab_from_dims()
-        self.generate_human_friendly_summary()
+        try:
+            self.get_logs_by_temporal_grouping(interval)
+            self.get_crosstab_from_dims()
+            self.generate_human_friendly_summary()
+        except EmptyLogException:
+            print(f"Got empty logs for user {self.teacher}")
+            return
 
     @property
     def processed_logs(self) -> List[Log]:
@@ -63,10 +71,12 @@ class Summarizer(object):
         interval_delta = datetime.now() - timedelta(days=n_interval_ago)
         activity_logs = self._construct_query(self.teacher, interval_delta)
 
+        if len(activity_logs) == 0:
+            raise EmptyLogException()
+
         for log in activity_logs:
             self.logs.append(Log(log.actor_id, log.action, log.item_type, log.item_id))
 
-    # Step 2: Compute the cross-tabulation of the logs. Dimensions are action and item_type
     def _construct_query(self, teacher: Teacher, delta):
         # get event types
         events = self._all_event[self.mode]
@@ -76,6 +86,7 @@ class Summarizer(object):
                     cast(ActivityLog.created, Date) < delta).all()
         return logs
 
+    # Step 2: Compute the cross-tabulation of the logs. Dimensions are action and item_type
     def get_crosstab_from_dims(self):
         dims = ['action', 'item_type']
         df = pd.DataFrame(self.logs)
