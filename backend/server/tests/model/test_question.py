@@ -5,7 +5,7 @@ from factory import build
 from flask.testing import FlaskClient
 from marshmallow import ValidationError
 from server.models import KnowledgeItem, Questions, Subject, Topic
-from server.tests.factories import QuestionsFactory
+from server.tests.factories import QuestionsFactory, SubjectFactory
 from server.tests.factories.knowledge_item_factory import KnowledgeItemFactory
 from server.tests.factories.question_choice_factory import \
     QuestionChoiceFactory
@@ -14,9 +14,7 @@ from server.tests.factories.topic_factory import TopicFactory
 
 @pytest.fixture
 def subject_() -> Subject:
-    s = Subject(name="Chemistry", enabled=True)
-    s.save()
-    return s
+    return SubjectFactory(name="Chemistry")
 
 
 @pytest.fixture

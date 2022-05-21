@@ -4,7 +4,7 @@ from server.models import (KnowledgeItem, QuestionChoice, Questions, Subject,
                            Topic)
 from server.tests.factories import (KnowledgeItemFactory,
                                     QuestionChoiceFactory, QuestionsFactory,
-                                    TopicFactory)
+                                    SubjectFactory, TopicFactory)
 
 
 @pytest.fixture
@@ -15,9 +15,7 @@ def question_choice() -> QuestionChoice:
 
 @pytest.fixture
 def subject_() -> Subject:
-    s = Subject(name="Chemistry", enabled=True)
-    s.save()
-    return s
+    return SubjectFactory(name="Biology")
 
 
 @pytest.fixture

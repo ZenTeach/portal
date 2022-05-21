@@ -15,7 +15,7 @@ from server.models.question_choice import QuestionChoice
 from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
                                     QuizGradeFactory, QuizSessionFactory,
                                     SchoolClassFactory, StudentFactory,
-                                    TopicFactory)
+                                    SubjectFactory, TopicFactory)
 
 
 @pytest.fixture
@@ -37,9 +37,7 @@ def student(school_class: SchoolClass, client: FlaskClient) -> Student:
 
 @pytest.fixture
 def subject_() -> Subject:
-    subject = Subject(name='Physics', enabled=True)
-    subject.save()
-    return subject
+    return SubjectFactory()
 
 
 @pytest.fixture
