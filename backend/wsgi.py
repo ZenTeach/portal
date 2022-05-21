@@ -11,12 +11,12 @@ app = None
 
 if sentry_dsn_key:
     import sentry_sdk
-    from sentry_sdk.integrations.flask import FlaskIntegration
-    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
-    from sentry_sdk.integrations.celery import CeleryIntegration
-    from sentry_sdk.integrations.redis import RedisIntegration
     from sentry_sdk.integrations.aiohttp import AioHttpIntegration
+    from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.flask import FlaskIntegration
     from sentry_sdk.integrations.logging import LoggingIntegration
+    from sentry_sdk.integrations.redis import RedisIntegration
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
     sentry_logging = LoggingIntegration(
         level=logging.INFO,        # Capture info and above as breadcrumbs
@@ -25,6 +25,7 @@ if sentry_dsn_key:
 
     sentry_sdk.init(
         dsn=sentry_dsn_key,
+        traces_sample_rate=0.7,
         integrations=[
             FlaskIntegration(),
             SqlalchemyIntegration(),
