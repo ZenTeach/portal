@@ -9,7 +9,8 @@ from server.models import (KnowledgeItem, QuestionsSchema, Subject, Teacher,
                            Topic)
 from server.models.questions import Questions
 from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
-                                    TeacherFactory, TopicFactory)
+                                    SubjectFactory, TeacherFactory,
+                                    TopicFactory)
 
 fake = Faker()
 
@@ -17,14 +18,12 @@ fake = Faker()
 @pytest.fixture(autouse=True)
 def subjects_(client: FlaskClient) -> None:
     for subject in ['Biology', 'Chemistry', 'Physics']:
-        Subject(name=subject, enabled=True).save()
+        SubjectFactory(name=subject)
 
 
 @pytest.fixture()
 def subject_() -> Subject:
-    s = Subject(name='Chemistry', enabled=True)
-    s.save()
-    return s
+    return SubjectFactory(name="Chemistry")
 
 
 @pytest.fixture()

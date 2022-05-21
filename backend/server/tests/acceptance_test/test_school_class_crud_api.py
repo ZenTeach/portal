@@ -9,14 +9,15 @@ from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import SchoolClass, Subject, Teacher
 from server.models.student import Student
-from server.tests.factories import SchoolClassFactory, StudentFactory
+from server.tests.factories import (SchoolClassFactory, StudentFactory,
+                                    SubjectFactory)
 from sqlalchemy import exc
 
 
 @pytest.fixture(autouse=True)
 def subjects_(client: FlaskClient) -> None:
     for subject in ['Biology', 'Chemistry', 'Physics']:
-        Subject(name=subject, enabled=True).save()
+        SubjectFactory(name=subject, enabled=True)
 
 
 @pytest.fixture()

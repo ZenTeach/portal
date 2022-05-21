@@ -5,21 +5,18 @@ import pytest
 from factory import build
 from flask.testing import FlaskClient
 from server.models import KnowledgeItem, Subject, Teacher, Topic
-from server.tests.factories import KnowledgeItemFactory, TopicFactory
+from server.tests.factories import (KnowledgeItemFactory, SubjectFactory,
+                                    TopicFactory)
 
 
 @pytest.fixture
 def math_subject() -> Subject:
-    s = Subject(name='Math', enabled=True)
-    s.save()
-    return s
+    return SubjectFactory(name="Math")
 
 
 @pytest.fixture
 def biology_subject() -> Subject:
-    s = Subject(name='Biology', enabled=True)
-    s.save()
-    return s
+    return SubjectFactory(name="Biology")
 
 
 @pytest.fixture

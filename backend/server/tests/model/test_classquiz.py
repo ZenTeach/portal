@@ -7,14 +7,12 @@ from server.models import (ClassQuiz, ClassQuizStatus, KnowledgeItem,
                            QuestionsSchema, SchoolClass, Subject, Topic)
 from server.tests.factories import (ClassQuizFactory, KnowledgeItemFactory,
                                     QuestionsFactory, SchoolClassFactory,
-                                    TopicFactory)
+                                    SubjectFactory, TopicFactory)
 
 
 @pytest.fixture
 def subject_() -> Subject:
-    s = Subject(name="Chemistry", enabled=True)
-    s.save()
-    return s
+    return SubjectFactory(name="Chemistry")
 
 
 @pytest.fixture
