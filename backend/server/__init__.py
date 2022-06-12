@@ -270,17 +270,19 @@ def create_app():
 
     default_handler.setFormatter(formatter)
 
-    app.config.update({
-        'APISPEC_SPEC': APISpec(
-            title='ZenTeach',
-            version='v1',
-            openapi_version='2.0',
-            plugins=[MarshmallowPlugin()],
-        ),
-        'APISPEC_SWAGGER_URL': '/swagger/',
-        'APISPEC_SWAGGER_UI_URL': '/swagger-ui/'
-    })
-    docs.init_app(app)
+    if os.environ.get('FLASK_ENV') == 'development':
+        app.config.update({
+            'APISPEC_SPEC': APISpec(
+                title='ZenTeach',
+                version='v1',
+                openapi_version='2.0',
+                plugins=[MarshmallowPlugin()],
+            ),
+            'APISPEC_SWAGGER_URL': '/swagger/',
+            'APISPEC_SWAGGER_UI_URL': '/swagger-ui/'
+        })
+        docs.init_app(app)
+        auto_document_apis(docs, app)
 
     if os.environ.get('FLASK_ENV') == 'production':
         gunicorn_logger = logging.getLogger('gunicorn.error')
@@ -304,3 +306,20 @@ def create_app():
         }
 
     return app
+
+
+def auto_document_apis(document_: FlaskApiSpec, app: Flask):
+    for name, rule in app.view_functions.items():
+        blueprint, endpoint = '', ''
+        try:
+            blueprint, endpoint = name.split('.')
+        except:  # noqa
+            blueprint = name
+
+        if (blueprint.startswith('admin') or
+           blueprint.startswith('flask') or
+                blueprint == 'static' or blueprint == 'healthcheck'):
+
+            next
+        else:
+            document_.register(rule, endpoint=endpoint, blueprint=blueprint)
