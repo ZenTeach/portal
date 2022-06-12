@@ -5,11 +5,15 @@ from enum import Enum
 from json import JSONEncoder
 from uuid import UUID
 
+# APISpec : auto api documenting
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
 from celery import Celery
 from flask import (Flask, current_app, has_request_context, jsonify,
                    make_response, request)
 from flask.logging import default_handler
 from flask_admin import Admin
+from flask_apispec.extension import FlaskApiSpec
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -69,6 +73,7 @@ health = HealthCheck()
 celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
 app = None
+docs = FlaskApiSpec()
 globalConfig = LocalProxy(lambda: current_app.config)
 
 
@@ -264,6 +269,18 @@ def create_app():
     app.register_blueprint(root_api, url_prefix="/api/v1")
 
     default_handler.setFormatter(formatter)
+
+    app.config.update({
+        'APISPEC_SPEC': APISpec(
+            title='ZenTeach',
+            version='v1',
+            openapi_version='2.0',
+            plugins=[MarshmallowPlugin()],
+        ),
+        'APISPEC_SWAGGER_URL': '/swagger/',
+        'APISPEC_SWAGGER_UI_URL': '/swagger-ui/'
+    })
+    docs.init_app(app)
 
     if os.environ.get('FLASK_ENV') == 'production':
         gunicorn_logger = logging.getLogger('gunicorn.error')
