@@ -1,6 +1,6 @@
 
 from flask import Blueprint, jsonify, make_response, request
-from flask.views import MethodView
+from flask_apispec.views import MethodResource
 from flask_jwt_extended import current_user, jwt_required
 from marshmallow import INCLUDE, Schema, fields
 from server import db
@@ -28,7 +28,7 @@ class PatchPayloadSchema(Schema):
     old_email = fields.Email(required=True)
 
 
-class SchoolClass(MethodView):
+class SchoolClass(MethodResource):
     @jwt_required(fresh=True)
     def get(self, school_class_id):
         error_response = jsonify({"message": "Class room doesn't exist"})
@@ -118,7 +118,7 @@ class SchoolClass(MethodView):
             }), 500)
 
 
-class SchoolClassList(MethodView):
+class SchoolClassList(MethodResource):
     @jwt_required(fresh=True)
     def get(self):
         response_object = jsonify(
@@ -185,7 +185,7 @@ class SchoolClassList(MethodView):
             return make_response(error_object, 500)
 
 
-class SchoolClassOwned(MethodView):
+class SchoolClassOwned(MethodResource):
     @jwt_required(fresh=True)
     @with_required_roles(["Admin"])
     def get(self, teacher_id):
@@ -209,7 +209,7 @@ class SchoolClassOwned(MethodView):
             return make_response(error_message, 400)
 
 
-class TeacherOwnedClass(MethodView):
+class TeacherOwnedClass(MethodResource):
     @jwt_required(fresh=True)
     def get(self):
         error_object = {"message": ""}
@@ -237,7 +237,7 @@ class TeacherOwnedClass(MethodView):
             return make_response(jsonify(error_object), 500)
 
 
-class SchoolClassStudent(MethodView):
+class SchoolClassStudent(MethodResource):
     @jwt_required(fresh=True)
     def post(self, class_id):
         school_class = SchoolClassModel.query.filter_by(id=class_id).first()

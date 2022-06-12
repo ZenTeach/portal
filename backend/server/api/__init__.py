@@ -2,7 +2,9 @@ import logging
 
 from flask import Blueprint, current_app, jsonify
 from flask.helpers import make_response
-from server.models import ActivityLog
+from flask_apispec import marshal_with
+from server.models import (ActivityLog, Setting, SettingSchema, Subject,
+                           SubjectSchema)
 
 root_api = Blueprint("root", __name__)
 
@@ -29,8 +31,20 @@ def has_no_empty_params(rule):
 
 
 @root_api.route("/subjects", methods=['GET'])
+@marshal_with(SubjectSchema)
 def subjects():
-    from server.models import Subject, SubjectSchema
+    """
+    ---
+    get:
+        description: Returns enabled subject
+        responses:
+            200:
+                description: Return subjects
+                content:
+                    application/json:
+                        schema: SubjectSchema
+
+    """
     dumper = SubjectSchema()
     subjects = Subject.query.all()
 
@@ -41,9 +55,19 @@ def subjects():
 
 
 @root_api.route("/settings", methods=['GET'])
+@marshal_with(SettingSchema)
 def settings():
-    from server.models import Setting, SettingSchema
-
+    """
+    ---
+    get:
+        description: Returns app settings
+        responses:
+            200:
+                description: Return app settings
+                content:
+                    application/json:
+                        schema: SettingSchema
+    """
     dumper = SettingSchema()
     setting = Setting()
     return make_response(jsonify(dumper.dump(setting)), 200)
