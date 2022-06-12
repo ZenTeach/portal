@@ -857,7 +857,7 @@
         },
         "fonttools": {
             "extras": [
-                "woff"
+
             ],
             "hashes": [
                 "sha256:c0fdcfa8ceebd7c1b2021240bd46ef77aa8e7408cf10434be55df52384865f8e",
