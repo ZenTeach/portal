@@ -2,6 +2,8 @@ import Vue from 'vue'
 import { sync } from 'vuex-router-sync'
 import VueCookies from 'vue-cookies'
 import vuetify from '@/plugins/vuetify'
+import 'chartist/dist/chartist.min.css'
+
 import '@/plugins'
 import App from '@/App.vue'
 import router from './src/router'
@@ -12,6 +14,10 @@ import lodash from 'lodash'
 Vue.config.productionTip = true
 Vue.use(VueCookies)
 Vue.use(VueLodash, { name: 'custom', lodash: lodash })
+Vue.use(require('vue-chartist'), {
+  messageNoData: 'You have not enough data',
+  classNoData: 'empty'
+})
 
 const unsync = sync(store, router)
 
