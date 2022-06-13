@@ -128,17 +128,30 @@ class Feedback(object):
 
 class Grader(object):
     # Takes a batch of administered quizzes and grades them
-    # TODO: Add batching
-    def __init__(self, school_class_id, class_quiz=None) -> None:
-        self.batch_size = 1
+    def __init__(self,
+                 school_class_id: int,
+                 class_quiz: Optional[ClassQuiz] = None,
+                 trigger_grading: bool = True) -> None:
+        """
+            Grader:
+                school_class_id - pk of SchoolClass instance
+                class_quiz (optional) - ClassQuiz instance
+                trigger_grading - call .start_grading()
+        """
         self.school_class_id = school_class_id
         self.class_quiz = class_quiz
         self._feedback_builder = Feedback()
         self.question_ki_count = {}
-        self.start_grading()
+
+        if trigger_grading:
+            self.start_grading()
 
     @classmethod
     def from_student_and_quiz_id(cls, student_id: int, class_quiz_id: int) -> None:
+        """
+            Construct Grader object from student and class quiz pk
+        """
+
         quiz_grade = QuizGrade.query.filter_by(
             student_id=student_id, class_quiz_id=class_quiz_id).first()
         quiz_session = QuizSession.query.filter_by(
@@ -155,6 +168,9 @@ class Grader(object):
 
     @classmethod
     def from_quiz_session(cls, quiz_session_id: UUID) -> None:
+        """
+            Construct grader object from quiz session
+        """
         # Get submission from session
         session = QuizSession.query.filter_by(uuid=quiz_session_id).first()
         if not session:
@@ -171,10 +187,14 @@ class Grader(object):
             return None
         return self.class_quiz.school_class.teacher
 
-    def start_grading(self):
+    def start_grading(self) -> None:
+        """
+            Triggers workflow to start grading student response
+        """
         if self.class_quiz:
             administered_quiz_list = [self.class_quiz]
         else:
+            # Start batch grading
             administered_quiz_list = ClassQuiz.query.filter(
                 and_(
                     ClassQuiz.status == ClassQuizStatus.administered.name,
@@ -190,6 +210,9 @@ class Grader(object):
             self._score_quiz(res, quiz)
 
     def _get_question_count_per_ki_(self, quiz_questions: List[int]) -> Dict:
+        """
+          Return indexed result of form {ki, ki_count}
+        """
         indexed_results = {}
         results = Questions.query\
             .with_entities(KnowledgeItem.value, Questions.id)\
@@ -203,6 +226,9 @@ class Grader(object):
         return indexed_results
 
     def _score_quiz(self, quiz_submissions: List[QuizGrade], quiz: ClassQuiz) -> None:
+        """
+            Prepare data structure to hold feedback and compute score
+        """
         for submission in quiz_submissions:
             student_response = submission.responses
             quiz_questions_id = list(map(lambda x: x["id"], quiz.questions))
