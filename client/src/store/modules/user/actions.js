@@ -19,8 +19,8 @@ const LOGIN_USER = ({ commit, dispatch }, payload) => {
 
   loginUser(payload).then(
     _data => {
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
       commit('app/TOGGLE_APP_LOGGED_IN', true, { root: true })
-      commit('app/TOGGLE_APP_LOADING', true, { root: true })
       dispatch('FETCHCURRENTUSER')
       dispatch('app/FETCH_SUBJECTS', {}, { root: true })
       router.push('/')
@@ -70,50 +70,53 @@ const REGISTER_USER = ({ commit, dispatch }, payload) => {
 const FETCHCURRENTUSER = ({ commit, dispatch }) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
 
-  getCurrentUser().then(result => {
-    const { user } = result
-    commit('TOGGLECURRENTUSER', user)
-    commit('app/TOGGLE_APP_LOADING', false, { root: true })
-  },
-  error => {
-    commit('app/TOGGLE_APP_LOADING', false, { root: true })
-    commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-    dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
-  })
+  getCurrentUser().then(
+    result => {
+      const { user } = result
+      commit('TOGGLECURRENTUSER', user)
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+    },
+    error => {
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+    }
+  )
 }
 
 const SENDACCOUNTRECOVERY = ({ commit, dispatch }, email) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
-  sendAccountRecovery(email).then(result => {
-    commit('app/TOGGLE_APP_LOADING', false, { root: true })
-    dispatch('app/TOGGLE_ERROR', result, { root: true })
-    dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
-    router.push('/')
-  },
-  error => {
-    commit('app/TOGGLE_APP_LOADING', false, { root: true })
-    commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-    dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
-  })
+  sendAccountRecovery(email).then(
+    result => {
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+      dispatch('app/TOGGLE_ERROR', result, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+      router.push('/')
+    },
+    error => {
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+    }
+  )
 }
 
 const UPDATEUSERPASSWORD = ({ commit, dispatch }, payload) => {
   commit('app/TOGGLE_APP_LOADING', true, { root: true })
-  changePassword(payload)
-    .then(
-      data => {
-        commit('app/TOGGLE_APP_LOADING', false, { root: true })
-        dispatch('app/TOGGLE_ERROR', data, { root: true })
-        dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
-        router.push('/login')
-      },
-      error => {
-        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-        commit('app/TOGGLE_APP_LOADING', false, { root: true })
-        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
-        router.push('/login')
-      }
-    )
+  changePassword(payload).then(
+    data => {
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+      dispatch('app/TOGGLE_ERROR', data, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+      router.push('/login')
+    },
+    error => {
+      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      commit('app/TOGGLE_APP_LOADING', false, { root: true })
+      dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+      router.push('/login')
+    }
+  )
 }
 
 const CONFIRMNEWACCOUNT = ({ commit, dispatch }, token) => {
