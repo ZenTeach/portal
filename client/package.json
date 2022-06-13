@@ -24,6 +24,7 @@
     "axios-auth-refresh": "^2.2.0",
     "bootstrap": "^4.3.1",
     "browserlist": "^1.0.1",
+    "chartist": "^0.11.4",
     "core-js": "^3.21.1",
     "css-base": "^1.0.0",
     "css-loader": "^3.2.0",
@@ -38,7 +39,7 @@
     "svgo-loader": "^3.0.0",
     "vee-validate": "^3.0.0",
     "vue": "^2.6.6",
-    "vue-chartist": "^2.2.1",
+    "vue-chartist": "^2.3.1",
     "vue-cookies": "^1.5.0",
     "vue-google-oauth2": "^1.4.0",
     "vue-lodash": "^2.1.2",
@@ -92,18 +93,8 @@
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
-    "*.js": [
-      "vue-cli-service lint",
-      "git add"
-    ],
-    "*.vue": [
-      "vue-cli-service lint",
-      "git add"
-    ]
+    "*.js": ["vue-cli-service lint", "git add"],
+    "*.vue": ["vue-cli-service lint", "git add"]
   },
-  "browserslist": [
-    "defaults",
-    "since 2015",
-    "not ie <= 8"
-  ]
+  "browserslist": ["defaults", "since 2015", "not ie <= 8"]
 }
