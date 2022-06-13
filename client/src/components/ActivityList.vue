@@ -1,6 +1,6 @@
 <template>
-  <div class="d-flex flex-column">
-    <div class="white rounded-0 p-5">
+  <div class="d-flex flex-column grey lighten-2">
+    <div class="rounded-0 p-5">
       <p class="text-h6 text-left font-weight-bold">
             <v-icon class="mx-auto">
               mdi-format-list-bulleted-triangle
@@ -13,33 +13,35 @@
       class="overflow-y-auto rounded-0"
       :max-height.sync="listHeight"
     >
-      <v-list outlined>
-        <v-list-item-group color="primary">
-          <v-list-item v-for="log in logs" :key="log.action + '_' + log.item_type + '_' + log.item_id">
-            <v-list-item-icon class="mx-auto">
-              <v-icon small>
-                {{ log.action }}
-              </v-icon>
-            </v-list-item-icon>
+      <v-list outlined dense disabled>
+        <v-list-item-group color="primary border-1">
+          <v-list-item v-for="log in logs" :key="log.action + '_' + log.item_type + '_' + log.item_id" two-line>
             <v-list-item-content>
-              <v-list-item-title class="mx-2 my-2">
-                  <p class="d-inline font-weight-light activity-list-truncate"> {{ log.note }}</p>
-                  <p class="d-inline text-caption text--disabled font-weight-black">
+              <v-list-item-title>
+                <v-list-item-icon class="mx-auto">
+                  <v-icon small>
+                    {{ log.action }}
+                  </v-icon>
+                </v-list-item-icon>
+                  <p class="d-inline-flex text-body-1 font-weight-normal activity-list-truncate"> {{ log.note }}</p>
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                  <p class="d-inline-flex text-caption text--disabled font-weight-light">
                     {{getRelativeDuration(log.created)}}
                   </p>
-              </v-list-item-title>
+              </v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </v-list-item-group>
       </v-list>
     </v-responsive>
-    <div v-else class="p-5 white" style="width: 500px;">
+    <div v-else class="p-5 grey" style="width: 500px;">
       <span class="d-flex justify-center align-center">
         <v-icon class="mx-2" medium>cloud</v-icon>
         <p class="text-h5 mb-0 font-weight-light">No recent activity!</p>
       </span>
     </div>
-    <div class="white py-3 rounded">
+    <div class="grey lighten-2 py-3 rounded">
       <p class="text-body-2 text--disabled text-center font-weight-black">
         Showing {{ logs.length }} items
       </p>
