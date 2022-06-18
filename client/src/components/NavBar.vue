@@ -38,8 +38,11 @@
               :key="i"
             >
               <template v-if="item.click_action">
-                <v-list-item-title @click="item.click_action" class="text-decoration-none text--primary">
-                  <v-icon>{{ item.icon }}</v-icon> {{ item.title }}
+                <v-list-item-title>
+                  <v-icon>{{ item.icon }}</v-icon>
+                  <a class="text-decoration-none text--primary" @click="item.click_action">
+                    {{ item.title }}
+                  </a>
                 </v-list-item-title>
               </template>
               <template v-else>
@@ -130,7 +133,6 @@ export default {
         {
           title: 'Logout',
           icon: 'mdi-logout',
-          to: '/logout',
           click_action: this.logout
         }
       ]

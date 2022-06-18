@@ -15,23 +15,21 @@ import router from '@/router'
 import Vue from 'vue'
 
 const LOGIN_USER = ({ commit, dispatch }, payload) => {
-  commit('app/TOGGLE_APP_LOADING', true, { root: true })
+  commit('app/SET_APP_LOADING', {}, { root: true })
 
   loginUser(payload).then(
     _data => {
-      commit('app/TOGGLE_APP_LOADING', false, { root: true })
-      commit('app/TOGGLE_APP_LOGGED_IN', true, { root: true })
       dispatch('FETCHCURRENTUSER')
-      dispatch('app/FETCH_SUBJECTS', {}, { root: true })
+      commit('app/UNSET_APP_LOADING', {}, { root: true })
+      commit('app/TOGGLE_APP_LOGGED_IN', true, { root: true })
       router.push('/')
     },
     error => {
-      commit('app/TOGGLE_APP_LOADING', false, { root: true })
-      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+      commit('app/UNSET_APP_LOADING', {}, { root: true })
+      commit('app/TOGGLE_ERROR', error.response, { root: true })
       dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
     }
   )
-  commit('app/TOGGLE_APP_LOADING', false, { root: true })
 }
 
 const SIGNOUT_USER = ({ commit, dispatch }) => {
@@ -68,16 +66,12 @@ const REGISTER_USER = ({ commit, dispatch }, payload) => {
 }
 
 const FETCHCURRENTUSER = ({ commit, dispatch }) => {
-  commit('app/TOGGLE_APP_LOADING', true, { root: true })
-
   getCurrentUser().then(
     result => {
       const { user } = result
       commit('TOGGLECURRENTUSER', user)
-      commit('app/TOGGLE_APP_LOADING', false, { root: true })
     },
     error => {
-      commit('app/TOGGLE_APP_LOADING', false, { root: true })
       commit('app/TOGGLE_ERROR', error.response.data, { root: true })
       dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
     }
