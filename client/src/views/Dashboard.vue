@@ -19,6 +19,9 @@ export default {
   components: {
     ActivityList
   },
+  beforeCreate: function () {
+    this.$store.dispatch('app/FETCH_SUBJECTS', {}, { root: true })
+  },
   methods: {},
   data () {
     return {}

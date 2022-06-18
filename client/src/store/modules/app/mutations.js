@@ -11,10 +11,20 @@ const existsInList = (iterable, item) => {
 }
 
 function unique (array, propertyName) {
-  return array.filter((e, i) => array.findIndex(a => a[propertyName] === e[propertyName]) === i)
+  return array.filter(
+    (e, i) => array.findIndex(a => a[propertyName] === e[propertyName]) === i
+  )
 }
 
 export default {
+  SET_APP_LOADING (state) {
+    console.log('SET_APP_LOADING')
+    state.loading = true
+  },
+  UNSET_APP_LOADING (state) {
+    console.log('UNSET_APP_LOADING')
+    state.loading = false
+  },
   TOGGLE_APP_LOADING (state, payload) {
     state.loading = payload
   },

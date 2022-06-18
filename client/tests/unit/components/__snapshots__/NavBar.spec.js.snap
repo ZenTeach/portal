@@ -31,8 +31,10 @@ exports[`NavBar.vue renders component 1`] = `
             </v-list-item-title-stub>
           </v-list-item-stub>
           <v-list-item-stub activeclass="" tag="div">
-            <v-list-item-title-stub tag="div" class="text-decoration-none text--primary">
-              <v-icon-stub>mdi-logout</v-icon-stub> Logout
+            <v-list-item-title-stub tag="div">
+              <v-icon-stub>mdi-logout</v-icon-stub> <a class="text-decoration-none text--primary">
+                Logout
+              </a>
             </v-list-item-title-stub>
           </v-list-item-stub>
         </v-list-stub>

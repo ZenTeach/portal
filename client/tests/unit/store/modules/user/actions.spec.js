@@ -35,6 +35,6 @@ describe('User actions', () => {
     // TODO: Mock auth service calls
     // jest.spyOn(loginUser)
     LOGIN_USER(mockStore, payload)
-    expect(mockStore.commit).toHaveBeenCalledTimes(2)
+    expect(mockStore.commit).toHaveBeenCalledTimes(1)
   })
 })
