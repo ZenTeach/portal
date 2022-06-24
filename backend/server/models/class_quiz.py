@@ -66,7 +66,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
         name: Optional[str] = None,
         status: 'ClassQuizStatus' = ClassQuizStatus.created,
         url: Optional[str] = None,
-        private: Optional[bool] = False,
+        private: Optional[bool] = True,
         uuid: Optional[UUID] = None,
         **kwargs
     ):
