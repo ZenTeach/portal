@@ -237,7 +237,8 @@ def test_classquiz_update_api(client: FlaskClient,
     mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
     old_name = classquiz_.name
     classquiz_params = {
-        'name': "A new quiz name"
+        'name': "A new quiz name",
+        'private': False
     }
     response = client.patch(
         f'/api/v1/class_quiz/{classquiz_.uuid}',
@@ -248,7 +249,9 @@ def test_classquiz_update_api(client: FlaskClient,
         })
 
     assert response.status_code == 200
+    assert classquiz_.private
     classquiz_.reload()
+    assert not classquiz_.private
     assert old_name != classquiz_.name
 
 

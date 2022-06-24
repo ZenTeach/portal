@@ -41,6 +41,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
     held_on = db.Column(db.DateTime, nullable=True)
     gform_id = db.Column(db.String(128), nullable=True)
     script_id = db.Column(db.String(128), nullable=True, default=None)
+    private = db.Column(db.Boolean, server_default='true')
 
     created_at = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow)
@@ -65,6 +66,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
         name: Optional[str] = None,
         status: 'ClassQuizStatus' = ClassQuizStatus.created,
         url: Optional[str] = None,
+        private: Optional[bool] = False,
         uuid: Optional[UUID] = None,
         **kwargs
     ):
@@ -88,6 +90,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
             self.name = self.set_default_quizname()
         else:
             self.name = name
+        self.private = private
 
     def __repr__(self):
         return "<ClassQuiz %r>" % self.id
