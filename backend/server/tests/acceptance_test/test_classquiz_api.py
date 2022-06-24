@@ -68,7 +68,7 @@ def classquiz_params(school_class: SchoolClass,
 
 @pytest.fixture
 def classquiz_(school_class: SchoolClass) -> ClassQuiz:
-    cq = ClassQuizFactory.build(class_id=school_class.id)
+    cq = ClassQuizFactory.build(class_id=school_class.id, private=True)
     cq.save()
     return cq
 
