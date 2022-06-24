@@ -27,6 +27,13 @@ def classquiz_(client: FlaskClient, _class: SchoolClass):
 
 
 @pytest.fixture
+def classquiz_private_(client: FlaskClient, _class: SchoolClass):
+    cq = ClassQuizFactory.create(class_id=_class.id, private=True,
+                                 with_multiple_choice_questions=4)
+    return cq
+
+
+@pytest.fixture
 def topic_(subject_: Subject) -> Topic:
     return TopicFactory(subject_id=subject_.id)
 
@@ -102,3 +109,8 @@ def test_classquiz_max_score_is_set(client: FlaskClient, classquiz_with_question
     assert classquiz_with_questions.max_score is not None
     assert classquiz_with_questions.max_score > 0
     assert classquiz_with_questions.max_score == len(classquiz_with_questions.questions)
+
+
+def test_classquiz_private_type(client: FlaskClient, classquiz_private_: ClassQuiz):
+    assert classquiz_private_.private is not None
+    assert classquiz_private_.private

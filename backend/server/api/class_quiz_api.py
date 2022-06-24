@@ -84,6 +84,7 @@ class ClassQuizUpdateSchema(Schema):
         unknown = INCLUDE
 
     name = fields.Str(required=True)
+    private = fields.Bool(required=False)
 
 
 class ClassQuiz(MethodView):
@@ -141,8 +142,7 @@ class ClassQuiz(MethodView):
             validation_errors = ClassQuizUpdateSchema().validate(data=post_data)
             if validation_errors is not None and len(validation_errors) != 0:
                 raise ValidationError("Malformed data")
-            class_quiz.name = post_data.pop('name')
-            class_quiz.save(refresh=True)
+            class_quiz.update_and_save(**post_data, refresh=True)
             log_activity(
                 current_user,
                 'update',

@@ -1,6 +1,6 @@
 from random import choice
 
-from factory import post_generation
+from factory import Trait, post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import date_time, internet, lorem, misc, person
@@ -23,8 +23,14 @@ class ClassQuizFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
 
+    class Params:
+        with_private = Trait(
+            private=True
+        )
+
     subject = choice(["Chemistry", "Biology", "Physics"])
     name = fake.word()
+    private = False
 
     @post_generation
     def with_multiple_choice_questions(obj, create, extracted, **kwargs):

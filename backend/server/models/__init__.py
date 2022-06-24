@@ -152,6 +152,7 @@ class ClassQuizSchema(_BaseSchema):
             'variants',
             'name',
             'status',
+            'private',
             'created',
             'questions'
         )
