@@ -69,7 +69,8 @@ def classquiz_params(school_class: SchoolClass,
 @pytest.fixture
 def classquiz_(school_class: SchoolClass) -> ClassQuiz:
     cq = ClassQuizFactory.build(class_id=school_class.id, private=True)
-    cq.save()
+    cq.save(refresh=True)
+
     return cq
 
 
@@ -236,6 +237,7 @@ def test_classquiz_update_api(client: FlaskClient,
 
     mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
     old_name = classquiz_.name
+    assert classquiz_.private
     classquiz_params = {
         'name': "A new quiz name",
         'private': False
@@ -249,8 +251,6 @@ def test_classquiz_update_api(client: FlaskClient,
         })
 
     assert response.status_code == 200
-    assert classquiz_.private
-    classquiz_.reload()
     assert not classquiz_.private
     assert old_name != classquiz_.name
 

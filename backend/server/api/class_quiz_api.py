@@ -84,7 +84,7 @@ class ClassQuizUpdateSchema(Schema):
         unknown = INCLUDE
 
     name = fields.Str(required=True)
-    private = fields.Bool(required=False)
+    private = fields.Boolean(required=False)
 
 
 class ClassQuiz(MethodView):
