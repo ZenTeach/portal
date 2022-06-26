@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import logging
 import os
 
 from celery.schedules import crontab
@@ -51,12 +52,37 @@ def setup_periodic_tasks(sender, **kwargs):
 
 
 sentry_dsn_key = os.environ.get("SENTRY_DSN")
+# if sentry_dsn_key:
+#     import sentry_sdk
+#     from sentry_sdk.integrations.celery import CeleryIntegration
+#     from sentry_sdk.integrations.redis import RedisIntegration
+
+#     sentry_sdk.init(dsn=sentry_dsn_key, integrations=[CeleryIntegration(), RedisIntegration()])
 if sentry_dsn_key:
     import sentry_sdk
     from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.flask import FlaskIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
     from sentry_sdk.integrations.redis import RedisIntegration
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
-    sentry_sdk.init(dsn=sentry_dsn_key, integrations=[CeleryIntegration(), RedisIntegration()])
+    sentry_logging = LoggingIntegration(
+        level=logging.INFO,        # Capture info and above as breadcrumbs
+        event_level=logging.ERROR  # Send errors as events
+    )
+
+    sentry_sdk.init(
+        dsn=sentry_dsn_key,
+        traces_sample_rate=0.7,
+        integrations=[
+            FlaskIntegration(),
+            SqlalchemyIntegration(),
+            CeleryIntegration(),
+            RedisIntegration(),
+            sentry_logging
+        ],
+    )
+
 
 app = create_app()
 app.app_context().push()
