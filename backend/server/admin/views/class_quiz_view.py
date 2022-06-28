@@ -4,7 +4,7 @@ from .base_view import BaseView
 class ClassQuizView(BaseView):
     can_create = False
     column_exclude_list = ["uuid", "questions",
-                           "script_id", "gform_id", "school_class"]
+                           "script_id", "gform_id", "created_at", "school_class"]
     form_excluded_columns = [
         "uuid",
         "status",
