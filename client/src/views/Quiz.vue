@@ -72,6 +72,11 @@
             <v-card-title>
               <p class="text-h6" v-text="quizName"></p>
             </v-card-title>
+            <v-col cols="8">
+              <p>Set quiz private</p>
+              <v-switch :value="private_" @change="update_quiz">
+              </v-switch>
+            </v-col>
             <v-card-subtitle>
               <p class="text-caption">Quiz Activities</p>
             </v-card-subtitle>
@@ -189,7 +194,8 @@ export default {
       uuid: 'uuid',
       quizName: 'name',
       quizQuestions: 'quizQuestions',
-      gradedQuizzes: 'gradedQuizzes'
+      gradedQuizzes: 'gradedQuizzes',
+      private_: 'private_'
     }),
     isMobile: function () {
       return ['md', 'sm', 'xs'].includes(this.$vuetify.breakpoint.name)
@@ -200,7 +206,8 @@ export default {
     ...mapActions({
       sendReportCard: 'SENDSTUDENTREPORTCARD',
       loadQuiz: 'LOAD_QUIZ',
-      fetchGradedQuizzes: 'FETCH_GRADEDQUIZZES'
+      fetchGradedQuizzes: 'FETCH_GRADEDQUIZZES',
+      updateQuiz: 'UPDATE_QUIZ'
     }),
     handlePDFGeneration () {
       Api.post(`/class_quiz/${this.quiz_uuid}/generate`, {
@@ -212,6 +219,14 @@ export default {
     },
     sendStudentReportCard (gradeUUID) {
       this.sendReportCard(gradeUUID)
+    },
+    update_quiz (e) {
+      console.log(e)
+      this.updateQuiz({
+        quizUUID: this.quiz_uuid,
+        name: this.quizName,
+        private: e
+      })
     }
   }
 }

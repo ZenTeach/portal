@@ -1,7 +1,7 @@
 import {
   submitQuiz,
   startQuiz,
-  fetchQuiz,
+  updateQuiz, fetchQuiz,
   fetchReportCard,
   sendReportCard,
   fetchGradedReportCards
@@ -39,6 +39,7 @@ export default {
         commit('SET_QUIZ_UUID', uuid)
         commit('TOGGLE_QUIZ_QUESTIONS', questions)
         commit('SET_QUIZ_NAME', name)
+        commit('TOGGLE_QUIZ_PRIVATE', data.data.private)
         commit('SET_LOADING', false)
       },
       error => {
@@ -48,6 +49,23 @@ export default {
       }
     )
   },
+
+  UPDATE_QUIZ ({ commit, dispatch }, payload) {
+    const { quizUUID, ...updateParams } = payload
+    console.log(quizUUID, updateParams)
+    updateQuiz(quizUUID, updateParams).then(
+      data => {
+        commit('app/TOGGLE_ERROR', 'Class quiz was updated successfully.', { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
+        dispatch('LOAD_QUIZ', quizUUID)
+      },
+      error => {
+        commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+        dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+      }
+    )
+  },
+
   FETCH_REPORTCARD ({ commit, dispatch }, gradeId) {
     fetchReportCard(gradeId).then(
       data => {
@@ -62,6 +80,7 @@ export default {
       }
     )
   },
+
   SUBMIT_QUIZ ({ commit, dispatch }, payload) {
     commit('SET_LOADING', true)
     submitQuiz(payload).then(

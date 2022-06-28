@@ -8,6 +8,7 @@ const state = {
   uuid: '',
   has_started: false,
   has_submitted: false,
+  private: true,
   error: null,
   has_error: false,
   loading: false,

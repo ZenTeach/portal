@@ -12,6 +12,10 @@ export default {
     state.quiz_questions = payload
   },
 
+  TOGGLE_QUIZ_PRIVATE (state, val) {
+    state.private = val
+  },
+
   SET_QUIZ_SESSION (state) {
     state.has_started = true
   },
