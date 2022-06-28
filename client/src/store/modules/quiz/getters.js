@@ -3,6 +3,10 @@ export default {
     return state.quiz_questions
   },
 
+  private_ (state) {
+    return state.private
+  },
+
   subject (state) {
     return state.subject
   },

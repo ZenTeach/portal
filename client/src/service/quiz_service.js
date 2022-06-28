@@ -24,6 +24,12 @@ export function submitQuiz (payload) {
     .then(data => data)
 }
 
+export function updateQuiz (quizUUID, payload) {
+  return Api.patch(`/class_quiz/${quizUUID}`, payload)
+    .then(handleResponse)
+    .then(data => data)
+}
+
 export function fetchReportCard (gradeId) {
   return Api.get(`/class_quiz/report_card/${gradeId}`)
     .then(handleResponse)
