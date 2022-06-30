@@ -28,6 +28,10 @@ exports[`Quiz.vue matches snapshot 1`] = `
           <v-card-title-stub tag="div">
             <p class="text-h6"></p>
           </v-card-title-stub>
+          <v-col-stub cols="8" tag="div">
+            <p>Set quiz private</p>
+            <v-switch-stub errorcount="1" errormessages="" messages="" rules="" successmessages="" backgroundcolor="" ripple="true" valuecomparator="[Function]"></v-switch-stub>
+          </v-col-stub>
           <v-card-subtitle-stub tag="div">
             <p class="text-caption">Quiz Activities</p>
           </v-card-subtitle-stub>
