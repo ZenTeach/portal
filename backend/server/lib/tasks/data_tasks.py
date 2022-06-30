@@ -1,9 +1,12 @@
+import datetime
 import logging
 from typing import List
 
 from server import db  # noqa
-from server.models import KnowledgeItem, Questions, QuizGrade, Topic
+from server.models import (ClassQuiz, ClassQuizStatus, KnowledgeItem,
+                           Questions, QuizGrade, Topic)
 from server.tasks import regrade_quiz
+from sqlalchemy import Date, cast
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -63,3 +66,24 @@ def trigger_topic_migration() -> None:
         question.topic_id = topic.id
         question.save()
     logger.info("Update complete")
+
+
+def mark_grades_sent_for_old_quizzes() -> None:
+    """
+        Set quiz grade result_sent to true for quizzes older than 1 wk
+    """
+    one_week_later = datetime.datetime.now() + datetime.timedelta(days=7)
+    affected_quiz_grade_ids = QuizGrade.query.join(ClassQuiz).with_entities(
+        QuizGrade.id
+    ).filter(
+        ClassQuiz.status == ClassQuizStatus.administered
+    ).filter(
+        QuizGrade.result_sent == False  # noqa
+    ).filter(
+        cast(ClassQuiz.created, Date) > one_week_later
+    ).all()
+    logger.info(f"Found {len(affected_quiz_grade_ids)} old quiz grades.")
+
+    QuizGrade.query.update().where(
+        QuizGrade.id.in_(affected_quiz_grade_ids)
+    ).values({'result_sent': True})

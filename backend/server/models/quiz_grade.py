@@ -30,6 +30,7 @@ class QuizGrade(BaseModelMixin, db.Model):
     score = db.Column(db.Integer, nullable=True)
     graded = db.Column(db.Boolean, nullable=False, default=False)
     grade_breakdown = db.Column(JSON)
+    result_sent = db.Column(db.Boolean, nullable=True, default=False)
     responses = db.Column(JSON)
 
     def __init__(self,
