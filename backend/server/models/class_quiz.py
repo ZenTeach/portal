@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import uuid4
 
 from flask import current_app
@@ -53,7 +53,7 @@ class ClassQuiz(BaseModelMixin, db.Model):
     )
 
     student_quiz_grades = db.relationship(
-        "Student", secondary="quiz_grade", viewonly=True
+        "Student", secondary="quiz_grade", viewonly=True, lazy='subquery'
     )
 
     def __init__(
@@ -110,6 +110,10 @@ class ClassQuiz(BaseModelMixin, db.Model):
             return len(self.questions)
         else:
             return 0
+
+    @property
+    def public(self) -> List['ClassQuiz']:
+        return self.query.filter_by(private=False).all()
 
     def set_default_quizname(self) -> str:
         try:

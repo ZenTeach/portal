@@ -1,7 +1,7 @@
 import json
 import logging
 from collections import namedtuple
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 from uuid import UUID
 
 from server.models import (ActivityLog, ClassQuiz, ClassQuizStatus,
@@ -180,6 +180,23 @@ class Grader(object):
         quiz = session.class_quiz
 
         cls(quiz.class_id, quiz)
+
+    @classmethod
+    def for_a_classquiz(cls, class_quiz: Optional[Union[ClassQuiz, int]] = None):
+        """
+            construct grader object class quiz
+        """
+        if class_quiz is None:
+            raise Exception('class_quiz is not given')
+
+        classquiz_ = None
+        if isinstance(class_quiz, int):
+            classquiz_ = ClassQuiz.query.filter_by(id=class_quiz).first()
+
+        if isinstance(class_quiz, ClassQuiz):
+            classquiz_ = class_quiz
+
+        cls(classquiz_.class_id, classquiz_)
 
     @property
     def teacher(self) -> Optional[Teacher]:

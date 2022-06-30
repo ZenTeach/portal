@@ -31,6 +31,11 @@ def grade_all_administered_quizzes(self):
 
 
 @celery.task(bind=True)
+def grade_all_public_quizzes(self):
+    pass
+
+
+@celery.task(bind=True)
 def check_all_quizzes_administered(self):
     """
         Periodically check if all the students submitted their quiz
