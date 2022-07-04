@@ -179,7 +179,7 @@ class CurrentUser(MethodResource):
         except Exception as e:
             from server.api import logger
 
-            logger.debug(e)
+            logger.error(e)
             logger.debug(teacher)
             return make_response("User not logged in", 400)
 
