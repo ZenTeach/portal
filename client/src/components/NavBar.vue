@@ -77,8 +77,8 @@ export default {
       currentUser: 'getCurrentUser'
     }),
     initials () {
-      const fNameInitial = this.currentUser.firstname.charAt(0)
-      const lNameInitial = this.currentUser.lastname.charAt(0)
+      const fNameInitial = this.currentUser.firstname.charAt(0) || 'J'
+      const lNameInitial = this.currentUser.lastname.charAt(0) || 'S'
       return `${fNameInitial}${lNameInitial}`
     }
   },

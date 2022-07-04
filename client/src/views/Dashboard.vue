@@ -37,6 +37,13 @@ export default {
   beforeCreate: function () {
     this.$store.dispatch('app/FETCH_SUBJECTS', {}, { root: true })
   },
+  mounted: function () {
+    // check if user was fetched
+    const user = this.$store.state.user.current_user
+    if (this._.isEmpty(user)) {
+      this.$state.dispatch('user/FETCHCURRENTUSER', {}, { root: true })
+    }
+  },
   methods: {},
   data () {
     return {
