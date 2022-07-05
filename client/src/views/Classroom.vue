@@ -2,7 +2,10 @@
   <v-container>
     <v-layout row column wrap justify-center v-if="$route.name == 'Classroom'">
       <v-flex sm-8 md-10 lg-10 class="ma-6">
-        <span class="text-lg-h5 text-sm-body-2 font-weight-bold text-caption">
+        <span>
+          <p class="text-lg-h4 text-sm-h6 font-weight-normal text-body-1">{{ current_class.name }}</p>
+          </span>
+        <span class="text-lg-h6 text-sm-body-2 font-weight-normal text-caption">
           <p>My Quizzes</p>
         </span>
         <v-data-table

@@ -18,11 +18,9 @@ function unique (array, propertyName) {
 
 export default {
   SET_APP_LOADING (state) {
-    console.log('SET_APP_LOADING')
     state.loading = true
   },
   UNSET_APP_LOADING (state) {
-    console.log('UNSET_APP_LOADING')
     state.loading = false
   },
   TOGGLE_APP_LOADING (state, payload) {

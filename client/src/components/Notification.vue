@@ -60,7 +60,6 @@ export default {
   },
   methods: {
     showErrorUserFeedback () {
-      // console.log('Showing sentry error dialog!')
       const dialogOpts = {
         eventId: window.crypto.randomUUID(),
         user: {
