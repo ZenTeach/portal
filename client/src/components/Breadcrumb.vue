@@ -15,11 +15,20 @@ export default {
     separator: {
       type: String,
       default: '/'
+    },
+    exclude_last: {
+      type: Boolean,
+      default: true
     }
+
   },
   computed: {
     breadcrumbs () {
-      return this.getCrumbs()
+      if (this.exclude_last === true) {
+        return this.getCrumbs().slice(0, -1)
+      } else {
+        return this.getCrumbs().slice()
+      }
     }
   },
   methods: {

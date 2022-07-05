@@ -1,7 +1,8 @@
 import {
   submitQuiz,
   startQuiz,
-  updateQuiz, fetchQuiz,
+  updateQuiz,
+  fetchQuiz,
   fetchReportCard,
   sendReportCard,
   fetchGradedReportCards
@@ -52,10 +53,11 @@ export default {
 
   UPDATE_QUIZ ({ commit, dispatch }, payload) {
     const { quizUUID, ...updateParams } = payload
-    console.log(quizUUID, updateParams)
     updateQuiz(quizUUID, updateParams).then(
       data => {
-        commit('app/TOGGLE_ERROR', 'Class quiz was updated successfully.', { root: true })
+        commit('app/TOGGLE_ERROR', 'Class quiz was updated successfully.', {
+          root: true
+        })
         dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
         dispatch('LOAD_QUIZ', quizUUID)
       },
@@ -92,7 +94,11 @@ export default {
         commit('TOGGLE_QUIZ_QUESTIONS', {})
         commit('SET_LOADING', false)
         dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
-        dispatch('app/TOGGLE_ERROR', { message: 'Quiz submitted!' }, { root: true })
+        dispatch(
+          'app/TOGGLE_ERROR',
+          { message: 'Quiz submitted!' },
+          { root: true }
+        )
       },
       error => {
         commit('SET_LOADING', false)
@@ -103,15 +109,16 @@ export default {
   },
 
   SENDSTUDENTREPORTCARD ({ commit, dispatch }, quizUUID) {
-    sendReportCard(quizUUID)
-      .then(data => {
+    sendReportCard(quizUUID).then(
+      data => {
         dispatch('app/TOGGLE_APP_STATUS', 'success', { root: true })
         dispatch('app/TOGGLE_ERROR', { message: data.message }, { root: true })
       },
       error => {
         commit('app/TOGGLE_ERROR', error.response.data, { root: true })
         dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
-      })
+      }
+    )
   },
 
   FETCH_GRADEDQUIZZES ({ commit, dispatch }, classQuizId) {

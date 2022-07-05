@@ -221,11 +221,10 @@ export default {
       this.sendReportCard(gradeUUID)
     },
     update_quiz (e) {
-      console.log(e)
       this.updateQuiz({
         quizUUID: this.quiz_uuid,
         name: this.quizName,
-        private: e
+        private: e || false
       })
     }
   }
