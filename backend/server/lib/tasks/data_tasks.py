@@ -72,9 +72,9 @@ def mark_grades_sent_for_old_quizzes() -> None:
     """
         Set quiz grade result_sent to true for quizzes older than 1 wk
     """
-    one_week_later = datetime.datetime.now() + datetime.timedelta(days=7)
+    one_week_later = datetime.datetime.now() - datetime.timedelta(days=7)
     affected_quiz_grade_ids = QuizGrade.query.join(ClassQuiz).with_entities(
-        QuizGrade.id
+        QuizGrade.uuid
     ).filter(
         ClassQuiz.status == ClassQuizStatus.administered
     ).filter(
@@ -85,5 +85,5 @@ def mark_grades_sent_for_old_quizzes() -> None:
     logger.info(f"Found {len(affected_quiz_grade_ids)} old quiz grades.")
 
     QuizGrade.query.update().where(
-        QuizGrade.id.in_(affected_quiz_grade_ids)
+        QuizGrade.uuid.in_(affected_quiz_grade_ids)
     ).values({'result_sent': True})

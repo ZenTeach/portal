@@ -1,6 +1,7 @@
 from flask.cli import FlaskGroup
 from server import create_app, db
-from server.lib.tasks.data_tasks import (trigger_knowledge_item_migration,
+from server.lib.tasks.data_tasks import (mark_grades_sent_for_old_quizzes,
+                                         trigger_knowledge_item_migration,
                                          trigger_quiz_regrading,
                                          trigger_topic_migration)
 
@@ -43,6 +44,11 @@ def migrate_knowledgeitems():
         migrate_knowledgeitems: move topics from old table to new table
     """
     trigger_knowledge_item_migration()
+
+
+@cli.command("run_mark_grades_sent_for_old_quizzes")
+def run_mark_grades_sent_for_old_quizzes():
+    mark_grades_sent_for_old_quizzes()
 
 
 @cli.command("db_conf")
