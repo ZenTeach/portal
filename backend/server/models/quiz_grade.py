@@ -40,6 +40,7 @@ class QuizGrade(BaseModelMixin, db.Model):
                  graded: Optional[bool] = False,
                  grade_breakdown: Optional[dict] = {},
                  responses: Optional[dict] = {},
+                 result_sent: Optional[bool] = False,
                  uuid: Optional[UUID] = None,
                  ):
 
@@ -49,16 +50,15 @@ class QuizGrade(BaseModelMixin, db.Model):
         self.graded = graded
         self.grade_breakdown = grade_breakdown
         self.responses = responses
+        self.result_sent = result_sent
 
         if uuid is None:
             self.uuid = unique_uuid4()
         else:
             self.uuid = uuid
 
-    def __repr__(self):
-        return "<QuizGrade {}>".format(
-            self.class_quiz.subject + " " + self.student.full_name
-        )
+    def __repr__(self) -> str:
+        return f"<QuizGrade {self.class_quiz.subject} {self.student.full_name}>"
 
     def update_score(self, new_score):
         self.score = new_score
