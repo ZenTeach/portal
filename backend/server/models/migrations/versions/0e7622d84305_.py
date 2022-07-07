@@ -15,9 +15,8 @@ depends_on = None
 
 
 def upgrade():
-    op.drop_index('uniq_action_item_type_item_id', table_name='activity_log')
+    op.execute("ALTER TABLE activity_log DROP CONSTRAINT IF EXISTS uniq_action_item_type_item_id")
 
 
 def downgrade():
-    op.create_index('uniq_action_item_type_item_id', 'activity_log',
-                    ['action', 'item_type', 'item_id'], unique=False)
+    op.execute("CREATE UNIQUE INDEX uniq_action_item_type_item_id ON activity_log(action,item_type,item_id)")  # noqa
