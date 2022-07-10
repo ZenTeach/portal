@@ -7,8 +7,7 @@ from server.models import (QuizGrade, QuizSession, QuizSessionStatus,
                            SchoolClass, Student, Teacher)
 from server.models.class_quiz import ClassQuiz, ClassQuizStatus
 from server.tasks.grader_tasks import (check_all_quizzes_administered,
-                                       check_all_quizzes_graded,
-                                       grader_administered_quizzes,
+                                       check_all_quizzes_graded, grade_quiz,
                                        regrade_quiz)
 from server.tests.factories import (ClassQuizFactory, QuizGradeFactory,
                                     SchoolClassFactory, StudentFactory)
@@ -88,12 +87,12 @@ def test_check_all_quizzes_graded(client: FlaskClient,
     assert ClassQuiz.query.filter_by(status=ClassQuizStatus.graded).count() == 1
 
 
-def test_grader_administered_quizzes_runs(client: FlaskClient, monkeypatch):
+def test_grade_quiz_runs(client: FlaskClient, monkeypatch):
     def mock_from_quiz_session(x):
         return True
     monkeypatch.setattr(Grader, 'from_quiz_session', mock_from_quiz_session)
     try:
-        grader_administered_quizzes('some_foo_id')
+        grade_quiz('some_foo_id')
     except Exception as exception:
         raise fail("DID RAISE {0}".format(exception))
 
@@ -103,7 +102,7 @@ def test_grader_regrade_quiz(client: FlaskClient, monkeypatch,
                              student_: Student,
                              quiz_grade_: QuizGrade,
                              classquiz: ClassQuiz):
-    mocker.patch('server.tasks.grader_tasks.grader_administered_quizzes')
+    mocker.patch('server.tasks.grader_tasks.grade_quiz')
 
     @mocker.patch('server.models.QuizGrade.prepare_regrade_')
     def mocked_quiz_grade_method(prepare_regrade_mock):
