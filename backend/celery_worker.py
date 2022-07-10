@@ -6,8 +6,7 @@ from celery.schedules import crontab
 from server import celery, create_app  # noqa
 from server.config import CeleryConfig
 from server.tasks import (check_all_quizzes_administered,
-                          check_all_quizzes_graded,
-                          grade_all_administered_quizzes)
+                          check_all_quizzes_graded, grade_all_quizzes)
 
 # update celery config
 celery.conf.update(**CeleryConfig()._asdict())
@@ -22,8 +21,8 @@ def setup_periodic_tasks(sender, **kwargs):
 
     # Grade quizzes
     sender.add_periodic_task(
-        crontab(minute='*/10'),
-        grade_all_administered_quizzes.s(),
+        crontab(second='*/10'),
+        grade_all_quizzes.s(),
         name='Grading all submitted quizzes'
     )
 

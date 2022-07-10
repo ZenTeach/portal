@@ -8,7 +8,7 @@ logger = get_task_logger(__name__)
 
 
 @celery.task(bind=True)
-def grader_administered_quizzes(self, quiz_session_id):
+def grade_quiz(self, quiz_session_id):
     try:
         logger.debug(f"grader_administered_quizzes: {quiz_session_id}")
         Grader.from_quiz_session(quiz_session_id)
@@ -18,21 +18,17 @@ def grader_administered_quizzes(self, quiz_session_id):
 
 
 @celery.task(bind=True)
-def grade_all_administered_quizzes(self):
+def grade_all_quizzes(self):
     """
     Grades all quizzes that are currently being administered.
     """
     logger.info("Grading all administered quizzes")
     ended_sessions = QuizSession.query.filter_by(
         status=QuizSessionStatus.ended).all()
+    logger.debug(f"Grading {len(ended_sessions)} quizzes")
     for session in ended_sessions:
-        celery.send_task('server.tasks.grader_tasks.grader_administered_quizzes',
+        celery.send_task('server.tasks.grader_tasks.grade_quiz',
                          args=[session.uuid])
-
-
-@celery.task(bind=True)
-def grade_all_public_quizzes(self):
-    pass
 
 
 @celery.task(bind=True)
