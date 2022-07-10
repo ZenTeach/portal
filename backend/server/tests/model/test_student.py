@@ -140,3 +140,13 @@ def test_student_create_from_list(client: FlaskClient, students_: List[Dict]) ->
     assert Student.query.count() == 5
     assert len(students) == 5
     assert len(errors) == 0
+
+
+def test_student_create_anonymous_student(client: FlaskClient) -> None:
+    anonymous_student = Student.create_anonymous_student(
+        email_prefix='tester10',
+        confirmed=True
+    )
+
+    assert anonymous_student.email == 'tester10-anonymous@zenteach.co.uk'
+    assert anonymous_student.confirmed
