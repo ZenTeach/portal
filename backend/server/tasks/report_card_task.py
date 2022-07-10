@@ -38,12 +38,20 @@ def send_report_card_pdf(self, report_card_id: UUID):
 
         send_mail_with_html(msg, "report_card.html.j2",
                             full_name=grade.student.full_name)
-
+        grade.update_save(result_sent=True)
     except ModelNotFound as exc:
         logger.error(exc)
         raise
     except Exception as exc:
         logger.error(exc)
-        raise self.retry(exc=exc, countdown=60)
+        raise self.retry(exc=exc, countdown=2**self.request.retries)
 
     return generator.report_file_name
+
+
+@celery.task(bind=True)
+def send_graded_quizzes(self):
+    unsent_graded_quizzes = QuizGrade.query.filter_by(graded=True, result_sent=False).all()
+    for unsent_report_card in unsent_graded_quizzes:
+        celery.send_task('server.tasks.report_card_task.send_report_card_pdf',
+                         args=[unsent_report_card.uuid])
