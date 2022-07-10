@@ -54,7 +54,15 @@ const router = new Router({
               meta: {
                 quizView: true,
                 breadcrumb: 'Quiz'
-              }
+              },
+              children: [
+                {
+                  path: '/quiz_view/:id/post_submit',
+                  name: 'QuizSubmit',
+                  component: () =>
+                    import(/* webpackChunkName: "QuizSubmit" */ './views/QuizSubmitView')
+                }
+              ]
             }
           ]
         }
