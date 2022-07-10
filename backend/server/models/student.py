@@ -132,6 +132,21 @@ class Student(BaseModelMixin, db.Model, Confirmable):
                 added_students.append(instance)
         return errors, added_students
 
+    @classmethod
+    def create_anonymous_student(cls, **kwargs) -> 'Student':
+        from secrets import token_hex
+        item = cls(
+            firstname="Anonymous",
+            lastname="Student",
+            email=f"{kwargs.get('email_prefix', token_hex())}-anonymous@zenteach.co.uk",
+            classes=kwargs.get('classes', []),
+            password=kwargs.get('password', None),
+            role="Student",
+            confirmed=kwargs.get('confirmed', False)
+        )
+        item.save()
+        return item
+
 
 @event.listens_for(Student.classes, "append")
 def student_class_append_listener(target: Student,
