@@ -1,5 +1,6 @@
 import datetime
 import logging
+from itertools import chain
 from typing import List
 
 from server import db  # noqa
@@ -78,12 +79,15 @@ def mark_grades_sent_for_old_quizzes() -> None:
     ).filter(
         ClassQuiz.status == ClassQuizStatus.administered
     ).filter(
-        QuizGrade.result_sent == False  # noqa
+        QuizGrade.result_sent == None  # noqa
     ).filter(
-        cast(ClassQuiz.created, Date) > one_week_later
+        cast(ClassQuiz.created, Date) < one_week_later
     ).all()
+    affected_quiz_grade_ids = [str(id) for id in chain(*affected_quiz_grade_ids)]
     logger.info(f"Found {len(affected_quiz_grade_ids)} old quiz grades.")
 
-    QuizGrade.query.update().where(
+    QuizGrade.query.filter(
         QuizGrade.uuid.in_(affected_quiz_grade_ids)
-    ).values({'result_sent': True})
+    ).update({'result_sent': True}, synchronize_session=False)
+
+    db.session.commit()
