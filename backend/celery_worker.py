@@ -22,7 +22,7 @@ def setup_periodic_tasks(sender, **kwargs):
 
     # Grade quizzes
     sender.add_periodic_task(
-        crontab(second='*/10'),
+        crontab(minute='*/1'),
         grade_all_quizzes.s(),
         name='Grading all submitted quizzes'
     )
@@ -33,7 +33,7 @@ def setup_periodic_tasks(sender, **kwargs):
         name='checking all graded quizzes')
 
     sender.add_periodic_task(
-        crontab(seconds='*/30'),
+        crontab(minute='*/2'),
         send_graded_quizzes.s(),
         name="Send all graded report cards"
     )
