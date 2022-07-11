@@ -1,5 +1,6 @@
 from .activity_log_tasks import enqueue_summary_for_teacher
-from .grader_tasks import (check_all_quizzes_administered, grade_all_quizzes,
+from .grader_tasks import (check_all_quizzes_administered,
+                           check_all_quizzes_graded, grade_all_quizzes,
                            regrade_quiz)
 from .image_upload import delete_image_from_s3, upload_image_to_s3
 from .quiz_generator_tasks import (generate_pdf, send_quiz_generation_email,
