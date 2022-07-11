@@ -6,7 +6,7 @@ from flask_mail import Message
 from server import celery
 from server.lib import ReportCardGenerator
 from server.lib.generators.report_card_generator import ModelNotFound
-from server.models import QuizGrade
+from server.models import ClassQuiz, QuizGrade
 
 from .commons import send_mail_with_html
 
@@ -51,7 +51,11 @@ def send_report_card_pdf(self, report_card_id: UUID):
 
 @celery.task(bind=True)
 def send_graded_quizzes(self):
-    unsent_graded_quizzes = QuizGrade.query.filter_by(graded=True, result_sent=False).all()
+    # TODO: Remove public-class quiz filter
+    unsent_graded_quizzes = QuizGrade.query.join(ClassQuiz).filter(
+        ClassQuiz.private == False).filter_by(  # noqa
+            graded=True, result_sent=False
+    ).all()
     for unsent_report_card in unsent_graded_quizzes:
         celery.send_task('server.tasks.report_card_task.send_report_card_pdf',
                          args=[unsent_report_card.uuid])
