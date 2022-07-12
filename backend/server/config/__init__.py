@@ -6,11 +6,15 @@ from pathlib import Path
 from secrets import token_urlsafe
 from typing import NamedTuple
 
+from dotenv import load_dotenv
 from yaml import load
 from yamlloader.ordereddict import CLoader
 
 __all__ = ["BaseConfig", "DevelopmentConfig", "TestingConfig",
            "ProductionConfig", "_load_examboard", "_load_exempt_list"]
+
+if os.getenv('FLASK_ENV') == 'development':
+    load_dotenv()
 
 
 @lru_cache(256)
