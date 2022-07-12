@@ -142,7 +142,7 @@ def create_app():
             app_settings = os.getenv("APP_SETTINGS")
             app.config.from_object(app_settings)
     else:
-        app_settings = os.getenv("APP_SETTINGS")
+        app_settings = os.getenv("APP_SETTINGS", "server.config.DevelopmentConfig")
         app.config.from_object(app_settings)
 
     db.init_app(app)
