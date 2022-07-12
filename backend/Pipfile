@@ -161,6 +161,7 @@ celery-scheduler = {editable = true, git = "https://github.com/Explarry/celery-s
 freezegun = "*"
 wtforms-alchemy = "*"
 flask-apispec = "==0.11.0"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.7"
