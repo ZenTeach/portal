@@ -53,9 +53,11 @@ def send_report_card_pdf(self, report_card_id: UUID):
 def send_graded_quizzes(self):
     # TODO: Remove public-class quiz filter
     unsent_graded_quizzes = QuizGrade.query.join(ClassQuiz).filter(
-        ClassQuiz.private == False).filter_by(  # noqa
-            graded=True, result_sent=False
+        ClassQuiz.private == True).filter(  # noqa
+            QuizGrade.graded == True).filter(  # noqa
+            QuizGrade.result_sent == False  # noqa
     ).all()
+
     for unsent_report_card in unsent_graded_quizzes:
         celery.send_task('server.tasks.report_card_task.send_report_card_pdf',
                          args=[unsent_report_card.uuid])
