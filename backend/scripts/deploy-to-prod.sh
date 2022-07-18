@@ -68,4 +68,4 @@ ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
 
 ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
 -o "StrictHostKeyChecking=no" \
-"sudo systemctl restart zenteach_be zenteach_be_celery"
+"sudo systemctl restart zenteach_be zenteach_be_celery zenteach_be_celery_beat"
