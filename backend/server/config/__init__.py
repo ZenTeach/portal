@@ -54,9 +54,8 @@ class CeleryConfig(NamedTuple):
 
     # Configuration builder for celery-redbeat scheduler
     redbeat_key_prefix: str = os.environ.get('REDBEAT_KEY_PREFIX', None)
-    redbeat_lock_key: bool = os.environ.get('REDBEAT_LOCK_KEY', False)
     redbeat_lock_timeout: int = os.environ.get('REDBEAT_LOCK_TIMEOUT', 300)
-    redbeat_redis_url: str = os.environ.get('REDBEAT_REDIS_URL', 'redis://localhost')
+    redbeat_redis_url: str = os.environ.get('REDBEAT_REDIS_URL', 'redis://localhost:6379/1')
     redbeat_redis_use_ssl: bool = os.environ.get('REDBEAT_REDIS_USE_SSL', False)
 
     # TODO: Add task routing
