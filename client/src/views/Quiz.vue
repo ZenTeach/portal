@@ -74,7 +74,7 @@
             </v-card-title>
             <v-col cols="8">
               <p>Set quiz private</p>
-              <v-switch :value="private_" @change="update_quiz">
+              <v-switch :input-value="private_" @change="update_quiz">
               </v-switch>
             </v-col>
             <v-card-subtitle>
