@@ -59,7 +59,7 @@ ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
 echo "Run migrations"
 ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
 -o "StrictHostKeyChecking=no" \
-"cd /var/www/zenteach_be/zenteach && source ./entrypoint_prod.sh"
+"cd /var/www/zenteach_be/zenteach && source ./scripts/run_migration.sh"
 
 echo "Copy configuration to instance file"
 ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
@@ -68,4 +68,4 @@ ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
 
 ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
 -o "StrictHostKeyChecking=no" \
-"sudo systemctl restart zenteach_be zenteach_be_celery"
+"sudo systemctl restart zenteach_be zenteach_be_celery zenteach_be_celery_beat"
