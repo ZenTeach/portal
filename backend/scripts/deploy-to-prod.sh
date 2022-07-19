@@ -59,7 +59,7 @@ ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
 echo "Run migrations"
 ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
 -o "StrictHostKeyChecking=no" \
-"cd /var/www/zenteach_be/zenteach && source ./scripts/run_migration.sh"
+"cd /var/www/zenteach_be/zenteach && source run_migration.sh"
 
 echo "Copy configuration to instance file"
 ssh -i $REMOTE_KEYS $REMOTE_USER@$server \

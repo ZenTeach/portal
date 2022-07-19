@@ -10,8 +10,8 @@ include celery_worker.py
 # include Pipfile
 include Pipfile Pipfile.lock
 
-# entrypoint
-include entrypoint_prod.sh
+# DB migration
+include run_migration.sh
 
 # wsgi
 include wsgi.py
@@ -24,3 +24,5 @@ recursive-exclude __pycache__ *
 
 # exclude scripts from source distributions
 recursive-exclude scripts *
+
+recursive-exclude tmp *
