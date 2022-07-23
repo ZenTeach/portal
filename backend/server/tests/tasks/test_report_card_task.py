@@ -3,10 +3,9 @@ from flask.testing import FlaskClient
 from flask_mail import Message
 from pytest_mock import MockFixture
 from server.models import ClassQuiz, QuizGrade, SchoolClass, Student, Teacher
-from server.tasks import send_report_card_pdf
+from server.tasks import send_report_card_pdf, send_graded_quizzes
 from server.tests.factories import (ClassQuizFactory, QuizGradeFactory,
                                     SchoolClassFactory, StudentFactory)
-
 
 @pytest.fixture(scope='session')
 def celery_config():
@@ -43,7 +42,18 @@ def classquiz_(school_class: SchoolClass) -> ClassQuiz:
 @pytest.fixture
 def quiz_grade(student: Student, classquiz_: ClassQuiz) -> QuizGrade:
     return QuizGradeFactory(student_id=student.id,
-                            class_quiz_id=classquiz_.id, graded=True, score=None)
+                            class_quiz_id=classquiz_.id,
+                            graded=True,
+                            result_sent=False,
+                            score=0)
+@pytest.fixture
+def unsent_quiz_grade(student: Student, classquiz_: ClassQuiz) -> QuizGrade:
+    return QuizGradeFactory(student_id=student.id,
+                            class_quiz_id=classquiz_.id,
+                            graded=True,
+                            result_sent=False,
+                            score=0)
+
 
 
 def test_send_report_card_pdf(client: FlaskClient,
@@ -51,12 +61,27 @@ def test_send_report_card_pdf(client: FlaskClient,
                               quiz_grade: QuizGrade) -> None:
 
     @mocker.patch('server.tasks.quiz_generator_tasks.send_mail_with_html')
-    def test_success(send_mail_with_html):
-        send_report_card_pdf(quiz_grade.uuid)
+    @mocker.patch('server.models.QuizGrade.update_and_save')
+    def test_success(update_and_save, send_mail_with_html):
         message = Message(subject="Hi! Your Report Card PDF has arrived")
         message.recipients = ["{}".format(quiz_grade.student.email)]
 
+        update_and_save.assert_called()
         send_mail_with_html.assert_called_with(
             message,
             "report_card.html.j2",
             full_name=quiz_grade.student.full_name)
+
+    send_report_card_pdf(quiz_grade.uuid)
+
+def test_graded_quizzes(client: FlaskClient,
+                              mocker: MockFixture,
+                              unsent_quiz_grade: QuizGrade) -> None:
+
+    @mocker.patch('server.celery.send_task')
+    def mock_send_task(celery_send_task):
+        celery_send_task.assert_called_with(
+            'server.tasks.report_card_task.send_report_card_pdf',
+            quiz_grade.uuid)
+
+    send_graded_quizzes()

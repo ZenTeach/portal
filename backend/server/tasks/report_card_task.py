@@ -38,7 +38,7 @@ def send_report_card_pdf(self, report_card_id: UUID):
 
         send_mail_with_html(msg, "report_card.html.j2",
                             full_name=grade.student.full_name)
-        grade.update_save(result_sent=True)
+        grade.update_and_save(result_sent=True)
     except ModelNotFound as exc:
         logger.error(exc)
         raise
