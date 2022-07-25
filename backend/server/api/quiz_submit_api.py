@@ -1,8 +1,9 @@
 
 from datetime import datetime
 
-from flask import Blueprint, jsonify, make_response, request
+from flask import Blueprint, jsonify, make_response
 from flask.views import MethodView
+from marshmallow import Schema
 from server.api import logger
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import QuizSession, QuizSessionStatus, Student
@@ -12,21 +13,31 @@ from webargs.flaskparser import use_kwargs
 
 quiz_submit_blueprint = Blueprint("quiz_submit", __name__)
 
-quiz_submit_args = {
+quiz_fetch_args = {
     'email': fields.Str(required=True, validate=validate.Email()),
-    'quiz': fields.Str(required=True)
+    'quiz': fields.UUID(required=True)
 }
 
 
+class quiz_submit_args(Schema):
+    StudentEmail = fields.Str(validate=validate.Email())
+    # TODO: look into data validation a setting custom http status code
+    QuizId = fields.UUID()
+    data = fields.List(fields.Dict, missing=[])
+
+
 class SubmitQuiz(MethodView):
-    @use_kwargs(quiz_submit_args, location='query')
+    @use_kwargs(quiz_fetch_args, location='query')
     def get(self, email, quiz):
         """
             Creates a quiz session object
         """
+
         student_email = email.lower()
         student = Student.query.filter(func.lower(Student.email) == student_email).first()
+        class_quiz = ClassQuizModel.query.filter_by(uuid=quiz).first()
         if not student:
+            # create an anonymous student if quiz is public
             return make_response(jsonify({'message': "Student email doesn't exist"}), 404)
 
         if not student.confirmed:
@@ -34,7 +45,6 @@ class SubmitQuiz(MethodView):
                 'message': "Email address hasn't been verified yet!"
             }), 400)
 
-        class_quiz = ClassQuizModel.query.filter_by(uuid=quiz).first()
         if not class_quiz:
             return make_response(jsonify({"message": "Class Quiz doesn't exist"}), 404)
 
@@ -63,23 +73,19 @@ class SubmitQuiz(MethodView):
                          "status": "success"}), 200
             )
 
-    def post(self):
-        post_data = request.get_json()
-        student_email = post_data.get('StudentEmail')
-        class_quiz_id = post_data.get('QuizId')
-        student_response = post_data.get('data')
-
-        if len(student_response) == 0:
+    @use_kwargs(quiz_submit_args(), location='json')
+    def post(self, StudentEmail, QuizId, data):
+        if len(data) == 0:
             return make_response(jsonify({
                 'message': "Cannot submit quiz without any choices selected"
             }), 400)
 
-        student = Student.query.filter_by(email=student_email).first()
-        class_quiz = ClassQuizModel.query.filter_by(uuid=class_quiz_id).first()
+        student = Student.query.filter_by(email=StudentEmail).first()
+        class_quiz = ClassQuizModel.query.filter_by(uuid=QuizId).first()
 
         if student is None:
             return make_response(jsonify({
-                'message': "Student with email {} doesn't exist".format(student_email)
+                'message': "Student with email {} doesn't exist".format(StudentEmail)
             }), 404)
 
         if class_quiz is None:
@@ -101,7 +107,7 @@ class SubmitQuiz(MethodView):
                     'message': "Session has ended!"
                 }), 404)
 
-            student.add_quiz_score(class_quiz, student_response)
+            student.add_quiz_score(class_quiz, data)
             student.save()
 
             quiz_session.update_and_save(
