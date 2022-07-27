@@ -30,7 +30,7 @@ class ClassQuizFactory(SQLAlchemyModelFactory):
 
     subject = choice(["Chemistry", "Biology", "Physics"])
     name = fake.word()
-    private = False
+    private = True
 
     @post_generation
     def with_multiple_choice_questions(obj, create, extracted, **kwargs):

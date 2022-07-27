@@ -1,7 +1,7 @@
 
 from datetime import datetime
 
-from flask import Blueprint, jsonify, make_response
+from flask import Blueprint, current_app, jsonify, make_response
 from flask.views import MethodView
 from marshmallow import Schema
 from server.api import logger
@@ -14,7 +14,7 @@ from webargs.flaskparser import use_kwargs
 quiz_submit_blueprint = Blueprint("quiz_submit", __name__)
 
 quiz_fetch_args = {
-    'email': fields.Str(required=True, validate=validate.Email()),
+    'email': fields.Str(missing=""),
     'quiz': fields.UUID(required=True)
 }
 
@@ -36,9 +36,30 @@ class SubmitQuiz(MethodView):
         student_email = email.lower()
         student = Student.query.filter(func.lower(Student.email) == student_email).first()
         class_quiz = ClassQuizModel.query.filter_by(uuid=quiz).first()
+        success_response = make_response(
+            jsonify({"message": "Created a new session!",
+                     "status": "success"}), 200
+        )
+
         if not student:
             # create an anonymous student if quiz is public
-            return make_response(jsonify({'message': "Student email doesn't exist"}), 404)
+            if not class_quiz.private:
+                student = Student.create_anonymous_student(
+                    classes=[class_quiz.school_class],
+                    confirmed=True
+                )
+
+                domain = 'zenteach.co.uk' if current_app.env == 'production' else '127.0.0.1'
+                success_response.set_cookie(
+                    'anonymous_student_email',
+                    value=student.email,
+                    max_age=2592000,  # One month
+                    path='/api/v1',
+                    domain=domain,
+                    secure=current_app.env == 'production',
+                )
+            else:
+                return make_response(jsonify({'message': "Student email doesn't exist"}), 404)
 
         if not student.confirmed:
             return make_response(jsonify({
@@ -68,10 +89,7 @@ class SubmitQuiz(MethodView):
                 }),
                 500)
         else:
-            return make_response(
-                jsonify({"message": "Created a new session!",
-                         "status": "success"}), 200
-            )
+            return success_response
 
     @use_kwargs(quiz_submit_args(), location='json')
     def post(self, StudentEmail, QuizId, data):

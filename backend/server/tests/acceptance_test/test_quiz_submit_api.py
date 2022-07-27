@@ -11,6 +11,7 @@ from server.tests.factories import (ClassQuizFactory, SchoolClassFactory,
                                     StudentFactory)
 from server.tests.factories.quiz_session_factory import QuizSessionFactory
 from sqlalchemy import exc
+from werkzeug.http import parse_cookie
 
 
 @pytest.fixture
@@ -41,6 +42,15 @@ def unconfirmed_student(school_class: SchoolClass) -> Student:
 def classquiz_(school_class: SchoolClass,) -> ClassQuiz:
 
     cq = ClassQuizFactory.create(class_id=school_class.id,
+                                 with_multiple_choice_questions=4)
+    return cq
+
+
+@pytest.fixture
+def public_classquiz_(school_class: SchoolClass,) -> ClassQuiz:
+
+    cq = ClassQuizFactory.create(class_id=school_class.id,
+                                 private=False,
                                  with_multiple_choice_questions=4)
     return cq
 
@@ -101,9 +111,9 @@ def test_get_quiz_submit_not_confirmed_fails_with_400(client: FlaskClient,
     assert response.status_code == 400
 
 
-def test_get_quiz_submit_without_student_email_fails_with_404(client: FlaskClient,
-                                                              access_token: List[str],
-                                                              classquiz_: ClassQuiz):
+def test_get_quiz_submit_without_valid_student_email_fails_with_404(client: FlaskClient,
+                                                                    access_token: List[str],
+                                                                    classquiz_: ClassQuiz):
 
     response = client.get(
         f"/api/v1/submit_quiz?email=cnajs@ajaksdcs.cs&quiz={classquiz_.uuid}",
@@ -174,6 +184,27 @@ def test_get_endpoint_idempotency(client: FlaskClient,
         })
     assert response.status_code == 200
     assert QuizSession.query.count() == 1
+
+
+def test_get_quiz_submit_with_anonymous_user(client: FlaskClient,
+                                             public_classquiz_: ClassQuiz,
+                                             access_token: List[str]):
+
+    response = client.get(
+        f"/api/v1/submit_quiz?quiz={public_classquiz_.uuid}",
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        })
+
+    assert response.status_code == 200
+    assert QuizSession.query.count() == 1
+    student = Student.query.first()
+    # assert student email in cookies
+    # import pdb; pdb.set_trace()
+    parsed_cookies = parse_cookie(response.headers.get('Set-Cookie'))
+
+    assert parsed_cookies['anonymous_student_email'] == student.email
 
 
 def test_post_quiz_submit(client: FlaskClient,
