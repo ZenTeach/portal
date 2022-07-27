@@ -142,7 +142,7 @@ class Student(BaseModelMixin, db.Model, Confirmable):
         item = cls(
             firstname="Anonymous",
             lastname="Student",
-            email=f"{kwargs.get('email_prefix', token_hex())}-anonymous@zenteach.co.uk",
+            email=f"{kwargs.get('email_prefix', token_hex(10))}-anonymous@zenteach.co.uk",
             classes=kwargs.get('classes', []),
             password=kwargs.get('password', None),
             role="Student",

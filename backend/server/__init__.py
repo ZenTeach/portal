@@ -289,6 +289,11 @@ def create_app():
         app.logger.handlers = gunicorn_logger.handlers
         app.logger.setLevel(gunicorn_logger.level)
 
+    @app.errorhandler(422)
+    def handle_validation_error(err):
+        # The marshmallow.ValidationError is available on err.exc
+        return jsonify({"message": err.exc.messages}), 422
+
     @app.shell_context_processor
     def ctx():
         import server.models as sm
