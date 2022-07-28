@@ -17,8 +17,12 @@ logger = get_task_logger(__name__)
 def send_report_card_pdf(self, report_card_id: UUID):
     generator = None
     grade = QuizGrade.query.filter_by(uuid=report_card_id).first()
+    student = grade.student
 
     if grade is None:
+        return
+
+    if student.is_anonymous:
         return
 
     try:
@@ -31,13 +35,13 @@ def send_report_card_pdf(self, report_card_id: UUID):
         generator.generate(report_card_id)
 
         msg = Message(subject="Hi! Your Report Card PDF has arrived")
-        msg.recipients = ["{}".format(grade.student.email)]
+        msg.recipients = ["{}".format(student.email)]
 
         with open(generator.report_file_name, 'rb') as fp:
             msg.attach("ReportCard.pdf", "application/pdf", fp.read())
 
         send_mail_with_html(msg, "report_card.html.j2",
-                            full_name=grade.student.full_name)
+                            full_name=student.full_name)
         grade.update_and_save(result_sent=True)
     except ModelNotFound as exc:
         logger.error(exc)
@@ -53,7 +57,6 @@ def send_report_card_pdf(self, report_card_id: UUID):
 def send_graded_quizzes(self):
     # TODO: Remove public-class quiz filter
     unsent_graded_quizzes = QuizGrade.query.join(ClassQuiz).filter(
-        ClassQuiz.private == True).filter(  # noqa
             QuizGrade.graded == True).filter(  # noqa
             QuizGrade.result_sent == False  # noqa
     ).all()
