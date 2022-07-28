@@ -24,6 +24,11 @@ def students_() -> List[Dict]:
 
 
 @pytest.fixture
+def anon_student() -> Student:
+    return Student.create_anonymous_student()
+
+
+@pytest.fixture
 def teacher_() -> Teacher:
     return Teacher.query.first()
 
@@ -150,3 +155,10 @@ def test_student_create_anonymous_student(client: FlaskClient) -> None:
 
     assert anonymous_student.email == 'tester10-anonymous@zenteach.co.uk'
     assert anonymous_student.confirmed
+
+
+def test_student_is_anonymous(client: FlaskClient,
+                              anon_student: Student,
+                              student: Student) -> None:
+    assert anon_student.is_anonymous
+    assert not student.is_anonymous
