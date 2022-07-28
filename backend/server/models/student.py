@@ -72,6 +72,10 @@ class Student(BaseModelMixin, db.Model, Confirmable):
     def full_name(self) -> str:
         return "{} {}".format(self.firstname, self.lastname)
 
+    @property
+    def is_anonymous(self) -> bool:
+        return '-anonymous@zenteach.co.uk' in self.email
+
     def add_to_class(self, classroom: SchoolClass) -> None:
         """
             Adds student to class.
