@@ -4,11 +4,14 @@ from flask import Blueprint, current_app, jsonify, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 current_user, get_jti, get_jwt, jwt_required)
+from marshmallow import Schema
 from server import bcrypt, jwt, redis_store
 from server.api import logger
 from server.lib.utils.jwt_fixes import set_access_cookies, set_refresh_cookies
 from server.models import Student, StudentSchema
 from server.tasks import send_student_confirmation_instructions
+from webargs import fields, validate
+from webargs.flaskparser import use_kwargs
 
 student_auth_blueprint = Blueprint("student_auth", __name__)
 
@@ -118,6 +121,31 @@ class TokenRefresh(MethodView):
 
 
 class CurrentUser(MethodView):
+    class student_update_args(Schema):
+        email = fields.Str(missing=None, validate=validate.Email())
+        data = fields.Dict(missing={})
+
+    @use_kwargs(student_update_args(), location='json')
+    # TODO: Waiting on https://github.com/vimalloc/flask-jwt-extended/issues/491
+    # @jwt_required(optional=True)
+    def put(self, email, data):
+        student = None
+        if current_user:
+            student = current_user
+        else:
+            student = Student.query.filter_by(email=email).first_or_404()
+
+        try:
+            student.update_and_save(**data)
+            return make_response(jsonify({
+                'message': 'Successfully updated student.'
+            }), 200)
+        except Exception as e:
+            logger.error(e)
+            return make_response(jsonify({
+                'message': f"Encountered an exception when updating student {student.email}"
+            }), 500)
+
     @jwt_required(fresh=True)
     def get(self):
         # Fetches and returns the current logged in user

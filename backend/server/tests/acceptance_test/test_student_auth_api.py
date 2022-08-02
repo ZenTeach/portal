@@ -1,3 +1,4 @@
+from secrets import token_hex
 from typing import List
 
 import pytest
@@ -9,8 +10,19 @@ from server.tests.factories import StudentFactory
 
 
 @pytest.fixture
-def student_() -> Student:
+def student_(request) -> Student:
     return StudentFactory(confirmed=False)
+
+
+@pytest.fixture
+def anon_student_(client: FlaskClient, request) -> Student:
+    st = Student.create_anonymous_student()
+    return st
+
+
+@pytest.fixture
+def unique_email() -> str:
+    return token_hex(16) + "@example.com"
 
 
 @pytest.fixture(autouse=True)
@@ -126,3 +138,60 @@ def test_send_student_confirmation_exception(client: FlaskClient,
         })
 
     assert response.status_code == 500
+
+
+# TODO: Waiting on https://github.com/vimalloc/flask-jwt-extended/issues/491
+@pytest.mark.parametrize(
+    "logged_in,new_email,current_student,status_code",
+    [
+        pytest.param(
+            False, 'unique_email', 'anon_student_', 200
+        ),
+        pytest.param(
+            False, 'unique_email', 'unique_email', 404
+        )  # ,
+        # pytest.param(
+        #     False, 'unique_email', 'student_', 401
+        # ),
+        # pytest.param(
+        #     True, 'unique_email', 'student_', 200
+        # )
+    ]
+)
+def test_student_current_endpoint(client: FlaskClient,
+                                  logged_in: bool,
+                                  new_email: str,
+                                  current_student: str,
+                                  _access_token: List[str],
+                                  status_code: int,
+                                  request):
+    response = None
+    current_email_or_student = request.getfixturevalue(current_student)
+    new_email = request.getfixturevalue(new_email)
+    current_email = current_email_or_student.email if isinstance(
+        current_email_or_student, Student) else current_email_or_student
+    if logged_in:
+        response = client.put(
+            '/api/v1/student/current',
+            headers={
+                'Authorization': 'Bearer {}'.format(_access_token[0]),
+                'X-CSRF-ACCESS-TOKEN': _access_token[2]
+            },
+            json={
+                "data": {
+                    'email': new_email
+                }
+            }
+        )
+    else:
+        response = client.put(
+            '/api/v1/student/current',
+            json={
+                "email": current_email,
+                "data": {
+                    "email": new_email,
+                }
+
+            }
+        )
+    assert response.status_code == status_code
