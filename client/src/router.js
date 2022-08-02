@@ -50,19 +50,12 @@ const router = new Router({
             {
               path: '/quiz/:uuid',
               name: 'Quiz',
-              component: () => import(/* webpackChunkName: "Quiz" */ './views/Quiz'),
+              component: () =>
+                import(/* webpackChunkName: "Quiz" */ './views/Quiz'),
               meta: {
                 quizView: true,
                 breadcrumb: 'Quiz'
-              },
-              children: [
-                {
-                  path: '/quiz_view/:id/post_submit',
-                  name: 'QuizSubmit',
-                  component: () =>
-                    import(/* webpackChunkName: "QuizSubmit" */ './views/QuizSubmitView')
-                }
-              ]
+              }
             }
           ]
         }
@@ -73,6 +66,14 @@ const router = new Router({
       name: 'Quiz View',
       component: () =>
         import(/* webpackChunkName: "QuizView" */ './views/QuizView')
+    },
+    {
+      path: '/post_submit/:quiz_uuid/post_submit',
+      name: 'Quiz Submit Vie View',
+      component: () =>
+        import(
+          /* webpackChunkName: "QuizSubmit" */ './views/QuizSubmitView'
+        )
     },
     {
       path: '/students',
@@ -96,38 +97,47 @@ const router = new Router({
     {
       path: '/tos',
       name: 'Terms Of Service',
-      component: () =>
-        import(/* webpackChunkName: "TOSView" */ './views/TOS')
+      component: () => import(/* webpackChunkName: "TOSView" */ './views/TOS')
     },
     {
       path: '/privacy_policy',
       name: 'Privacy Policy',
       component: () =>
-        import(/* webpackChunkName: "PrivacyPolicyView" */ './views/PrivacyPolicy')
+        import(
+          /* webpackChunkName: "PrivacyPolicyView" */ './views/PrivacyPolicy'
+        )
     },
     {
       path: '/recover_account',
       name: 'Recover Account',
       component: () =>
-        import(/* webpackChunkName: "AccountRecoveryView" */ './views/AccountRecovery')
+        import(
+          /* webpackChunkName: "AccountRecoveryView" */ './views/AccountRecovery'
+        )
     },
     {
       path: '/change_password',
       name: 'Change Password',
       component: () =>
-        import(/* webpackChunkName: "ChangePasswordView" */ './views/ChangePassword')
+        import(
+          /* webpackChunkName: "ChangePasswordView" */ './views/ChangePassword'
+        )
     },
     {
       path: '/confirm_account',
       name: 'Confirm Account',
       component: () =>
-        import(/* webpackChunkName: "ConfirmAccountView" */ './views/AccountConfirmation')
+        import(
+          /* webpackChunkName: "ConfirmAccountView" */ './views/AccountConfirmation'
+        )
     },
     {
       path: '/confirm_student_account',
       name: 'Confirm Student Account',
       component: () =>
-        import(/* webpackChunkName: "ConfirmStudentAccountView" */ './views/ConfirmStudentAccount')
+        import(
+          /* webpackChunkName: "ConfirmStudentAccountView" */ './views/ConfirmStudentAccount'
+        )
     },
     {
       path: '/user-profile',
@@ -153,7 +163,9 @@ const router = new Router({
       path: '/question/create',
       name: 'Create a question',
       component: () =>
-        import(/* webpackChunkName: "QuestionCreateView" */ './views/QuestionCreate'),
+        import(
+          /* webpackChunkName: "QuestionCreateView" */ './views/QuestionCreate'
+        ),
       meta: {
         requiresAuth: true,
         breadcrumb: 'Create a question (Multiple Choice)'
@@ -163,7 +175,9 @@ const router = new Router({
       path: '/question/edit',
       name: 'Edit question',
       component: () =>
-        import(/* webpackChunkName: "QuestionCreateView" */ './views/QuestionEdit'),
+        import(
+          /* webpackChunkName: "QuestionCreateView" */ './views/QuestionEdit'
+        ),
       meta: {
         requiresAuth: true,
         breadcrumb: 'Edit question (Multiple Choice)'
