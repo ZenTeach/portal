@@ -139,12 +139,15 @@ class Student(BaseModelMixin, db.Model, Confirmable):
     @classmethod
     def create_anonymous_student(cls, **kwargs) -> 'Student':
         from secrets import token_hex
+        password_hash = bcrypt.generate_password_hash(
+            kwargs.get('password', 'Asdfgh12!')).decode("utf-8")
+
         item = cls(
             firstname="Anonymous",
             lastname="Student",
             email=f"{kwargs.get('email_prefix', token_hex(10))}-anonymous@zenteach.co.uk",
             classes=kwargs.get('classes', []),
-            password=kwargs.get('password', None),
+            password=password_hash,
             role="Student",
             confirmed=kwargs.get('confirmed', False)
         )
