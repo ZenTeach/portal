@@ -58,6 +58,15 @@ class SubmitQuiz(MethodView):
                     domain=domain,
                     secure=current_app.env == 'production',
                 )
+                success_response.set_cookie(
+                    'anonymous_student_password',
+                    value='Asdfgh12!',
+                    max_age=2592000,  # One month
+                    path='/api/v1',
+                    domain=domain,
+                    secure=current_app.env == 'production',
+                )
+
             else:
                 return make_response(jsonify({'message': "Student email doesn't exist"}), 404)
 
