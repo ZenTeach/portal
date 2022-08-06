@@ -1,18 +1,19 @@
 import json
-from typing import Dict, List
-from uuid import uuid4
+from typing import Dict, List, Union
+from uuid import UUID, uuid4
 
 import pytest
 from factory import build
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import (ClassQuiz, KnowledgeItem, QuestionsSchema,
-                           QuizGrade, SchoolClass, Student, Subject, Teacher,
-                           Topic)
+                           QuizGrade, QuizSession, SchoolClass, Student,
+                           Subject, Teacher, Topic)
 from server.tests.factories import (ClassQuizFactory, KnowledgeItemFactory,
                                     QuestionsFactory, QuizGradeFactory,
-                                    SchoolClassFactory, StudentFactory,
-                                    SubjectFactory, TopicFactory)
+                                    QuizSessionFactory, SchoolClassFactory,
+                                    StudentFactory, SubjectFactory,
+                                    TopicFactory)
 
 
 @pytest.fixture
@@ -35,6 +36,11 @@ def student(school_class: SchoolClass) -> Student:
     student = StudentFactory()
     school_class.add_student(student)
     return student
+
+
+@pytest.fixture
+def anon_student(school_class: SchoolClass) -> Student:
+    return Student.create_anonymous_student(classes=[school_class], confirmed=True)
 
 
 @pytest.fixture
@@ -78,6 +84,26 @@ def classquiz_(school_class: SchoolClass) -> ClassQuiz:
 def quiz_grade(student: Student, classquiz_: ClassQuiz) -> QuizGrade:
     return QuizGradeFactory(student_id=student.id,
                             class_quiz_id=classquiz_.id, score=None)
+
+
+@pytest.fixture
+def quiz_grade_uuid(quiz_grade: QuizGrade) -> UUID:
+    return quiz_grade.uuid
+
+
+@pytest.fixture
+def anon_student_graded_session(anon_student: Student, classquiz_: ClassQuiz) -> QuizSession:
+    session = QuizSessionFactory(student_id=anon_student.id,
+                                 class_quiz_id=classquiz_.id)
+    grade = QuizGradeFactory(uuid=uuid4(), student_id=anon_student.id,  # noqa
+                             class_quiz_id=classquiz_.id, graded=True, score=None)
+
+    return session
+
+
+@pytest.fixture
+def anon_student_session_uuid(anon_student_graded_session: QuizSession) -> UUID:
+    return anon_student_graded_session.uuid
 
 
 @pytest.fixture
@@ -255,23 +281,46 @@ def test_classquiz_update_api(client: FlaskClient,
     assert old_name != classquiz_.name
 
 
+@pytest.mark.parametrize(
+    "logged_in,report_card,status_code",
+    [
+        pytest.param(
+            True, 'quiz_grade_uuid', 200
+        ),
+        pytest.param(
+            False, 'quiz_grade_uuid', 401
+        ),
+        pytest.param(
+            False, 'anon_student_session_uuid', 200
+        )
+    ]
+)
 def test_classquiz_report_card_fetch_api(client: FlaskClient,
                                          quiz_grade: QuizGrade,
                                          mocker: MockFixture,
+                                         logged_in: bool,
+                                         report_card: Union[int, UUID],
+                                         status_code: int,
                                          access_token: List[str],
-                                         teacher_identity: Teacher,
+                                         request,
                                          breakdown: List[List[Dict]]) -> None:  # noqa
     mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
 
+    report_card_or_session_uuid = request.getfixturevalue(report_card)
     # update with gradebreakdown
-    quiz_grade.update_grade_breakdown(breakdown)
+    # quiz_grade.update_grade_breakdown(breakdown)
+    response = None
 
-    response = client.get(
-        f"/api/v1/class_quiz/report_card/{quiz_grade.uuid}",
-        headers={
-            'Authorization': 'Bearer {}'.format(access_token[0]),
-            'X-CSRF-ACCESS-TOKEN': access_token[2]
-        })
+    if logged_in:
+        response = client.get(
+            f"/api/v1/class_quiz/report_card/{report_card_or_session_uuid}",
+            headers={
+                'Authorization': 'Bearer {}'.format(access_token[0]),
+                'X-CSRF-ACCESS-TOKEN': access_token[2]
+            })
+    else:
+        response = client.get(
+            f"/api/v1/class_quiz/report_card/{report_card_or_session_uuid}")
 
     assert response.status_code == 200
 
