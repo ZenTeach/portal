@@ -14,7 +14,8 @@ from server.api import log_activity, logger
 from server.decorators import with_required_roles
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizSchema, ClassQuizStatus, Questions,
-                           QuizGrade, QuizGradeSchema, StudentSchema, Teacher)
+                           QuizGrade, QuizGradeSchema, QuizSession,
+                           StudentSchema, Teacher)
 from server.tasks import (generate_pdf, send_quiz_generation_email,
                           send_quiz_pdf, send_report_card_pdf)
 from sqlalchemy import exc
@@ -309,7 +310,7 @@ class ClassQuizGenerator(MethodView):
 
 
 class QuizReportCard(MethodView):
-    @jwt_required(fresh=True)
+    @jwt_required(optional=True)
     def get(self, uuid):
         # Validate the UUID string
         # Taken from https://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
@@ -324,8 +325,15 @@ class QuizReportCard(MethodView):
 
         grade = QuizGrade.query.filter_by(uuid=uuid).first()
         if not grade:
-            abort(404, "Student or quiz don't exist.")
-
+            session = QuizSession.query.filter_by(uuid=uuid).first()
+            if not session:
+                abort(404, "Student or quiz don't exist.")
+            else:
+                student = session.student
+                grade = QuizGrade.query.filter_by(
+                    class_quiz_id=session.class_quiz_id).filter_by(
+                        student_id=student.id
+                ).first()
         return make_response(jsonify(grade.grade_breakdown), 200)
 
 
