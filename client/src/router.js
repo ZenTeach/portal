@@ -68,8 +68,8 @@ const router = new Router({
         import(/* webpackChunkName: "QuizView" */ './views/QuizView')
     },
     {
-      path: '/post_submit/:quiz_uuid/post_submit',
-      name: 'Quiz Submit Vie View',
+      path: '/post_submit/:quiz_uuid',
+      name: 'Quiz Submit View',
       component: () =>
         import(
           /* webpackChunkName: "QuizSubmit" */ './views/QuizSubmitView'
