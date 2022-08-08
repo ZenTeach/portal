@@ -16,7 +16,7 @@ def student_(request) -> Student:
 
 @pytest.fixture
 def anon_student_(client: FlaskClient, request) -> Student:
-    st = Student.create_anonymous_student()
+    st = Student.create_anonymous_student(password='Asdfgh12!', confirmed=True)  # nosec
     return st
 
 
@@ -25,7 +25,7 @@ def unique_email() -> str:
     return token_hex(16) + "@example.com"
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def _access_token(client: FlaskClient, student_: Student) -> List[str]:
     from datetime import timedelta
 
@@ -138,6 +138,17 @@ def test_send_student_confirmation_exception(client: FlaskClient,
         })
 
     assert response.status_code == 500
+
+
+def test_anon_student_auth(client: FlaskClient, anon_student_: Student):
+    response = client.post(
+        '/api/v1/student/login',
+        json={
+            "email": anon_student_.email,
+            "password": "Asdfgh12!"
+        })
+
+    assert response.status_code == 200
 
 
 # TODO: Waiting on https://github.com/vimalloc/flask-jwt-extended/issues/491
