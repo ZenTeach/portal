@@ -154,6 +154,7 @@ class ClassQuizSchema(_BaseSchema):
             'status',
             'private',
             'created',
+            'url',
             'questions'
         )
     status = EnumField(ClassQuizStatus)
