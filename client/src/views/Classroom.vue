@@ -5,22 +5,33 @@
         <span>
           <p class="text-lg-h4 text-sm-h6 font-weight-normal text-body-1">{{ current_class.name }}</p>
           </span>
-        <span class="text-lg-h6 text-sm-body-2 font-weight-normal text-caption">
-          <p>My Quizzes</p>
-        </span>
-        <v-data-table
-          :headers="headers"
-          :items="current_class.quizzes"
-          :items-per-page="5"
-          class="elevation-1"
-          :footer-props="{
-              showFirstLastPage: true,
-              firstIcon: 'mdi-arrow-collapse-left',
-              lastIcon: 'mdi-arrow-collapse-right',
-              prevIcon: 'mdi-minus',
-              nextIcon: 'mdi-plus'
-            }" >
-          <template v-slot:item.name="props">
+
+        <v-card>
+          <v-card-title>
+            <p class="text-lg-h6 text-sm-body-2 font-weight-normal text-caption">My Quizzes</p>
+            <v-spacer></v-spacer>
+            <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Search"
+                single-line
+                hide-details
+              ></v-text-field>
+            </v-card-title>
+            <v-data-table
+              :headers="headers"
+              :items="current_class.quizzes"
+              :items-per-page="5"
+              class="elevation-1"
+              :search="search"
+              :footer-props="{
+                             showFirstLastPage: true,
+                             firstIcon: 'mdi-arrow-collapse-left',
+                             lastIcon: 'mdi-arrow-collapse-right',
+                             prevIcon: 'mdi-minus',
+                             nextIcon: 'mdi-plus'
+                             }" >
+              <template v-slot:item.name="props">
             <div class="d-flex justify-left">
               <a :href="'/quiz/' +  props.item.uuid" class="d-inline-block mx-1">
                 <v-icon medium color="primary" elevation="12">mdi-open-in-app</v-icon>
@@ -45,29 +56,40 @@
                   </v-text-field>
                 </template>
               </v-edit-dialog>
+              <span class="mx-3">
+                <v-chip v-if="props.item.private" small>Private</v-chip>
+                <v-chip v-else small>Public</v-chip>
+              </span>
             </div>
           </template>
           <template v-slot:item.status="{ item }">
             <v-chip :color="statusToColor[item.status]">{{ item.status }}</v-chip>
           </template>
-          <template v-slot:item.created_at="{item}">
+          <template v-slot:item.created="{item}">
             <p>
-              {{ item.created_at | formatDate }}
+              {{ item.created | formatDate }}
             </p>
           </template>
-          <template v-slot:footer>
-            <v-dialog v-model="dialog" max-width="1000px" persistent>
-              <template v-slot:activator="{ on }">
-                <v-btn color="primary" right dark class="ma-4 pa-2" v-on="on">
-                  <span class="text-caption center d-flex justify-center align-center">
-                    <v-icon dark>mdi-plus</v-icon> Create a quiz
-                  </span>
-                </v-btn>
-              </template>
-              <quiz-creator v-on:update:quizCreatorDialog="closeQuizCreatorDialog"/>
-            </v-dialog>
+          <template v-slot:item.url="{ item }">
+            <v-btn text flat elevation="0" class="d-inline-block mx-1" @click="copytoClipboard(item)">
+                <v-icon small color="primary" elevation="12">mdi-content-copy</v-icon>
+                <span class="text-caption m-0 blue--text">Copy Quiz Link</span>
+              </v-btn>
           </template>
-        </v-data-table>
+            <template v-slot:footer>
+              <v-dialog v-model="dialog" max-width="1000px" persistent>
+                <template v-slot:activator="{ on }">
+                  <v-btn color="primary" right dark class="ma-4 pa-2" v-on="on">
+                    <span class="text-caption center d-flex justify-center align-center">
+                      <v-icon dark>mdi-plus</v-icon> Create a quiz
+                    </span>
+                  </v-btn>
+                </template>
+                <quiz-creator                                     v-on:update:quizCreatorDialog="closeQuizCreatorDialog"/>
+                </v-dialog>
+              </template>
+            </v-data-table>
+        </v-card>
       </v-flex>
 
       <v-flex sm-8 md-10 lg-10 class="ma-6">
@@ -129,6 +151,7 @@ export default {
       snack: false,
       snackColor: '',
       snackText: '',
+      search: '',
       max256chars: v => v.length <= 256 || 'Input too long!',
       defaultExamBoard: [
         { value: 'aqa', text: 'AQA', suggested: false },
@@ -143,18 +166,20 @@ export default {
         {
           text: 'Quiz',
           align: 'left',
-          sortable: false,
           value: 'name'
         },
         {
           text: 'Status',
-          sortable: false,
           value: 'status'
         },
         // TODO: Use actual proctored date
         {
-          text: 'Administered at',
-          value: 'created_at'
+          text: 'Created',
+          value: 'created'
+        },
+        {
+          text: '', // actions
+          value: 'url'
         }
       ],
       quizzes: [],
@@ -209,6 +234,9 @@ export default {
       this.dialog = false
       this.resetQuestionSearch()
       this.getCurrentClass(this.$route.params.id)
+    },
+    copytoClipboard (item) {
+      navigator.clipboard.writeText(item.url)
     },
     save (name, uuid) {
       this.snack = true
