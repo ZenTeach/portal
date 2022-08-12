@@ -45,6 +45,9 @@
       <v-col class="ma-lg-2">
         <h1>{{ name }}</h1>
       </v-col>
+      <v-col class="ma-lg-2">
+        <h5>Writing quiz as {{studentEmail}}</h5>
+        </v-col>
     </v-row>
     <v-row class="mx-lg-10 pa-lg-3">
       <v-col>
@@ -101,16 +104,22 @@
 <script>
 import { createNamespacedHelpers } from 'vuex'
 
-const { mapGetters } = createNamespacedHelpers('quiz')
+const { mapGetters, mapActions } = createNamespacedHelpers('quiz')
 export default {
   name: 'QuizView',
   data () {
     return {
-      studentEmail: '',
+      unauthStudentEmail: '',
       selectedChoices: {},
       showSessionErrors: false,
       completedModal: false
     }
+  },
+  mounted: function () {
+    if (this.quiz_questions.length === 0) {
+      this.loadQuiz(this.$route.params.id)
+    }
+    this.studentEmail = window.localStorage.getItem('anonymous_student_email')
   },
   computed: {
     ...mapGetters({
@@ -121,6 +130,7 @@ export default {
       error: 'error',
       hasError: 'errorState',
       loading: 'loading',
+      private_: 'private_',
       hasStarted: 'has_started'
     }),
     routeId () {
@@ -133,6 +143,14 @@ export default {
       return !this._.isEmpty(this.selectedChoices) &&
         this.selectedChoicesLength === this.quiz_questions.length
     },
+    studentEmail: {
+      get () {
+        return this.unauthStudentEmail
+      },
+      set (val) {
+        this.unauthStudentEmail = val
+      }
+    },
     qid () {
       if (this.quizUUID == null) {
         return this.quizUUID
@@ -144,6 +162,10 @@ export default {
       return this.quizName
     },
     dialog () {
+      if (this.private_ === false) {
+        this.startQuizSession()
+        return false
+      }
       // if quiz has started or has been submitted, don't show dialog
       // regardless of the above case, always show dialog if quiz has error
       return !(this.hasStarted ^ this.hasSubmitted) || this.hasError
@@ -157,6 +179,9 @@ export default {
     }
   },
   methods: {
+    ...mapActions({
+      loadQuiz: 'LOAD_QUIZ'
+    }),
     appendToSelection (name, value) {
       // Properly handle vue updates
       this.$set(this.selectedChoices, name, value)
@@ -164,9 +189,10 @@ export default {
     submit () {
       const payload = this._collect_submission()
       this.$store.dispatch('quiz/SUBMIT_QUIZ', payload, { root: true })
-      if (this.hasSubmitted) {
-        this.completedModal = true
-      }
+      // if (this.hasSubmitted) {
+      //   this.completedModal = true
+      // }
+      this.$route.push(`/post_submit/${this.$route.params.id}`)
     },
     _collect_submission () {
       const data = []
