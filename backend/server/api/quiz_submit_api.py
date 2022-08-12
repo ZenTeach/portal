@@ -1,7 +1,7 @@
 
 from datetime import datetime
 
-from flask import Blueprint, current_app, jsonify, make_response
+from flask import Blueprint, jsonify, make_response
 from flask.views import MethodView
 from marshmallow import Schema
 from server.api import logger
@@ -36,10 +36,10 @@ class SubmitQuiz(MethodView):
         student_email = email.lower()
         student = Student.query.filter(func.lower(Student.email) == student_email).first()
         class_quiz = ClassQuizModel.query.filter_by(uuid=quiz).first()
-        success_response = make_response(
-            jsonify({"message": "Created a new session!",
-                     "status": "success"}), 200
-        )
+        success_response = {
+            "message": "Created a new session!",
+            "data": {},
+            "status": "success"}
 
         if not student:
             # create an anonymous student if quiz is public
@@ -49,24 +49,10 @@ class SubmitQuiz(MethodView):
                     confirmed=True
                 )
 
-                domain = 'zenteach.co.uk' if current_app.env == 'production' else '127.0.0.1'
-                success_response.set_cookie(
-                    'anonymous_student_email',
-                    value=student.email,
-                    max_age=2592000,  # One month
-                    path='/api/v1',
-                    domain=domain,
-                    secure=current_app.env == 'production',
-                )
-                success_response.set_cookie(
-                    'anonymous_student_password',
-                    value='Asdfgh12!',
-                    max_age=2592000,  # One month
-                    path='/api/v1',
-                    domain=domain,
-                    secure=current_app.env == 'production',
-                )
-
+                success_response["data"] = {
+                    "anonymous_student_email": student.email,
+                    "anonymous_student_password": "Asdfgh12!"
+                }
             else:
                 return make_response(jsonify({'message': "Student email doesn't exist"}), 404)
 
@@ -98,7 +84,7 @@ class SubmitQuiz(MethodView):
                 }),
                 500)
         else:
-            return success_response
+            return make_response(success_response, 200)
 
     @use_kwargs(quiz_submit_args(), location='json')
     def post(self, StudentEmail, QuizId, data):

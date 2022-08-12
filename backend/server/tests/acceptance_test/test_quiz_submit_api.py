@@ -11,7 +11,6 @@ from server.tests.factories import (ClassQuizFactory, SchoolClassFactory,
                                     StudentFactory)
 from server.tests.factories.quiz_session_factory import QuizSessionFactory
 from sqlalchemy import exc
-from werkzeug.http import parse_cookie
 
 
 @pytest.fixture
@@ -200,13 +199,9 @@ def test_get_quiz_submit_with_anonymous_user(client: FlaskClient,
     assert response.status_code == 200
     assert QuizSession.query.count() == 1
     student = Student.query.first()
-    parsed_cookies = {}
-    for cookie in response.headers.getlist('Set-Cookie'):
-        _parsed_cookies = parse_cookie(cookie)
-        parsed_cookies.update(**_parsed_cookies)
-
-    assert parsed_cookies['anonymous_student_email'] == student.email
-    assert parsed_cookies['anonymous_student_password'] == 'Asdfgh12!'
+    data = response.get_json()["data"]
+    assert data['anonymous_student_email'] == student.email
+    assert data['anonymous_student_password'] == 'Asdfgh12!'
 
 
 def test_post_quiz_submit(client: FlaskClient,
