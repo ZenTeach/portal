@@ -18,6 +18,9 @@ export default {
     commit('SET_LOADING', true)
     startQuiz(studentEmail, quizUUID).then(
       data => {
+        for (const [key, val] of Object.entries(data.data)) {
+          window.localStorage.setItem(key, val)
+        }
         commit('SET_ERROR_STATE', false)
         commit('SET_QUIZ_SESSION')
         commit('SET_LOADING', false)
