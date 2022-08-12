@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-layout v-if="this.private_">
+    <v-layout v-if="!this.private_">
       <v-card max-width="800" width="800" class="mx-12 rounded-1 p-3">
         <v-card-title> You've submitted!</v-card-title>
         <v-card-subtitle>
