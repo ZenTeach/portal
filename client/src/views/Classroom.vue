@@ -107,7 +107,6 @@ import MaterialChartCard from '@/components/ChartCard'
 import StudentList from '@/components/StudentList'
 import QuizCreator from '@/components/QuizCreator'
 import { createNamespacedHelpers } from 'vuex'
-import moment from 'moment'
 import Api from '@/service/Api'
 
 const { mapGetters, mapActions } = createNamespacedHelpers('classrooms')
@@ -123,14 +122,6 @@ export default {
   mounted () {
     if (this.$route.name === 'Classroom') {
       this.getCurrentClass(this.$route.params.id)
-    }
-  },
-  filters: {
-    formatDate: function (value) {
-      if (!value) return ''
-      if (value) {
-        return moment(String(value)).format('DD/MM/YYYY')
-      }
     }
   },
   computed: {
