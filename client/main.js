@@ -10,6 +10,7 @@ import router from './src/router'
 import store from '@/store'
 import VueLodash from 'vue-lodash'
 import lodash from 'lodash'
+import moment from 'moment'
 
 Vue.config.productionTip = true
 Vue.use(VueCookies)
@@ -19,6 +20,13 @@ Vue.use(require('vue-chartist'), {
   classNoData: 'empty'
 })
 
+// Global date filter
+Vue.filter('formatDate', function (value) {
+  if (!value) return ''
+  if (value) {
+    return moment(String(value)).format('DD/MM/YYYY')
+  }
+})
 const unsync = sync(store, router)
 
 var vm = new Vue({

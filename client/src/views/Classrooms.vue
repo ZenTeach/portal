@@ -233,7 +233,6 @@ import {
   ValidationObserver,
   ValidationProvider
 } from 'vee-validate'
-import moment from 'moment'
 
 const { mapGetters, mapActions } = createNamespacedHelpers('classrooms')
 const { mapGetters: appGetters } = createNamespacedHelpers('app')
@@ -304,12 +303,6 @@ export default {
 
       const examBoard = defaultExamBoard.filter((val) => value === val.value)
       return examBoard[0].text
-    },
-    formatDate: function (value) {
-      if (!value) return ''
-      if (value) {
-        return moment(String(value)).format('DD/MM/YYYY')
-      }
     }
   },
   mounted: function () {
