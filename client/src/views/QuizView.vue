@@ -81,23 +81,6 @@
       </v-btn>
     </v-row>
 
-    <v-dialog v-model="hasSubmitted" max-width="100vw" max- persistent>
-      <v-row class="ma-1 pa-2 white">
-        <v-col>
-          <div class="mx-auto img-container">
-            <v-img src="../assets/completed.png" class="" />
-          </div>
-        </v-col>
-        <v-col justify="center" class="d-flex align-center">
-          <p class="text-align text-lg-h1 text-sm-h1 text-md-h1 text--lighten-4">
-          Congrats! Your quiz has been submitted!
-          <br />
-          <v-spacer></v-spacer>
-          <router-link to="/" class="text-sm-caption">Close page</router-link>
-          </p>
-        </v-col>
-      </v-row>
-    </v-dialog>
   </v-container>
 </template>
 
