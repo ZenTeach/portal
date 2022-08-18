@@ -202,6 +202,7 @@ def test_get_quiz_submit_with_anonymous_user(client: FlaskClient,
     data = response.get_json()["data"]
     assert data['anonymous_student_email'] == student.email
     assert data['anonymous_student_password'] == 'Asdfgh12!'
+    assert 'session_id' in data
 
 
 def test_post_quiz_submit(client: FlaskClient,

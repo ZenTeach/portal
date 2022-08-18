@@ -73,8 +73,13 @@ class SubmitQuiz(MethodView):
                         'message': "Quiz has already been submitted. If you think this is by mistake, contact your teacher for a redo."  # noqa
                     }), 400)  # noqa
             else:
-                class_quiz.add_student_session(student)
+                new_session = class_quiz.add_student_session(student)
                 class_quiz.save()
+                if not class_quiz.private:
+                    # attach session to quiz response
+                    success_response['data'].update({
+                        'session_id': new_session.uuid
+                    })
         except exc.DatabaseError as e:
             logger.error(e)
             return make_response(
