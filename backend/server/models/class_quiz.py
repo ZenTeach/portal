@@ -9,6 +9,7 @@ from sqlalchemy import event, text
 from sqlalchemy.dialects.postgresql import JSON, UUID
 
 from .base_model import BaseModelMixin, unique_uuid4
+from .quiz_session import QuizSession
 
 __all__ = ["ClassQuizStatus", "ClassQuiz"]
 
@@ -99,11 +100,10 @@ class ClassQuiz(BaseModelMixin, db.Model):
         self.status = new_status
         self.save()
 
-    def add_student_session(self, student):
-        from .quiz_session import QuizSession
-
-        self.student_quiz_sessions.append(
-            QuizSession(student=student, class_quiz=self, uuid=unique_uuid4()))
+    def add_student_session(self, student) -> 'QuizSession':
+        session = QuizSession(student=student, class_quiz=self, uuid=unique_uuid4())
+        self.student_quiz_sessions.append(session)
+        return session
 
     def set_maxscore(self) -> int:
         if self.questions is not None and len(self.questions) != 0:
