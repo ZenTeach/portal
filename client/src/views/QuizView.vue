@@ -1,53 +1,26 @@
 <template>
   <v-container fluid>
-    <v-dialog v-model="dialog" max-width="1000px" persistent>
-      <v-card class="mx-auto px-auto" outlined>
-        <v-card-title class="font-weight-light"> Start a quizzing session </v-card-title>
-        <v-card-text class="headline font-weight-bold">
-          <div>
-            <p> Please enter your email to start your quiz: </p>
-            <v-text-field
-              single-line
-              prepend-icon="email"
-              outline
-              required
-              v-model="studentEmail"
-            ></v-text-field>
-            <v-banner
-              color="error"
-              v-model="showSessionErrors"
-              icon="warning"
-            >
-              <div class="d-flex align-content-center flex-wrap ml-auto">
-                <p class="white--text mt-0 mb-2 font-weight-light text-h6 text-md-h5">
-                  {{ (error &&  error.message) || "We've run into an error, please try again later." }}
-                </p>
-                <v-btn
-                  text
-                  color="white"
-                  outlined
-                  class="mb-2 text-md-h6"
-                  @click="showSessionErrors=!showSessionErrors"
-                >
-                  Dismiss
-                </v-btn>
-              </div>
-            </v-banner>
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="primary lighten-2" outlined class="mr-4" @click="startQuizSession" :loading="loading">Proceed</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <v-layout v-if="loading">
+      <v-skeleton-loader
+        width="75vw"
+        height="60vh"
+        class="mx-auto"
+        type="heading, list-item, list-item-three-line, actions"
+        ></v-skeleton-loader>
+    </v-layout>
+    <v-layout v-else column>
+    <quiz-view-prompt
+      :showDialog="dialog"
+      :showSessionErrors="showSessionErrors"
+      :studentEmail="studentEmail"
+      :error="error"
+      :loading="loading"
+      :proceedAction="startQuizSession"
+      />
     <v-row class="ma-lg-4 pa-lg-3">
-      <input type="hidden" />
       <v-col class="ma-lg-2">
         <h1>{{ name }}</h1>
       </v-col>
-      <v-col class="ma-lg-2">
-        <h5>Writing quiz as {{studentEmail}}</h5>
-        </v-col>
     </v-row>
     <v-row class="mx-lg-10 pa-lg-3">
       <v-col>
@@ -80,35 +53,40 @@
         Submit Quiz
       </v-btn>
     </v-row>
-
+  </v-layout>
   </v-container>
 </template>
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
+import QuizViewPrompt from '@/components/QuizViewComponents/QuizViewPrompt'
 
 const { mapGetters, mapActions } = createNamespacedHelpers('quiz')
+const { mapGetters: userGetters } = createNamespacedHelpers('user')
 export default {
   name: 'QuizView',
+  components: {
+    QuizViewPrompt
+  },
   data () {
     return {
-      unauthStudentEmail: '',
+      studentEmail: this.currentStudent,
       selectedChoices: {},
-      showSessionErrors: false,
-      completedModal: false
+      showSessionErrors: false
     }
   },
   mounted: function () {
-    if (this.quiz_questions.length === 0) {
-      this.loadQuiz(this.$route.params.id)
-    }
-    this.studentEmail = window.localStorage.getItem('anonymous_student_email')
+    this.loadQuiz(this.$route.params.id).then(() => {
+      this.autoStartQuizSession()
+    })
   },
   computed: {
+    ...userGetters({
+      currentStudent: 'getCurrentUser'
+    }),
     ...mapGetters({
-      quizUUID: 'uuid',
       quiz_questions: 'quizQuestions',
-      quizName: 'name',
+      name: 'name',
       hasSubmitted: 'hasSubmitted',
       error: 'error',
       hasError: 'errorState',
@@ -126,27 +104,11 @@ export default {
       return !this._.isEmpty(this.selectedChoices) &&
         this.selectedChoicesLength === this.quiz_questions.length
     },
-    studentEmail: {
-      get () {
-        return this.unauthStudentEmail
-      },
-      set (val) {
-        this.unauthStudentEmail = val
-      }
-    },
     qid () {
-      if (this.quizUUID == null) {
-        return this.quizUUID
-      } else {
-        return this.routeId
-      }
-    },
-    name () {
-      return this.quizName
+      return this.routeId
     },
     dialog () {
       if (this.private_ === false) {
-        this.startQuizSession()
         return false
       }
       // if quiz has started or has been submitted, don't show dialog
@@ -172,10 +134,7 @@ export default {
     submit () {
       const payload = this._collect_submission()
       this.$store.dispatch('quiz/SUBMIT_QUIZ', payload, { root: true })
-      // if (this.hasSubmitted) {
-      //   this.completedModal = true
-      // }
-      this.$route.push(`/post_submit/${this.$route.params.id}`)
+      this.$router.push(`/post_submit/${this.$route.params.id}`)
     },
     _collect_submission () {
       const data = []
@@ -194,11 +153,18 @@ export default {
         data: data
       }
     },
+    autoStartQuizSession () {
+      if (!this.private_) {
+        this.startQuizSession()
+      }
+    },
     startQuizSession () {
-      this.$store.dispatch('quiz/START_QUIZ', {
-        studentEmail: this.studentEmail,
-        quizUUID: this.qid
-      }, { root: true })
+      if (!this.hasStarted) {
+        this.$store.dispatch('quiz/START_QUIZ', {
+          studentEmail: this.studentEmail,
+          quizUUID: this.qid
+        }, { root: true })
+      }
     }
   },
   beforeDestroy: function () {
