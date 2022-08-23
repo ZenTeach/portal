@@ -40,7 +40,7 @@ describe('ReportCard.vue', () => {
     })
   })
 
-  it('matches snapshot', () => {
+  xit('matches snapshot', () => {
     const wrapper = shallowMount(ReportCard, { store, localVue, vuetify, router, mocks: { $store: mockStore } })
     expect(wrapper).toMatchSnapshot()
   })
