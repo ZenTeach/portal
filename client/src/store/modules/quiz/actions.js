@@ -96,9 +96,9 @@ export default {
         data => {
           commit('UNSET_REPORTCARD')
           commit('app/TOGGLE_APP_LOADING', true, { root: true })
-          commit('SET_REPORTCARD', data)
+          commit('SET_REPORTCARD', data.report_card)
           commit('app/TOGGLE_APP_LOADING', false, { root: true })
-          resolve()
+          resolve(data.score)
         },
         error => {
           commit('app/TOGGLE_ERROR', error.response.data, { root: true })

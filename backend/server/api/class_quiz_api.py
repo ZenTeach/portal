@@ -310,7 +310,6 @@ class ClassQuizGenerator(MethodView):
 
 
 class QuizReportCard(MethodView):
-    @jwt_required(optional=True)
     def get(self, uuid):
         # Validate the UUID string
         # Taken from https://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
@@ -322,7 +321,7 @@ class QuizReportCard(MethodView):
         hyphen_count = uuid.count('-')
         if hyphen_count > 0:
             uuid = uuid.replace('-', '')
-
+        total_score = ''
         grade = QuizGrade.query.filter_by(uuid=uuid).first()
         if not grade:
             session = QuizSession.query.filter_by(uuid=uuid).first()
@@ -334,7 +333,11 @@ class QuizReportCard(MethodView):
                     class_quiz_id=session.class_quiz_id).filter_by(
                         student_id=student.id
                 ).first()
-        return make_response(jsonify(grade.grade_breakdown), 200)
+        total_score = f"{grade.score}/{grade.class_quiz.max_score}"
+        return make_response(jsonify({
+            'report_card': grade.grade_breakdown,
+            'score': total_score
+        }), 200)
 
 
 class GradedQuizzes(MethodView):
