@@ -70,7 +70,7 @@ export default {
   },
   data () {
     return {
-      studentEmail: this.currentStudent,
+      studentEmail: '',
       selectedChoices: {},
       showSessionErrors: false
     }
@@ -133,8 +133,9 @@ export default {
     },
     submit () {
       const payload = this._collect_submission()
-      this.$store.dispatch('quiz/SUBMIT_QUIZ', payload, { root: true })
-      this.$router.push(`/post_submit/${this.$route.params.id}`)
+      this.$store.dispatch('quiz/SUBMIT_QUIZ', payload, { root: true }).then(() => {
+        this.$router.push(`/post_submit/${this.$route.params.id}`)
+      })
     },
     _collect_submission () {
       const data = []
@@ -148,7 +149,7 @@ export default {
       }
 
       return {
-        QuizId: this.quizUUID,
+        QuizId: this.qid,
         StudentEmail: this.studentEmail,
         data: data
       }
@@ -164,6 +165,9 @@ export default {
           studentEmail: this.studentEmail,
           quizUUID: this.qid
         }, { root: true })
+          .then(() => {
+            this.studentEmail = this.currentStudent
+          })
       }
     }
   },

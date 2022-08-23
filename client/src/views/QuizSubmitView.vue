@@ -7,7 +7,7 @@
         <v-card-text>
           <p>Please save this link to check your results later.</p>
           <code>
-            {{ origin_url }}/report_card/{{ session_id }}?anonymous_student_email={{ anonymous_student_email }}&anonymous_student_token={{ anonymous_student_password  }}
+            {{ origin_url }}/report_card/{{ session_id }}
             <v-icon small @click="copyToClipboard">mdi-content-copy</v-icon>
           </code>
 
