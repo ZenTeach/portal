@@ -1,7 +1,11 @@
 <template>
  <v-container>
-  <v-layout row column wrap justify-center>
-    <report-card-component v-bind:reports="reports || []" />
+  <v-layout row wrap justify-space-between>
+    <div class="d-flex flex-column">
+      <h2 class="mr-auto">Report Card</h2>
+      <p>Total score: {{ total_score }}</p>
+    </div>
+    <report-card-component :reports="reports || []" />
   </v-layout>
  </v-container>
 </template>
@@ -24,9 +28,14 @@ export default {
   },
   mounted: function () {
     this.$store.dispatch('quiz/FETCH_REPORTCARD', this.uniqueId, { root: true })
+      .then((attainedScore) => {
+        this.total_score = attainedScore
+      })
   },
   data: () => {
-    return {}
+    return {
+      total_score: ''
+    }
   },
   methods: {
     highlightProgress (progress) {
