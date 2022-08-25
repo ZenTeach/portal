@@ -40,8 +40,6 @@ class CeleryConfig(NamedTuple):
     """
         Celery configuration options for the application.
     """
-    load_dotenv()
-
     result_backend: str = os.environ.get("RESULT_BACKEND")
     worker_task_log_format: str = os.environ.get("CELERYD_TASK_LOG_FORMAT",
                                                  "[%(asctime)s: %(levelname)s/%(processName)s] - [%(task_name)s(%(task_id)s)] %(message)s")  # noqa
@@ -75,8 +73,6 @@ celery_configuration = CeleryConfig()._asdict()
 
 
 class BaseConfig:
-    load_dotenv()
-
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = token_urlsafe()
