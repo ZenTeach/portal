@@ -6,7 +6,7 @@
       <v-row :class="'d-flex ' + (isMobile ? 'flex-column':'') ">
         <v-col lg="8" sm="12" md="12" rows="10">
           <template v-if="this.hasGradedQuiz(this.gradedQuizzes)">
-            <v-card color="grey lighten-3" class="rounded-0" elevation="1">
+            <v-card color="grey lighten-3" class="rounded-0" elevation="0">
               <v-card-title>
                 <h3> Graded report cards </h3>
               </v-card-title>
@@ -68,18 +68,45 @@
           </template>
         </v-col>
         <v-col lg="4" sm="12" md="12">
-          <v-card color="grey lighten-3" class="rounded-0" elevation="1">
-            <v-card-title>
-              <p class="text-h6" v-text="quizName"></p>
-            </v-card-title>
-            <v-col cols="8">
-              <p>Set quiz private</p>
-              <v-switch :input-value="private_" @change="update_quiz">
+          <v-col cols="10">
+            <h4 class="text-h6" v-text="quizName"></h4>
+            <div class="d-flex flex-row justify-space-between">
+              <div class="d-flex flex-row align-center">
+                <p class="my-4 mx-2 py-1 text-caption">Set quiz as private/public</p>
+                <v-menu
+                  offset-x
+                  offset-y
+                  open-on-hover
+                  max-width="9rem"
+                  max-height="12rem"
+                  :close-on-content-click="false"
+                  :nudge-width="20"
+                  content-class="yellow p-2 lighten-3"
+                  v-model="showQuizTogglePopover"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                      small
+                      v-bind="attrs"
+                      v-on="on">mdi-help-circle-outline</v-icon>
+                  </template>
+                  <p class="text-caption font-weight-medium">
+                    Students need to be part of a class to take a quiz. Public Quizzes can be taken by non-member students. Please be careful switching between public and private quizzes.</p>
+                </v-menu>
+              </div>
+              <v-switch
+                  text
+                  hint="Toggle between public and private quiz"
+                  :input-value="private_"
+                  @change="update_quiz">
               </v-switch>
-            </v-col>
-            <v-card-subtitle>
+            </div>
+          </v-col>
+          <v-divider style="width: 100%;"></v-divider>
+          <v-card color="grey lighten-4" class="rounded-0" elevation="1">
+            <v-card-title>
               <p class="text-caption">Quiz Activities</p>
-            </v-card-subtitle>
+            </v-card-title>
             <v-divider></v-divider>
             <v-card-actions>
               <v-btn
@@ -102,8 +129,6 @@
             </v-card-actions>
             <v-expand-transition>
               <div v-show="show">
-                <v-divider></v-divider>
-
                 <v-card-text>
                   <v-row >
                     <v-col>
@@ -169,9 +194,8 @@ export default {
           action: () => this.handlePDFGeneration()
         }
       ],
-      script_id: null,
-      script_url: null,
       dialog: false,
+      showQuizTogglePopover: false,
       show: false,
       items: []
     }

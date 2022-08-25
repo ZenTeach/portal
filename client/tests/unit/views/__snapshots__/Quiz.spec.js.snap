@@ -24,17 +24,24 @@ exports[`Quiz.vue matches snapshot 1`] = `
         </v-card-stub>
       </v-col-stub>
       <v-col-stub sm="12" md="12" lg="4" tag="div">
-        <v-card-stub loaderheight="4" tag="div" color="grey lighten-3" elevation="1" class="rounded-0">
+        <v-col-stub cols="10" tag="div">
+          <h4 class="text-h6"></h4>
+          <div class="d-flex flex-row justify-space-between">
+            <div class="d-flex flex-row align-center">
+              <p class="my-4 mx-2 py-1 text-caption">Set quiz as private/public</p>
+              <v-menu-stub opendelay="0" closedelay="0" openonclick="true" openonhover="true" contentclass="yellow p-2 lighten-3" maxwidth="9rem" nudgebottom="0" nudgeleft="0" nudgeright="0" nudgetop="0" nudgewidth="20" closeonclick="true" maxheight="12rem" offsetx="true" offsety="true" origin="top left" transition="v-menu-transition">
+                <p class="text-caption font-weight-medium">
+                  Students need to be part of a class to take a quiz. Public Quizzes can be taken by non-member students. Please be careful switching between public and private quizzes.</p>
+              </v-menu-stub>
+            </div>
+            <v-switch-stub errorcount="1" errormessages="" messages="" rules="" successmessages="" backgroundcolor="" hint="Toggle between public and private quiz" ripple="true" valuecomparator="[Function]" text=""></v-switch-stub>
+          </div>
+        </v-col-stub>
+        <v-divider-stub style="width: 100%;"></v-divider-stub>
+        <v-card-stub loaderheight="4" tag="div" color="grey lighten-4" elevation="1" class="rounded-0">
           <v-card-title-stub tag="div">
-            <p class="text-h6"></p>
-          </v-card-title-stub>
-          <v-col-stub cols="8" tag="div">
-            <p>Set quiz private</p>
-            <v-switch-stub errorcount="1" errormessages="" messages="" rules="" successmessages="" backgroundcolor="" ripple="true" valuecomparator="[Function]"></v-switch-stub>
-          </v-col-stub>
-          <v-card-subtitle-stub tag="div">
             <p class="text-caption">Quiz Activities</p>
-          </v-card-subtitle-stub>
+          </v-card-title-stub>
           <v-divider-stub></v-divider-stub>
           <v-card-actions-stub tag="div">
             <v-btn-stub color="black lighten-4" tag="button" activeclass="" text="true" type="button">
@@ -47,7 +54,6 @@ exports[`Quiz.vue matches snapshot 1`] = `
           </v-card-actions-stub>
           <v-expand-transition-stub mode="in-out">
             <div style="display: none;">
-              <v-divider-stub></v-divider-stub>
               <v-card-text-stub tag="div">
                 <v-row-stub tag="div">
                   <v-col-stub tag="div"><a href="../quiz_view/undefined">
