@@ -95,7 +95,7 @@ This will download the prerequisites as docker images and run them in containers
 This is a sample env file to follow
 
 ```ini
-FLASK_ENV=development
+RUNTIME=development
 FLASK_ADMIN_SWATCH=journal
 DATABASE_URL=postgres://zenteach:zenteach@localhost:5432/zenteach_dev
 DATABASE_TEST_URL=postgres://zenteach:zenteach@localhost:5432/zenteach_test

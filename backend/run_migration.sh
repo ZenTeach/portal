@@ -8,7 +8,7 @@ FLASK_REAL_LINK=$(readlink -f /var/www/zenteach_be/zenteach)
 cd $VENVDIR
 source bin/activate
 export PYTHONPATH=$FLASK_REAL_LINK:$PYTHONPATH
-export FLASK_ENV='production'
+export RUNTIME='production'
 
 # Run migrations before booting up the app
 cd $FLASKDIR/zenteach

@@ -134,11 +134,13 @@ class AppJSONEncoder(JSONEncoder):
 
 def create_app():
     app = Flask(__name__, template_folder="templates")
-    app.json_encoder = AppJSONEncoder
-    if os.environ.get("FLASK_ENV") == "production":
+    app.json_provider_class = AppJSONEncoder
+    if os.environ.get("RUNTIME") == "production":
         if os.path.exists("/var/www/zenteach_be/application.cfg"):
             app.config.from_pyfile("/var/www/zenteach_be/application.cfg")
         else:
+            if pathlib.Path('../.env').resolve().exists():
+                load_dotenv()
             app_settings = os.getenv("APP_SETTINGS")
             app.config.from_object(app_settings)
     else:
@@ -270,7 +272,7 @@ def create_app():
 
     default_handler.setFormatter(formatter)
 
-    if os.environ.get('FLASK_ENV') == 'development':
+    if os.environ.get('RUNTIME') == 'development':
         app.config.update({
             'APISPEC_SPEC': APISpec(
                 title='ZenTeach',
@@ -284,7 +286,7 @@ def create_app():
         docs.init_app(app)
         auto_document_apis(docs, app)
 
-    if os.environ.get('FLASK_ENV') == 'production':
+    if os.environ.get('RUNTIME') == 'production':
         gunicorn_logger = logging.getLogger('gunicorn.error')
         app.logger.handlers = gunicorn_logger.handlers
         app.logger.setLevel(gunicorn_logger.level)
