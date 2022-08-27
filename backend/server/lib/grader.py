@@ -272,6 +272,9 @@ class Grader(object):
                 'create',
                 'quiz_grade',
                 quiz.id,
+                {
+                  'quiz_grade_uuid': submission.uuid
+                },
                 f'Quiz grade finished with score {score}'
             )
 

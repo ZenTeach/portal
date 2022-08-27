@@ -5,7 +5,8 @@ from marshmallow import (Schema, ValidationError, post_load, validates,
 from server import db
 from server.models import Teacher
 from server.models.base_model import BaseModelMixin
-from sqlalchemy import MetaData, Table
+from sqlalchemy import MetaData, Table, Text
+from sqlalchemy.dialects import postgresql
 from sqlalchemy_utils import generic_relationship, get_primary_keys
 
 CREATE = 1
@@ -45,12 +46,16 @@ class ActivityLog(BaseModelMixin, db.Model):
     # Note
     note = db.Column(db.Text, nullable=True)
 
+    # Extra properties
+    properties = db.Column(postgresql.JSONB(astext_type=Text()), default={})
+
     @classmethod
     def log(cls,
             actor: Teacher,
             action: str,
             item_type: str,
             item_id: int,
+            properties: Optional[dict] = {},
             note: Optional[str] = None):
 
         log = ActivityLogSchema().load({
@@ -59,6 +64,7 @@ class ActivityLog(BaseModelMixin, db.Model):
             'item_type': item_type,
             'item_id': item_id,
             'note': note,
+            'properties': properties
         })
         log.save()
 
@@ -72,7 +78,7 @@ class ActivityLogSchema(Schema):
         model = ActivityLog
         load_instance = True
         fields = ('actor_id', 'note', 'action',
-                  'item_type', 'item_id')
+                  'item_type', 'properties', 'item_id')
 
     @validates('item_type')
     def validate_item_type(self, item_type: str) -> bool:
