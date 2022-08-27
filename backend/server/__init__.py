@@ -2,21 +2,24 @@ import logging
 import os
 from datetime import date, datetime, timedelta
 from enum import Enum
-from json import JSONEncoder
+# from json import JSONEncoder
 from uuid import UUID
 
 # APISpec : auto api documenting
 from apispec import APISpec
+import pathlib
 from apispec.ext.marshmallow import MarshmallowPlugin
 from celery import Celery
 from flask import (Flask, current_app, has_request_context, jsonify,
                    make_response, request)
+from flask.json import JSONEncoder
 from flask.logging import default_handler
 from flask_admin import Admin
 from flask_apispec.extension import FlaskApiSpec
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from dotenv import load_dotenv
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_marshmallow import Marshmallow
@@ -99,8 +102,8 @@ class AppJSONEncoder(JSONEncoder):
     This class will check if the object being serialized has a function called `to_json()`, and call it if available,  # noqa
     as well as adding a type-hint value to the output dict (`__type` key/value pair)  # noqa
     """
-
-    def default(self, obj):
+    @staticmethod
+    def default(obj):
         """Default object encoder function
 
         Args:

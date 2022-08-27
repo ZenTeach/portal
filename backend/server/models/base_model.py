@@ -10,8 +10,25 @@ from sqlalchemy_utils import Timestamp
 
 logger = logging.getLogger(__name__)
 
+# Polyfill new python json encoder
+# https://github.com/pallets/flask/issues/1443
+class JSONIterator(object):
+    def __iter__(self):
 
-class BaseModelMixin(Timestamp):
+        exclude_prefixes = ('__', '_{}__'.format(self.__class__.__name__), *self._IGNORED_COLUMNS)
+
+        for k, v in self.__class__.to_dict().iteritems():
+            if not (k.startswith(exclude_prefixes) or hasattr(v, '__call__')):
+                next()
+            else:
+                logger.debug(f"Iterating over {self.__class__}: found key vals {k} - {v}")
+                yield (k, v)
+        return iter([[
+            (k, v) for k, v in self.__class__.to_dict().iteritems()
+            if not (k.startswith(exclude_prefixes) or hasattr(v, '__call__'))
+        ]])
+
+class BaseModelMixin(Timestamp, JSONIterator):
     """ Abstract class adding common functionalities """
     _IGNORED_COLUMNS = []
 
@@ -111,6 +128,7 @@ class BaseModelMixin(Timestamp):
             if check in show or key in default:
                 val = getattr(self, key)
                 if hasattr(val, "to_dict"):
+                    # TODO: Return resource link to related object
                     ret_data[key] = val.to_dict(
                         show=list(show),
                         _hide=list(_hide), _path=f"{_path}.{key.lower()}"
@@ -148,12 +166,6 @@ class BaseModelMixin(Timestamp):
                 self.__setattr__(item, value)
 
         self.save(refresh=kwargs.get('refresh', False))
-
-    def __iter__(self):
-        table = self.__table__
-        for key in table.columns.keys():
-            if key not in table.primary_key and key not in self._IGNORED_COLUMNS:
-                yield(key, getattr(self, key))
 
 
 def unique_uuid4(x: Optional[UUID] = None) -> UUID:
