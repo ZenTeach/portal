@@ -70,3 +70,15 @@ jobs:
 
       - name: Execute deploy script
         run: cd scripts/ && ./deploy-to-prod.sh
+      - name: Get current git tag
+        id: current_tag
+        run: |
+          echo "::set-output name=tag_information::$(git describe --tags)"
+      - name: Send Release to Sentry
+        uses: dmandrade/sentry-release-github-action@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: zenteach
+          SENTRY_PROJECT: backend_prod
+        with:
+          version: ${{ steps.current_tag.outputs.tag_information }}
