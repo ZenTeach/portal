@@ -29,7 +29,7 @@ services:
     ports:
       - 5001:5000
     environment:
-      - FLASK_ENV=production
+      - RUNTIME=production
       - DATABASE_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach
       - APP_SETTINGS=server.config.ProductionConfig
       - CELERY_BROKER_URL=amqp://zenteach:zenteach_broker@rabbitmq_broker:5672/jobs

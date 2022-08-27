@@ -3,11 +3,15 @@ import logging
 import os
 
 from celery.schedules import crontab
+from dotenv import load_dotenv
 from server import celery, create_app  # noqa
 from server.config import CeleryConfig
 from server.tasks import (check_all_quizzes_administered,
                           check_all_quizzes_graded, grade_all_quizzes,
                           send_graded_quizzes)
+
+if os.getenv('RUNTIME') == 'development':
+    load_dotenv()
 
 # update celery config
 celery.conf.update(**CeleryConfig()._asdict())

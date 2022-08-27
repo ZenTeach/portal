@@ -2,21 +2,24 @@ import logging
 import os
 from datetime import date, datetime, timedelta
 from enum import Enum
-from json import JSONEncoder
+# from json import JSONEncoder
 from uuid import UUID
 
 # APISpec : auto api documenting
 from apispec import APISpec
+import pathlib
 from apispec.ext.marshmallow import MarshmallowPlugin
 from celery import Celery
 from flask import (Flask, current_app, has_request_context, jsonify,
                    make_response, request)
+from flask.json import JSONEncoder
 from flask.logging import default_handler
 from flask_admin import Admin
 from flask_apispec.extension import FlaskApiSpec
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from dotenv import load_dotenv
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_marshmallow import Marshmallow
@@ -99,8 +102,8 @@ class AppJSONEncoder(JSONEncoder):
     This class will check if the object being serialized has a function called `to_json()`, and call it if available,  # noqa
     as well as adding a type-hint value to the output dict (`__type` key/value pair)  # noqa
     """
-
-    def default(self, obj):
+    @staticmethod
+    def default(obj):
         """Default object encoder function
 
         Args:
@@ -134,11 +137,13 @@ class AppJSONEncoder(JSONEncoder):
 
 def create_app():
     app = Flask(__name__, template_folder="templates")
-    app.json_encoder = AppJSONEncoder
-    if os.environ.get("FLASK_ENV") == "production":
+    app.json_provider_class = AppJSONEncoder
+    if os.environ.get("RUNTIME") == "production":
         if os.path.exists("/var/www/zenteach_be/application.cfg"):
             app.config.from_pyfile("/var/www/zenteach_be/application.cfg")
         else:
+            if pathlib.Path('../.env').resolve().exists():
+                load_dotenv()
             app_settings = os.getenv("APP_SETTINGS")
             app.config.from_object(app_settings)
     else:
@@ -270,7 +275,7 @@ def create_app():
 
     default_handler.setFormatter(formatter)
 
-    if os.environ.get('FLASK_ENV') == 'development':
+    if os.environ.get('RUNTIME') == 'development':
         app.config.update({
             'APISPEC_SPEC': APISpec(
                 title='ZenTeach',
@@ -284,7 +289,7 @@ def create_app():
         docs.init_app(app)
         auto_document_apis(docs, app)
 
-    if os.environ.get('FLASK_ENV') == 'production':
+    if os.environ.get('RUNTIME') == 'production':
         gunicorn_logger = logging.getLogger('gunicorn.error')
         app.logger.handlers = gunicorn_logger.handlers
         app.logger.setLevel(gunicorn_logger.level)
