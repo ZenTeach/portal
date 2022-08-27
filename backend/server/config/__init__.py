@@ -13,7 +13,7 @@ from yamlloader.ordereddict import CLoader
 __all__ = ["BaseConfig", "DevelopmentConfig", "TestingConfig",
            "ProductionConfig", "_load_examboard", "_load_exempt_list"]
 
-if os.getenv('FLASK_ENV') == 'development':
+if os.getenv('RUNTIME') == 'development':
     load_dotenv()
 
 
