@@ -7,8 +7,8 @@ on:
 
 jobs:
   backend:
-    runs-on: [ self-hosted, ci ]
-    container: python:3.7-bullseye
+    runs-on: [self-hosted, ci]
+    container: python:3.10-bullseye
     env:
       DATABASE_TEST_URL: postgresql://zenteach:cipass@postgres:5432/zenteach
       RUNTIME: test
@@ -78,15 +78,22 @@ jobs:
           wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
           apt-get update && apt-get install -y libpq-dev && pip install pipenv
 
-      - name: Install dependencies
-        run: pipenv install
+      - name: Install dependecies
+        uses: VaultVulp/action-pipenv@v2.0.1
+        with:
+          command: install -d
 
       - name: Run migrations
-        run: pipenv run python manage.py db upgrade
+        uses: VaultVulp/action-pipenv@v2.0.1
+        with:
+          command: run python manage.py db upgrade
 
       - name: Run db configuration
-        run: pipenv run python manage.py db_conf
+        uses: VaultVulp/action-pipenv@v2.0.1
+        with:
+          command: run python manage.py db_conf
 
-      - name: Run tests
-        run: |
-          pipenv run pytest --timeout 600 --cov=server/ --driver Chrome -m "not e2e"
+     - name: Run tests
+        uses: VaultVulp/action-pipenv@v2.0.1
+        with:
+          command: run pytest --timeout 600 --cov=server/ --driver Chrome -m "not e2e"
