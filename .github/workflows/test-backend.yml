@@ -1,11 +1,15 @@
-name: Backend test CI
+# name: "CI: Backend"
 
 on:
   pull_request:
     paths:
-      - 'backend/**'
+      - "backend/**"
 
 jobs:
+  lint_workflow:
+    name: "Lint workflow files"
+    runs-on: [self-hosted, ci]
+
   backend:
     runs-on: [self-hosted, ci]
     container: python:3.10-bullseye
@@ -21,7 +25,6 @@ jobs:
       TMP_DIR: /tmp
       TEMPLATE_DIR: server/templates
       DEFAULT_MAIL_SENDER: test_sender@example.com
-      AWS_QUESTIONS_BUCKET: test-question-assets-bucket
       AWS_REGION: "eu-west-2"
     defaults:
       run:
