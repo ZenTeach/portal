@@ -132,8 +132,20 @@ class AppJSONEncoder(JSONEncoder):
             out = obj.to_dict()
             return out
 
-        return JSONEncoder.default(self, obj)
+        return JSONEncoder.default(obj)
 
+""" Module that monkey-patches json module when it's imported so
+JSONEncoder.default() automatically checks for a special "to_json()"
+method and uses it to encode the object if found.
+"""
+def monkey_patch_json_encoder():
+  from json import JSONEncoder
+
+  def _default(self, obj):
+    return AppJSONEncoder.default(obj)
+
+  _default.default = JSONEncoder.default
+  JSONEncoder.default = _default
 
 def create_app():
     app = Flask(__name__, template_folder="templates")
@@ -293,6 +305,8 @@ def create_app():
         gunicorn_logger = logging.getLogger('gunicorn.error')
         app.logger.handlers = gunicorn_logger.handlers
         app.logger.setLevel(gunicorn_logger.level)
+
+    monkey_patch_json_encoder()
 
     @app.errorhandler(422)
     def handle_validation_error(err):
