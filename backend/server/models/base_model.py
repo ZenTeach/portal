@@ -71,7 +71,7 @@ class BaseModelMixin(Timestamp, JSONIterator):
             if check in _hide or key in hidden:
                 continue
             if check in show or key in default:
-                ret_data[key] = getattr(self, key)
+                ret_data[key] = str(getattr(self, key))
 
         for key in relationships:
             if key.startswith("_"):
