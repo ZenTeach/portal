@@ -23,12 +23,14 @@ def activity_logs_(teacher_: Teacher,
                     'create',
                     'school_class',
                     school_class.id,
+                    {},
                     '')
     for i in range(100):
         ActivityLog.log(teacher_,
                         'update',
                         'school_class',
                         school_class.id,
+                        {},
                         '')
 
 
