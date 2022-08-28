@@ -18,7 +18,9 @@ def test_activity_log_log(client: FlaskClient,
                           school_class: SchoolClass,
                           teacher_: Teacher):
     ActivityLog.log(teacher_,
-                    'create', 'school_class', school_class.id,
+                    'create', 'school_class',
+                    school_class.id,
+                    {},
                     'Imported from CSV')
 
     assert teacher_.activity_logs.count() == 1

@@ -130,6 +130,14 @@ class TeacherLogin(MethodResource):
             redis_store.set(access_jti, "true", ACCESS_EXPIRES * 1.2)
             redis_store.set(refresh_jti, "true", REFRESH_EXPIRES * 1.2)
 
+            log_activity(current_user,
+                         'create',
+                         'login',
+                         current_user.id,
+                         {
+                             'useragent_data': request.headers.get('User-Agent')
+                         },
+                         f'Logged in as {current_user.email}')
             response = make_response(response_data, 200)
             return response
 
@@ -283,7 +291,7 @@ class InviteTeacher(MethodResource):
         try:
             invite = Invitations(email, token_hex(8), t.id)
             invite.save(refresh=True)
-            log_activity(t, 'create', 'user_invite', invite.id,
+            log_activity(t, 'create', 'user_invite', invite.id, {},
                          f'Invited user with email {invite.email}')
             send_user_invite.delay(email)
 

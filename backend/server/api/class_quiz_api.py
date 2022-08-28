@@ -122,6 +122,7 @@ class ClassQuiz(MethodView):
                     'delete',
                     'class_quiz',
                     class_quiz_id,
+                    {},
                     'Deleted Class Quiz.'
                 )
                 response_message = {"status": "success",
@@ -149,6 +150,7 @@ class ClassQuiz(MethodView):
                 'update',
                 'class_quiz',
                 class_quiz.id,
+                {},
                 'Updated Class Quiz.'
             )
             return make_response(jsonify({
@@ -208,6 +210,7 @@ class ClassQuizList(MethodView):
                 'create',
                 'class_quiz',
                 quiz.id,
+                {},
                 f'{current_user} created a quiz for class {quiz.class_id}',
             )
             response_object = {"status": "success",

@@ -179,6 +179,7 @@ class TeacherOwnedQuestions(MethodView):
                 'create',
                 'question',
                 question.id,
+                {},
                 f'{current_user.full_name()} created question {question.id}'
             )
             return make_response(jsonify({
@@ -216,6 +217,7 @@ class TeacherOwnedQuestion(MethodView):
                 'delete',
                 'question',
                 question.id,
+                {},
                 f'{current_user.full_name()} deleted question {question_id}'
             )
             return make_response(jsonify({
@@ -331,6 +333,7 @@ class TeacherOwnedQuestion(MethodView):
                 'update',
                 'question',
                 question.id,
+                {},
                 f'{current_user.full_name()} updated question {question.id}'
             )
 

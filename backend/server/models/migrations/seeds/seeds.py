@@ -73,6 +73,7 @@ def seeds():
             'create',
             'school_class',
             s.id,
+            {},
             f'Create class {s.name}'
         )
         s.add_student(class_student)
@@ -81,6 +82,7 @@ def seeds():
             'create',
             'student_attended_class',
             s.id,
+            {},
             f'Added a student {class_student.full_name} class {s.name}'
         )
 

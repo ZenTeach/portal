@@ -64,6 +64,7 @@ class SchoolClass(MethodResource):
                 'delete',
                 'school_class',
                 class_room.id,
+                {},
                 f'Removed class {class_room.name}'
             )
             return make_response(jsonify({
@@ -106,6 +107,7 @@ class SchoolClass(MethodResource):
                 'update',
                 'school_class',
                 class_room.id,
+                {},
                 f'Updated class {class_room.name}'
             )
             return make_response(jsonify({
@@ -170,6 +172,7 @@ class SchoolClassList(MethodResource):
                     'create',
                     'student_class',
                     school_class.id,
+                    {},
                     ''
                 )
                 response_object = jsonify(
@@ -263,6 +266,7 @@ class SchoolClassStudent(MethodResource):
                     'create',
                     'student_attended_class',
                     school_class.id,
+                    {},
                     f'Added student {student.full_name} to class {school_class.name}'
                 )
 
@@ -300,6 +304,7 @@ class SchoolClassStudent(MethodResource):
                 'delete',
                 'student_attended_class',
                 school_class.id,
+                {},
                 f'Deleted student from class {school_class.name}'
             )
         except Exception as e:  # noqa
@@ -353,6 +358,7 @@ class SchoolClassStudent(MethodResource):
                 'update',
                 'student_attended_class',
                 school_class.id,
+                {},
                 f'Updated student {student.full_name} from class {school_class.name}'
             )
             send_student_confirmation_instructions.apply_async(args=[student.id])

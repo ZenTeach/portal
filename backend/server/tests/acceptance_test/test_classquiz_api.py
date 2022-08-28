@@ -166,7 +166,7 @@ def test_classquiz_create_api(client: FlaskClient,
                               access_token: List[str],
                               mocker: MockFixture):
     def patch_log_activity(*args):
-        assert len(args) == 5
+        assert len(args) == 6
 
     mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
 
@@ -193,7 +193,7 @@ def test_classquiz_create_api_with_no_question_fails(client: FlaskClient,
                                                      access_token: List[str],
                                                      mocker: MockFixture):
     def patch_log_activity(*args):
-        assert len(args) == 5
+        assert len(args) == 6
 
     mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
     mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
@@ -217,7 +217,7 @@ def test_classquiz_create_api_with_nonexisting_question_fails(client: FlaskClien
                                                               access_token: List[str],
                                                               mocker: MockFixture):
     def patch_log_activity(*args):
-        assert len(args) == 5
+        assert len(args) == 6
 
     mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
     mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
@@ -259,7 +259,7 @@ def test_classquiz_update_api(client: FlaskClient,
                               classquiz_params: dict,
                               classquiz_: ClassQuiz):
     def patch_log_activity(*args):
-        assert len(args) == 5
+        assert len(args) == 6
 
     mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
     old_name = classquiz_.name
