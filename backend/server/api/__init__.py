@@ -14,12 +14,13 @@ else:
     logger = logging.getLogger(__name__)
 
 
-def log_activity(user, action, item_type, item_id, note=None):
+def log_activity(user, action, item_type, item_id, attributes={}, note=None):
     ActivityLog.log(
         user,
         action,
         item_type,
         item_id,
+        attributes,
         note
     )
 

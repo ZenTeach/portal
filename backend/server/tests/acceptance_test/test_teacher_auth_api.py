@@ -49,9 +49,14 @@ def test_teacher_login_endpoint(client: FlaskClient,
                                 teacher_: Teacher,
                                 email: str,
                                 password: str,
+                                mocker: MockFixture,
                                 message: str,
                                 access_token: List[str],
                                 status_code: int):
+
+    @mocker.patch('server.api.teacher_auth_api.log_activity')
+    def patch_activity_log(*args):
+        assert len(args) == 6
     response = client.post(
         '/api/v1/teacher/login',
         json={
@@ -183,7 +188,7 @@ def test_teacher_user_invite(client: FlaskClient,
         send_user_invite_delay.assert_called_with(invite_email)
 
     def patch_activity_log(*args):
-        assert len(args) != 5
+        assert len(args) != 6
     mocker.patch('server.api.teacher_auth_api.log_activity', patch_activity_log)
 
     response = client.post(

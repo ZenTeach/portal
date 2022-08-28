@@ -37,6 +37,7 @@ def quiz_grade_logs(teacher_: Teacher) -> None:
             'create',
             'quiz_grade',
             class_quiz.id,
+            {},
             'Quiz graded')
 
 # Weekly summarizable logs
@@ -46,7 +47,7 @@ def quiz_grade_logs(teacher_: Teacher) -> None:
 def school_class_logs(teacher_: Teacher) -> None:
     for i in range(10):
         class_ = SchoolClassFactory.create(teacher_id=teacher_.id)
-        ActivityLog.log(teacher_, 'create', class_.__tablename__, class_.id, '')
+        ActivityLog.log(teacher_, 'create', class_.__tablename__, class_.id, {}, '')
     teacher_.reload()
 
 
@@ -77,6 +78,7 @@ def uc_question_logs(teacher_: Teacher, subject_: Subject) -> None:
             'create',
             'questions',
             q.id,
+            {},
             'Created new question')
 
 
