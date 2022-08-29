@@ -5,6 +5,7 @@ import Vuex from 'vuex'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import { Store } from 'vuex-mock-store'
+import _ from 'lodash'
 
 Vue.use(Vuetify)
 Vue.use(VueRouter)
@@ -41,7 +42,14 @@ describe('ReportCard.vue', () => {
   })
 
   xit('matches snapshot', () => {
-    const wrapper = shallowMount(ReportCard, { store, localVue, vuetify, router, mocks: { $store: mockStore } })
+    const wrapper = shallowMount(ReportCard, {
+      store,
+      localVue,
+      vuetify,
+      _,
+      router,
+      mocks: { $store: mockStore }
+    })
     expect(wrapper).toMatchSnapshot()
   })
 })

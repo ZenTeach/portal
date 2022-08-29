@@ -1,9 +1,11 @@
 <template>
  <v-container>
-  <v-layout row wrap justify-space-between>
+  <v-layout column wrap justify-space-between>
     <div class="d-flex flex-column">
-      <h2 class="mr-auto">Report Card</h2>
-      <p>Total score: {{ total_score }}</p>
+      <span v-if="has_reportcard">
+        <h2 class="">Report Card</h2>
+        <p>Total score: {{ total_score }}</p>
+      </span>
     </div>
     <report-card-component :reports="reports || []" />
   </v-layout>
@@ -24,6 +26,9 @@ export default {
     ...mapGetters({ reports: 'reportCard' }),
     uniqueId () {
       return this.$route.params.uuid
+    },
+    has_reportcard: function () {
+      return !this._.isEmpty(this._.omitBy(this.reports, this._.isNil))
     }
   },
   mounted: function () {
@@ -35,20 +40,6 @@ export default {
   data: () => {
     return {
       total_score: ''
-    }
-  },
-  methods: {
-    highlightProgress (progress) {
-      const parsed = progress.split('/').map(element => parseInt(element))
-      const [nom, ...denom] = parsed
-
-      if (nom === denom) {
-        return 'green'
-      } else if (nom === 0) {
-        return 'red'
-      } else {
-        return 'yellow'
-      }
     }
   }
 }
