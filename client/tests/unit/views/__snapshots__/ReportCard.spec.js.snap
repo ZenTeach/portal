@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`ReportCard.vue matches snapshot 1`] = `
-<v-container-stub tag="div">
-  <v-layout-stub tag="div" row="" column="" wrap="" justify-center="">
-    <report-card-component-stub reports=""></report-card-component-stub>
-  </v-layout-stub>
-</v-container-stub>
-`;

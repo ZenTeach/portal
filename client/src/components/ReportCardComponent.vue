@@ -1,5 +1,6 @@
 <template>
-   <v-simple-table>
+  <v-layout>
+   <v-simple-table v-if="has_reportcard">
     <template v-slot:default>
      <thead>
         <tr>
@@ -32,6 +33,17 @@
      </tbody>
    </template>
   </v-simple-table>
+   <div v-else>
+     <v-card min-width="60vw" class="d-flex flex-column my-5 justify-center">
+       <v-card-title class="p-8">
+         <h3>Report card is being graded!</h3>
+       </v-card-title>
+       <v-card-text>
+       We're working on grading your report card. Please come back at a later time to check your results.
+        </v-card-text>
+     </v-card>
+   </div>
+   </v-layout>
 </template>
 
 <script>
@@ -50,8 +62,14 @@ export default {
     return {
     }
   },
+  computed: {
+    has_reportcard: function () {
+      return !this._.isEmpty(this._.omitBy(this.reports, this._.isNil))
+    }
+  },
   methods: {
     highlightProgress (progress) {
+      if (progress === '') return
       const [nom, denom] = progress.split('/').map(element => parseInt(element))
       // const [nom, ...denom] = parsed
 

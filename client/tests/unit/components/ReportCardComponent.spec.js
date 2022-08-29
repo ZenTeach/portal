@@ -2,6 +2,8 @@ import { shallowMount, createLocalVue } from '@vue/test-utils'
 import ReportCardComponent from '@/components/ReportCardComponent'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
+import VueLodash from 'vue-lodash'
+import lodash from 'lodash'
 
 Vue.use(Vuetify)
 const localVue = createLocalVue()
@@ -10,6 +12,7 @@ describe('ReportCardComponent.vue Test', () => {
   let vuetify
   beforeEach(() => {
     vuetify = new Vuetify()
+    localVue.use(VueLodash, { name: 'custom', lodash: lodash })
   })
 
   const propsData = {
@@ -53,11 +56,16 @@ describe('ReportCardComponent.vue Test', () => {
             feedback: 'This video explains electron shells quite nicely.'
           }
         }
-      }]
+      }
+    ]
   }
 
   it('renders component with data', () => {
-    const wrapper = shallowMount(ReportCardComponent, { localVue, vuetify, propsData: propsData })
+    const wrapper = shallowMount(ReportCardComponent, {
+      localVue,
+      vuetify,
+      propsData: propsData
+    })
     expect(wrapper.element).toMatchSnapshot()
   })
 
@@ -65,8 +73,12 @@ describe('ReportCardComponent.vue Test', () => {
     const emptyProps = {
       reports: []
     }
-    const wrapper = shallowMount(ReportCardComponent, { localVue, vuetify, propsData: emptyProps })
+    const wrapper = shallowMount(ReportCardComponent, {
+      localVue,
+      vuetify,
+      propsData: emptyProps
+    })
     const elem = wrapper.find('h3')
-    expect(elem.text()).toEqual('Report card has not been processed yet!')
+    expect(elem.text()).toEqual('Report card is being graded!')
   })
 })
