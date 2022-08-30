@@ -1,0 +1,11 @@
+p, admin, default, class_room, read
+p, admin, default, class_room, write
+
+p, teacher, default, class_room, read
+p, teacher, default, class_room, write
+
+p, student, default, class_room, read
+
+g, admin, default
+g, teacher, default
+g, student, default

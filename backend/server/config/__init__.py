@@ -90,6 +90,7 @@ class BaseConfig:
     JWT_ACCESS_CSRF_HEADER_NAME = "X-CSRF-ACCESS-TOKEN"
     JWT_REFRESH_CSRF_HEADER_NAME = "X-CSRF-REFRESH-TOKEN"
     REDIS_URL = os.environ.get("REDIS_URL")
+    CASBIN_MODEL_CONF = './auth/domain_based_rbac_model.conf'
     FLASK_ADMIN_SWATCH = "journal"
 
     CORS_VARY_HEADER = True
