@@ -15,6 +15,7 @@ from .quiz_session import QuizSession, QuizSessionStatus
 from .quiz_grade import QuizGrade
 from .class_quiz import ClassQuiz, ClassQuizStatus
 from .student_school_class import StudentAttendedClass
+from .user import User
 from .school_class import SchoolClass
 from .student import Student
 from .teacher import Teacher
@@ -30,7 +31,8 @@ __all__ = [
     "ActivityLog",
     "ClassQuiz",
     "ClassQuizStatus",
-    "ClassQuizSchema",
+    "ClassQuizdSchema",
+    "User",
     "Teacher",
     "TeacherSchema",
     "QuizSession",
