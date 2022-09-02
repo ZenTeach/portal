@@ -5,6 +5,8 @@ Revises: 33a9b88c44bb
 Create Date: 2022-09-01 22:34:13.806289
 
 """
+import datetime
+
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.orm import sessionmaker
@@ -23,9 +25,11 @@ def upgrade():
     users_table = sa.Table('users',
                            sa.MetaData(bind=op.get_bind()),
                            autoload=True)
-    for i in range(teachers_count[0][0]):
-        stmt = sa.insert(users_table).values(type='teacher')
-        session.execute(stmt)
+    with session.begin():
+        for i in range(teachers_count[0][0]):
+            stmt = sa.insert(users_table).values(
+                type='teacher', created=datetime.datetime.now(), updated=datetime.datetime.now())
+            session.execute(stmt)
 
     session.close()
 
