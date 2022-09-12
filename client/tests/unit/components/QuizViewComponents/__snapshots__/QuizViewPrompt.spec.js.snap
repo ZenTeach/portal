@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`QuizViewPrompt.vue renders QuizViewPrompt component 1`] = `
+<div class="v-dialog__container">
+  <div role="dialog" class="v-dialog__content v-dialog__content--active" style="z-index: 202;">
+    <transition-stub name="dialog-transition" appear="true">
+      <div tabindex="0" class="v-dialog v-dialog--active v-dialog--persistent" style="transform-origin: center center; max-width: 1000px;">
+        <div class="mx-auto px-auto v-card v-sheet v-sheet--outlined theme--light">
+          <div class="v-card__title font-weight-light">
+            Start a quizzing session
+          </div>
+          <div class="v-card__text headline font-weight-bold">
+            <div>
+              <p>Please enter your email to start your quiz:</p>
+              <div class="v-input theme--light v-text-field v-text-field--single-line">
+                <div class="v-input__prepend-outer">
+                  <div class="v-input__icon v-input__icon--prepend"><i aria-hidden="true" class="v-icon notranslate material-icons theme--light">email</i></div>
+                </div>
+                <div class="v-input__control">
+                  <div class="v-input__slot">
+                    <div class="v-text-field__slot"><input outline="" required="required" id="input-6" type="text"></div>
+                  </div>
+                  <div class="v-text-field__details">
+                    <div class="v-messages theme--light">
+                      <transition-group-stub tag="div" name="message-transition" class="v-messages__wrapper"></transition-group-stub>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <transition-stub name="expand-transition">
+                <div class="v-banner v-sheet theme--light v-banner--has-icon v-banner--is-mobile error">
+                  <div class="v-banner__wrapper">
+                    <div class="v-banner__content">
+                      <div class="v-avatar v-banner__icon error" style="height: 40px; min-width: 40px; width: 40px;"><i aria-hidden="true" class="v-icon notranslate material-icons theme--light" style="font-size: 28px;">warning</i></div>
+                      <div class="v-banner__text">
+                        <div class="d-flex align-content-center flex-wrap ml-auto">
+                          <p class="white--text mt-0 mb-2 font-weight-light text-h6 text-md-h5">
+                            {}
+                          </p> <button type="button" class="mb-2 text-md-h6 v-btn v-btn--outlined v-btn--text theme--light v-size--default white--text"><span class="v-btn__content">
+              Dismiss
+            </span></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </transition-stub>
+            </div>
+          </div>
+          <div class="v-card__actions"><button type="button" class="mr-4 v-btn v-btn--outlined theme--light v-size--default primary--text text--lighten-2"><span class="v-btn__content">Proceed</span></button></div>
+        </div>
+      </div>
+    </transition-stub>
+  </div>
+</div>
+`;
