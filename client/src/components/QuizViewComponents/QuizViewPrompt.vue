@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="showDialog" max-width="1000px" hide-overlay>
+  <v-dialog v-model="showDialog" max-width="1000px" persistent hide-overlay>
     <v-card class="mx-auto px-auto" outlined>
       <v-card-title class="font-weight-light">
         Start a quizzing session
@@ -12,9 +12,9 @@
             prepend-icon="email"
             outline
             required
-            :value="studentEmail"
+            @input="emitOnInput"
           ></v-text-field>
-          <v-banner color="error" v-model="showSessionErrors" icon="warning">
+          <v-banner color="error" v-model="showErrors" icon="warning">
             <div class="d-flex align-content-center flex-wrap ml-auto">
               <p
                 class="white--text mt-0 mb-2 font-weight-light text-h6 text-md-h5"
@@ -29,7 +29,7 @@
                 color="white"
                 outlined
                 class="mb-2 text-md-h6"
-                @click="toggleError"
+                @click="displayErrors = false"
               >
                 Dismiss
               </v-btn>
@@ -54,18 +54,15 @@
 <script>
 export default {
   name: 'QuizViewPrompt',
+  data () {
+    return {
+      displayErrors: true
+    }
+  },
   props: {
     showDialog: {
       type: Boolean,
       default: false
-    },
-    showSessionErrors: {
-      type: Boolean,
-      default: false
-    },
-    studentEmail: {
-      type: String,
-      default: ''
     },
     error: {
       type: Object
@@ -77,15 +74,24 @@ export default {
       type: Function
     }
   },
+  emits: ['update:email'],
   computed: {
     error_message: function () {
+      this.displayErrors = true
       if (this._.isNull(this.error)) return
-      return this.error || this._.get(this.error, 'message')
+      return this._.get(this.error, 'message') || this.error
+    },
+    showErrors: function () {
+      if (!this._.isNull(this.error) && this.displayErrors) return true
+      return false
     }
   },
   methods: {
     toggleError: function () {
-      this.showSessionErrors = !this.showSessionErrors
+      this.showErrors = !this.showErrors
+    },
+    emitOnInput: function (val) {
+      this.$emit('update:email', val)
     }
   }
 }
