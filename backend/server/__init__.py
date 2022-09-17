@@ -164,7 +164,7 @@ def create_app():
             app.config.from_object(app_settings)
         from prometheus_flask_exporter.multiprocess import \
             GunicornInternalPrometheusMetrics
-        metrics = GunicornInternalPrometheusMetrics.for_app_factory(path='/metrics')
+        metrics = GunicornInternalPrometheusMetrics.for_app_factory(path='/app_metrics')
         metrics.init_app(app)
     else:
         app_settings = os.getenv("APP_SETTINGS", "server.config.DevelopmentConfig")
