@@ -1,5 +1,6 @@
 import logging
 import os
+import pathlib
 from datetime import date, datetime, timedelta
 from enum import Enum
 # from json import JSONEncoder
@@ -7,9 +8,9 @@ from uuid import UUID
 
 # APISpec : auto api documenting
 from apispec import APISpec
-import pathlib
 from apispec.ext.marshmallow import MarshmallowPlugin
 from celery import Celery
+from dotenv import load_dotenv
 from flask import (Flask, current_app, has_request_context, jsonify,
                    make_response, request)
 from flask.json import JSONEncoder
@@ -19,7 +20,6 @@ from flask_apispec.extension import FlaskApiSpec
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from dotenv import load_dotenv
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_marshmallow import Marshmallow
@@ -134,18 +134,22 @@ class AppJSONEncoder(JSONEncoder):
 
         return JSONEncoder.default(obj)
 
+
 """ Module that monkey-patches json module when it's imported so
 JSONEncoder.default() automatically checks for a special "to_json()"
 method and uses it to encode the object if found.
 """
+
+
 def monkey_patch_json_encoder():
-  from json import JSONEncoder
+    from json import JSONEncoder
 
-  def _default(self, obj):
-    return AppJSONEncoder.default(obj)
+    def _default(self, obj):
+        return AppJSONEncoder.default(obj)
 
-  _default.default = JSONEncoder.default
-  JSONEncoder.default = _default
+    _default.default = JSONEncoder.default
+    JSONEncoder.default = _default
+
 
 def create_app():
     app = Flask(__name__, template_folder="templates")
@@ -158,6 +162,10 @@ def create_app():
                 load_dotenv()
             app_settings = os.getenv("APP_SETTINGS")
             app.config.from_object(app_settings)
+        from prometheus_flask_exporter.multiprocess import \
+            GunicornInternalPrometheusMetrics
+        metrics = GunicornInternalPrometheusMetrics.for_app_factory(path='/metrics')
+        metrics.init_app(app)
     else:
         app_settings = os.getenv("APP_SETTINGS", "server.config.DevelopmentConfig")
         app.config.from_object(app_settings)
@@ -342,6 +350,7 @@ def auto_document_apis(document_: FlaskApiSpec, app: Flask):
 
         if (blueprint.startswith('admin') or
            blueprint.startswith('flask') or
+            blueprint.startswith('prometheus') or
                 blueprint == 'static' or blueprint == 'healthcheck'):
 
             next
