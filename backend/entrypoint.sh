@@ -30,8 +30,12 @@ celery multi start worker1 \
 
 celery -A celery_worker.celery beat -S redbeat.RedBeatScheduler -l DEBUG -f tmp/celery-beat.log --detach --max-interval 60
 
-python manage.py run -h 0.0.0.0
+gunicorn 'wsgi:app' --workers 2 \
+  --worker-class aiohttp.GunicornWebWorker \
+  --worker-connections 100 \
+  --log-level info \
+  --access-logformat '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"' \
 
-trap "Killing celery workers" SIGINT
+trap "Killing python workers" SIGINT
 
-ps auxww | awk '/celery worker/ {print $2}' | xargs kill -9
+ps auxww | awk '/python/ {print $2}' | xargs sudo kill -9
