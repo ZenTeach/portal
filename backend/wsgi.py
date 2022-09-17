@@ -3,6 +3,7 @@ import os
 
 from aiohttp import web
 from aiohttp_wsgi import WSGIHandler
+from prometheus_flask_exporter.multiprocess import GunicornPrometheusMetrics
 from server import create_app
 
 sentry_dsn_key = os.environ.get("SENTRY_DSN")
@@ -35,6 +36,10 @@ if sentry_dsn_key:
             sentry_logging
         ],
     )
+
+
+def child_exit(server, worker):
+    GunicornPrometheusMetrics.mark_process_dead_on_child_exit(worker.pid)
 
 
 def make_aiohttp_app():
