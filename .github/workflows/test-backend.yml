@@ -21,8 +21,6 @@ jobs:
       TMP_DIR: /tmp
       TEMPLATE_DIR: server/templates
       DEFAULT_MAIL_SENDER: test_sender@example.com
-      AWS_QUESTIONS_BUCKET: test-question-assets-bucket
-      AWS_REGION: "eu-west-2"
     defaults:
       run:
         working-directory: backend
@@ -57,12 +55,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
       - name: Install packages - step 1
         run: |
           wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
