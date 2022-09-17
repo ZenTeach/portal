@@ -162,6 +162,8 @@ freezegun = "*"
 wtforms-alchemy = "*"
 flask-apispec = "==0.11.4"
 python-dotenv = "*"
+prometheus-flask-exporter = "*"
+prometheus-client = "*"
 
 [requires]
 python_version = "3.9"
