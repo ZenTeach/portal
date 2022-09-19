@@ -9,7 +9,6 @@ import datetime
 
 import sqlalchemy as sa
 from alembic import op
-from sqlalchemy.orm import sessionmaker
 
 # revision identifiers, used by Alembic.
 revision = 'd74af0bb2055'
@@ -19,19 +18,17 @@ depends_on = None
 
 
 def upgrade():
-    session = sessionmaker(bind=op.get_bind().engine)()
-    teachers_count = session.execute("select count(*) from teacher;").fetchall()
+    teachers_count = op.execute("select count(*) from teacher;").fetchall()
 
     users_table = sa.Table('users',
                            sa.MetaData(bind=op.get_bind()),
                            autoload=True)
-    with session.begin():
+    if teachers_count[0][0] != 0:
+        connection = op.get_bind()
         for i in range(teachers_count[0][0]):
             stmt = sa.insert(users_table).values(
                 type='teacher', created=datetime.datetime.now(), updated=datetime.datetime.now())
-            session.execute(stmt)
-
-    session.close()
+            connection.execute(stmt)
 
 
 def downgrade():
