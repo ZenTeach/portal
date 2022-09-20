@@ -18,14 +18,17 @@ depends_on = None
 
 
 def upgrade():
-    teachers_count = op.execute("select count(*) from teacher;").fetchall()
-
     users_table = sa.Table('users',
                            sa.MetaData(bind=op.get_bind()),
                            autoload=True)
-    if teachers_count[0][0] != 0:
+    teachers_count = op.execute("select count(*) from teacher;")
+    if teachers_count is None:
+        return
+
+    if teachers_count.rowcount != 0:
         connection = op.get_bind()
-        for i in range(teachers_count[0][0]):
+        count = teachers_count.fetch_all()[0][0]
+        for i in range(count):
             stmt = sa.insert(users_table).values(
                 type='teacher', created=datetime.datetime.now(), updated=datetime.datetime.now())
             connection.execute(stmt)
