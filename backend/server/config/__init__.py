@@ -126,6 +126,7 @@ class TestingConfig(BaseConfig):
 
 
 class ProductionConfig(BaseConfig):
+    prometheus_multiproc_dir = os.environ.get('PROMETHEUS_MULTIPROC_DIR', '/tmp')  # nosec
     JWT_IDENTITY_CLAIM = "sub"
     JWT_COOKIE_SAMESITE = "Strict"
     JWT_COOKIE_SECURE = True
