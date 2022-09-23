@@ -38,6 +38,11 @@ if sentry_dsn_key:
     )
 
 
+def when_ready(server):
+    if os.environ.get('RUNTIME') == 'production':
+        GunicornPrometheusMetrics.start_http_server_when_ready(8000)
+
+
 def child_exit(server, worker):
     GunicornPrometheusMetrics.mark_process_dead_on_child_exit(worker.pid)
 
