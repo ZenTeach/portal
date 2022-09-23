@@ -58,6 +58,7 @@ jobs:
       SERVER_NAME: ${{ secrets.PRODUCTION_SERVER_IP }}
       PYTHON-VERSION: 3.7.5
       TMP_DIR: ./server/tmp
+      PROMETHEUS_MULTIPROC_DIR: /tmp
 
     steps:
       - name: Check out repository code
