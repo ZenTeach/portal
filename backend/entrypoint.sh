@@ -30,7 +30,7 @@ celery multi start worker1 \
 
 celery -A celery_worker.celery beat -S redbeat.RedBeatScheduler -l DEBUG -f tmp/celery-beat.log --detach --max-interval 60
 
-gunicorn 'wsgi:app' --workers 2 \
+gunicorn 'wsgi:app' -b 127.0.0.1:5000 --workers 2 \
   --worker-class aiohttp.GunicornWebWorker \
   --worker-connections 100 \
   --log-level info \
