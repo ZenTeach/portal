@@ -9,6 +9,7 @@ cd $VENVDIR
 source bin/activate
 export PYTHONPATH=$FLASK_REAL_LINK:$PYTHONPATH
 export RUNTIME='production'
+export PROMETHEUS_MULTIPROC_DIR="/tmp"
 
 # Run migrations before booting up the app
 cd $FLASKDIR/zenteach

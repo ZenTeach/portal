@@ -56,7 +56,7 @@ jobs:
     env:
       RUNNER_ALLOW_RUNASROOT: 1
       SERVER_NAME: ${{ secrets.PRODUCTION_SERVER_IP }}
-      PYTHON-VERSION: 3.7.5
+      PYTHON-VERSION: 3.10
       TMP_DIR: ./server/tmp
       PROMETHEUS_MULTIPROC_DIR: /tmp
 
@@ -71,10 +71,12 @@ jobs:
 
       - name: Execute deploy script
         run: cd scripts/ && ./deploy-to-prod.sh
+
       - name: Get current git tag
         id: current_tag
         run: |
           echo "::set-output name=tag_information::$(git describe --tags)"
+
       - name: Send Release to Sentry
         uses: dmandrade/sentry-release-github-action@v1
         env:
