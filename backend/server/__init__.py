@@ -191,52 +191,8 @@ def create_app():
     app.config.update(database_url=app.config.get('SQLALCHEMY_DATABASE_URI', ''))
 
     configure_logging()
-    from flask_migrate import Migrate
-
-    from . import models
-
-    migration_directory = os.path.join("server", "models", "migrations")
-    Migrate(app, db, directory=migration_directory)
-
-    from server.admin import (ClassQuizView, KnowledgeItemView, QuestionView,
-                              SchoolClassView, StudentView, SubjectsView,
-                              TeacherView, TopicView, UserInvitationView,
-                              ZenteachAdminIndexView)
-
-    admin = Admin(
-        app,
-        name="Zenteach Admin Portal",
-        template_mode="bootstrap3",
-        base_template="admin_layout.html",
-        index_view=ZenteachAdminIndexView(),
-    )
-    admin.add_view(ClassQuizView(models.ClassQuiz,
-                                 db.session, endpoint="admin_quiz"))
-    admin.add_view(TeacherView(
-        models.Teacher, db.session, endpoint="admin_teacher"))
-    admin.add_view(StudentView(
-        models.Student, db.session, endpoint="admin_student"))
-    admin.add_view(
-        SubjectsView(models.Subject, db.session, endpoint="admin_subjects")
-    )
-    admin.add_view(
-        SchoolClassView(models.SchoolClass, db.session, endpoint="admin_class")
-    )
-    admin.add_view(
-        QuestionView(models.Questions, db.session, endpoint="admin_question")
-    )
-    admin.add_view(
-        UserInvitationView(models.Invitations, db.session, endpoint="admin_user_invite")
-    )
-    admin.add_view(
-        TopicView(models.Topic, db.session, endpoint="admin_topic")
-    )
-    admin.add_view(
-        KnowledgeItemView(models.KnowledgeItem, db.session, endpoint="admin_knowledge_item")
-    )
-
-    # import background tasks after initializing celery
-    # import server.tasks
+    setup_db_migration()
+    register_admin_endpoints(app)
 
     @jwt.token_in_blocklist_loader
     def check_if_token_is_revoked(header, decrypted_token):
@@ -252,44 +208,12 @@ def create_app():
             jsonify({"status": "error", "message": "Session expired"}), 401
         )
 
-    # Registry healthcheck
-    # TODO: Setup celery health check endpoint here
-    app.add_url_rule("/healthcheck", "healthcheck", view_func=lambda: health.run())
-
-    # Register bluprints
-    from server.api import root_api
-    from server.api.activity_log_api import activity_log_blueprint
-    from server.api.class_quiz_api import class_quiz_blueprint
-    from server.api.knowledge_item_api import knowledge_item_blueprint
-    from server.api.questions_api import question_blueprint
-    from server.api.quiz_submit_api import quiz_submit_blueprint
-    from server.api.school_class_api import school_class_blueprint
-    from server.api.stats_api import statistics_view_blueprint
-    from server.api.student_auth_api import student_auth_blueprint
-    from server.api.teacher_auth_api import teacher_auth_blueprint
-    from server.api.topic_api import topic_blueprint
-
-    app.register_blueprint(school_class_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(class_quiz_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(teacher_auth_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(student_auth_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(question_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(statistics_view_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(quiz_submit_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(topic_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(knowledge_item_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(activity_log_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(root_api, url_prefix="/api/v1")
-
+    draw_api_routes(app)
     default_handler.setFormatter(formatter)
 
     if os.environ.get('RUNTIME') == 'development':
-        # APISpec : auto api documenting
-        from apispec import APISpec
-        from apispec.ext.marshmallow import MarshmallowPlugin
-        from flask_apispec.extension import FlaskApiSpec
-
-        docs = FlaskApiSpec()
+        # from apispec_webframeworks.flask import FlaskPlugin
+        jwt_scheme = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
         app.config.update({
             'APISPEC_SPEC': APISpec(
                 title='ZenTeach',
@@ -301,6 +225,7 @@ def create_app():
             'APISPEC_SWAGGER_UI_URL': '/swagger-ui/'
         })
         docs.init_app(app)
+        docs.spec.components.security_scheme("jwt", jwt_scheme)
         auto_document_apis(docs, app)
 
     if os.environ.get('RUNTIME') == 'production':
@@ -365,3 +290,80 @@ def auto_document_apis(document_, app: Flask):
             next
         else:
             document_.register(rule, endpoint=endpoint, blueprint=blueprint)
+
+
+def setup_db_migration():
+    from flask_migrate import Migrate
+    migration_directory = os.path.join("server", "models", "migrations")
+    Migrate(app, db, directory=migration_directory)
+
+
+def register_admin_endpoints(app):
+    from server.admin import (ClassQuizView, KnowledgeItemView, QuestionView,
+                              SchoolClassView, StudentView, SubjectsView,
+                              TeacherView, TopicView, UserInvitationView,
+                              ZenteachAdminIndexView)
+
+    from . import models
+
+    admin = Admin(
+        app,
+        name="Zenteach Admin Portal",
+        template_mode="bootstrap3",
+        base_template="admin_layout.html",
+        index_view=ZenteachAdminIndexView(),
+    )
+    admin.add_view(ClassQuizView(models.ClassQuiz,
+                                 db.session, endpoint="admin_quiz"))
+    admin.add_view(TeacherView(
+        models.Teacher, db.session, endpoint="admin_teacher"))
+    admin.add_view(StudentView(
+        models.Student, db.session, endpoint="admin_student"))
+    admin.add_view(
+        SubjectsView(models.Subject, db.session, endpoint="admin_subjects")
+    )
+    admin.add_view(
+        SchoolClassView(models.SchoolClass, db.session, endpoint="admin_class")
+    )
+    admin.add_view(
+        QuestionView(models.Questions, db.session, endpoint="admin_question")
+    )
+    admin.add_view(
+        UserInvitationView(models.Invitations, db.session, endpoint="admin_user_invite")
+    )
+    admin.add_view(
+        TopicView(models.Topic, db.session, endpoint="admin_topic")
+    )
+    admin.add_view(
+        KnowledgeItemView(models.KnowledgeItem, db.session, endpoint="admin_knowledge_item")
+    )
+
+
+def draw_api_routes(app):
+    # Registry healthcheck
+    app.add_url_rule("/healthcheck", "healthcheck", view_func=lambda: health.run())
+
+    # Register bluprints
+    from server.api import root_api
+    from server.api.activity_log_api import activity_log_blueprint
+    from server.api.class_quiz_api import class_quiz_blueprint
+    from server.api.knowledge_item_api import knowledge_item_blueprint
+    from server.api.questions_api import question_blueprint
+    from server.api.quiz_submit_api import quiz_submit_blueprint
+    from server.api.school_class_api import school_class_blueprint
+    from server.api.stats_api import statistics_view_blueprint
+    from server.api.student_auth_api import student_auth_blueprint
+    from server.api.teacher_auth_api import teacher_auth_blueprint
+    from server.api.topic_api import topic_blueprint
+
+    app.register_blueprint(school_class_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(class_quiz_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(teacher_auth_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(student_auth_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(question_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(statistics_view_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(quiz_submit_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(topic_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(knowledge_item_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(activity_log_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(root_api, url_prefix="/api/v1")

@@ -94,4 +94,4 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest --timeout 600 --cov=server/ --driver Chrome -m "not e2e"
+          pytest --timeout 600 --cov=server/ --cov-config=.coveragerc --driver Chrome -m "not e2e"

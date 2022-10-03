@@ -150,7 +150,6 @@ sqlalchemy = "<1.4.0"
 sqlalchemy-utils = "*"
 py-healthcheck = "*"
 celery-redbeat = "*"
-celery-scheduler = {editable = true, git = "https://github.com/Explarry/celery-scheduler"}
 freezegun = "*"
 wtforms-alchemy = "*"
 flask-apispec = "==0.11.4"
@@ -158,6 +157,7 @@ python-dotenv = "*"
 prometheus-flask-exporter = "*"
 prometheus-client = "*"
 pydantic = "*"
+apispec-webframeworks = "*"
 
 [requires]
 python_version = "3.9"

@@ -1,6 +1,7 @@
 
 from flask import Blueprint, jsonify, make_response
 from flask.views import MethodView
+from flask_apispec import marshal_with
 from flask_jwt_extended import current_user, jwt_required
 from server.models import ActivityLogSchema
 
@@ -10,7 +11,20 @@ schema_dumper = ActivityLogSchema()
 
 class ActivityLog(MethodView):
     @jwt_required(fresh=True)
+    @marshal_with(ActivityLogSchema(many=True))
     def get(self):
+        """ActivityLog detail view.
+            ---
+            get:
+                parameters:
+                - in: path
+                  schema: ActivityLog
+                responses:
+                    200:
+                        content:
+                            application/json:
+                            schema: ActivityLog
+            """
         teacher = current_user
         activity_logs = teacher.activity_logs.limit(10)
         return make_response(
