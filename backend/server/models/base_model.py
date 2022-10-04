@@ -4,14 +4,17 @@ import logging
 from typing import Optional
 from uuid import UUID, uuid4
 
-from server import db
 from sqlalchemy.orm.attributes import QueryableAttribute
 from sqlalchemy_utils import Timestamp
+
+from server import db
 
 logger = logging.getLogger(__name__)
 
 # Polyfill new python json encoder
 # https://github.com/pallets/flask/issues/1443
+
+
 class JSONIterator(object):
     def __iter__(self):
 
@@ -28,11 +31,12 @@ class JSONIterator(object):
             if not (k.startswith(exclude_prefixes) or hasattr(v, '__call__'))
         ]])
 
+
 class BaseModelMixin(Timestamp, JSONIterator):
     """ Abstract class adding common functionalities """
     _IGNORED_COLUMNS = []
 
-    def to_dict(self, show=None, _hide=[], _path=None):
+    def to_dict(self, show=None, _hide=[], _path=None) -> dict:
         """Return a dictionary representation of this model."""
 
         show = show or []

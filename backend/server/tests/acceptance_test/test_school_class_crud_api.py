@@ -9,6 +9,7 @@ from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 from server.models import SchoolClass, Subject, Teacher
 from server.models.student import Student
+from server.tasks import send_student_confirmation_instructions
 from server.tests.factories import (SchoolClassFactory, StudentFactory,
                                     SubjectFactory)
 from sqlalchemy import exc
@@ -37,6 +38,11 @@ def student() -> Student:
 
 @pytest.fixture
 def school_class(teacher_: Teacher, subject_: Subject) -> SchoolClass:
+    return SchoolClassFactory.create(teacher_id=teacher_.id, subject_id=subject_.id)
+
+
+@pytest.fixture
+def another_school_class(teacher_: Teacher, subject_: Subject) -> SchoolClass:
     return SchoolClassFactory.create(teacher_id=teacher_.id, subject_id=subject_.id)
 
 
@@ -157,7 +163,8 @@ def test_post_add_student_to_school_class(client: FlaskClient,
         assert args[2] == 'student_attended_class'
 
     mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
-    mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
+
+    spy = mocker.spy(send_student_confirmation_instructions, 'apply_async')
 
     student_payload = {
         'firstname': 'Michael',
@@ -173,7 +180,42 @@ def test_post_add_student_to_school_class(client: FlaskClient,
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         }
     )
+    spy.assert_called_once()
+    assert len(school_class.students) == 1
+    assert response.status_code == 201
 
+
+def test_adding_a_confirmed_student(client: FlaskClient,
+                                    mocker: MockFixture,
+                                    access_token: List[str],
+                                    school_class: SchoolClass,
+                                    student: Student,
+                                    another_school_class: SchoolClass):
+    student.update_and_save(confirmed=True, refresh=True)
+
+    def patch_activity_log(*args):
+        assert len(args) == 6
+        assert args[2] == 'student_attended_class'
+
+    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+    spy = mocker.spy(send_student_confirmation_instructions, 'apply_async')
+
+    student_payload = {
+        'firstname': student.firstname,
+        'lastname': student.lastname,
+        'email': student.email
+    }
+
+    response = client.post(
+        f'/api/v1/school_class/{school_class.id}/student',
+        json=student_payload,
+        headers={
+            'Authorization': 'Bearer {}'.format(access_token[0]),
+            'X-CSRF-ACCESS-TOKEN': access_token[2]
+        }
+    )
+
+    spy.assert_not_called()
     assert len(school_class.students) == 1
     assert response.status_code == 201
 
@@ -238,7 +280,7 @@ def test_patch_update_student_email_in_school_class(client: FlaskClient,
                                                     school_class: SchoolClass,
                                                     access_token: List[str],
                                                     student: Student):
-    mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
+    spy = mocker.spy(send_student_confirmation_instructions, 'apply_async')
     school_class.add_student(student)
 
     def patch_activity_log(*args):
@@ -257,6 +299,7 @@ def test_patch_update_student_email_in_school_class(client: FlaskClient,
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
 
+    spy.assert_called_once()
     assert response.status_code == 200
     student.reload()
     assert not student.confirmed

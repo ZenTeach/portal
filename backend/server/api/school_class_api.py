@@ -3,7 +3,6 @@ from flask import Blueprint, jsonify, make_response, request
 from flask_apispec.views import MethodResource
 from flask_jwt_extended import current_user, jwt_required
 from marshmallow import INCLUDE, Schema, fields
-from server import db
 from server.api import log_activity, logger
 from server.decorators import with_required_roles
 from server.models import SchoolClass as SchoolClassModel
@@ -12,6 +11,8 @@ from server.tasks import send_student_confirmation_instructions
 from sqlalchemy import exc
 from webargs import fields as webarg_fields
 from webargs.flaskparser import use_kwargs
+
+from server import db
 
 school_class_blueprint = Blueprint("school_class", __name__)
 schema_dumper = SchoolClassSchema()
@@ -252,9 +253,7 @@ class SchoolClassStudent(MethodResource):
         data = request.get_json()
         try:
             student = Student.query.filter_by(email=data.get('email')).first()
-            if student is not None:
-                pass
-            else:
+            if student is None:
                 student = Student(**data)
                 student.save()
 
@@ -270,7 +269,9 @@ class SchoolClassStudent(MethodResource):
                     f'Added student {student.full_name} to class {school_class.name}'
                 )
 
-            send_student_confirmation_instructions.apply_async(args=[student.id])
+            if not student.confirmed:
+                send_student_confirmation_instructions.apply_async(args=[student.id])
+
         except exc.IntegrityError:
             return make_response(jsonify({
                 'message': "Student missing required data."
