@@ -10,17 +10,22 @@ jobs:
     runs-on: [ self-hosted, ci ]
     container: python:3.10-bullseye
     env:
-      DATABASE_TEST_URL: postgresql://zenteach:cipass@postgres:5432/zenteach
-      RUNTIME: development
-      APP_SETTINGS: server.config.TestingConfig
-      REDIS_URL: redis://redis:6379/1
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
-      CELERY_BROKER_URL: amqp://zenteach:zenteach_broker@rabbitmq:5672/jobs
       AUTHLIB_INSECURE_TRANSPORT: true
+      APP_SETTINGS: server.config.TestingConfig
+      BROKER_TRANSPORT: amqp
+      BROKER_URL: amqp://zenteach:zenteach_broker@rabbitmq:5672/jobs
+      CELERY_ALWAYS_EAGER: True
       CLIENT_URL: http://localhost:8080
+      DATABASE_TEST_URL: postgresql://zenteach:cipass@postgres:5432/zenteach
+      DEFAULT_MAIL_SENDER: test_sender@example.com
+      DEFAULT_QUEUE: jobs
+      FLASK_ENV: testing
+      FLASK_ADMIN_SWATCH: journal
+      RUNTIME: development
+      REDIS_URL: redis://redis:6379/1
+      RESULT_BACKEND: redis://redis:6379/0
       TMP_DIR: /tmp
       TEMPLATE_DIR: server/templates
-      DEFAULT_MAIL_SENDER: test_sender@example.com
     defaults:
       run:
         working-directory: backend
