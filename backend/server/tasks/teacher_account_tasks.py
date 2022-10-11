@@ -2,9 +2,10 @@ from os import getenv
 
 from celery.utils.log import get_task_logger
 from flask_mail import Message
-from server import celery
 from server.models import Invitations, Teacher
 from server.tasks.commons import send_mail_with_html
+
+from server import celery
 
 logger = get_task_logger(__name__)
 
@@ -53,7 +54,7 @@ def send_user_invite(self, invite_email):
         teacher = Teacher.query.filter_by(id=invite.invitation_from_id).first()
         message = Message(subject="Your invite is here!")
         message.recipients = ["{}".format(invite.email)]
-        signup_url = f"https://{ getenv('CLIENT_URL', 'portal.zenteach.co.uk') }/signup"
+        signup_url = f"{ getenv('CLIENT_URL', 'portal.zenteach.co.uk') }/signup"
 
         send_mail_with_html(message,
                             'user_invite.html.j2',
