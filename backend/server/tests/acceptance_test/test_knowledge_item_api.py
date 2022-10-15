@@ -45,8 +45,7 @@ def ki_create_payload(biology_subject: Subject,
     return build(dict,
                  FACTORY_CLASS=KnowledgeItemFactory,
                  topic=biology_topic.value,
-                 subject=biology_subject.name,
-                 teacher_id=teacher_.id
+                 subject=biology_subject.name
                  )
 
 
