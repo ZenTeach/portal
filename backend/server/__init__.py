@@ -1,7 +1,7 @@
 import logging
 import os
 import pathlib
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from enum import Enum
 # from json import JSONEncoder
 from uuid import UUID
@@ -19,7 +19,8 @@ from flask_admin import Admin
 from flask_apispec.extension import FlaskApiSpec
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import (JWTManager, create_access_token, get_jwt,
+                                get_jwt_identity, set_access_cookies)
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_marshmallow import Marshmallow
@@ -315,6 +316,21 @@ def create_app():
         app.logger.setLevel(gunicorn_logger.level)
 
     monkey_patch_json_encoder()
+
+    # TODO: move this to federated auth endpoint
+    @app.after_request
+    def refresh_expiring_jwts(response):
+        try:
+            exp_timestamp = get_jwt()["exp"]
+            now = datetime.now(timezone.utc)
+            target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+            if target_timestamp > exp_timestamp:
+                access_token = create_access_token(identity=get_jwt_identity())
+                set_access_cookies(response, access_token)
+            return response
+        except (RuntimeError, KeyError):
+            # Case where there is not a valid JWT. Just return the original response
+            return response
 
     @app.errorhandler(422)
     def handle_validation_error(err):
