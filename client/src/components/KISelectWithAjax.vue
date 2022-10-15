@@ -37,7 +37,8 @@ export default {
   props: {
     selectedTopic: {
       type: String,
-      required: true
+      required: true,
+      default: ''
     },
     subject: {
       type: String,

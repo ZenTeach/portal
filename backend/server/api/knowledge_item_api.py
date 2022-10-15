@@ -46,7 +46,7 @@ class KnowledgeItemsView(MethodView):
             abort(500)
 
         return make_response(jsonify({
-            'data': dumper.dump(topic)
+            'data': dumper.dump(ki)
         }), 201)
 
 
