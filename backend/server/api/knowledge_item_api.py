@@ -38,9 +38,9 @@ class KnowledgeItemsView(MethodView):
         })
 
         dumper = KnowledgeItemSchema()
-        topic = KnowledgeItem(**ki_data)
+        ki = KnowledgeItem(**ki_data)
         try:
-            topic.save()
+            ki.save()
         except Exception as e:
             logger.error(e)
             abort(500)
