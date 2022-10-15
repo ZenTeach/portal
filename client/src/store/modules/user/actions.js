@@ -66,14 +66,17 @@ const REGISTER_USER = ({ commit, dispatch }, payload) => {
 }
 
 const FETCHCURRENTUSER = ({ commit, dispatch }) => {
+  commit('user/SET_USER_LOADING', true, { root: true })
   getCurrentUser().then(
     result => {
       const { user } = result
       commit('TOGGLECURRENTUSER', user)
+      commit('user/SET_USER_LOADING', false, { root: true })
     },
     error => {
       commit('app/TOGGLE_ERROR', error.response.data, { root: true })
       dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+      commit('user/SET_USER_LOADING', false, { root: true })
     }
   )
 }

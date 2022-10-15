@@ -26,8 +26,11 @@
               v-bind="attrs"
               v-on="on"
             >
-            <v-avatar size="36px" color="blue">
-              <span class="white--text text-h6">{{ initials }}</span>
+            <v-avatar size="36px" color="blue" v-if="isLoading">
+              <span class="white--text text-h6">JS</span>
+            </v-avatar>
+            <v-avatar size="36px" color="blue" v-else>
+              <span class="white--text text-h6">{{ initials() }}</span>
             </v-avatar>
             </v-btn>
           </template>
@@ -74,13 +77,9 @@ export default {
   },
   computed: {
     ...userGetters({
-      currentUser: 'getCurrentUser'
-    }),
-    initials () {
-      const fNameInitial = this.currentUser.firstname.charAt(0) || 'J'
-      const lNameInitial = this.currentUser.lastname.charAt(0) || 'S'
-      return `${fNameInitial}${lNameInitial}`
-    }
+      currentUser: 'getCurrentUser',
+      isLoading: 'getLoadingState'
+    })
   },
   methods: {
     ...appMutations({
@@ -89,6 +88,12 @@ export default {
     ...userActions({
       signoutUser: 'SIGNOUT_USER'
     }),
+    initials () {
+      console.log('Current User: ', this.currentUser)
+      const fNameInitial = this.currentUser.firstname.charAt(0)
+      const lNameInitial = this.currentUser.lastname.charAt(0)
+      return `${fNameInitial}${lNameInitial}`
+    },
     logout () {
       this.signoutUser().then(() => {
         this.$router.push('/login')
