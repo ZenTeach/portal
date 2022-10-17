@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NavBar.vue renders component 1`] = `
-<v-app-bar-stub height="60" maxheight="88" minheight="40" tag="header" extensionheight="48" flat="true" src="" value="true" app="true" id="core-bar-app">
+<v-app-bar-stub height="60" maxheight="88" minheight="40" tag="header" extensionheight="48" src="" value="true" app="true" text="" id="core-bar-app">
   <v-toolbar-title-stub tag="div" class="tertiary--text font-weight-light d-flex align-center align-self-center">
     <!---->
     <breadcrumb-stub separator="/" exclude_last="true"></breadcrumb-stub>
@@ -10,7 +10,7 @@ exports[`NavBar.vue renders component 1`] = `
   <v-toolbar-items-stub tag="div">
     <v-row-stub tag="div" align="center" class="mx-0">
       <v-col-stub tag="div" class="d-flex align-center">
-        <v-btn-stub tag="button" activeclass="" icon="true" type="button" flat="">
+        <v-btn-stub tag="button" activeclass="" icon="true" text="true" type="button">
           <v-icon-stub medium="" class="text--disabled">mdi-bell</v-icon-stub>
         </v-btn-stub>
       </v-col-stub>
