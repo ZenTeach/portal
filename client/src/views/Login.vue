@@ -4,7 +4,7 @@
       <v-layout align-center justify-center>
         <v-flex xs12 sm10 md6>
           <v-card class="elevation-3">
-            <v-toolbar color="grey lighten-3" flat>
+            <v-toolbar color="grey lighten-3" text>
               <v-toolbar-title class="d-flex text-center">
                 <span class="font-weight-light">Zen</span>
                 <span class>Teach</span>
