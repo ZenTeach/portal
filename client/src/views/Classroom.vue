@@ -71,7 +71,7 @@
             </p>
           </template>
           <template v-slot:item.url="{ item }">
-            <v-btn text flat elevation="0" class="d-inline-block mx-1" @click="copytoClipboard(item)">
+            <v-btn text text elevation="0" class="d-inline-block mx-1" @click="copytoClipboard(item)">
                 <v-icon small color="primary" elevation="12">mdi-content-copy</v-icon>
                 <span class="text-caption m-0 blue--text">Copy Quiz Link</span>
               </v-btn>

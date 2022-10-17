@@ -5,7 +5,7 @@
         <v-flex xs12 sm10 md6>
           <ValidationObserver ref="observer" v-slot="{ invalid, validated }" >
           <v-card class="elevation-3">
-            <v-toolbar color="grey lighten-3" flat>
+            <v-toolbar color="grey lighten-3" text>
               <v-toolbar-title class="d-flex text-center">
                 <span class="font-weight-light">Zen</span>
                 <span class>Teach</span>

@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app flat max-height="88" height="60" min-height="40" id="core-bar-app">
+  <v-app-bar app text max-height="88" height="60" min-height="40" id="core-bar-app">
     <v-toolbar-title class="tertiary--text font-weight-light d-flex align-center align-self-center">
       <v-btn v-if="responsive" @click="toggleNavDrawer" icon>
         <v-icon small>mdi-chevron-double-right</v-icon>
@@ -12,7 +12,7 @@
     <v-toolbar-items>
       <v-row align="center" class="mx-0">
         <v-col class="d-flex align-center">
-          <v-btn flat icon>
+          <v-btn text icon>
             <v-icon medium class="text--disabled">mdi-bell</v-icon>
           </v-btn>
         </v-col>
@@ -89,7 +89,6 @@ export default {
       signoutUser: 'SIGNOUT_USER'
     }),
     initials () {
-      console.log('Current User: ', this.currentUser)
       const fNameInitial = this.currentUser.firstname.charAt(0)
       const lNameInitial = this.currentUser.lastname.charAt(0)
       return `${fNameInitial}${lNameInitial}`

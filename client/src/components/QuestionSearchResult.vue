@@ -1,5 +1,5 @@
 <template>
-  <v-list two-line subheader flat>
+  <v-list two-line subheader text>
     <v-list-item-group multiple v-if="hasResult(resultSet)">
       <template v-for="item in resultSet" >
         <v-list-group
