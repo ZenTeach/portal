@@ -2,9 +2,9 @@
 
 exports[`QuestionSearchResult.vue Test renders empty search result component 1`] = `
 <v-list-stub
-  flat="true"
   subheader="true"
   tag="div"
+  text=""
   twoline="true"
 >
   <v-list-item-stub

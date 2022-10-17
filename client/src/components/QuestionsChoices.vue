@@ -64,8 +64,13 @@ export default {
   },
   beforeMount: function () {
     if (this.choice) {
-      const convertedFeedback = new QuillDeltaToHtmlConverter(JSON.parse(this.choice.feedback).ops, {}).convert()
-      this.choice.feedback = convertedFeedback
+      try {
+        const parsedFeedback = JSON.parse(this.choice.feedback)
+        const convertedFeedback = new QuillDeltaToHtmlConverter(parsedFeedback.ops, {}).convert()
+        this.choice.feedback = convertedFeedback
+      } catch (error) {
+
+      }
     }
   },
   data: function () {
