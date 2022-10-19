@@ -4,10 +4,10 @@
     <template v-slot:default>
      <thead>
         <tr>
-          <th class="text-left">Topic</th>
-          <th class="text-left">Knowledge items</th>
-          <th class="text-left">Progress</th>
-          <th class="text-left">Feedback / Learning resources</th>
+          <th class="text-body-1 font-weight-bold">Topic</th>
+          <th class="text-body-1 font-weight-bold">Knowledge items</th>
+          <th class="text-body-1 font-weight-bold">Progress</th>
+          <th class="text-body-1 font-weight-bold">Feedback / Learning resources</th>
         </tr>
      </thead>
      <tbody>
@@ -133,10 +133,9 @@ table td {
 }
 
 table th {
-  font-family:Arial, sans-serif;
-  font-size:14px;
-  font-weight:normal;
-  padding:10px 5px;
+  font-size: 14px;
+  font-weight: normal;
+  padding: 10px 15px;
   border-style:solid;
   border-width:0px;
   overflow:hidden;
