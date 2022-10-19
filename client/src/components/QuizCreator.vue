@@ -22,7 +22,7 @@
           <v-card-title>Select topics and knowledge items</v-card-title>
           <v-card-text>
             <v-text-field
-              :placeholder="defaultQuizName"
+              :placeholder="'Set quiz name. Default: ' + defaultQuizName"
               v-model="name"
               class="w-25"
             />
@@ -123,7 +123,11 @@
             <v-btn color="primary" v-if="isMobile" @click="curator = 3">
               <v-icon>mdi-chevron-right</v-icon>
             </v-btn>
+            <v-btn @click.native.prevent="curator = 1" v-if="!isMobile" class="warning black--text">Back</v-btn>
             <v-btn @click.native.prevent="closeDialog()" v-if="!isMobile" class="float-left error">Cancel</v-btn>
+            <v-btn @click.native.prevent="curator=1" v-if="isMobile" class="float-left error">
+              <v-icon>mdi-chevron-left</v-icon>
+            </v-btn>
             <v-btn @click.native.prevent="closeDialog()" v-if="isMobile" class="float-left error">
               <v-icon>mdi-close</v-icon>
             </v-btn>
@@ -178,7 +182,12 @@
               <v-btn color="primary" v-if="isMobile" @click="createQuiz()" :disabled="!formIsValid">
                 <v-icon>mdi-check-all</v-icon>
               </v-btn>
+              <v-btn @click.native.prevent="curator = 2" v-if="!isMobile" class="warning black--text">Back</v-btn>
               <v-btn @click.native.prevent="closeDialog()" v-if="!isMobile" class="float-left error">Cancel</v-btn>
+
+              <v-btn @click.native.prevent="curator = 2" v-if="isMobile" class="float-left warning">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
               <v-btn @click.native.prevent="closeDialog()" v-if="isMobile" class="float-left error">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
