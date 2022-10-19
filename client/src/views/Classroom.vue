@@ -21,73 +21,72 @@
             <v-data-table
               :headers="headers"
               :items="current_class.quizzes"
-              :items-per-page="5"
+              :items-per-page="10"
               class="elevation-1"
               :search="search"
-              :footer-props="{
-                             showFirstLastPage: true,
-                             firstIcon: 'mdi-arrow-collapse-left',
-                             lastIcon: 'mdi-arrow-collapse-right',
-                             prevIcon: 'mdi-minus',
-                             nextIcon: 'mdi-plus'
-                             }" >
-              <template v-slot:item.name="props">
-            <div class="d-flex justify-left">
-              <a :href="'/quiz/' +  props.item.uuid" class="d-inline-block mx-1">
-                <v-icon medium color="primary" elevation="12">mdi-open-in-app</v-icon>
-              </a>
-              <v-edit-dialog
-                :return-value.sync="props.item.name"
-                class="d-inline-block"
-                @save="save(props.item.name, props.item.uuid)"
-                @cancel="cancel"
-                @open="open"
-                @close="close">
-                {{ props.item.name }}
-                <template v-slot:input>
-                  <v-text-field
-                    v-model="props.item.name"
-                    :rules="[max256chars]"
-                    label="Edit"
-                    single-line
-                    class="d-inline"
-                    counter
-                  >
-                  </v-text-field>
-                </template>
-              </v-edit-dialog>
-              <span class="mx-3">
-                <v-chip v-if="props.item.private" small>Private</v-chip>
-                <v-chip v-else small>Public</v-chip>
-              </span>
-            </div>
-          </template>
-          <template v-slot:item.status="{ item }">
-            <v-chip :color="statusToColor[item.status]">{{ item.status }}</v-chip>
-          </template>
-          <template v-slot:item.created="{item}">
-            <p>
-              {{ item.created | formatDate }}
-            </p>
-          </template>
-          <template v-slot:item.url="{ item }">
-            <v-btn text text elevation="0" class="d-inline-block mx-1" @click="copytoClipboard(item)">
-                <v-icon small color="primary" elevation="12">mdi-content-copy</v-icon>
-                <span class="text-caption m-0 blue--text">Copy Quiz Link</span>
-              </v-btn>
-          </template>
-            <template v-slot:footer>
-              <v-dialog v-model="dialog" max-width="1000px" persistent>
-                <template v-slot:activator="{ on }">
-                  <v-btn color="primary" right dark class="ma-4 pa-2" v-on="on">
-                    <span class="text-caption center d-flex justify-center align-center">
-                      <v-icon dark>mdi-plus</v-icon> Create a quiz
+              sort-by="created"
+              sort-desc="false"
+              :footer-props="footerProps">
+                <template v-slot:item.name="props">
+                  <div class="d-flex justify-left">
+                    <span>
+                      <a :href="'/quiz/' +  props.item.uuid" class="d-inline-block mx-1 text-body-1">
+                        <!-- <v-icon medium color="primary" elevation="12">mdi-open-in-app</v-icon> -->
+                        {{ props.item.name }}
+                      </a>
                     </span>
-                  </v-btn>
+                    <v-edit-dialog
+                      :return-value.sync="props.item.name"
+                      class="d-inline-block quiz_name_editor"
+                      @save="save(props.item.name, props.item.uuid)"
+                      @cancel="cancel"
+                      @open="open"
+                      @close="close">
+                      <v-icon small color="secondary" ref="quiz_name_edit" elevation="12">mdi-pencil-circle-outline</v-icon>
+                      <template v-slot:input>
+                        <v-text-field
+                          v-model="props.item.name"
+                          :rules="[max256chars]"
+                          label="Edit"
+                          single-line
+                          class="d-inline"
+                          counter
+                        >
+                        </v-text-field>
+                      </template>
+                    </v-edit-dialog>
+                    <span class="mx-3">
+                      <v-chip v-if="props.item.private" small>Private</v-chip>
+                      <v-chip v-else small>Public</v-chip>
+                    </span>
+                  </div>
                 </template>
-                <quiz-creator                                     v-on:update:quizCreatorDialog="closeQuizCreatorDialog"/>
-                </v-dialog>
-              </template>
+                <template v-slot:item.status="{ item }">
+                  <v-chip :color="statusToColor[item.status]">{{ item.status }}</v-chip>
+                </template>
+                <template v-slot:item.created="{item}">
+                  <p>
+                    {{ item.created | formatDate }}
+                  </p>
+                </template>
+                <template v-slot:item.url="{ item }">
+                  <v-btn text text elevation="0" class="d-inline-block mx-1" @click="copytoClipboard(item)">
+                      <v-icon small color="primary" elevation="12">mdi-content-copy</v-icon>
+                      <span class="text-caption m-0 blue--text">Copy Quiz Link</span>
+                    </v-btn>
+                </template>
+                <template v-slot:footer>
+                  <v-dialog v-model="dialog" max-width="1000px" persistent>
+                    <template v-slot:activator="{ on }">
+                      <v-btn color="primary" right dark class="ma-4 pa-2" v-on="on">
+                        <span class="text-caption center d-flex justify-center align-center">
+                          <v-icon dark>mdi-plus</v-icon> Create a quiz
+                        </span>
+                      </v-btn>
+                    </template>
+                    <quiz-creator v-on:update:quizCreatorDialog="closeQuizCreatorDialog"/>
+                  </v-dialog>
+                </template>
             </v-data-table>
         </v-card>
       </v-flex>
@@ -153,11 +152,22 @@ export default {
         { value: 'ccea', text: 'CCEA', suggested: false },
         { value: 'eduqas', text: 'Eduqas', suggested: false }
       ],
+      footerProps: {
+        showFirstLastPage: true,
+        firstIcon: 'mdi-arrow-collapse-left',
+        lastIcon: 'mdi-arrow-collapse-right',
+        prevIcon: 'mdi-minus',
+        nextIcon: 'mdi-plus'
+      },
       headers: [
         {
           text: 'Quiz',
           align: 'left',
           value: 'name'
+        },
+        {
+          text: '', // actions
+          value: 'url'
         },
         {
           text: 'Status',
@@ -167,10 +177,6 @@ export default {
         {
           text: 'Created',
           value: 'created'
-        },
-        {
-          text: '', // actions
-          value: 'url'
         }
       ],
       quizzes: [],
@@ -250,8 +256,20 @@ export default {
       this.snackColor = 'info'
       this.snackText = 'Dialog opened'
     },
+    showQuizNameEditor () {
+      this.$refs.quiz_name_edit.classList.toggle('visible')
+    },
     close () {
     }
   }
 }
 </script>
+
+<style scoped>
+.quiz_name_edit_btn {
+  visibility: hidden;
+}
+.quiz_name_edit_btn:hover {
+  visibility: visible;
+}
+</style>
