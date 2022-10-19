@@ -60,7 +60,7 @@
                     mdi-note-text-outline
                   </v-icon>
                   <p class="text-body-2 text-sm-body-2 text-md-body-2 text-lg-h5 my-5">
-                    Quizzes haven't been graded yet!
+                    Students' report cards will show up here when they complete this quiz.
                   </p>
                 </v-banner>
               </v-card-text>
