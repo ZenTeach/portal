@@ -68,9 +68,7 @@ export default {
     this.exam_boards = this.default_exam_board
     this.fetchTopics(this.questionObject.subject)
     if (this.questionObject.topic && this.questionObject.topic.value) {
-      this.fetchKis({
-        topics_selected: [this.questionObject.topic.value]
-      })
+      this.triggerKIFetch()
     }
   },
   data: function () {

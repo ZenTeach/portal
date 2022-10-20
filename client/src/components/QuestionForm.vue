@@ -32,7 +32,7 @@
                         :items="topics"
                         :subject="question_object.subject"
                         label="Topic"
-                        :placeholder="question_object.topic || question_object.topic.value || ''"
+                        :placeholder="question_object.topic"
                         :error-messages="errors"
                         v-model="question_object.topic"
                         outlined
@@ -45,8 +45,8 @@
                           :items="knowledge_items"
                           :error-messages="errors"
                           label="Knowledge Item"
-                          :placeholder="question_object.knowledge_item || question_object.knowledge_item.value || ''"
-                          :selectedTopic="question_object.topic || question_object.topic.value"
+                          :placeholder="question_object.knowledge_item"
+                          :selectedTopic="question_object.topic"
                           :subject="question_object.subject"
                           v-model="question_object.knowledge_item"
                           outlined

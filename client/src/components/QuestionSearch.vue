@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-text-field
-      label="SearchInput"
+      label="Search for a question..."
       placeholder="Question.."
       @click:append="searchEventListener"
       @keypress.enter="searchEventListener"
