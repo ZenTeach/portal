@@ -218,6 +218,8 @@ class DevelopmentConfig(BaseConfig):
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
     MAIL_USE_TLS = True
     WTF_CSRF_TIME_LIMIT = 3600
+    AUTH0_DOMAIN = "https://dev-iogpmb3i.eu.auth0.com/api/v2/"
+    AUTH0_API_IDENTIFIER = "5d52c515b1fd1306b64a47a6"
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'server/static/uploaded')
 
 

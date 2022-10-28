@@ -348,8 +348,23 @@ def create_app():
 
     return app
 
+@current_app.before_app_request
+def authenticator():
+    from authlib.integrations.flask_oauth2 import ResourceProtector
+    from flask import current_app, g
+    from server.lib.jwt import Auth0JWTBearerTokenValidator
 
-def auto_document_apis(document_, app: Flask):
+    require_auth = ResourceProtector()
+    validator = Auth0JWTBearerTokenValidator(
+        current_app.config.get('AUTH0_DOMAIN'),
+        current_app.config.get('AUTH0_API_IDENTIFIER')
+    )
+    access_token = require_auth.register_token_validator(validator)
+    g.authenticator = require_auth
+    g.token = access_token
+
+
+def auto_document_apis(document_: FlaskApiSpec, app: Flask):
     for name, rule in app.view_functions.items():
         blueprint, endpoint = '', ''
         try:

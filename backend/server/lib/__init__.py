@@ -1,3 +1,5 @@
+import lib
+from .generators.quiz_generator import QuizGenerator
 from .generators.report_card_generator import ReportCardGenerator
 from .grader import Grader
 from .summarizer import Summarizer
@@ -7,5 +9,6 @@ from .utils.marshmallow_validation_errors import format_validation_for_api
 __all__ = ["GoogleFormsGenerator",
            "Grader",
            "Summarizer",
+           "lib",
            "ReportCardGenerator",
            "format_validation_for_api"]
