@@ -109,7 +109,6 @@ import { createNamespacedHelpers } from 'vuex'
 import Api from '@/service/Api'
 
 const { mapGetters, mapActions } = createNamespacedHelpers('classrooms')
-const { mapMutations } = createNamespacedHelpers('app')
 
 export default {
   name: 'Classroom',
@@ -120,7 +119,7 @@ export default {
   },
   mounted () {
     if (this.$route.name === 'Classroom') {
-      this.getCurrentClass(this.$route.params.id)
+      this.updateCurrentClass(this.$route.params.id)
     }
   },
   computed: {
@@ -185,52 +184,16 @@ export default {
         created: 'yellow',
         administered: 'green',
         cancelled: 'red'
-      },
-      emailsSubscriptionChart: {
-        data: {
-          labels: ['Quiz 1', 'Quiz 2', 'Quiz 3'],
-          series: [
-            [6.4, 8.3, 6.7]
-
-          ]
-        },
-        options: {
-          axisX: {
-            showGrid: false
-          },
-          low: 0,
-          high: 10,
-          chartPadding: {
-            top: 0,
-            right: 5,
-            bottom: 0,
-            left: 0
-          }
-        },
-        responsiveOptions: [
-          ['screen and (max-width: 640px)', {
-            seriesBarDistance: 5,
-            axisX: {
-              labelInterpolationFnc: function (value) {
-                return value[0]
-              }
-            }
-          }]
-        ]
       }
     }
   },
   methods: {
     ...mapActions({
-      getCurrentClass: 'GETCURRENTCLASS'
-    }),
-    ...mapMutations({
-      resetQuestionSearch: 'RESET_QUESTION_SEARCH'
+      updateCurrentClass: 'UPDATECURRENTCLASS'
     }),
     closeQuizCreatorDialog () {
       this.dialog = false
-      this.resetQuestionSearch()
-      this.getCurrentClass(this.$route.params.id)
+      this.updateCurrentClass(this.$route.params.id)
     },
     copytoClipboard (item) {
       navigator.clipboard.writeText(item.url)
@@ -242,8 +205,6 @@ export default {
       Api.patch(`/class_quiz/${uuid}`,
         {
           name: name
-        })
-        .then(function (response) {
         })
     },
     cancel () {

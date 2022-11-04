@@ -381,7 +381,7 @@ export default {
       this.$router.push('/question/create')
     },
     closeDialog () {
-      this.$store.commit('app/RESET_QUIZ_CREATOR', { root: true })
+      this.$store.commit('app/RESET_QUIZ_CREATOR', {}, { root: true })
       Object.assign(this.$data, this.initial())
       this.$refs.topicSelection.reset()
       this.$refs.kiSelection.reset()
