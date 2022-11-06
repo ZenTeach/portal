@@ -18,13 +18,14 @@
                   v-model="email"
                   :rules="emailRules"
                   label="Email"
+                  id="user-email"
                   placeholder
                   prepend-icon="email"
                   outline
                   required
                 ></v-text-field>
                 <v-text-field
-                  id="password"
+                  id="user-password"
                   v-model="password"
                   label="Password"
                   name="password"
