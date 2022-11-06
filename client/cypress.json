@@ -1,7 +1,16 @@
 {
   "baseURL": "http://localhost:3000",
-  "env": {},
-  "pluginsFile": "tests/e2e/plugins/index.js",
+  "env": {
+    "api_endpoint": "http://localhost:5000/api/v1",
+    "auth_username": "tester@zenteach.co.uk",
+    "auth_password": "Asdfgh123456!",
+    "hideCredentials": true
+   },
+  "automocker": {
+    "record": true,
+    "playback": true
+  },
+  "pluginsFile": false, 
   "fixturesFolder": "tests/e2e/fixtures",
   "integrationFolder": "tests/e2e/integration",
   "screenshotsFolder": "tests/e2e/screenshots",
