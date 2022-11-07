@@ -21,11 +21,6 @@
         <v-card color="grey lighten-4" class="mx-auto">
           <v-card-title>Select topics and knowledge items</v-card-title>
           <v-card-text>
-            <v-text-field
-              :placeholder="'Set quiz name. Default: ' + defaultQuizName"
-              v-model="name"
-              class="w-25"
-            />
             <v-spacer class="ma-3 mb-3"></v-spacer>
             <v-select
               :items="questionTopics"
@@ -142,7 +137,13 @@
           </v-card-title>
             <v-card-text>
               <p v-if="isMobile"> Quiz is ready to be created! </p>
-              <p></p>
+              <v-spacer class="ma-3 mb-3"></v-spacer>
+              <v-text-field
+                :placeholder="'Set quiz name. Default: ' + defaultQuizName"
+                v-model="name"
+                class="w-25"
+              />
+              <v-spacer class="ma-3 mb-3"></v-spacer>
               <h4 class="text-subtitle-1" v-if="!isMobile">Selected topics & knowledge items</h4>
               <v-list v-if="!isMobile">
                 <v-list-group v-for="[topic, kis] in Object.entries(this.fetchedKIsfromTopic)" :key="topic">
