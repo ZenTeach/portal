@@ -1,55 +1,38 @@
 <!DOCTYPE html>
-
 <html>
-<head lang="en">
-  <meta charset="UTF-8">
-
-  <title></title>
-</head>
-
-<body>
-  <div>
-    <h1>Report Card</h1>
-
-    <h4>Quiz: {{ quiz_name }}</h4>
-
-    <p>Name: {{ student_name }}</p>
-  </div>{% for report in reports %} {% for topic in report.keys()%}
-  {% for knowledge_item in report.get(topic).keys()%} {% endfor %}
-  {% endfor %} {% endfor %}
-
-  <table>
-    <thead>
-      <tr>
-        <th class="text-left">Topic</th>
-
-        <th class="text-left">Topic contents</th>
-
-        <th class="text-left">Progress</th>
-
-        <th class="text-left">Learning resources</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr colspan="1">
-        <td class="tg-cly1" rowspan=
-        "{{ report[topic].keys()|length + 1 }}" colspan="1">{{
-        topic }}</td>
-      </tr>
-
-      <tr>
-        <td class="tg-0lax">{{ knowledge_item}}</td>
-
-        <td class=
-        "{{ highlight_progress(report[topic][knowledge_item]['progress']) }}">
-        {{ report[topic][knowledge_item]['progress'] }}</td>
-
-        <td class="tg-0lax">{{
-        render_quill_delta('\n'.join(report[topic][knowledge_item]["feedback"]))
-        or 'No feedback provided.' }}</td>
-      </tr>
-    </tbody>
-  </table>
-</body>
-</html>
+  <head lang="en">
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+        <div>
+            <h1> Report Card </h1>
+            <h4> Quiz: {{ quiz_name }}</h4>
+            <p>Name: {{ student_name }}</p>
+        </div>
+      <table>
+            <thead>
+                <tr>
+                <th class="text-left">Topic</th>
+                <th class="text-left">Topic content</th>
+                <th class="text-left">Progress</th>
+                <th class="text-left">Learning resources</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                    {% for topic in report.keys()%}
+                        <tr colspan="1">
+                            <td class="tg-cly1" rowspan="{{ report[topic].keys()|length + 1 }}" colspan="1">{{ topic }}</td>
+                        </tr>
+                        {% for knowledge_item in report.get(topic).keys()%}
+                            <tr>
+                                <td class="tg-0lax">{{ knowledge_item}}</td>
+                                <td class="{{ highlight_progress(report[topic][knowledge_item]['progress']) }}">{{ report[topic][knowledge_item]['progress'] }}</td>
+                                <td class="tg-0lax">{{ render_quill_delta('\n'.join(report[topic][knowledge_item]["feedback"])) or 'No feedback provided.' }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+      </table>
+  </body>
