@@ -95,7 +95,7 @@
             </h3>
           </v-card-title>
           <v-card-text>
-            <p class="font-weight-medium body-1 ">
+            <p class="font-weight-medium body-1">
               This action will remove the student from the classroom and in effect remove all
               quiz performance data. Are you sure to delete a student from your classroom?
             </p>
