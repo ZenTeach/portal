@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import current_user, jwt_required
 from marshmallow import ValidationError
-from server import db
 from server.api import log_activity, logger
 from server.decorators import with_required_roles
 from server.lib import format_validation_for_api
@@ -14,6 +13,8 @@ from server.models.questions import \
 from sqlalchemy import exc
 from webargs import fields
 from webargs.flaskparser import use_kwargs
+
+from server import db
 
 question_blueprint = Blueprint("question", __name__)
 dumper = QuestionsSchema()
@@ -400,7 +401,7 @@ class QuestionFromKIsAndTopics(MethodView):
 
         if len(topics) == 0 and len(kis) == 0:
             return make_response(jsonify({
-                'message': 'Topic and Knowledge Items not set'
+                'message': 'Topic and Topic contents not set'
             }), 400)
 
         if len(topics) != 0:
@@ -444,7 +445,7 @@ class QuestionKIFilter(MethodView):
         except Exception as e:
             logger.error(e)
             return make_response(jsonify({
-                "message": "Error filtering Knowledge Items"
+                "message": "Error filtering Topic contents"
             }), 500)
 
 
