@@ -56,9 +56,6 @@ exports[`Quiz.vue matches snapshot 1`] = `
             <div style="display: none;">
               <v-card-text-stub tag="div">
                 <v-row-stub tag="div">
-                  <v-col-stub tag="div"><a href="../quiz_view/undefined">
-                      Open Quiz in Browser
-                    </a></v-col-stub>
                   <v-col-stub tag="div"><a>
                       Export as PDF
                     </a></v-col-stub>

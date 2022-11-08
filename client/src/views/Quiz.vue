@@ -132,11 +132,6 @@
                 <v-card-text>
                   <v-row >
                     <v-col>
-                      <a :href="'../quiz_view/' +  uuid">
-                        Open Quiz in Browser
-                      </a>
-                    </v-col>
-                    <v-col>
                       <a @click="handlePDFGeneration()">
                         Export as PDF
                       </a>
