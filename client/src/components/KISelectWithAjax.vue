@@ -11,7 +11,7 @@
         v-bind="$attrs"
         v-on="$listeners">
         <template v-slot:no-data>
-            <p class="mx-4 my-2 text-caption">Knowledge Item not found. <a class="black--text text-decoration-underline" @click="createKI">Click to save this knowledge item?</a></p>
+            <p class="mx-4 my-2 text-caption">Topic Content not found. <a class="black--text text-decoration-underline" @click="createKI">Save this topic content?</a></p>
         </template>
     </v-autocomplete>
 </template>

@@ -5,7 +5,7 @@
      <thead>
         <tr>
           <th class="text-body-1 font-weight-bold">Topic</th>
-          <th class="text-body-1 font-weight-bold">Knowledge items</th>
+          <th class="text-body-1 font-weight-bold">Topic contents</th>
           <th class="text-body-1 font-weight-bold">Progress</th>
           <th class="text-body-1 font-weight-bold">Feedback / Learning resources</th>
         </tr>
