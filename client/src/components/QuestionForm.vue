@@ -44,7 +44,7 @@
                       <ki-select-with-ajax
                           :items="knowledge_items"
                           :error-messages="errors"
-                          label="Knowledge Item"
+                          label="Topic content"
                           :placeholder="question_object.knowledge_item"
                           :selectedTopic="question_object.topic"
                           :subject="question_object.subject"

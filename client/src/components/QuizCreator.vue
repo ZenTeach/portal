@@ -19,7 +19,7 @@
     <v-stepper-items>
       <v-stepper-content step="1">
         <v-card color="grey lighten-4" class="mx-auto">
-          <v-card-title>Select topics and knowledge items</v-card-title>
+          <v-card-title>Select topics and topic content</v-card-title>
           <v-card-text>
             <v-spacer class="ma-3 mb-3"></v-spacer>
             <v-select
@@ -49,7 +49,7 @@
             <v-spacer class="ma-3 mb-3"></v-spacer>
 
             <v-select
-              label="Knowledge Items: "
+              label="Topic Content: "
               multiple
               ref="kiSelection"
               chips
@@ -144,7 +144,7 @@
                 class="w-25"
               />
               <v-spacer class="ma-3 mb-3"></v-spacer>
-              <h4 class="text-subtitle-1" v-if="!isMobile">Selected topics & knowledge items</h4>
+              <h4 class="text-subtitle-1" v-if="!isMobile">Selected topics & topic content</h4>
               <v-list v-if="!isMobile">
                 <v-list-group v-for="[topic, kis] in Object.entries(this.fetchedKIsfromTopic)" :key="topic">
                     <v-icon :key="topic">

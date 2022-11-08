@@ -67,7 +67,7 @@
                         :items="knowledgeItems"
                         multiple
                         small-chips
-                        label="Knowledge Items"
+                        label="Topic contents"
                         class="text-caption p-2"
                         :style="'overflow: scroll-y;'"
                         v-model="selectedKnowledgeItems"
