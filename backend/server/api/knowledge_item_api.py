@@ -58,7 +58,7 @@ class KnowledgeItemView(MethodView):
         if not knowledge_item:
             return make_response(jsonify({
                 'data': [],
-                'message': "Knowledge Item not found."
+                'message': "Topic content not found."
             }), 404)
         return make_response(jsonify({
             'data': dumper.dump(knowledge_item)
@@ -70,7 +70,7 @@ class KnowledgeItemView(MethodView):
         if not knowledge_item:
             return make_response(jsonify({
                 'data': [],
-                'message': "Knowledge Item not found."
+                'message': "Topic content not found."
             }), 404)
         ki_data = request.get_json()
         if not ki_data:

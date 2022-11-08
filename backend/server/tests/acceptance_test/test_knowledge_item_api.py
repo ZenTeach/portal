@@ -61,7 +61,7 @@ def searchable_topic(client: FlaskClient,
     return KnowledgeItemFactory(
         subject_id=biology_subject.id,
         topic_id=biology_topic.id,
-        value='Searchable Knowledge Item')
+        value='Searchable Topic content')
 
 
 def test_knowledge_item_get_all(client):
@@ -81,7 +81,7 @@ def test_knowledge_item_get_one(client):
     assert response.status_code == 404
     data = json.loads(response.data)
     assert len(data['data']) == 0
-    assert data['message'] == "Knowledge Item not found."
+    assert data['message'] == "Topic content not found."
 
 
 def test_knowledge_item_user_create(client: FlaskClient,
@@ -104,14 +104,14 @@ def test_knowledge_item_user_create(client: FlaskClient,
 def test_knowledge_item_update_topic(client: FlaskClient,
                                      access_token: List[str]):
     response = client.put('/api/v1/knowledge_item/1',
-                          json={'value': 'New Knowledge Item'},
+                          json={'value': 'New Topic content'},
                           headers={
                               'Authorization': 'Bearer {}'.format(access_token[0]),
                               'X-CSRF-ACCESS-TOKEN': access_token[2]
                           })
     assert response.status_code == 200
     data = json.loads(response.data)
-    assert data['data']['value'] == 'New Knowledge Item'
+    assert data['data']['value'] == 'New Topic content'
 
 
 @pytest.mark.parametrize('search_term,count', [

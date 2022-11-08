@@ -63,7 +63,7 @@ def populate_questions(client: FlaskClient, subject_: Subject):
     kis = KnowledgeItemFactory(value="Testing value", subject_id=subject_id, topic_id=topic.id)
     kis_2 = KnowledgeItemFactory(value="Another Testing value",
                                  subject_id=subject_id, topic_id=topic_2.id)
-    kis_3 = KnowledgeItemFactory(value="Default Knowledge Item",
+    kis_3 = KnowledgeItemFactory(value="Default Topic content",
                                  subject_id=subject_id, topic_id=topic_3.id)
 
     for _ in range(10):
@@ -587,7 +587,7 @@ def test_question_search_optional_filter(client: FlaskClient,
     assert response.status_code == 200
     assert len(data['data']) > 0
 
-    # test knowledge item filter
+    # test Topic content filter
     payload['topic'] = topics_
     payload['knowledge_item'] = []
     response = client.post(
