@@ -17,7 +17,7 @@
                       class="ma-lg-2"
                       :input-value.sync="item.isSelected"
                       value
-                      @click.stop="active ? removeFromSelectedQuestions(item, toggle) : addToSelectedQuestions(item, toggle)"
+                      @click.stop="active ? addToSelectedQuestions(item, toggle) : removeFromSelectedQuestions(item, toggle)"
                     ></v-checkbox>
                 </v-list-item-action>
 
@@ -79,6 +79,9 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex'
+
+const { mapMutations } = createNamespacedHelpers('app')
 export default {
   name: 'QuestionSearchResult',
   props: {
@@ -112,6 +115,10 @@ export default {
     }
   },
   methods: {
+    ...mapMutations({
+      addSelectedQuestions: 'ADD_SELECTED_QUESTIONS',
+      removeSelectedQuestions: 'REMOVE_SELECTED_QUESTIONS'
+    }),
     questionTypeMapping (type) {
       const types = {
         1: 'Multiple Choice',
@@ -124,11 +131,11 @@ export default {
       return result.length > 0
     },
     addToSelectedQuestions (item, cb) {
-      this.$store.commit('app/ADD_SELECTED_QUESTIONS', item, { root: true })
+      this.addSelectedQuestions(item)
       cb()
     },
     removeFromSelectedQuestions (item, cb) {
-      this.$store.commit('app/REMOVE_SELECTED_QUESTIONS', item, { root: true })
+      this.removeSelectedQuestions(item)
       cb()
     }
   }

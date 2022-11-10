@@ -79,6 +79,9 @@ export default {
     // state.knowledgeItems = newobj
     Vue.set(state, 'knowledgeItems', newobj)
   },
+  RESET_QUESTION_LIST (state) {
+    state.questionList = []
+  },
   RESET_KIS (state, _payload) {
     state.knowledgeItems = Object.assign(state.knowledgeItems, {})
   },
