@@ -119,7 +119,7 @@ export default {
   },
   mounted () {
     if (this.$route.name === 'Classroom') {
-      this.updateCurrentClass(this.$route.params.id)
+      this.getClassroom(this.$route.params.id)
     }
   },
   computed: {
@@ -189,11 +189,11 @@ export default {
   },
   methods: {
     ...mapActions({
-      updateCurrentClass: 'UPDATECURRENTCLASS'
+      getClassroom: 'GETCURRENTCLASS'
     }),
     closeQuizCreatorDialog () {
       this.dialog = false
-      this.updateCurrentClass(this.$route.params.id)
+      this.getClassroom(this.$route.params.id)
     },
     copytoClipboard (item) {
       navigator.clipboard.writeText(item.url)
