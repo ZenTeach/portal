@@ -123,6 +123,7 @@ export default {
     const { topics, kis } = payload
     fetchQuestionsFromTopicsAndKIs(topics, kis)
       .then(data => {
+        commit('RESET_QUESTION_LIST')
         const questions = data.data
         commit('UPDATE_QUESTION_SEARCH', questions)
         questions.forEach(question => {

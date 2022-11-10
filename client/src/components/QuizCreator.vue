@@ -231,7 +231,7 @@ import QuestionSearchResult from '@/components/QuestionSearchResult'
 import Api from '@/service/Api'
 
 import { createNamespacedHelpers } from 'vuex'
-const { mapState, mapActions, mapGetters, mapMutations: appMutations } = createNamespacedHelpers('app')
+const { mapActions, mapGetters, mapMutations: appMutations } = createNamespacedHelpers('app')
 const { mapMutations: questionMutations } = createNamespacedHelpers('questions')
 
 export default {
@@ -242,12 +242,10 @@ export default {
   },
   computed: {
     ...mapGetters({
-      getKis: 'getKis'
-    }),
-    ...mapState({
-      questionSearch: state => state.questionSearch,
-      questionList: state => state.questionList,
-      questionTopics: state => state.topics.sort()
+      getKis: 'getKis',
+      questionList: 'getQuestionList',
+      questionSearch: 'getQuestionResult',
+      questionTopics: 'getTopics'
     }),
     defaultQuizName () {
       const classData = this.$store.getters['classrooms/GETCURRENTCLASS']
