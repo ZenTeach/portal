@@ -22,14 +22,17 @@
           <v-card-title>Select topics and topic content</v-card-title>
           <v-card-text>
             <v-spacer class="ma-3 mb-3"></v-spacer>
-            <v-select
+            <topic-select-with-ajax
               :items="questionTopics"
               ref="topicSelection"
               required
               multiple
               chips
-              @change="fetch_KIs()"
+              outlined
               label="Topic: "
+              @change="fetch_KIs()"
+              :subject="subject"
+              :createWhenNotFound="false"
               v-model="topicsSelected"
               :rules="[validateTopicsSelected]"
             >
@@ -44,7 +47,7 @@
                   (+{{ topicsSelected.length - 1 }} others)
                 </span>
               </template>
-            </v-select>
+            </topic-select-with-ajax>
 
             <v-spacer class="ma-3 mb-3"></v-spacer>
 
@@ -228,6 +231,7 @@
 <script>
 import QuestionSearch from '@/components/QuestionSearch'
 import QuestionSearchResult from '@/components/QuestionSearchResult'
+import TopicSelectWithAjax from '@/components/TopicSelectWithAjax'
 import Api from '@/service/Api'
 
 import { createNamespacedHelpers } from 'vuex'
@@ -238,7 +242,8 @@ export default {
   name: 'QuizCreator',
   components: {
     QuestionSearch,
-    QuestionSearchResult
+    QuestionSearchResult,
+    TopicSelectWithAjax
   },
   computed: {
     ...mapGetters({
@@ -382,7 +387,7 @@ export default {
     closeDialog () {
       this.$store.commit('app/RESET_QUIZ_CREATOR', {}, { root: true })
       Object.assign(this.$data, this.initial())
-      this.$refs.topicSelection.reset()
+      this.$refs.topicSelection.internalSearch = null
       this.$refs.kiSelection.reset()
       this.$emit('update:quizCreatorDialog', false)
     },

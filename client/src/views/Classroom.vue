@@ -127,14 +127,6 @@ export default {
       current_class: 'GETCURRENTCLASS'
     })
   },
-  watch: {
-    dialog: function (val) {
-      if (val === true) {
-        const subject = this.current_class.subject.name
-        this.$store.dispatch('app/FETCH_TOPICS', subject, { root: true })
-      }
-    }
-  },
   data () {
     return {
       snack: false,

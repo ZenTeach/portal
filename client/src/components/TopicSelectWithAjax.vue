@@ -11,7 +11,7 @@
         v-bind="$attrs"
         v-on="$listeners">
         <template v-slot:no-data>
-            <p class="mx-4 my-2 text-caption">Topic not found. <a class="black--text text-decoration-underline" @click="createTopic">Click to save this topic?</a></p>
+            <p class="mx-4 my-2 text-caption">Topic not found. <a v-if="createWhenNotFound" class="black--text text-decoration-underline" @click="createTopic">Click to save this topic?</a></p>
         </template>
     </v-autocomplete>
 </template>
@@ -42,6 +42,10 @@ export default {
     subject: {
       type: String,
       required: true
+    },
+    createWhenNotFound: {
+      type: Boolean,
+      default: true
     }
   },
   methods: {
