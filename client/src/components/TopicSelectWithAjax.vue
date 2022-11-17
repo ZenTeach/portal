@@ -7,7 +7,6 @@
         :success="searchSuccess"
         :error="searchError"
         :search-input.sync="search"
-        :menu-props="{auto: true, overflowY: true}"
         v-bind="$attrs"
         v-on="$listeners">
         <template v-slot:no-data>

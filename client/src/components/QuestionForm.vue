@@ -35,6 +35,7 @@
                         :placeholder="question_object.topic"
                         :error-messages="errors"
                         v-model="question_object.topic"
+                        :menu-props="{auto: true, overflowY: true}"
                         outlined
                       ></topic-select-with-ajax>
                   </ValidationProvider>

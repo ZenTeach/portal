@@ -28,11 +28,15 @@
               required
               multiple
               chips
+              deletable-chips
+              small-chips
               outlined
+              hide-selected
               label="Topic: "
               @change="fetch_KIs()"
               :subject="subject"
               :createWhenNotFound="false"
+              :menu-props="{closeOnClick: true, disableKeys: true, overflowY: true}"
               v-model="topicsSelected"
               :rules="[validateTopicsSelected]"
             >
