@@ -161,6 +161,10 @@ export default {
           value: 'url'
         },
         {
+          text: 'Submissions',
+          value: 'submissions'
+        },
+        {
           text: 'Status',
           value: 'status'
         },
