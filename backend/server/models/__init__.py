@@ -155,9 +155,16 @@ class ClassQuizSchema(_BaseSchema):
             'private',
             'created',
             'url',
+            'submissions',
             'questions'
         )
     status = EnumField(ClassQuizStatus)
+    submissions = ma.Method('_submitted_quiz_grades')
+
+    def _submitted_quiz_grades(self, obj):
+        submitted_quiz_count = QuizSession.query.filter_by(
+            class_quiz_id=obj.id, status=QuizSessionStatus.ended).count()
+        return f"{submitted_quiz_count}/{len(obj.school_class.students)}"
 
 
 class StudentSchema(_BaseSchema):
