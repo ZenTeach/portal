@@ -97,6 +97,7 @@ class BaseConfig:
     DEFAULT_MAIL_SENDER = os.environ.get("DEFAULT_MAIL_SENDER")
     ALLOWED_CORS_ORIGIN = os.environ.get('ALLOWED_CORS_ORIGIN')
     TMP_DIR = str(Path(os.environ.get('TMP_DIR', "")).resolve())
+    LOG_ACTIVITY = False
     CLIENT_URL = os.environ.get('CLIENT_URL')
     IMAGE_ALLOWED_EXTENSIONS = ['png', 'jpeg', 'jpg']
     UPLOAD_FOLDER = '/tmp'  # nosec
@@ -107,6 +108,7 @@ class DevelopmentConfig(BaseConfig):
     JWT_CSRF_IN_COOKIES = False
     JWT_COOKIE_CSRF_PROTECT = False
     JWT_COOKIE_SAMESITE = "Lax"
+    LOG_ACTIVITY = True
     FLASK_DEBUG = 1
     MAIL_SERVER = os.environ.get("MAIL_SERVER")
     MAIL_PORT = os.environ.get("MAIL_PORT")
