@@ -15,14 +15,15 @@ else:
 
 
 def log_activity(user, action, item_type, item_id, attributes={}, note=None):
-    ActivityLog.log(
-        user,
-        action,
-        item_type,
-        item_id,
-        attributes,
-        note
-    )
+    if (current_app.config.get('LOG_ACTIVITY')):
+        ActivityLog.log(
+            user,
+            action,
+            item_type,
+            item_id,
+            attributes,
+            note
+        )
 
 
 def has_no_empty_params(rule):
