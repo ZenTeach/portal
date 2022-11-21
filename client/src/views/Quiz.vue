@@ -5,7 +5,7 @@
       </v-row>
       <v-row :class="'d-flex ' + (isMobile ? 'flex-column':'') ">
         <v-col lg="8" sm="12" md="12" rows="10">
-          <template v-if="this.hasGradedQuiz(this.gradedQuizzes)">
+          <template>
             <v-card color="grey lighten-3" class="rounded-0" elevation="0">
               <v-card-title>
                 <h3> Graded report cards </h3>
@@ -13,13 +13,21 @@
               <v-card-text>
                 <v-data-table
                   :headers="headers"
-                  :items="gradedQuizzes"
+                  :items="studentsList"
                   :items-per-page="5"
                   class="elevation-1"
                   color="grey lighten-3"
                 >
+                  <template v-slot:item.email="{ item }">
+                    <p :class="item.gradeId === null ? 'text--disabled' : ''">{{ item.email }}</p>
+                  </template>
+                  <template v-slot:item.score="{ item }">
+                    <p v-if="item.score === null" class="text--disabled">N/A</p>
+                    <p v-else>{{ item.score }}</p>
+                  </template>
                   <template v-slot:item.gradeId="{ item }">
-                    <a :href="'/report_card/' + item.gradeId" class="text-decoration-none" target="new">
+                    <p v-if="item.gradeId === null" class="m-0"> - </p>
+                    <a v-else :href="'/report_card/' + item.gradeId" class="text-decoration-none" target="new">
                       <span>
                         <v-icon>mdi-open-in-new</v-icon>
                         View here
@@ -27,7 +35,7 @@
                     </a>
                   </template>
                   <template v-slot:item.actions="{ item }">
-                    <a>
+                    <a v-if="item.gradeId !== null">
                       <v-tooltip bottom open-on-hover>
                         <template v-slot:activator="{ on, attrs }">
                             <v-icon
@@ -41,28 +49,6 @@
                     </a>
                   </template>
                 </v-data-table>
-              </v-card-text>
-            </v-card>
-          </template>
-          <template v-else>
-            <v-card color="grey lighten-3" class="rounded-0" elevation="1">
-              <v-card-title>
-                <p class="text-h5"> Graded report cards </p>
-              </v-card-title>
-              <v-divider></v-divider>
-              <v-card-text>
-                <v-banner>
-                  <v-icon
-                    slot="icon"
-                    color="yellow darken-4"
-                    size="24"
-                  >
-                    mdi-note-text-outline
-                  </v-icon>
-                  <p class="text-body-2 text-sm-body-2 text-md-body-2 text-lg-h5 my-5">
-                    Students' report cards will show up here when they complete this quiz.
-                  </p>
-                </v-banner>
               </v-card-text>
             </v-card>
           </template>
@@ -152,6 +138,7 @@ import Api from '@/service/Api'
 import { createNamespacedHelpers } from 'vuex'
 
 const { mapGetters, mapActions } = createNamespacedHelpers('quiz')
+const { mapGetters: classRoomGetters } = createNamespacedHelpers('classrooms')
 
 export default {
   name: 'Quiz',
@@ -216,8 +203,32 @@ export default {
       gradedQuizzes: 'gradedQuizzes',
       private_: 'private_'
     }),
+    ...classRoomGetters({
+      currentClassroom: 'GETCURRENTCLASS'
+    }),
     isMobile: function () {
       return ['md', 'sm', 'xs'].includes(this.$vuetify.breakpoint.name)
+    },
+    studentsList: function () {
+      let studentsList = []
+      for (const student of this.currentClassroom.students) {
+        const studentEmail = student.email
+        const studentIndex = this._.findIndex(this.gradedQuizzes, (quizGrade) => { return quizGrade.email === studentEmail })
+        let studentGradeIdOrNull = null
+        let studentGradeScoreOrNull = null
+        if (studentIndex !== -1) {
+          studentGradeIdOrNull = this.gradedQuizzes[studentIndex].gradeId || null
+          studentGradeScoreOrNull = this.gradedQuizzes[studentIndex].score || null
+        }
+
+        const quizStudentobj = {
+          email: studentEmail,
+          gradeId: studentGradeIdOrNull,
+          score: studentGradeScoreOrNull
+        }
+        studentsList = this._.concat(studentsList, quizStudentobj)
+      }
+      return studentsList
     }
   },
 
