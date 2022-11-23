@@ -7,7 +7,7 @@ on:
 
 jobs:
   backend:
-    runs-on: [ self-hosted, ci ]
+    runs-on: ['ubuntu-latest']
     container: python:3.10-bullseye
     env:
       AUTHLIB_INSECURE_TRANSPORT: true
