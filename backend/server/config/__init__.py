@@ -1,10 +1,11 @@
 import os
 from datetime import timedelta
 from functools import lru_cache
+from io import IO
 from os import getcwd
 from pathlib import Path
 from secrets import token_urlsafe
-from typing import NamedTuple
+from typing import NamedTuple, Optional, Union, get_type_hints
 
 from dotenv import load_dotenv
 from yaml import load
@@ -33,6 +34,107 @@ def _load_exempt_list():
         data = load(fp, Loader=CLoader)  # nosec
 
     return data
+
+
+def _parse_bool(val: Union[str, bool]) -> bool:  # pylint: disable=E1136
+    return val if type(val) == bool else val.lower() in ['true', 'yes', '1']
+
+
+class Credentials:
+
+    def __init__(self,
+                 credential_file: Path,
+                 encryption_key: str):
+        self._credential_file = credential_file
+        self.encryption_key = encryption_key
+
+    @property
+    def decrypted_text(self):
+        pass
+
+    @property
+    def encrypted_text(self):
+        pass
+
+    def encrypt(self):
+        pass
+
+    def decrypt(self):
+        pass
+
+    def _encrypt_text(self):
+        pass
+
+    def _decrypt_text(self):
+        pass
+
+
+class ConfigFile:
+
+    def __init__(self, text: IO, encryption_file: Optional[Union[Path, str]] = None):
+        self._text = text
+        self._encryption_file = encryption_file
+
+    @property
+    def _editor():
+        return os.getenv('EDITOR')
+
+    """
+        credentials:create
+    """
+    def create():
+        pass
+
+    def edit():
+        pass
+
+
+class AppConfig:
+    DEBUG: bool = False
+    ENV: str = 'development'
+    API_KEY: str
+    HOSTNAME: str
+    PORT: int
+
+    """
+    Map environment variables to class fields according to these rules:
+      - Field won't be parsed unless it has a type annotation
+      - Field will be skipped if not in all caps
+      - Class field and environment variable name are the same
+    """
+
+    def __init__(self, env):
+        for field in self.__annotations__:
+            if not field.isupper():
+                continue
+
+            # Raise AppConfigError if required field not supplied
+            default_value = getattr(self, field, None)
+            if default_value is None and env.get(field) is None:
+                raise Exception('The {} field is required'.format(field))
+
+            # Cast env var value to expected type and raise AppConfigError on failure
+            try:
+                var_type = get_type_hints(AppConfig)[field]
+                if var_type == bool:
+                    value = _parse_bool(env.get(field, default_value))
+                else:
+                    value = var_type(env.get(field, default_value))
+
+                self.__setattr__(field, value)
+            except ValueError:
+                raise Exception('Unable to cast value of "{}" to type "{}" for "{}" field'.format(
+                    env[field],
+                    var_type,
+                    field
+                )
+                )
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+    def _resolve_config_name(self) -> Path:
+        return Path.resolve(os.path.join(os.getcwd(), f"config/{self.ENV}.yml.enc"))
 
 
 class CeleryConfig(NamedTuple):
