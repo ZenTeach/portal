@@ -1,9 +1,9 @@
 import os
 from uuid import UUID
 
+from celery import current_app
 from celery.utils.log import get_task_logger
 from flask_mail import Message
-from server import celery
 from server.lib import ReportCardGenerator
 from server.lib.generators.report_card_generator import ModelNotFound
 from server.models import ClassQuiz, QuizGrade
@@ -11,6 +11,7 @@ from server.models import ClassQuiz, QuizGrade
 from .commons import send_mail_with_html
 
 logger = get_task_logger(__name__)
+celery = current_app
 
 
 @celery.task(bind=True)

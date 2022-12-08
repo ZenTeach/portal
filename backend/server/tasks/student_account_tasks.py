@@ -1,10 +1,11 @@
+from celery import current_app
 from celery.utils.log import get_task_logger
 from flask_mail import Message
-from server import celery
 from server.models import Student
 from server.tasks.commons import send_mail_with_html
 
 logger = get_task_logger(__name__)
+celery = current_app
 
 
 @celery.task(bind=True)

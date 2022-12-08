@@ -4,7 +4,6 @@
 
 # import boto3
 # from boto3 import client
-from server import celery
 
 # BUCKET = os.environ.get('AWS_QUESTIONS_BUCKET')
 # AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
@@ -13,6 +12,10 @@ from server import celery
 
 # s3 = boto3.resource('s3')
 # s3_client = client('s3')
+
+from celery import current_app
+
+celery = current_app
 
 
 def get_image_key(image_file_name):

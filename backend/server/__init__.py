@@ -3,13 +3,11 @@ import os
 import pathlib
 from datetime import date, datetime, timedelta, timezone
 from enum import Enum
-# from json import JSONEncoder
 from uuid import UUID
 
 # APISpec : auto api documenting
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
-from celery import Celery
 from dotenv import load_dotenv
 from flask import (Flask, current_app, has_request_context, jsonify,
                    make_response, request)
@@ -74,7 +72,7 @@ cors = CORS(supports_credentials=True,
 ma = Marshmallow()
 mail = Mail()
 health = HealthCheck()
-celery = Celery("zenteach_tasks")
+# celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
 app = None
 docs = FlaskApiSpec()
@@ -190,19 +188,8 @@ def create_app():
     def load_user(admin_id):
         return db.session.query(AdminModel).get(admin_id)
 
-    from server.config import celery_configuration
-
-    celery.conf.update(celery_configuration)
     # Add database uri for db scheduler
     app.config.update(database_url=app.config.get('SQLALCHEMY_DATABASE_URI', ''))
-    TaskBase = celery.Task
-
-    class ContextTask(TaskBase):
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return TaskBase.__call__(self, *args, **kwargs)
-
-    celery.Task = ContextTask
 
     configure_logging()
     from flask_migrate import Migrate
@@ -349,7 +336,6 @@ def create_app():
             "db": db,
             "globalConfig": globalConfig,
             "sm": sm,
-            "celery": celery,
             "ap": ap
         }
 

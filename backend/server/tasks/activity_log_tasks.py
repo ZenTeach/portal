@@ -1,10 +1,10 @@
-
+from celery import current_app
 from celery.utils.log import get_task_logger
-from server import celery
 from server.lib import Summarizer
 from server.models import Teacher
 
 logger = get_task_logger(__name__)
+celery = current_app
 
 
 @celery.task(bind=True)
