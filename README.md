@@ -89,6 +89,14 @@ docker-compose up --build -d
 
 This will download the prerequisites as docker images and run them in containers. Now you can access the frontend from `localhost:8080`.
 
+## Foreman support (non-container workflow)
+
+Create a `.procfile` with the following content
+
+``` yaml
+backend: cd backend && env $(cat .env | xargs) ./entrypoint_dev.sh
+client: cd client/ && yarn serve --port 8080
+```
 
 ## Sample env file
 
