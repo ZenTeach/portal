@@ -2,9 +2,10 @@
 import logging
 import os
 
+from celery import Celery
 from celery.schedules import crontab
 from dotenv import load_dotenv
-from server import celery, create_app  # noqa
+from server import create_app  # noqa
 from server.config import CeleryConfig
 from server.tasks import (check_all_quizzes_administered,
                           check_all_quizzes_graded, grade_all_quizzes,
@@ -13,8 +14,19 @@ from server.tasks import (check_all_quizzes_administered,
 if os.getenv('RUNTIME') == 'development':
     load_dotenv()
 
-# update celery config
+celery = Celery("zenteach_tasks")
+TaskBase = celery.Task
+
 celery.conf.update(**CeleryConfig()._asdict())
+
+
+class ContextTask(TaskBase):
+    def __call__(self, *args, **kwargs):
+        with app.app_context():
+            return TaskBase.__call__(self, *args, **kwargs)
+
+
+celery.Task = ContextTask
 
 
 @celery.on_after_configure.connect
@@ -83,7 +95,7 @@ if sentry_dsn_key:
 
     sentry_sdk.init(
         dsn=sentry_dsn_key,
-        traces_sample_rate=0.7,
+        traces_sample_rate=1.0,
         integrations=[
             FlaskIntegration(),
             SqlalchemyIntegration(),
