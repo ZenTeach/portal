@@ -15,9 +15,8 @@ from server.decorators import with_required_roles
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (ClassQuizSchema, ClassQuizStatus, Questions,
                            QuizGrade, QuizGradeSchema, QuizSession,
-                           StudentSchema, Teacher)
-from server.tasks import (generate_pdf, send_quiz_generation_email,
-                          send_quiz_pdf, send_report_card_pdf)
+                           StudentSchema)
+from server.tasks import send_quiz_generation_email, send_report_card_pdf
 from sqlalchemy import exc
 
 class_quiz_blueprint = Blueprint("class_quiz", __name__)
@@ -232,86 +231,6 @@ class ClassQuizList(MethodView):
             }), 500)
 
 
-# @api.resource("/class_quiz/pdf_view/<class_quiz_id>")
-# class ClassQuizPDFView(MethodView):
-#     @jwt_required(fresh=True)
-#     def get(self, class_quiz_id):
-#         quiz = ClassQuizModel.query.filter_by(id=class_quiz_id).first()
-#         error_object = {"status": "fail", "message": "Invalid payload."}
-#         if not quiz:
-#             return make_response(error_object, 400)
-
-#         generated_file_name = None
-#         try:
-#             generated_file_name = generate_pdf.delay(quiz)
-#         except Exception as e:
-#             logger.exception(e)
-#             error_object["message"] = "Error generating quiz pdf"
-#             return make_response(error_object, 500)
-
-#         return generated_file_name, 200
-
-
-# @api.representation("application/pdf")
-# def output_pdf(data, code, headers=None):
-#     return send_file(data, as_attachment=True)
-
-
-class ClassQuizGenerator(MethodView):
-    @jwt_required(fresh=True)
-    def post(self, class_quiz_uuid):
-        """
-            Args:
-                :type - generated document form
-        """
-
-        error_object = {"status": "Failed",
-                        "message": "Failed to generate quiz"}
-
-        teacher = current_user
-        quiz_id = ClassQuizModel.query.filter_by(uuid=class_quiz_uuid).first().id
-        req_data = request.get_json()
-        if req_data["type"] == "pdf":
-            generated_file_name = None
-            try:
-                generated = generate_pdf.delay(quiz_id)
-                generated_file_name = generated.get()
-                send_quiz_pdf.apply_async(
-                    args=[teacher.email, generated_file_name])
-            except Exception as e:
-                logger.exception(e)
-                error_object["message"] = "Error generating quiz pdf"
-                return make_response(error_object, 500)
-            return make_response(
-                jsonify({
-                    "status": "Succeeded",
-                    "message": "Generated quiz!"
-                }),
-                200)
-        elif req_data["type"] == "gform":
-            t = Teacher.query.filter_by(email=teacher.email).first()
-            teacher_uid = str(t.uuid)  # noqa
-            script_id = None
-            try:
-                pass
-            except Exception as e:
-                logger.exception(e)
-                error_object["message"] = "Error generating Google Form"
-                return make_response(error_object, 500)
-            return make_response(
-                jsonify(
-                    {
-                        "status": "Success",
-                        "message": "Generated quiz!",
-                        "ScriptId": script_id,
-                    }
-                ),
-                200,
-            )
-        else:
-            return make_response(jsonify(error_object), 400)
-
-
 class QuizReportCard(MethodView):
     def get(self, uuid):
         # Validate the UUID string
@@ -389,8 +308,6 @@ class SendReportCard(MethodView):
 
 class_quiz_blueprint.add_url_rule(
     "/class_quiz/<string:class_quiz_uuid>", view_func=ClassQuiz.as_view('class_quiz_with_id'))
-class_quiz_blueprint.add_url_rule("/class_quiz/<string:class_quiz_uuid>/generate",
-                                  view_func=ClassQuizGenerator.as_view('class_quiz_generate'))
 class_quiz_blueprint.add_url_rule("/class_quiz", view_func=ClassQuizList.as_view('class_quiz'))
 class_quiz_blueprint.add_url_rule(
     "/class_quiz/report_card/<string:uuid>",
