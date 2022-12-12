@@ -2,7 +2,6 @@ import logging
 
 from flask import Blueprint, current_app, jsonify
 from flask.helpers import make_response
-from flask_apispec import marshal_with
 from server.models import (ActivityLog, Setting, SettingSchema, Subject,
                            SubjectSchema)
 
@@ -33,7 +32,6 @@ def has_no_empty_params(rule):
 
 
 @root_api.route("/subjects", methods=['GET'])
-@marshal_with(SubjectSchema)
 def subjects():
     """
     ---
@@ -57,7 +55,6 @@ def subjects():
 
 
 @root_api.route("/settings", methods=['GET'])
-@marshal_with(SettingSchema)
 def settings():
     """
     ---
