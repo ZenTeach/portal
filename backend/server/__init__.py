@@ -5,16 +5,12 @@ from datetime import date, datetime, timedelta, timezone
 from enum import Enum
 from uuid import UUID
 
-# APISpec : auto api documenting
-from apispec import APISpec
-from apispec.ext.marshmallow import MarshmallowPlugin
 from dotenv import load_dotenv
 from flask import (Flask, current_app, has_request_context, jsonify,
                    make_response, request)
 from flask.json import JSONEncoder
 from flask.logging import default_handler
 from flask_admin import Admin
-from flask_apispec.extension import FlaskApiSpec
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import (JWTManager, create_access_token, get_jwt,
@@ -75,7 +71,6 @@ health = HealthCheck()
 # celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
 app = None
-docs = FlaskApiSpec()
 globalConfig = LocalProxy(lambda: current_app.config)
 
 
@@ -284,6 +279,12 @@ def create_app():
     default_handler.setFormatter(formatter)
 
     if os.environ.get('RUNTIME') == 'development':
+        # APISpec : auto api documenting
+        from apispec import APISpec
+        from apispec.ext.marshmallow import MarshmallowPlugin
+        from flask_apispec.extension import FlaskApiSpec
+        
+        docs = FlaskApiSpec()
         app.config.update({
             'APISPEC_SPEC': APISpec(
                 title='ZenTeach',
@@ -342,7 +343,7 @@ def create_app():
     return app
 
 
-def auto_document_apis(document_: FlaskApiSpec, app: Flask):
+def auto_document_apis(document_: 'FlaskApiSpec', app: Flask):
     for name, rule in app.view_functions.items():
         blueprint, endpoint = '', ''
         try:

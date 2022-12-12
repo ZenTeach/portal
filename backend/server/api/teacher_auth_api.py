@@ -2,8 +2,7 @@ from datetime import timedelta
 from secrets import token_hex
 
 from flask import Blueprint, abort, jsonify, make_response, request
-from flask_apispec import doc
-from flask_apispec.views import MethodResource
+from flask.views import MethodView
 from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_jwt_extended import current_user as jwt_user
 from flask_jwt_extended import get_jti, get_jwt, jwt_required
@@ -33,19 +32,7 @@ def load_user(*args, **kwargs) -> Teacher:
     return Teacher.query.get(args[0])
 
 
-@doc(
-    params={
-        'email': {'description': 'Teacher email'},
-        'invitation_code': {'description': 'Invitation code for teacher'},
-        'firstname': {'description': 'First Name'},
-        'lastname': {'description': "Last name"},
-        'password': {'description': "password"},
-        'date_of_birth': {'description': "date of birth"},
-        'role': {'description': "role"},
-    },
-    description="Registraion endpoint for signup"
-)
-class TeacherRegistration(MethodResource):
+class TeacherRegistration(MethodView):
     def validate_invite(self, email, invite_code):
         return Invitations.validate_email_invitation_token(email, invite_code)
 
@@ -105,7 +92,7 @@ class TeacherRegistration(MethodResource):
                 500)
 
 
-class TeacherLogin(MethodResource):
+class TeacherLogin(MethodView):
     def post(self):
         data = request.get_json()
         email = data["email"]
@@ -145,7 +132,7 @@ class TeacherLogin(MethodResource):
             return make_response({"message": "Wrong credentials"}, 400)
 
 
-class TeacherLogout(MethodResource):
+class TeacherLogout(MethodView):
     @jwt_required(fresh=True)
     def delete(self):
         jti = get_jwt()["jti"]
@@ -153,7 +140,7 @@ class TeacherLogout(MethodResource):
         return make_response(jsonify({"msg": "Access token revoked"}), 204)
 
 
-class TokenRefresh(MethodResource):
+class TokenRefresh(MethodView):
     @jwt_required(refresh=True)
     def post(self):
         current_identity = jwt_user
@@ -168,7 +155,7 @@ class TokenRefresh(MethodResource):
         return make_response(response, 200)
 
 
-class AllTeachers(MethodResource):
+class AllTeachers(MethodView):
     def get(self):
         return {"message": "List of Teachers"}
 
@@ -176,7 +163,7 @@ class AllTeachers(MethodResource):
         return {"message": "Delete all Teachers"}
 
 
-class CurrentUser(MethodResource):
+class CurrentUser(MethodView):
     @jwt_required(fresh=True)
     def get(self):
         teacher = jwt_user
@@ -192,7 +179,7 @@ class CurrentUser(MethodResource):
             return make_response("User not logged in", 400)
 
 
-class GAuth(MethodResource):
+class GAuth(MethodView):
     @jwt_required(fresh=True)
     def post(self):
         teacher = jwt_user
@@ -220,7 +207,7 @@ class GAuth(MethodResource):
             )
 
 
-class ConfirmAccount(MethodResource):
+class ConfirmAccount(MethodView):
     def post(self):
         post_data = request.get_json()
         confirmation_token = post_data["token"]
@@ -246,7 +233,7 @@ reset_account_args = {
 }
 
 
-class ResetAccount(MethodResource):
+class ResetAccount(MethodView):
     @use_kwargs(reset_account_args, location='query')
     def get(self, email):
         send_account_recovery_instructions.delay(email)
@@ -280,7 +267,7 @@ class ResetAccount(MethodResource):
         }), 200)
 
 
-class InviteTeacher(MethodResource):
+class InviteTeacher(MethodView):
     @jwt_required(fresh=True)
     def post(self):
         teacher = jwt_user
@@ -307,7 +294,7 @@ class InviteTeacher(MethodResource):
             }))
 
 
-class SendConfirmation(MethodResource):
+class SendConfirmation(MethodView):
     @jwt_required(fresh=True)
     def post(self):
         post_data = request.get_json()
