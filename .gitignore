@@ -312,3 +312,7 @@ logging.conf
 server/tmp/
 tmp/
 .procfile
+
+server/config/production.yml
+server/config/development.yml
+server/config/test.yml
