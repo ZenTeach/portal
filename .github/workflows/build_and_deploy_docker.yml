@@ -1,0 +1,23 @@
+name: Build and push docker images
+on:
+  push:
+    paths:
+      - "backend/**"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "ACR: Build and push api server"
+        id: acr
+        uses: azure/acr-build@v1
+        with:
+          service_principal: ${{ secrets.service_principal }}
+          service_principal_password: ${{ secrets.service_principal_password }}
+          tenant: ${{ secrets.tenant }}
+          registry: ${{ secrets.registry }}
+          repository: ${{ secrets.repository }}
+          image: api_server
+          git_access_token: ${{ secrets.git_access_token }}
+          folder: backend/
+          dockerfile: Dockerfile.prod
+          branch: slim_down_prod_docker_usage

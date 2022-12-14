@@ -87,10 +87,10 @@ jobs:
         run: pipenv install --system
 
       - name: Run migrations
-        run: pipenv run python manage.py db upgrade
+        run: python manage.py db upgrade
 
       - name: Run db configuration
-        run: pipenv run python manage.py db_conf
+        run: python manage.py db_conf
 
       - name: Run tests
         run: |
