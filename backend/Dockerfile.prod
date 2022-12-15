@@ -3,7 +3,7 @@
 FROM python:3.10-alpine
 
 RUN apk update
-RUN apk --no-cache add musl-dev linux-headers g++ 
+RUN apk --no-cache add musl-dev linux-headers g++
 RUN apk --no-cache add meson gfortran
 RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
 RUN apk add wget git
@@ -19,8 +19,8 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH=/app
 
-COPY ./requirements_minimum.txt /app/requirements_minimum.txt
-RUN pip install -r requirements_minimum.txt
+COPY ./requirements.txt /app/requirements.txt
+RUN pip install -r requirements.txt
 
 COPY ./entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
