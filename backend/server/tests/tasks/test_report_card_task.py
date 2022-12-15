@@ -101,11 +101,7 @@ def test_send_report_card_pdf(client: FlaskClient,
 def test_graded_quizzes(client: FlaskClient,
                         mocker: MockFixture,
                         unsent_quiz_grade: QuizGrade) -> None:
-
-    @mocker.patch('server.celery.send_task')
-    def mock_send_task(celery_send_task):
-        celery_send_task.assert_called_with(
-            'server.tasks.report_card_task.send_report_card_pdf',
-            quiz_grade.uuid)
-
+    mocked_send_report_card = mocker.patch(
+        'server.tasks.report_card_task.send_report_card_pdf.apply_async')
     send_graded_quizzes()
+    mocked_send_report_card.assert_called_once()

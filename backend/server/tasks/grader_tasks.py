@@ -28,8 +28,7 @@ def grade_all_quizzes(self):
         status=QuizSessionStatus.ended).all()
     logger.debug(f"Grading {len(ended_sessions)} quizzes")
     for session in ended_sessions:
-        celery.send_task('server.tasks.grader_tasks.grade_quiz',
-                         args=[session.uuid])
+        grade_quiz.apply_async(args=[session.uuid])
 
 
 @celery.task(bind=True)
