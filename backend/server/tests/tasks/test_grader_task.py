@@ -7,7 +7,8 @@ from server.models import (QuizGrade, QuizSession, QuizSessionStatus,
                            SchoolClass, Student, Teacher)
 from server.models.class_quiz import ClassQuiz, ClassQuizStatus
 from server.tasks.grader_tasks import (check_all_quizzes_administered,
-                                       check_all_quizzes_graded, grade_quiz,
+                                       check_all_quizzes_graded,
+                                       grade_all_quizzes, grade_quiz,
                                        regrade_quiz)
 from server.tests.factories import (ClassQuizFactory, QuizGradeFactory,
                                     SchoolClassFactory, StudentFactory)
@@ -44,6 +45,18 @@ def administered_classquiz(client: FlaskClient,
                 class_quiz_id=cq.id,
                 status=QuizSessionStatus.ended).save()
     return cq
+
+
+@pytest.fixture
+def ended_quiz_session(client: FlaskClient,
+                       student_: Student,
+                       classquiz: ClassQuiz) -> QuizSession:
+
+    session = QuizSession(student_id=student_.id,
+                          class_quiz_id=classquiz.id,
+                          status=QuizSessionStatus.ended)
+    session.save()
+    return session
 
 
 @pytest.fixture
@@ -97,7 +110,7 @@ def test_grade_quiz_runs(client: FlaskClient, monkeypatch):
         raise fail("DID RAISE {0}".format(exception))
 
 
-def test_grader_regrade_quiz(client: FlaskClient, monkeypatch,
+def test_grader_regrade_quiz(client: FlaskClient,
                              mocker: MockFixture,
                              student_: Student,
                              quiz_grade_: QuizGrade,
@@ -113,3 +126,11 @@ def test_grader_regrade_quiz(client: FlaskClient, monkeypatch,
         regrade_quiz_mock.assert_called_with(classquiz.id, student_.id)
 
     regrade_quiz(classquiz.id, student_.id)
+
+
+def test_grade_all_quizzes(client: FlaskClient,
+                           mocker: MockFixture,
+                           ended_quiz_session: QuizSession):
+    mocked_grade_quiz = mocker.patch('server.tasks.grader_tasks.grade_quiz.apply_async')
+    grade_all_quizzes()
+    mocked_grade_quiz.assert_called_with(args=[ended_quiz_session.uuid])
