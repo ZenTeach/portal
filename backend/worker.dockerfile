@@ -1,0 +1,37 @@
+# syntax = docker/dockerfile:1.2
+
+FROM python:3.10-alpine
+
+RUN apk update
+RUN apk --no-cache add musl-dev linux-headers g++
+RUN apk --no-cache add meson gfortran
+RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
+RUN apk add wget git
+RUN apk add build-base cairo-dev cairo cairo-tools
+RUN apk add jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev
+RUN apk add pango pango-dev
+RUN apk add py3-psycopg2
+RUN apk add font-opensans
+
+WORKDIR /app/
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
+ENV PROMETHEUS_MULTIPROC_DIR=/tmp
+
+COPY ./requirements.txt /app/requirements.txt
+RUN pip install -r requirements.txt
+
+COPY ./worker.sh /app/worker.sh
+RUN chmod +x /app/worker.sh
+
+COPY ./pre-start.sh /app/pre-start.sh
+RUN chmod +x /app/pre-start.sh
+
+# Copy only packaged application
+COPY . /app
+
+CMD ["/app/pre-start.sh"]
+
+ENTRYPOINT ["/app/worker.sh"]
