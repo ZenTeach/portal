@@ -5,6 +5,7 @@ from datetime import date, datetime, timedelta, timezone
 from enum import Enum
 from uuid import UUID
 
+from celery import Celery
 from dotenv import load_dotenv
 from flask import (Flask, current_app, has_request_context, jsonify,
                    make_response, request)
@@ -68,7 +69,7 @@ cors = CORS(supports_credentials=True,
 ma = Marshmallow()
 mail = Mail()
 health = HealthCheck()
-# celery = Celery("zenteach_tasks")
+celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
 app = None
 globalConfig = LocalProxy(lambda: current_app.config)
@@ -175,6 +176,9 @@ def create_app():
         'regconfig': 'pg_catalog.simple'
     })
 
+    from server.config import celery_configuration
+    celery.conf.update(celery_configuration)
+
     login_manager.init_app(app)
 
     from server.models import Admin as AdminModel
@@ -249,6 +253,7 @@ def create_app():
         )
 
     # Registry healthcheck
+    # TODO: Setup celery health check endpoint here
     app.add_url_rule("/healthcheck", "healthcheck", view_func=lambda: health.run())
 
     # Register bluprints
@@ -283,7 +288,7 @@ def create_app():
         from apispec import APISpec
         from apispec.ext.marshmallow import MarshmallowPlugin
         from flask_apispec.extension import FlaskApiSpec
-        
+
         docs = FlaskApiSpec()
         app.config.update({
             'APISPEC_SPEC': APISpec(
@@ -343,7 +348,7 @@ def create_app():
     return app
 
 
-def auto_document_apis(document_: 'FlaskApiSpec', app: Flask):
+def auto_document_apis(document_, app: Flask):
     for name, rule in app.view_functions.items():
         blueprint, endpoint = '', ''
         try:
