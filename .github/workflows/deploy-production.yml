@@ -1,12 +1,13 @@
 name: Deploy to production
 
 on:
-  release:
-    types: [published]
+  push:
+    branch:
+      - master
 
 jobs:
   deploy_frontend:
-    runs-on: [self-hosted, production, deployment]
+    runs-on: ['ubuntu-latest']
     defaults:
       run:
         working-directory: client/
@@ -49,7 +50,7 @@ jobs:
         run: npm uninstall -g yarn
 
   deploy_backend:
-    runs-on: [self-hosted, production, deployment]
+    runs-on: ['ubuntu-latest']
     defaults:
       run:
         working-directory: backend
