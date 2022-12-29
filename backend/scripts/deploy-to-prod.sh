@@ -16,11 +16,7 @@ cd $OLDPWD
 
 # Open SSH Proxy
 REMOTE_USER=ubuntu
-JUMPHOST_KEYS=./fabric_bastion_host_connection
-JUMPHOST=18.132.248.142
 REMOTE_KEYS=./fabric_deploy_keys
-
-chmod 400 $JUMPHOST_KEYS && chmod 400 $REMOTE_KEYS
 
 DISTRO=$(ls -t $DIST | head -n 1)
 FOLDERNAME=$(echo $DISTRO | tr '.' '\n' | head -n 1)
