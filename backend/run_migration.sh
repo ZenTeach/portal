@@ -14,8 +14,6 @@ export PROMETHEUS_MULTIPROC_DIR="/tmp"
 # Run migrations before booting up the app
 cd $FLASKDIR/zenteach
 
-pipenv sync
-
 # _load_examboard in BaseConfig is called during import.
 TMP_DIR="" python manage.py db upgrade
 TMP_DIR="" python manage.py db_conf
