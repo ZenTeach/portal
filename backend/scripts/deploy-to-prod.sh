@@ -25,7 +25,7 @@ FOLDERNAME=$(echo $DISTRO | tr '.' '\n' | head -n 1)
 server=`echo $SERVER_NAME`
 
 echo "Performing clean up. Leaving only last 5 builds."
-ssh -i $REMOTE_KEYS $REMOTE_USER@$server -o StrictHostKeyChecking=no \
+ssh -i $REMOTE_KEYS $REMOTE_USER@$server -o "StrictHostKeyChecking=no" \
 "ls -lt /var/www/zenteach_be/ | grep -E 'zenteach-build-*' | tail -n +7 | awk '{print \$9}' | xargs -I {} rm -fr /var/www/zenteach_be/{} 2> /dev/null || true"
 
 
@@ -56,7 +56,7 @@ ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
 echo "Install dependencies"
 ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
 -o "StrictHostKeyChecking=no"  \
-"source /var/www/zenteach_be/env/bin/activate && pip install -r requirements.txt"
+"cd /var/www/zenteach_be && source env/bin/activate && pip install -r zenteach/requirements.txt"
 
 echo "Run migrations"
 ssh -i $REMOTE_KEYS $REMOTE_USER@$server \

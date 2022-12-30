@@ -16,6 +16,8 @@ include run_migration.sh
 # wsgi
 include wsgi.py
 
+include requirements.txt
+
 # recursively include server files
 recursive-include server *
 
