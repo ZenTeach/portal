@@ -15,7 +15,7 @@ python ./scripts/package_app.py
 cd $OLDPWD
 
 # Open SSH Proxy
-REMOTE_USER=ubuntu
+REMOTE_USER=`echo $REMOTE_USER` || ubuntu
 REMOTE_KEYS=./fabric_deploy_keys
 
 DISTRO=$(ls -t $DIST | head -n 1)

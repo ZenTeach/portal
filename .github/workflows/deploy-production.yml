@@ -57,6 +57,7 @@ jobs:
     env:
       RUNNER_ALLOW_RUNASROOT: 1
       SERVER_NAME: ${{ secrets.PRODUCTION_SERVER_IP }}
+      REMOTE_USER: ${{ secrets.REMOTE_USER }}
       PYTHON-VERSION: "3.10"
       TMP_DIR: ./server/tmp
       PROMETHEUS_MULTIPROC_DIR: /tmp
