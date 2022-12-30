@@ -17,6 +17,7 @@ cd $OLDPWD
 # Open SSH Proxy
 REMOTE_USER=`echo $REMOTE_USER` || ubuntu
 REMOTE_KEYS=./fabric_deploy_keys
+chmod 600 $REMOTE_KEYS
 
 DISTRO=$(ls -t $DIST | head -n 1)
 FOLDERNAME=$(echo $DISTRO | tr '.' '\n' | head -n 1)
@@ -51,6 +52,11 @@ echo "Cleaning up tmp"
 ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
 -o "StrictHostKeyChecking=no"  \
 "rm -r /tmp/$DISTRO 2> /dev/null || true"
+
+echo "Install dependencies"
+ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
+-o "StrictHostKeyChecking=no"  \
+"source /var/www/zenteach_be/env/bin/activate && pip install -r requirements.txt"
 
 echo "Run migrations"
 ssh -i $REMOTE_KEYS $REMOTE_USER@$server \
