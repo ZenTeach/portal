@@ -8,10 +8,10 @@ on:
 jobs:
   build_and_deploy_frontend:
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
+    name: Deploy frontend
     env:
-      VUE_APP_API_ENDPOINT: https://service.portal.zenteach.co.uk/api/v1
-      VUE_APP_CORS_ORIGIN: https://service.portal.zenteach.co.uk
+      VUE_APP_API_ENDPOINT: https://api.zenteach.co.uk/api/v1
+      VUE_APP_CORS_ORIGIN: https://api.zenteach.co.uk
       VUE_APP_SENTRY_DSN: https://6474c2d922534f9a9acc9a83b1553a5b@o328466.ingest.sentry.io/5417325
     steps:
       - uses: actions/checkout@v2
@@ -30,6 +30,7 @@ jobs:
 
   deploy_backend:
     runs-on: ['ubuntu-latest']
+    name: Deploy backend
     defaults:
       run:
         working-directory: backend
