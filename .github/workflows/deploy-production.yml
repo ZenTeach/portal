@@ -41,7 +41,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: "49747a4196a81b3af87f9a7f57327331"
           projectName: "portal"
-          directory: "dist"
+          directory: "client/dist"
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   deploy_backend:
