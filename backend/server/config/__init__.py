@@ -136,3 +136,4 @@ class ProductionConfig(BaseConfig):
     PROPAGATE_EXCEPTIONS = True
     SECRET_KEY = token_urlsafe()
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'server/static/uploaded')
+    JWT_BLACKLIST_TOKEN_CHECKS = ('access', 'refresh')

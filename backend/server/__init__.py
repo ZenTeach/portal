@@ -342,7 +342,8 @@ def create_app():
             "db": db,
             "globalConfig": globalConfig,
             "sm": sm,
-            "ap": ap
+            "ap": ap,
+            "celery": celery
         }
 
     return app
