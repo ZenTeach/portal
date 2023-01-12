@@ -9,7 +9,7 @@ gunicorn 'wsgi:app' -b 127.0.0.1:5000 --workers 1 \
  --access-logformat '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"' \
 
 celery -A celery_worker.celery \
-    worker -B -D -l INFO \
+    worker -B -l INFO \
     --scheduler=redbeat.RedBeatScheduler \
     --pidfile=tmp/pid/celery/%n.pid \
     -f tmp/celery-worker.log
