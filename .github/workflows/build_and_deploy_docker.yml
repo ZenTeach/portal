@@ -22,7 +22,7 @@ jobs:
           image: api_server
           git_access_token: ${{ secrets.git_access_token }}
           folder: backend/
-          dockerfile: Dockerfile.prod
+          dockerfile: docker/Dockerfile.prod
           branch: master
   build_celery_worker:
     runs-on: ubuntu-latest
@@ -39,5 +39,5 @@ jobs:
           image: celery_worker
           git_access_token: ${{ secrets.git_access_token }}
           folder: backend/
-          dockerfile: worker.dockerfile
+          dockerfile: docker/worker.dockerfile
           branch: master
