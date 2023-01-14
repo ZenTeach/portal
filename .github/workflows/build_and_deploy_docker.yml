@@ -1,6 +1,9 @@
 name: Build and push docker images
+
 on:
-  pull_request:
+  push:
+    branch:
+      - master
     paths:
       - "backend/**"
 jobs:
