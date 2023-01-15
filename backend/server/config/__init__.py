@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
 from functools import lru_cache
-from io import IO
+from io import BytesIO
 from os import getcwd
 from pathlib import Path
 from secrets import token_urlsafe
@@ -71,7 +71,7 @@ class Credentials:
 
 class ConfigFile:
 
-    def __init__(self, text: IO, encryption_file: Optional[Union[Path, str]] = None):
+    def __init__(self, text: BytesIO, encryption_file: Optional[Union[Path, str]] = None):
         self._text = text
         self._encryption_file = encryption_file
 
