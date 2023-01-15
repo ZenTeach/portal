@@ -19,6 +19,7 @@ Dockerfile
 tmp/
 /node_modules
 scripts/
+docker/
 
 # https://github.com/github/gitignore/blob/master/Global/macOS.gitignore
 
