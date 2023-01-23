@@ -3,6 +3,7 @@ import axios from 'axios'
 import createAuthRefreshInterceptor from 'axios-auth-refresh'
 import store from '../store'
 import router from '../router'
+import lodash from 'lodash'
 // eslint-disable-next-line symbol-description
 const singleton = Symbol()
 // eslint-disable-next-line symbol-description
@@ -25,7 +26,7 @@ class ApiService {
           router.push({ name: 'login' })
           resolve()
         } else {
-          this.post('/teacher/token/refresh')
+          this.post('/teacher/token/refresh', {}, { headers: { 'X-CSRF-TOKEN': this.fetchCookieByName('csrf_refresh_token') } })
             .then(response => {
               if (response.status === 200) {
                 resolve(response)
@@ -62,6 +63,13 @@ class ApiService {
     return this[singleton]
   }
 
+  // build custom header for axios request
+  buildHeader (header) {
+    // use lodash to merge header and return a new object
+    const mergedHeader = lodash.merge(...header)
+    return { headers: mergedHeader }
+  }
+
   fetchCookieByName (name) {
     if (document.cookie.length === 0) {
       return ''
@@ -92,9 +100,10 @@ class ApiService {
   }
 
   async post (...params) {
-    const updatedHeaders = this.pushToHeader({}, this.csrfDoubleSubmitHeader('csrf_access_token'))
+    const headers = this.buildHeader(params.headers, this.csrfDoubleSubmitHeader('csrf_access_token'))
+    // const updatedHeaders = this.pushToHeader({}, this.csrfDoubleSubmitHeader('csrf_access_token'))
 
-    return Promise.resolve(this.session.post(...params, { headers: updatedHeaders }))
+    return Promise.resolve(this.session.post(...params, headers))
   }
 
   async put (...params) {
