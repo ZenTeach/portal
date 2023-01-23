@@ -26,7 +26,7 @@ class ApiService {
           router.push({ name: 'login' })
           resolve()
         } else {
-          this.post('/teacher/token/refresh', {}, { headers: { 'X-CSRF-TOKEN': this.fetchCookieByName('csrf_refresh_token') } })
+          this.post('/teacher/token/refresh')
             .then(response => {
               if (response.status === 200) {
                 resolve(response)
