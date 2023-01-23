@@ -25,7 +25,7 @@ exports[`App.vue matches snapshot 1`] = `
     </div>
     <footer>
       <v-col-stub cols="12" tag="div" class="text-center flex items-center">
-        <p class="font-weight-medium caption"> Copyright © 2019 - 2022 — ZenTeach®</p> <a href="/tos" class="caption text-decoration-none black--text">
+        <p class="font-weight-medium caption"> Copyright © 2019 - 2023 — ZenTeach®</p> <a href="/tos" class="caption text-decoration-none black--text">
           Terms of Service
         </a> |
         <a href="/privacy_policy" class="caption text-decoration-none black--text">
