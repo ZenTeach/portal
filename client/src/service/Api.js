@@ -83,10 +83,12 @@ class ApiService {
     }
   }
 
-  csrfDoubleSubmitHeader (cookieName) {
-    const csrfCookieValue = this.fetchCookieByName(cookieName)
+  csrfDoubleSubmitHeader () {
+    const accessCsrfCookieValue = this.fetchCookieByName('csrf_access_token')
+    const refreshCsrfCookieValue = this.fetchCookieByName('csrf_refresh_token')
     return {
-      'X-CSRF-TOKEN': csrfCookieValue
+      'X-CSRF-ACCESS-TOKEN': accessCsrfCookieValue,
+      'X-CSRF-REFRESH-TOKEN': refreshCsrfCookieValue
     }
   }
 
@@ -95,33 +97,32 @@ class ApiService {
   }
 
   async get (...params) {
-    const updatedHeaders = this.pushToHeader({}, this.csrfDoubleSubmitHeader('csrf_access_token'))
-    return Promise.resolve(this.session.get(...params, { headers: updatedHeaders }))
+    const updatedHeaders = this.buildHeader(params.headers, this.csrfDoubleSubmitHeader())
+    return Promise.resolve(this.session.get(...params, updatedHeaders))
   }
 
   async post (...params) {
-    const headers = this.buildHeader(params.headers, this.csrfDoubleSubmitHeader('csrf_access_token'))
-    // const updatedHeaders = this.pushToHeader({}, this.csrfDoubleSubmitHeader('csrf_access_token'))
+    const updatedHeaders = this.buildHeader(params.headers, this.csrfDoubleSubmitHeader())
 
-    return Promise.resolve(this.session.post(...params, headers))
+    return Promise.resolve(this.session.post(...params, updatedHeaders))
   }
 
   async put (...params) {
-    const updatedHeaders = this.pushToHeader(params.headers || {}, this.csrfDoubleSubmitHeader('csrf_access_token'))
+    const updatedHeaders = this.buildHeader(params.headers, this.csrfDoubleSubmitHeader())
 
-    return Promise.resolve(this.session.put(...params, { headers: updatedHeaders }))
+    return Promise.resolve(this.session.put(...params, updatedHeaders))
   }
 
   async patch (...params) {
-    const updatedHeaders = this.pushToHeader(params.headers || {}, this.csrfDoubleSubmitHeader('csrf_access_token'))
+    const updatedHeaders = this.buildHeader(params.headers, this.csrfDoubleSubmitHeader())
 
-    return Promise.resolve(this.session.patch(...params, { headers: updatedHeaders }))
+    return Promise.resolve(this.session.patch(...params, updatedHeaders))
   }
 
   async remove (...params) {
-    const updatedHeaders = this.pushToHeader(params.headers || {}, this.csrfDoubleSubmitHeader('csrf_access_token'))
+    const updatedHeaders = this.buildHeader(params.headers, this.csrfDoubleSubmitHeader())
 
-    return Promise.resolve(this.session.delete(...params, { headers: updatedHeaders }))
+    return Promise.resolve(this.session.delete(...params, updatedHeaders))
   }
 }
 export default ApiService.instance
