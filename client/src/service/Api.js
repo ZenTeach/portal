@@ -64,9 +64,10 @@ class ApiService {
   }
 
   // build custom header for axios request
-  buildHeader (header) {
+  buildHeader () {
+    lodash.filter(arguments, lodash.isNil)
     // use lodash to merge header and return a new object
-    const mergedHeader = lodash.merge(...header)
+    const mergedHeader = lodash.merge(...arguments)
     return { headers: mergedHeader }
   }
 
@@ -86,6 +87,7 @@ class ApiService {
   csrfDoubleSubmitHeader () {
     const accessCsrfCookieValue = this.fetchCookieByName('csrf_access_token')
     const refreshCsrfCookieValue = this.fetchCookieByName('csrf_refresh_token')
+    // TODO: Check for null cookie values and return and empty map
     return {
       'X-CSRF-ACCESS-TOKEN': accessCsrfCookieValue,
       'X-CSRF-REFRESH-TOKEN': refreshCsrfCookieValue
@@ -103,7 +105,6 @@ class ApiService {
 
   async post (...params) {
     const updatedHeaders = this.buildHeader(params.headers, this.csrfDoubleSubmitHeader())
-
     return Promise.resolve(this.session.post(...params, updatedHeaders))
   }
 
