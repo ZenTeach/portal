@@ -193,6 +193,7 @@ class BaseConfig:
     JWT_REFRESH_CSRF_HEADER_NAME = "X-CSRF-REFRESH-TOKEN"
     REDIS_URL = os.environ.get("REDIS_URL")
     FLASK_ADMIN_SWATCH = "journal"
+    LANGUAGES = ["en", "de", "fr"]
 
     CORS_VARY_HEADER = True
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
