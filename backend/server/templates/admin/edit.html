@@ -1,19 +1,27 @@
-{% extends 'admin/model/edit.html' %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-{% block model_menu_bar %}
-    <h2 id="brand">Edit {{ admin_view.name|capitalize }}</h2>
-    <div class="clearfix"></div>
-    <hr>
-{% endblock %}
+<html>
+<head>
+  <title></title>
+</head>
 
-{% block body %}
-	<h2 id="brand">Edit {{ admin_view.name|capitalize }}</h2>
-    <div class="clearfix"></div>
-    <hr>
-  {% call lib.form_tag(form) %}
-      {{ lib.render_form_fields(form, form_opts=form_opts) }}
-      <div class="form-buttons">
-        {{ lib.render_form_buttons(return_url) }}
-      </div>
-  {% endcall %}
-{% endblock %}
+<body>
+  {% extends 'admin/model/edit.html' %} {% block model_menu_bar %}
+
+  <div class="clearfix"></div>
+  <hr>
+  {% endblock %} {% block body %}
+
+  <h2 id="brand">_gettext('Edit') {{ admin_view.name|capitalize
+  }}</h2>
+
+  <div class="clearfix"></div>
+  <hr>
+  {% call lib.form_tag(form) %} {{
+  lib.render_form_fields(form,form_opts=form_opts) }}
+
+  <div class="form-buttons">
+    {{ lib.render_form_buttons(return_url) }}
+  </div>{% endcall %} {% endblock %}
+</body>
+</html>

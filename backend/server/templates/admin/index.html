@@ -1,34 +1,37 @@
-{% extends 'admin/master.html' %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-{% block body %}
-{{ super() }}
-	{% if current_user.is_authenticated %}
-		<div class="col-md-8">
-			<p class="lead">
-				Welcome!
-			</p>
-		{% else %}
-	<div class="wrapper fadeInDown">
-		<div id="formContent">
-		  <form method="POST" action="">
-            {{ form.hidden_tag() if form.hidden_tag }}
-            {% for f in form if f.type != 'CSRFTokenField' %}
-            	<div class="form-group">
-					<!-- {{ f.label }} -->
-					{{ f }}
-					{% if f.errors %}
-					<p class="has-error"> {{ f.errors }}</p>
-					{% endif %}
-            	</div>
-            {% endfor %}
-            <input class="fadeIn fourth" type="submit" value="Login"/>
+<html>
+<head>
+  <title></title>
+</head>
+
+<body>
+  {% extends 'admin/master.html' %} {% block body %} {{ super() }}
+  {% if current_user.is_authenticated %}
+
+  <div class="col-md-8">
+    <p class="lead">Welcome!</p>{% else %}
+
+    <div class="wrapper fadeInDown">
+      <div id="formContent">
+        <form method="post" action="">
+          {{ form.hidden_tag() if form.hidden_tag }} {% for f in
+          form if f.type != 'CSRFTokenField' %}
+
+          <div class="form-group">
+            <!-- {{ f.label }} -->
+            {{ f }} {% if f.errors %}
+
+            <p class="has-error">{{ f.errors }}</p>{% endif %}
+          </div>{% endfor %} <input class="fadeIn fourth" type=
+          "submit" value="Login">
         </form>
 
-		  <div id="formFooter">
-			Zenteach Admin Portal &COPY; 2021
-		  </div>
-
-		</div>
-	  </div>
-	  {% endif %}
-{% endblock body %}
+        <div id="formFooter">
+          Zenteach Admin Portal &amp;COPY; 2023
+        </div>
+      </div>
+    </div>{% endif %} {% endblock body %}
+  </div>
+</body>
+</html>

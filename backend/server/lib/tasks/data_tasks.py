@@ -91,3 +91,25 @@ def mark_grades_sent_for_old_quizzes() -> None:
     ).update({'result_sent': True}, synchronize_session=False)
 
     db.session.commit()
+
+
+def add_content_translations_for(table_name, data_file, language_code) -> None:
+    """
+      add_content_translations_for
+
+      table_name - postgres table name
+      data_file - csv file with content translations
+    """
+    from csv import DictReader
+
+    from sqlalchemy import Table, select
+
+    csvData = DictReader(open(data_file, 'r+'))
+    assert language_code
+    assert csvData.fieldnames == ['id', 'content', 'content_translation']
+    _table = Table(table_name, db.metadata)
+    for r in csvData:
+        select_stmt = select([_table]).where(_table.c.id == r['id'])
+        entity = db.session.execute(select_stmt)
+        entity
+    return
