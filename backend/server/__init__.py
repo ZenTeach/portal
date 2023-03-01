@@ -213,6 +213,11 @@ def create_app():
 
     if os.environ.get('RUNTIME') == 'development':
         # from apispec_webframeworks.flask import FlaskPlugin
+        from apispec import APISpec
+        from apispec.ext.marshmallow import MarshmallowPlugin
+        from flask_apispec.extension import FlaskApiSpec
+
+        docs = FlaskApiSpec()
         jwt_scheme = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
         app.config.update({
             'APISPEC_SPEC': APISpec(
