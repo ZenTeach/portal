@@ -1,7 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`StudentInvite.vue renders correctly 1`] = `
-<v-dialog-stub contentclass="" opendelay="0" closedelay="0" openonclick="true" maxwidth="500px" origin="center center" retainfocus="true" transition="dialog-transition" max-height="450px">
-  <validationobserver-stub tag="span" vid="obs_0"></validationobserver-stub>
+<v-dialog-stub contentclass="" opendelay="0" closedelay="0" openonclick="true" maxwidth="60vw" origin="center center" retainfocus="true" transition="dialog-transition" max-height="65vh">
+  <v-card-stub loaderheight="4" tag="div">
+    <v-tabs-stub activeclass="" backgroundcolor="primary darken-1" centered="true" nexticon="$next" previcon="$prev" slidersize="2">
+      <v-tab-stub ripple="true">Invite a student</v-tab-stub>
+      <v-tab-stub ripple="true">Invite multiple students</v-tab-stub>
+      <v-tab-item-stub>
+        <studentinviteinfo-stub></studentinviteinfo-stub>
+      </v-tab-item-stub>
+      <v-tab-item-stub>
+        <studentinvitemutliinsert-stub></studentinvitemutliinsert-stub>
+      </v-tab-item-stub>
+    </v-tabs-stub>
+    <v-divider-stub></v-divider-stub>
+  </v-card-stub>
 </v-dialog-stub>
 `;
