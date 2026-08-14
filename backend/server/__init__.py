@@ -20,12 +20,12 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_marshmallow import Marshmallow
 from flask_redis import FlaskRedis
-from flask_sqlalchemy import SQLAlchemy
 from healthcheck import HealthCheck
-from sqlalchemy import event
-from sqlalchemy.pool import Pool
 from sqlalchemy_searchable import make_searchable
 from werkzeug.local import LocalProxy
+
+from server.db import db
+from server.security import bcrypt
 
 
 def configure_logging():
@@ -55,9 +55,7 @@ formatter = RequestFormatter(
     "%(levelname)s in %(module)s: %(message)s"
 )
 
-db = SQLAlchemy()
 login_manager = LoginManager()
-bcrypt = Bcrypt()
 jwt = JWTManager()
 cors = CORS(supports_credentials=True,
             resources={
@@ -73,22 +71,6 @@ celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
 app = None
 globalConfig = LocalProxy(lambda: current_app.config)
-
-
-@event.listens_for(Pool, "checkout")
-def ping_connection(dbapi_connection, connection_record, connection_proxy):
-    cursor = dbapi_connection.cursor()
-    try:
-        cursor.execute("SELECT 1;")
-    except Exception as exc:
-        # optional - dispose the whole pool
-        # instead of invalidating one at a time
-        connection_proxy._pool.dispose()
-
-        # raise DisconnectionError - pool will try
-        # connecting again up to three times before raising.
-        raise exc.DisconnectionError()
-    cursor.close()
 
 
 class AppJSONEncoder(JSONEncoder):

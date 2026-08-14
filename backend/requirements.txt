@@ -85,6 +85,7 @@ vine==5.0.0
 wcwidth==0.2.5
 weasyprint==57.1
 uvicorn[standard]==0.27.1
+httpx==0.26.0
 webargs==8.2.0
 webencodings==0.5.1
 Werkzeug==2.2.3
