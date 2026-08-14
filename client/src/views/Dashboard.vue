@@ -11,7 +11,7 @@
                   offset="0"
                   :data="chartData"
                   :options="chartOptions">
-                  <v-overlay opacity="0.8" absolute="true" value="true">
+                  <v-overlay opacity="0.8" :absolute="true" value="true">
                     <h4> Charts coming soon!</h4>
                   </v-overlay>
                 </material-chart-card>

@@ -25,7 +25,7 @@
               class="elevation-1"
               :search="search"
               sort-by="created"
-              sort-desc="false"
+              :sort-desc="false"
               :footer-props="footerProps">
                 <template v-slot:item.name="props">
                   <div class="d-flex justify-left">
