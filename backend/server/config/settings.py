@@ -9,7 +9,7 @@ the FastAPI application.
 
 import os
 from datetime import timedelta
-from functools import lru_cache
+from functools import cached_property, lru_cache
 from secrets import token_urlsafe
 from typing import Optional, Tuple
 
@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     jwt_cookie_domain: Optional[str] = Field(None, validation_alias="JWT_COOKIE_DOMAIN")
     jwt_access_cookie_path: str = Field("/api/v1/", validation_alias="JWT_ACCESS_COOKIE_PATH")
     jwt_refresh_cookie_path: str = Field(
-        "/api/v1/teacher/token/refresh", validation_alias="JWT_REFRESH_COOKIE_PATH"
+        "/api/v1/", validation_alias="JWT_REFRESH_COOKIE_PATH"
     )
     jwt_access_csrf_header_name: str = Field(
         "X-CSRF-ACCESS-TOKEN", validation_alias="JWT_ACCESS_CSRF_HEADER_NAME"
@@ -113,8 +113,10 @@ class Settings(BaseSettings):
     # --- sentry ----------------------------------------------------------
     sentry_dsn: Optional[str] = Field(None, validation_alias="SENTRY_DSN")
 
-    @property
+    @cached_property
     def effective_jwt_secret_key(self) -> str:
+        # The random fallback must be generated once per process, otherwise
+        # tokens signed on one request fail to verify on the next.
         return self.jwt_secret_key or self.secret_key or token_urlsafe(64)
 
     def celery_config(self) -> dict:

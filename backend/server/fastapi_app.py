@@ -109,6 +109,13 @@ def create_fastapi_app() -> FastAPI:
         finally:
             _exit_request_session(token)
 
+    # Ported API routers (same ``/api/v1`` prefix as the legacy blueprints).
+    # Imported after ``_install_redis_store`` so the blocklist client is ready.
+    from server.routers import student_auth_router, teacher_auth_router
+
+    fastapi_app.include_router(teacher_auth_router, prefix="/api/v1")
+    fastapi_app.include_router(student_auth_router, prefix="/api/v1")
+
     @fastapi_app.get("/healthcheck")
     def healthcheck():
         return {"status": "success", "message": "Pinged the fastapi healthcheck"}
