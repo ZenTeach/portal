@@ -60,6 +60,10 @@ def _enter_request_session():
     """
     scope = object()
     token = _request_session_scope.set(scope)
+    # Ensure the session factory is bound to the engine before the scoped
+    # session is materialized (the engine is otherwise created lazily, and a
+    # session created before that would have no bind configured).
+    db.engine
     return db.session(), token
 
 
