@@ -3,6 +3,7 @@ import { sync } from 'vuex-router-sync'
 import VueCookies from 'vue-cookies'
 import vuetify from '@/plugins/vuetify'
 import 'chartist/dist/chartist.min.css'
+import { createAuth0 } from '@auth0/auth0-vue'
 
 import '@/plugins'
 import App from '@/App.vue'
@@ -20,6 +21,13 @@ Vue.use(require('vue-chartist'), {
   classNoData: 'empty'
 })
 
+// auth0 config
+const auth0Client = createAuth0({
+  domain: 'dev-iogpmb3i.eu.auth0.com',
+  client_id: 'guIMJsBvSKsmdJPUHtujKxPKQUjaT4cp',
+  redirect_uri: window.location.origin
+})
+Vue.use(auth0Client)
 // Global date filter
 Vue.filter('formatDate', function (value) {
   if (!value) return ''

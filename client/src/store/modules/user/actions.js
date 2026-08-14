@@ -1,6 +1,5 @@
 import {
   loginUser,
-  logoutUser,
   registerUser,
   getCurrentUser,
   sendAccountRecovery,
@@ -32,21 +31,19 @@ const LOGIN_USER = ({ commit, dispatch }, payload) => {
   )
 }
 
-const SIGNOUT_USER = ({ commit, dispatch }) => {
-  commit('app/TOGGLE_APP_LOADING', true, { root: true })
-  logoutUser().then(
-    _data => {
-      commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
-      commit('app/TOGGLE_APP_LOADING', false, { root: true })
-      commit('TOGGLECURRENTUSER', {})
-      Vue.prototype.$cookies.remove('csrf_access_token')
-    },
-    error => {
-      commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
-      commit('app/TOGGLE_ERROR', error.response.data, { root: true })
-      dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
-    }
-  )
+const SIGNOUT_USER = async ({ commit, dispatch }) => {
+  try {
+    commit('app/TOGGLE_APP_LOADING', true, { root: true })
+    await this.$auth0.logout()
+    commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
+    commit('app/TOGGLE_APP_LOADING', false, { root: true })
+    commit('TOGGLECURRENTUSER', {})
+    Vue.prototype.$cookies.remove('csrf_access_token')
+  } catch (error) {
+    commit('app/TOGGLE_APP_LOGGED_IN', false, { root: true })
+    commit('app/TOGGLE_ERROR', error.response.data, { root: true })
+    dispatch('app/TOGGLE_APP_STATUS', 'error', { root: true })
+  }
 }
 
 const REGISTER_USER = ({ commit, dispatch }, payload) => {
