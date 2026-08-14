@@ -23,6 +23,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 import server
 import redis as redis_lib
+from server.config.settings import get_settings
 from server.db import db
 from server.security import bcrypt  # noqa: F401  (kept for parity)
 
@@ -33,19 +34,17 @@ def _build_flask_compat_app():
     """Create the fake Flask app used for config + Flask-Migrate compat."""
     flask_app = Flask(__name__)
 
-    app_settings = os.getenv(
-        "APP_SETTINGS", "server.config.DevelopmentConfig"
-    )
-    flask_app.config.from_object(app_settings)
+    settings = get_settings()
+    flask_app.config.update(settings.flask_config())
     flask_app.config.update(
-        database_url=flask_app.config.get("SQLALCHEMY_DATABASE_URI", "")
+        database_url=settings.database_url or ""
     )
 
     return flask_app
 
 
 def _cors_origins():
-    origins = os.getenv("ALLOWED_CORS_ORIGIN", "*")
+    origins = get_settings().allowed_cors_origin or "*"
     if origins == "*":
         return ["*"]
     return [origin.strip() for origin in origins.split(",") if origin.strip()]
@@ -59,7 +58,7 @@ def _install_redis_store():
     init); the FastAPI app installs an equivalent plain client keyed off the
     same environment variable.
     """
-    url = os.getenv("REDIS_URL", "redis://localhost:6379/app")
+    url = get_settings().redis_url
     client = redis_lib.Redis.from_url(url, decode_responses=True)
     server.redis_store = client
     return client
