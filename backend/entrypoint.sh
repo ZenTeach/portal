@@ -3,7 +3,7 @@
 NAME="api_server"
 SOCKFILE=/run/server_sock
 NUM_WORKERS=5
-HOST=127.0.0.1
+HOST=${HOST:-0.0.0.0}
 PORT=5000
 
 gunicorn 'wsgi:app' -b $HOST:$PORT \
