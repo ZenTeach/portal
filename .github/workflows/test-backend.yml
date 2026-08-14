@@ -8,7 +8,7 @@ on:
 jobs:
   backend:
     runs-on: ['ubuntu-latest']
-    container: python:3.10-bullseye
+    container: python:3.10-bookworm
     env:
       AUTHLIB_INSECURE_TRANSPORT: true
       APP_SETTINGS: server.config.TestingConfig
@@ -58,13 +58,12 @@ jobs:
           RABBITMQ_DEFAULT_VHOST: jobs
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install packages - step 1
         run: |
           wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
-          echo "deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main" >> /etc/apt/sources.list.d/pgdg.list && \
-          echo "deb http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list.d/sources.list && \
+          echo "deb http://apt.postgresql.org/pub/repos/apt/ bookworm-pgdg main" >> /etc/apt/sources.list.d/pgdg.list && \
           apt-get update
       - name: Install packages - step 2
         run: |
@@ -72,7 +71,7 @@ jobs:
       - name: Install packages - step 3
         run: |
           apt-get install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 && \
-          apt-get install -y libgdk-pixbuf2.0-0 libffi-dev shared-mime-info libnss3-dev libx11-xcb1
+          apt-get install -y libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info libnss3-dev libx11-xcb1
       - name: Install packages - step 4
         run: |
           apt-get install -y gfortran wget unzip curl zlib1g zlib1g-dev \
