@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
   zenteach_fe:
     restart: always
@@ -11,8 +9,8 @@ services:
       - "/home/app/node_modules"
     ports:
       - 8080:8080
-    env_file:
-      - './client/.env'
+    environment:
+      - VUE_APP_API_ENDPOINT=http://localhost:5000/api/v1
     depends_on:
       - zenteach_be
   zenteach_be:
@@ -20,35 +18,32 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    env_file:
-      - './backend/.env.docker'
     volumes:
       - "./backend:/home/flask/server"
     ports:
       - 5000:5000
     environment:
       - RUNTIME=development
-      - DATABASE_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach_dev
-      - DATABASE_TEST_URL=postgres://zenteach:zenteach@zenteach_db:5432/zenteach_test
+      - DATABASE_URL=postgresql://zenteach:zenteach@zenteach_db:5432/zenteach_dev
+      - DATABASE_TEST_URL=postgresql://zenteach:zenteach@zenteach_db:5432/zenteach_test
       - APP_SETTINGS=server.config.DevelopmentConfig
       - CELERY_BROKER_URL=amqp://zenteach:zenteach_broker@rabbitmq_broker:5672/jobs
       - CELERY_RESULT_BACKEND=redis://redis_store:6379/0
       - REDIS_URL=redis://redis_store:6379/1
       - PRECOMMIT_CONFIG=/home/flask/server/.pre-commit-config.yaml
     depends_on:
-      - zenteach_db
-      - redis_store
-      - rabbitmq_broker
-        #healthcheck:
-        #test: ["CMD", "curl", "-f", "http://localhost:5001/api/v1/ping"]
-        #interval: 1m
-        #timeout: 10s
-        #retries: 3
-        #start_period: 40s
-    links:
-      - "zenteach_db"
-      - "redis_store"
-      - "rabbitmq_broker"
+      zenteach_db:
+        condition: service_healthy
+      redis_store:
+        condition: service_started
+      rabbitmq_broker:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/v1/ping')"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 40s
   zenteach_db:
     build:
       context: ./backend/db
@@ -58,6 +53,11 @@ services:
     environment:
       - POSTGRES_USER=zenteach
       - POSTGRES_PASSWORD=zenteach
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zenteach -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
   redis_store:
     image: redis:5.0.7-alpine
   rabbitmq_broker:
