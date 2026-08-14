@@ -39,7 +39,7 @@ services:
       rabbitmq_broker:
         condition: service_started
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/v1/ping')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/v1/stats/ping')"]
       interval: 1m
       timeout: 10s
       retries: 3
