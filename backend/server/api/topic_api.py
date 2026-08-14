@@ -81,6 +81,7 @@ class TopicView(MethodView):
 
 
 class TopicsSearch(MethodView):
+    # TODO: Add support for locale based search
     @jwt_required(fresh=True)
     def post(self):
         search = request.get_json().get('search')

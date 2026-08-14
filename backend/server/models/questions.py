@@ -148,7 +148,6 @@ class Questions(BaseModelMixin, db.Model):
         # We ignore all missing fields here. The most likely missing field
         # is teacher_id as this method is only called from the admin portal.
         # https://stackoverflow.com/questions/55795258/validating-optional-field-in-marshmallow
-        # import pdb; pdb.set_trace()
         validation_errors = AdminFormValidator().validate(data=data, partial=True)
         if validation_errors is not None and len(validation_errors) != 0:
             raise ValidationError(

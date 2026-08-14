@@ -107,6 +107,10 @@ class TopicSchema(_BaseSchema):
         fields = ("value", "subject", "teacher_id")
 
     subject = ma.Nested(SubjectSchema)
+    value = ma.Method('translated_value')
+
+    def translated_value(self, obj):
+        return obj.topic_value
 
 
 class KnowledgeItemSchema(_BaseSchema):

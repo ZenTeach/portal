@@ -12,6 +12,7 @@ from flask import (Flask, current_app, has_request_context, jsonify,
 from flask.json import JSONEncoder
 from flask.logging import default_handler
 from flask_admin import Admin
+from flask_babel import Babel
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import (JWTManager, create_access_token, get_jwt,
@@ -34,8 +35,6 @@ def configure_logging():
 
 
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
-logging.getLogger("botocore").setLevel(logging.WARNING)
-logging.getLogger('boto3').setLevel(logging.WARNING)
 
 
 class RequestFormatter(logging.Formatter):
@@ -66,13 +65,21 @@ cors = CORS(supports_credentials=True,
                     "max_age": timedelta(hours=24)
                 }
             })
+
 ma = Marshmallow()
 mail = Mail()
 health = HealthCheck()
 celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
+babel = Babel()
 app = None
 globalConfig = LocalProxy(lambda: current_app.config)
+
+# Localization
+
+
+def get_locale():
+    return request.accept_languages.best_match(current_app.config['LANGUAGES'])
 
 
 @event.listens_for(Pool, "checkout")
@@ -172,6 +179,7 @@ def create_app():
     ma.init_app(app)
     mail.init_app(app)
     redis_store.init_app(app)
+    babel.init_app(app, locale_selector=get_locale)
     make_searchable(db.metadata, options={
         'regconfig': 'pg_catalog.simple'
     })
@@ -311,6 +319,7 @@ def create_app():
     monkey_patch_json_encoder()
 
     # TODO: move this to federated auth endpoint
+
     @app.after_request
     def refresh_expiring_jwts(response):
         try:

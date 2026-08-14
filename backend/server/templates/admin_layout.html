@@ -76,27 +76,27 @@
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h3 class="modal-title" id="exampleModalLabel">Import</h3>
+					<h3 class="modal-title" id="exampleModalLabel">_gettext('Import')</h3>
 				</div>
 			<div class="modal-body">
 				<div>
-					<p> Make sure that your upload file has the following exact columns: </p>
+					<p>_gettext('Make sure that your upload file has the following exact columns'): </p>
 					<code>
 						Subject, Topic, Knowledge item, Question, Option A,
 						Option B, Option C, Option D, Correct, Tag, Feedback A,
 						Feedback B,Feedback C,Feedback D
 					</code>
 					<br/>
-					<p>The <code>Option</code> and <code>Feedback</code> column type can have a minimum of one multiplicity. </p>
+					<p>_gettext('The') <code>Option</code> _gettext('and') <code>Feedback</code> _gettext('column type can have a minimum of one multiplicity.') </p>
 					<br />
 				</div>
 				<form id="import_data_form" action="{{ get_url('.import_')}}" enctype="multipart/form-data" method="post">
 					<div class="form-group">
-						<label for="file_input">Select a file to import: </label>
+						<label for="file_input">_gettext('Select a file to import'): </label>
 						<input type="file" class="form-control-file" id="file_input" name="file" accept=".csv" />
 					</div>
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-primary">Import</button>
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">_gettext('Close')</button>
+					<button type="submit" class="btn btn-primary">_gettext('Import')</button>
 				</form>
 			</div>
 			</div>
