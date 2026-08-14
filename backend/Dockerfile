@@ -5,7 +5,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential libpq-dev libffi-dev \
         libcairo2 libpango-1.0-0 libpangocairo-1.0-0 \
-        libgdk-pixbuf2.0-0 shared-mime-info \
+        libgdk-pixbuf-2.0-0 shared-mime-info \
         libjpeg-dev zlib1g-dev libopenblas-dev \
         libcurl4-openssl-dev fonts-open-sans \
     && rm -rf /var/lib/apt/lists/*
