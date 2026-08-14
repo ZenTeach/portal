@@ -49,3 +49,28 @@ class StudentView(BaseView):
         except Exception as e:
             logger.error("Failed to delete record: {}".format(str(e)))
             flash("Failed to delete record: {}".format(str(e)), "error")
+
+    def update_model(self, form, model):
+        try:
+            selected_ids = {c.id for c in form.data["classes"]}
+            current_ids = {c.id for c in model.classes}
+
+            for name, field in form._fields.items():
+                if name == "classes":
+                    continue
+                setattr(model, name, field.data)
+
+            for class_ in model.classes:
+                if class_.id not in selected_ids:
+                    model.remove_class(class_)
+
+            for class_ in form.data["classes"]:
+                if class_.id not in current_ids:
+                    model.add_to_class(class_)
+
+            model.save()
+            flash("Successfully updated student", "success")
+            return model
+        except Exception as e:
+            logger.error("Failed to update record: {}".format(str(e)))
+            flash("Failed to update record: {}".format(str(e)), "error")
