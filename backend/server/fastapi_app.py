@@ -24,7 +24,7 @@ from starlette.middleware.cors import CORSMiddleware
 import server
 import redis as redis_lib
 from server.config.settings import get_settings
-from server.db import db
+from server.db import _enter_request_session, _exit_request_session, db
 from server.security import bcrypt  # noqa: F401  (kept for parity)
 
 __all__ = ["create_fastapi_app"]
@@ -99,6 +99,15 @@ def create_fastapi_app() -> FastAPI:
         allow_headers=["*"],
         max_age=60 * 60 * 24,
     )
+
+    @fastapi_app.middleware("http")
+    async def _request_session(request, call_next):
+        """Bind a request-scoped SQLAlchemy session for the whole request."""
+        session, token = _enter_request_session()
+        try:
+            return await call_next(request)
+        finally:
+            _exit_request_session(token)
 
     @fastapi_app.get("/healthcheck")
     def healthcheck():

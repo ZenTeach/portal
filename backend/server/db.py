@@ -23,6 +23,8 @@ Supported surface (mirrors ``flask_sqlalchemy.SQLAlchemy``):
 
 import os
 import re
+import threading
+from contextvars import ContextVar
 
 import sqlalchemy as sa
 from flask_sqlalchemy import BaseQuery
@@ -31,6 +33,55 @@ from sqlalchemy.orm import (Query, Session, backref, declarative_base,
                             relationship as orm_relationship, scoped_session,
                             sessionmaker)
 from sqlalchemy.pool import Pool
+
+
+# Per-request session scope for the FastAPI path.  When set (by the
+# ``get_db_session`` dependency) the scoped session resolves to a session
+# owned by the current request regardless of the worker thread a sync route
+# executes on.  When unset the registry falls back to thread-local scope,
+# which is exactly what the legacy Flask path expects.
+_request_session_scope = ContextVar("db_request_session_scope", default=None)
+
+
+def _session_scope():
+    scope = _request_session_scope.get()
+    if scope is not None:
+        return scope
+    return threading.get_ident()
+
+
+def _enter_request_session():
+    """Bind a fresh request-scoped session to the registry.
+
+    Returns the session plus the contextvar token needed by
+    :func:`_exit_request_session`.  Called on the event-loop thread; worker
+    threads running sync route handlers inherit the scope via the copied
+    context, so ``db.session`` resolves to this same session everywhere.
+    """
+    scope = object()
+    token = _request_session_scope.set(scope)
+    return db.session(), token
+
+
+def _exit_request_session(token):
+    """Remove the request-scoped session and restore the previous scope."""
+    db.session.remove()
+    _request_session_scope.reset(token)
+
+
+async def get_db_session():
+    """FastAPI dependency yielding a request-scoped ``db.session``.
+
+    The scope token makes ``db.session`` resolve to the same session on the
+    event-loop thread (where this dependency sets up and tears down) and on
+    any worker thread a sync route handler runs on.  The session is removed
+    after the request, so connection/transaction resources are released.
+    """
+    session, token = _enter_request_session()
+    try:
+        yield session
+    finally:
+        _exit_request_session(token)
 
 
 def _camel_to_snake_case(name):
@@ -164,7 +215,7 @@ class _SQLAlchemyCompat:
             class_=Session,
             query_cls=BaseQuery,
         )
-        self.session = scoped_session(self._session_factory)
+        self.session = scoped_session(self._session_factory, scopefunc=_session_scope)
 
         @event.listens_for(Pool, "checkout")
         def _ping_connection(dbapi_connection, connection_record, connection_proxy):
