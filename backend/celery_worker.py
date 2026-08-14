@@ -20,48 +20,37 @@ TaskBase = celery.Task
 celery.conf.update(**CeleryConfig()._asdict())
 
 
-def _create_task_app():
-    """Build a minimal Flask app carrying only what background tasks need.
+def _configure_task_environment():
+    """Bind the DB engine and register the searchable tables for tasks.
 
-    Tasks use ``db`` (the plain-SQLAlchemy scoped session), ``mail``
-    (Flask-Mail) and ``render_template`` (Jinja). Those require a Flask app
-    with the settings loaded and those extensions initialized -- but not
-    Flask-Admin, JWT, CORS or the API blueprints -- so we build a bare app
-    instead of ``create_app()``.
+    Tasks now use the plain-SQLAlchemy ``db`` shim, the framework-free
+    ``server.mailer`` and standalone Jinja2 rendering, so no Flask application
+    (or app context) is required in the worker at all.
     """
-    from flask import Flask
     from sqlalchemy_searchable import make_searchable
 
-    from server import mail, redis_store
     from server.db import db
 
-    flask_app = Flask(__name__, template_folder="templates")
-    flask_app.config.update(get_settings().flask_config())
-
-    db.init_app(flask_app)
+    db.init_app(uri=get_settings().database_url)
     make_searchable(db.metadata, options={"regconfig": "pg_catalog.simple"})
-    mail.init_app(flask_app)
-    redis_store.init_app(flask_app)
 
     # Register models on db.metadata so task imports resolve the full schema.
     import server.models  # noqa: F401
-    return flask_app
 
 
-app = _create_task_app()
+_configure_task_environment()
 
 
 class ContextTask(TaskBase):
     def __call__(self, *args, **kwargs):
-        with app.app_context():
-            try:
-                return TaskBase.__call__(self, *args, **kwargs)
-            finally:
-                # Release the thread-local scoped session so connections are
-                # returned to the pool between tasks (no Flask app context
-                # teardown does this for us anymore).
-                from server.db import db
-                db.session.remove()
+        try:
+            return TaskBase.__call__(self, *args, **kwargs)
+        finally:
+            # Release the thread-local scoped session so connections are
+            # returned to the pool between tasks (no Flask app context
+            # teardown does this for us anymore).
+            from server.db import db
+            db.session.remove()
 
 
 celery.Task = ContextTask

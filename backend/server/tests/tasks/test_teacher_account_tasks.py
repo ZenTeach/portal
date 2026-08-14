@@ -4,7 +4,7 @@ import pytest
 from faker import Faker
 from faker.providers import internet
 from flask.testing import FlaskClient
-from flask_mail import Message
+from server.mailer import Message
 from pytest_mock import MockFixture
 from server.models import Invitations, Teacher
 from server.tasks import (send_account_recovery_instructions,

@@ -2,7 +2,7 @@ from uuid import uuid4
 
 import pytest
 from flask.testing import FlaskClient
-from flask_mail import Message
+from server.mailer import Message
 from pytest_mock import MockFixture
 from server.models import ClassQuiz, QuizGrade, SchoolClass, Student, Teacher
 from server.tasks import send_graded_quizzes, send_report_card_pdf

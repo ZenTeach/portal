@@ -1,6 +1,6 @@
 from celery import current_app
 from celery.utils.log import get_task_logger
-from flask_mail import Message
+from server.mailer import Message
 from server.models import Student
 from server.tasks.commons import send_mail_with_html
 

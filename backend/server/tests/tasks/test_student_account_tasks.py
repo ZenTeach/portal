@@ -1,6 +1,6 @@
 import pytest
 from flask.testing import FlaskClient
-from flask_mail import Message
+from server.mailer import Message
 from pytest_mock import MockFixture
 from server.models import Student
 from server.tasks import send_student_confirmation_instructions

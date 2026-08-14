@@ -1,8 +1,8 @@
 
 import os
 
-from flask import render_template
-from server import mail
+from server.mailer import render_template
+from server import mailer as mail
 
 DEFAULT_MAIL_TEMPLATE_DIR = "/mail"
 

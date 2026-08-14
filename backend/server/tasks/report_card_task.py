@@ -3,7 +3,7 @@ from uuid import UUID
 
 from celery import current_app
 from celery.utils.log import get_task_logger
-from flask_mail import Message
+from server.mailer import Message
 from server.lib import ReportCardGenerator
 from server.lib.generators.report_card_generator import ModelNotFound
 from server.models import ClassQuiz, QuizGrade
