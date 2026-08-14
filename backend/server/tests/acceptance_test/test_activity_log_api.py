@@ -45,11 +45,11 @@ def test_get_activity_logs(client: FlaskClient,
         })
     activity_log = ActivityLog.query.all()[0]
     assert response.status_code == 200
-    assert response.json[0] == {
+    assert response.json()[0] == {
         'action': 'create',
         'created': str(activity_log.created.strftime('%Y-%m-%dT%H:%M:%S.%f')),
         'item_type': 'school_class',
         'item_id': school_class.id,
         'note': ''
     }
-    assert len(response.json) == 10
+    assert len(response.json()) == 10

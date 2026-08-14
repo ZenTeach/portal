@@ -6,28 +6,52 @@ from shutil import which
 from typing import List, Tuple
 
 import pytest
-from flask.testing import FlaskClient
-from server import create_app, db
-from server.models import Teacher
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from sqlalchemy_searchable import sync_trigger
+
+from server import db
+from server.auth import (
+    create_access_token,
+    create_refresh_token,
+    get_csrf_token,
+    get_jti,
+)
+from server.auth.cookies import (
+    ACCESS_COOKIE_NAME,
+    ACCESS_CSRF_COOKIE_NAME,
+    REFRESH_COOKIE_NAME,
+    REFRESH_CSRF_COOKIE_NAME,
+)
+from server.fastapi_app import create_fastapi_app
+from server.models import Teacher
 
 getLogger('factory').setLevel(CRITICAL)
 getLogger('factory.generate').setLevel(CRITICAL)
 getLogger('faker.factory').setLevel(CRITICAL)
 
 
+def _test_database_url() -> str:
+    url = os.environ.get("DATABASE_TEST_URL")
+    if not url:
+        raise RuntimeError("DATABASE_TEST_URL must be set to run the test suite")
+    return url
+
+
 @pytest.fixture(scope="session")
 def engine():
-    return create_engine(os.environ.get("DATABASE_TEST_URL"))
+    return create_engine(_test_database_url())
 
 
 @pytest.fixture(scope="session")
 def app():
-    app = create_app()
-    return app
+    # Point the shared DB singleton at the test database. The explicit URI
+    # takes precedence over the URL baked into the Flask compat config, so the
+    # FastAPI app (and everything under it) talks to the test DB.
+    db.init_app(uri=_test_database_url())
+    return create_fastapi_app()
 
 
 @pytest.fixture
@@ -38,18 +62,28 @@ def selenium(selenium):
 
 
 @pytest.fixture(scope="function")
-def client():
-    app = create_app()
-    app.config.from_object("server.config.TestingConfig")
-    with app.app_context():
-        db.create_all()
-        sync_search_vector_triggers(db.engine, [
-            ('questions', 'question'),
-            ('topics', 'value'),
-            ('knowledge_items', 'value')
-        ])
-        yield app.test_client()
-        db.session.remove()  # looks like db.session.close() would work as well
+def client(app):
+    from server.db import _request_session_scope
+    db.init_app(uri=_test_database_url())
+    db.create_all()
+    sync_search_vector_triggers(db.engine, [
+        ('questions', 'question'),
+        ('topics', 'value'),
+        ('knowledge_items', 'value')
+    ])
+    # Pre-bind a single request scope spanning the whole test so the pytest
+    # thread (factories/fixtures) and the TestClient worker thread (request
+    # handlers) share one SQLAlchemy session. This avoids the cross-session
+    # deadlocks and staleness that occur when each side holds its own
+    # transaction on the same rows.
+    scope = "test"
+    token = _request_session_scope.set(scope)
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        db.session.remove()
+        _request_session_scope.reset(token)
         db.drop_all()
         db.engine.dispose()
 
@@ -60,37 +94,45 @@ def sync_search_vector_triggers(engine: Engine, table_search_entity_list: List[T
 
 
 @pytest.fixture(scope="function")
-def teacher_identity(client: FlaskClient) -> Teacher:
+def teacher_identity(client: TestClient) -> Teacher:
     from server.tests.factories import TeacherFactory
-    with client.session_transaction():
-        teacher = TeacherFactory.create()
-    return teacher
+    return TeacherFactory.create()
 
 
 @pytest.fixture(autouse=True)
-def access_token(client: FlaskClient, teacher_identity: Teacher) -> List[str]:
-    from datetime import timedelta
+def access_token(client: TestClient, teacher_identity: Teacher) -> List[str]:
+    import server
 
-    from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                    get_csrf_token, get_jti)
-    from server import redis_store
-    from server.lib.utils.jwt_fixes import (set_access_cookies,
-                                            set_refresh_cookies)
+    access_token = create_access_token(
+        teacher_identity.id, fresh=True, user_type="teacher"
+    )
+    refresh_token = create_refresh_token(teacher_identity.id, user_type="teacher")
 
-    access_token = create_access_token(teacher_identity.id, fresh=True)
-    refresh_token = create_refresh_token(teacher_identity.id)
-    set_access_cookies(client, access_token, legacy=True)
+    # Prime the client cookie jar with the same cookies the SPA would receive
+    # from a real login, so FastAPI's cookie-based token resolution works.
+    client.cookies.set(ACCESS_COOKIE_NAME, access_token)
+    client.cookies.set(REFRESH_COOKIE_NAME, refresh_token)
+    client.cookies.set(ACCESS_CSRF_COOKIE_NAME, get_csrf_token(access_token))
+    client.cookies.set(REFRESH_CSRF_COOKIE_NAME, get_csrf_token(refresh_token))
 
-    set_refresh_cookies(client, refresh_token, legacy=True)
-    access_jti = get_jti(access_token)
-    refresh_jti = get_jti(refresh_token)
-    redis_store.set(access_jti, "true", timedelta(minutes=30) * 1.2)
-    redis_store.set(refresh_jti, "true", timedelta(minutes=30) * 1.2)
+    # Default double-submit CSRF header for the access token, so requests that
+    # don't pass headers explicitly still satisfy the CSRF check (mirrors the
+    # legacy tests, where `verify_jwt_in_request` was mocked to a no-op and the
+    # cookies alone authenticated every request).
+    client.headers["X-CSRF-ACCESS-TOKEN"] = get_csrf_token(access_token)
 
-    return [access_token,
-            refresh_token,
-            get_csrf_token(access_token),
-            get_csrf_token(refresh_token)]
+    # Allowlist the jtis so the (allowlist-semantics) blocklist check passes.
+    store = getattr(server, "redis_store", None)
+    if store is not None:
+        store.set(get_jti(access_token), "true")
+        store.set(get_jti(refresh_token), "true")
+
+    return [
+        access_token,
+        refresh_token,
+        get_csrf_token(access_token),
+        get_csrf_token(refresh_token),
+    ]
 
 
 @pytest.fixture(scope='session')

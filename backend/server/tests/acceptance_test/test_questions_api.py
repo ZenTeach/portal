@@ -5,6 +5,7 @@ import pytest
 from faker import Faker
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
+from server import db
 from server.models import (KnowledgeItem, QuestionsSchema, Subject, Teacher,
                            Topic)
 from server.models.questions import Questions
@@ -96,7 +97,7 @@ def question_payload(subject_: Subject) -> dict:
         knowledge_item=kis,
         topic=topic,
         multiple_choice_question_type=True)
-    return QuestionsSchema().dump(built_question)
+    return QuestionsSchema.dump_one(built_question)
 
 
 @pytest.fixture
@@ -112,7 +113,7 @@ def question_payload_as_json(subject_: Subject, teacher_: Teacher) -> dict:
             'choice_count': 4
         })
 
-    question_json = QuestionsSchema().dump(q)
+    question_json = QuestionsSchema.dump_one(q)
     correct_choice_id = q.choices[0].id
     question_json.update({
         'correct_choice_id': correct_choice_id,
@@ -137,7 +138,7 @@ def existing_question_payload_as_json() -> dict:
                          with_choices={
                              'choice_count': 4,
                          })
-    json_dump = QuestionsSchema().dump(q)
+    json_dump = QuestionsSchema.dump_one(q)
     json_dump['choices'][0].update({
         'is_correct_choice': True
     })
@@ -159,7 +160,7 @@ def question_payload_json_without_correct_choice(subject_: Subject, teacher_: Te
                              'choice_count': 4
                          })
 
-    dumped_question = QuestionsSchema().dump(q)
+    dumped_question = QuestionsSchema.dump_one(q)
     dumped_question.update({
         'topic': topic.value,
         'knowledge_item': ki.value,
@@ -173,13 +174,13 @@ def question_payload_json_without_correct_choice(subject_: Subject, teacher_: Te
 @pytest.fixture
 def knowledgeitems_() -> List[str]:
     kis = KnowledgeItem.query.with_entities(KnowledgeItem.value).distinct().all()
-    return [item for subl in kis for item in subl if item is not None]
+    return [str(item) for subl in kis for item in subl if item is not None]
 
 
 @pytest.fixture
 def topics_() -> List[str]:
     topics = Topic.query.with_entities(Topic.value).distinct().all()
-    return [item for subl in topics for item in subl if item is not None]
+    return [str(item) for subl in topics for item in subl if item is not None]
 
 
 @pytest.fixture
@@ -215,7 +216,7 @@ def test_question_list_get(client: FlaskClient,
 
     assert response.status_code == status
 
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert len(data["questions"]) == count
 
 
@@ -239,7 +240,7 @@ def test_knowledge_item_filter(client: FlaskClient,
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         }
     )
-    data = json.loads(response.data)
+    data = json.loads(response.content)
 
     assert response.status_code == status_code
     assert len(data) == topic_count
@@ -285,7 +286,7 @@ def test_topic_filter(client: FlaskClient,
             'Authorization': 'Bearer {}'.format(access_token[0]),
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
-    data = json.loads(response.data)
+    data = json.loads(response.content)
 
     assert response.status_code == status_code
     assert len(data) == topics
@@ -304,7 +305,7 @@ def test_topic_filters_with_case_normalization(client: FlaskClient,
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
 
-    data = json.loads(response.data)
+    data = json.loads(response.content)
 
     assert response.status_code == 200
     assert len(data) == 3
@@ -395,7 +396,7 @@ def test_question_get_item(client: FlaskClient,
         })
 
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert data["question"]["id"] == question.id
 
 
@@ -474,7 +475,7 @@ def test_question_filter_by_topics_kis(client: FlaskClient,
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
 
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     data = data['data']
 
     assert response.status_code == 200
@@ -529,7 +530,7 @@ def test_question_search_with_params(client: FlaskClient,
     )
 
     assert response.status_code == 200
-    assert len(json.loads(response.data)['data']) > 0
+    assert len(json.loads(response.content)['data']) > 0
 
 
 def test_question_search_with_special_character_params(client: FlaskClient,
@@ -556,7 +557,7 @@ def test_question_search_with_special_character_params(client: FlaskClient,
     )
 
     assert response.status_code == 200
-    assert len(json.loads(response.data)['data']) > 0
+    assert len(json.loads(response.content)['data']) > 0
 
 
 def test_question_search_optional_filter(client: FlaskClient,
@@ -583,7 +584,7 @@ def test_question_search_optional_filter(client: FlaskClient,
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         }
     )
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert response.status_code == 200
     assert len(data['data']) > 0
 
@@ -594,7 +595,7 @@ def test_question_search_optional_filter(client: FlaskClient,
         "/api/v1/question/search",
         json=payload
     )
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert response.status_code == 200
     assert len(data['data']) > 0
 
@@ -661,7 +662,7 @@ def test_teacher_owned_question_get_action(client: FlaskClient,
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert len(data['questions']) == 1
 
 
@@ -672,7 +673,7 @@ def test_teacher_owned_question_create_action(client: FlaskClient,
                                               question_payload_as_json: dict):
     def mocked_log_activity(*args):
         assert len(args) == 6
-    mocker.patch('server.api.questions_api.log_activity', mocked_log_activity)
+    mocker.patch('server.routers.questions.log_activity', mocked_log_activity)
 
     question_payload_as_json.update({
         'user_created': True,
@@ -715,7 +716,7 @@ def test_teacher_owned_question_create_action_422_error(client: FlaskClient,
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
     assert response.status_code == 422
-    assert response.data
+    assert response.content
 
 
 def test_teacher_owned_question_delete_action(client: FlaskClient,
@@ -725,7 +726,7 @@ def test_teacher_owned_question_delete_action(client: FlaskClient,
                                               teacher_created_question: Questions) -> None:
     def mocked_log_activity(*args):
         assert len(args) == 6
-    mocker.patch('server.api.questions_api.log_activity', mocked_log_activity)
+    mocker.patch('server.routers.questions.log_activity', mocked_log_activity)
 
     teacher_created_question.teacher_id = teacher_identity.id
     teacher_created_question.save()
@@ -746,7 +747,7 @@ def test_teacher_owned_question_update_action(client: FlaskClient,
                                               teacher_created_question: Questions) -> None:
     def mocked_log_activity(*args):
         assert len(args) == 6
-    mocker.patch('server.api.questions_api.log_activity', mocked_log_activity)
+    mocker.patch('server.routers.questions.log_activity', mocked_log_activity)
 
     update_params = {
         'knowledge_item': "Another Testing value"
@@ -774,7 +775,7 @@ def test_teacher_owned_question_update_choices_action(client: FlaskClient,
                                                       teacher_created_question: Questions) -> None:
     def mocked_log_activity(*args):
         assert len(args) == 6
-    mocker.patch('server.api.questions_api.log_activity', mocked_log_activity)
+    mocker.patch('server.routers.questions.log_activity', mocked_log_activity)
 
     update_params = {
         'knowledge_item': "Another Testing value",
@@ -782,28 +783,28 @@ def test_teacher_owned_question_update_choices_action(client: FlaskClient,
             {
                 "feedback": "choice 1 feedback",
                 "is_correct_choice": False,
-                "uuid": teacher_created_question.choices[0].uuid,
+                "uuid": str(teacher_created_question.choices[0].uuid),
                 "value": "choice 1",
                 "weight": 1
             },
             {
                 "feedback": "choice 2 feedback",
                 "is_correct_choice": False,
-                "uuid": teacher_created_question.choices[1].uuid,
+                "uuid": str(teacher_created_question.choices[1].uuid),
                 "value": "choice 2",
                 "weight": 1
             },
             {
                 "feedback": "choice 3 feedback",
                 "is_correct_choice": False,
-                "uuid": teacher_created_question.choices[2].uuid,
+                "uuid": str(teacher_created_question.choices[2].uuid),
                 "value": "choice 3",
                 "weight": 1
             },
             {
                 "feedback": "choice 4 feedback",
                 "is_correct_choice": True,
-                "uuid": teacher_created_question.choices[3].uuid,
+                "uuid": str(teacher_created_question.choices[3].uuid),
                 "value": "choice 4",
                 "weight": 1
             },
@@ -818,8 +819,11 @@ def test_teacher_owned_question_update_choices_action(client: FlaskClient,
             'Authorization': 'Bearer {}'.format(access_token[0]),
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
-    question = teacher_identity.questions[0]
     assert response.status_code == 200
+    # The request mutated the question in its own request-scoped session; expire
+    # the test session so the relationship/choices reload from the database.
+    db.session.expire_all()
+    question = teacher_identity.questions[0]
     assert all([choice.user_created for choice in question.choices])
     assert question.correct_choice() is not None
     assert question.correct_choice().value == 'choice 4'
@@ -838,7 +842,7 @@ def test_updating_original_question_creates_question_on_user(client: FlaskClient
 
     def mocked_log_activity(*args):
         assert len(args) == 6
-    mocker.patch('server.api.questions_api.log_activity', mocked_log_activity)
+    mocker.patch('server.routers.questions.log_activity', mocked_log_activity)
 
     q_id = existing_question_payload_as_json.pop('id')
     existing_question_payload_as_json.update({

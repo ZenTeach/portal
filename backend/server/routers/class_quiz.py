@@ -10,6 +10,7 @@ from sqlalchemy import exc
 
 from server import db
 from server.auth import jwt_required, with_required_roles
+from server.lib import format_pydantic_validation_for_api
 from server.models import ClassQuiz as ClassQuizModel
 from server.models import (
     ClassQuizSchema,
@@ -128,7 +129,7 @@ def class_quiz_create(
         return json_response(response_object, 201)
     except ValidationError as e:
         return json_response(
-            {"status": "failed", "message": e.errors()}, 400
+            {"status": "failed", "message": format_pydantic_validation_for_api(e)}, 400
         )
     except exc.IntegrityError as e:
         db.session.rollback()
@@ -294,7 +295,7 @@ def class_quiz_update(
         )
     except ValidationError as e:
         return json_response(
-            {"status": "failed", "message": e.errors()}, 400
+            {"status": "failed", "message": format_pydantic_validation_for_api(e)}, 400
         )
     except Exception as e:  # noqa: BLE001
         logger.error(e)

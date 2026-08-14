@@ -57,7 +57,15 @@ def _enter_request_session():
     :func:`_exit_request_session`.  Called on the event-loop thread; worker
     threads running sync route handlers inherit the scope via the copied
     context, so ``db.session`` resolves to this same session everywhere.
+
+    If a scope is already active (e.g. a test pre-bound one to share a single
+    session between fixtures and request handlers), that session is reused and
+    a ``None`` token is returned so the caller leaves it in place.
     """
+    if _request_session_scope.get() is not None:
+        db.engine
+        return db.session(), None
+
     scope = object()
     token = _request_session_scope.set(scope)
     # Ensure the session factory is bound to the engine before the scoped
@@ -68,7 +76,13 @@ def _enter_request_session():
 
 
 def _exit_request_session(token):
-    """Remove the request-scoped session and restore the previous scope."""
+    """Remove the request-scoped session and restore the previous scope.
+
+    A ``None`` token means the session belonged to an outer (test) scope that
+    is still in use, so it is left untouched.
+    """
+    if token is None:
+        return
     db.session.remove()
     _request_session_scope.reset(token)
 

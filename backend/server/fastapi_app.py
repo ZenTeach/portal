@@ -22,6 +22,7 @@ from sqlalchemy_searchable import make_searchable
 from starlette.middleware.cors import CORSMiddleware
 
 import server
+from server import monkey_patch_json_encoder
 import redis as redis_lib
 from server.config.settings import get_settings
 from server.db import _enter_request_session, _exit_request_session, db
@@ -67,6 +68,11 @@ def _install_redis_store():
 
 def create_fastapi_app() -> FastAPI:
     """Build and return the FastAPI application."""
+    # Mirror the legacy Flask app's global JSON-encoder monkey-patch so
+    # ``json.dumps`` (and any client relying on it, e.g. the test client)
+    # serializes UUIDs, dates, enums, and ``to_dict`` objects the same way.
+    monkey_patch_json_encoder()
+
     flask_app = _build_flask_compat_app()
 
     # ORM layer -- shared compatibility singleton (no Flask app required).

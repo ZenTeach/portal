@@ -23,6 +23,10 @@ from server.auth.tokens import (
 )
 from server.config.settings import get_settings
 
+# Methods on which flask-jwt-extended enforced the double-submit CSRF check
+# (JWT_CSRF_METHODS default). Safe methods (GET/HEAD/OPTIONS) are exempt.
+_CSRF_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
 
 def _session_expired() -> HTTPException:
     return HTTPException(
@@ -92,7 +96,9 @@ def _verify_token(
         raise _session_expired()
 
     # Double-submit CSRF: header value must equal the token's csrf claim.
-    if settings.jwt_cookie_csrf_protect:
+    # Only enforced on the unsafe methods, mirroring flask-jwt-extended's
+    # JWT_CSRF_METHODS gating (safe methods like GET are exempt).
+    if settings.jwt_cookie_csrf_protect and request.method in _CSRF_METHODS:
         header_name = (
             settings.jwt_refresh_csrf_header_name
             if token_type == REFRESH_TOKEN_TYPE
