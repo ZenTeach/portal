@@ -111,10 +111,31 @@ def create_fastapi_app() -> FastAPI:
 
     # Ported API routers (same ``/api/v1`` prefix as the legacy blueprints).
     # Imported after ``_install_redis_store`` so the blocklist client is ready.
-    from server.routers import student_auth_router, teacher_auth_router
+    from server.routers import (
+        activity_log_router,
+        class_quiz_router,
+        knowledge_item_router,
+        question_router,
+        quiz_submit_router,
+        root_api_router,
+        school_class_router,
+        stats_router,
+        student_auth_router,
+        teacher_auth_router,
+        topic_router,
+    )
 
     fastapi_app.include_router(teacher_auth_router, prefix="/api/v1")
     fastapi_app.include_router(student_auth_router, prefix="/api/v1")
+    fastapi_app.include_router(root_api_router, prefix="/api/v1")
+    fastapi_app.include_router(activity_log_router, prefix="/api/v1")
+    fastapi_app.include_router(topic_router, prefix="/api/v1")
+    fastapi_app.include_router(knowledge_item_router, prefix="/api/v1")
+    fastapi_app.include_router(quiz_submit_router, prefix="/api/v1")
+    fastapi_app.include_router(stats_router, prefix="/api/v1")
+    fastapi_app.include_router(question_router, prefix="/api/v1")
+    fastapi_app.include_router(school_class_router, prefix="/api/v1")
+    fastapi_app.include_router(class_quiz_router, prefix="/api/v1")
 
     @fastapi_app.get("/healthcheck")
     def healthcheck():

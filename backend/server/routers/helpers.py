@@ -14,11 +14,23 @@ from ``server.api``:
 import logging
 from typing import Any, Optional
 
+from fastapi.responses import JSONResponse
+
 import server
 from server.config.settings import get_settings
 from server.models import ActivityLog
 
 logger = logging.getLogger("zenteach.fastapi")
+
+
+def json_response(content: Any, status_code: int = 200) -> JSONResponse:
+    """Return a JSONResponse with the given content and status code."""
+    return JSONResponse(content=content, status_code=status_code)
+
+
+def error_response(message: str, status_code: int) -> JSONResponse:
+    """Return a JSON error response with a ``message`` key."""
+    return json_response({"message": message}, status_code)
 
 
 def redis_store():
