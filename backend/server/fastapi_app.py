@@ -25,6 +25,7 @@ import server
 import redis as redis_lib
 from server.config.settings import get_settings
 from server.db import _enter_request_session, _exit_request_session, db
+from server.metrics import MetricsMiddleware, metrics_endpoint
 from server.security import bcrypt  # noqa: F401  (kept for parity)
 
 __all__ = ["create_fastapi_app"]
@@ -109,6 +110,9 @@ def create_fastapi_app() -> FastAPI:
         finally:
             _exit_request_session(token)
 
+    # Prometheus request metrics (replaces prometheus-flask-exporter).
+    fastapi_app.add_middleware(MetricsMiddleware)
+
     # Ported API routers (same ``/api/v1`` prefix as the legacy blueprints).
     # Imported after ``_install_redis_store`` so the blocklist client is ready.
     from server.routers import (
@@ -140,6 +144,8 @@ def create_fastapi_app() -> FastAPI:
     @fastapi_app.get("/healthcheck")
     def healthcheck():
         return {"status": "success", "message": "Pinged the fastapi healthcheck"}
+
+    fastapi_app.add_route("/metrics", metrics_endpoint, methods=["GET"])
 
     return fastapi_app
 
