@@ -13,8 +13,7 @@ topic_router = APIRouter(tags=["topics"])
 
 @topic_router.get("/topics")
 def topics_list(_: Teacher = Depends(jwt_required(fresh=True))):
-    dumper = TopicSchema(many=True)
-    return json_response({"data": dumper.dump(Topic.query.all())})
+    return json_response({"data": TopicSchema.dump_many(Topic.query.all())})
 
 
 @topic_router.post("/topics")
@@ -31,7 +30,6 @@ def topics_create(
 
     topic_data.update({"teacher_id": teacher.id, "subject_id": subject_.id})
 
-    dumper = TopicSchema()
     topic = Topic(**topic_data)
     try:
         topic.save()
@@ -39,16 +37,15 @@ def topics_create(
         logger.error(e)
         return error_response("", 500)
 
-    return json_response({"data": dumper.dump(topic)}, 201)
+    return json_response({"data": TopicSchema.dump_one(topic)}, 201)
 
 
 @topic_router.get("/topic/{topic_id}")
 def topic_get(topic_id: int, _: Teacher = Depends(jwt_required(fresh=True))):
-    dumper = TopicSchema()
     topic = Topic.query.filter_by(id=topic_id).first()
     if not topic:
         return json_response({"data": [], "message": "Topic not found."}, 404)
-    return json_response({"data": dumper.dump(topic)})
+    return json_response({"data": TopicSchema.dump_one(topic)})
 
 
 @topic_router.put("/topic/{topic_id}")
@@ -63,7 +60,6 @@ def topic_update(
     if not topic_data:
         return error_response("", 400)
 
-    dumper = TopicSchema()
     try:
         topic.update_and_save(**topic_data)
         topic.save()
@@ -71,7 +67,7 @@ def topic_update(
         logger.error(e)
         return error_response("", 500)
 
-    return json_response({"data": dumper.dump(topic)})
+    return json_response({"data": TopicSchema.dump_one(topic)})
 
 
 @topic_router.post("/topics/search")
@@ -87,10 +83,9 @@ def topics_search(
     if not search:
         return error_response("", 400)
 
-    dumper = TopicSchema(many=True)
     topics = Topic.query.search(search)
     if subject:
         topics = topics.filter_by(subject_id=subject.id)
     topics = topics.all()
 
-    return json_response({"data": dumper.dump(topics)})
+    return json_response({"data": TopicSchema.dump_many(topics)})

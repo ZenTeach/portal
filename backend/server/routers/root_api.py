@@ -14,12 +14,10 @@ root_api_router = APIRouter(tags=["root"])
 
 @root_api_router.get("/subjects")
 def subjects():
-    dumper = SubjectSchema()
     subjects_ = Subject.query.all()
-    return json_response({"subjects": [dumper.dump(subject) for subject in subjects_]})
+    return json_response({"subjects": SubjectSchema.dump_many(subjects_)})
 
 
 @root_api_router.get("/settings")
 def settings():
-    dumper = SettingSchema()
-    return json_response(dumper.dump(Setting()))
+    return json_response(SettingSchema.dump_one(Setting()))

@@ -3,7 +3,7 @@ from typing import Dict, OrderedDict
 import pytest
 from factory import build
 from flask.testing import FlaskClient
-from marshmallow import ValidationError
+from pydantic import ValidationError
 from server.models import KnowledgeItem, Questions, Subject, Topic
 from server.tests.factories import QuestionsFactory, SubjectFactory
 from server.tests.factories.knowledge_item_factory import KnowledgeItemFactory

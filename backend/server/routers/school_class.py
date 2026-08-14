@@ -3,7 +3,7 @@
 from typing import Any, Dict
 
 from fastapi import APIRouter, Body, Depends
-from marshmallow import INCLUDE, Schema, fields
+from pydantic import BaseModel, ConfigDict, EmailStr, ValidationError
 from sqlalchemy import exc
 
 from server import db
@@ -15,15 +15,12 @@ from server.routers.helpers import error_response, json_response, log_activity, 
 
 school_class_router = APIRouter(tags=["school-classes"])
 
-schema_dumper = SchoolClassSchema()
 
+class PatchPayloadSchema(BaseModel):
+    model_config = ConfigDict(extra="allow")
 
-class PatchPayloadSchema(Schema):
-    class Meta:
-        unknown = INCLUDE
-
-    new_email = fields.Email(required=True)
-    old_email = fields.Email(required=True)
+    new_email: EmailStr
+    old_email: EmailStr
 
 
 @school_class_router.get("/school_class/owned")
@@ -41,7 +38,7 @@ def teacher_owned_class(teacher: Teacher = Depends(jwt_required(fresh=True))):
             return json_response(
                 {
                     "status": "success",
-                    "data": [schema_dumper.dump(c) for c in classrooms],
+                    "data": SchoolClassSchema.dump_many(classrooms),
                 }
             )
     except Exception as e:  # noqa: BLE001
@@ -65,7 +62,7 @@ def school_class_owned(
             return json_response(
                 {
                     "status": "success",
-                    "data": [schema_dumper.dump(c) for c in classrooms],
+                    "data": SchoolClassSchema.dump_many(classrooms),
                 }
             )
     except ValueError:
@@ -78,10 +75,9 @@ def school_class_list(_: Teacher = Depends(jwt_required(fresh=True))):
         {
             "status": "success",
             "data": {
-                "school_classes": [
-                    schema_dumper.dump(classroom)
-                    for classroom in SchoolClassModel.query.all()
-                ]
+                "school_classes": SchoolClassSchema.dump_many(
+                    SchoolClassModel.query.all()
+                )
             },
         }
     )
@@ -154,7 +150,7 @@ def school_class_get(
             return json_response(
                 {
                     "status": "success",
-                    "data": schema_dumper.dump(class_room),
+                    "data": SchoolClassSchema.dump_one(class_room),
                 }
             )
     except ValueError:
@@ -325,8 +321,9 @@ def school_class_student_update_email(
         return error_response("School class room doesn't exist", 404)
 
     data = data or {}
-    validation = PatchPayloadSchema().validate(data=data)
-    if validation is not None and len(validation) != 0:
+    try:
+        PatchPayloadSchema.model_validate(data)
+    except ValidationError:
         return error_response("Data is not valid!", 400)
 
     new_email = data.get("new_email")

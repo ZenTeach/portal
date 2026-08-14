@@ -14,8 +14,7 @@ knowledge_item_router = APIRouter(tags=["knowledge-items"])
 
 @knowledge_item_router.get("/knowledge_items")
 def knowledge_items_list(_: Teacher = Depends(jwt_required(fresh=True))):
-    dumper = KnowledgeItemSchema(many=True)
-    return json_response({"data": dumper.dump(KnowledgeItem.query.all())})
+    return json_response({"data": KnowledgeItemSchema.dump_many(KnowledgeItem.query.all())})
 
 
 @knowledge_item_router.post("/knowledge_items")
@@ -38,7 +37,6 @@ def knowledge_items_create(
         {"teacher_id": teacher.id, "subject_id": subject_.id, "topic_id": topic.id}
     )
 
-    dumper = KnowledgeItemSchema()
     ki = KnowledgeItem(**ki_data)
     try:
         ki.save()
@@ -46,20 +44,19 @@ def knowledge_items_create(
         logger.error(e)
         return error_response("", 500)
 
-    return json_response({"data": dumper.dump(ki)}, 201)
+    return json_response({"data": KnowledgeItemSchema.dump_one(ki)}, 201)
 
 
 @knowledge_item_router.get("/knowledge_item/{knowledge_item_id}")
 def knowledge_item_get(
     knowledge_item_id: int, _: Teacher = Depends(jwt_required(fresh=True))
 ):
-    dumper = KnowledgeItemSchema()
     knowledge_item = KnowledgeItem.query.filter_by(id=knowledge_item_id).first()
     if not knowledge_item:
         return json_response(
             {"data": [], "message": "Topic content not found."}, 404
         )
-    return json_response({"data": dumper.dump(knowledge_item)})
+    return json_response({"data": KnowledgeItemSchema.dump_one(knowledge_item)})
 
 
 @knowledge_item_router.put("/knowledge_item/{knowledge_item_id}")
@@ -78,7 +75,6 @@ def knowledge_item_update(
     if not ki_data:
         return error_response("", 400)
 
-    dumper = KnowledgeItemSchema()
     try:
         knowledge_item.update_and_save(**ki_data)
         knowledge_item.save()
@@ -86,7 +82,7 @@ def knowledge_item_update(
         logger.error(e)
         return error_response("", 500)
 
-    return json_response({"data": dumper.dump(knowledge_item)})
+    return json_response({"data": KnowledgeItemSchema.dump_one(knowledge_item)})
 
 
 @knowledge_item_router.post("/knowledge_item/search")
@@ -107,7 +103,6 @@ def knowledge_item_search(
     if not topic:
         return error_response("", 400)
 
-    dumper = KnowledgeItemSchema(many=True)
     knowledge_items = KnowledgeItem.query.search(search)
 
     if subject:
@@ -117,4 +112,4 @@ def knowledge_item_search(
 
     knowledge_items = knowledge_items.all()
 
-    return json_response({"data": dumper.dump(knowledge_items)})
+    return json_response({"data": KnowledgeItemSchema.dump_many(knowledge_items)})

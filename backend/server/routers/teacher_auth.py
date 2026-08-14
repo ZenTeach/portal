@@ -33,7 +33,6 @@ from server.tasks import (
 
 teacher_auth_router = APIRouter(tags=["teacher-auth"])
 
-dumper = TeacherSchema()
 ACCESS_EXPIRES = timedelta(days=1)
 REFRESH_EXPIRES = timedelta(days=30)
 
@@ -157,7 +156,7 @@ def current_teacher(
 ):
     try:
         t = Teacher.query.filter_by(email=teacher.email).first()
-        return _json({"user": dumper.dump(t)})
+        return _json({"user": TeacherSchema.dump_one(t)})
     except Exception as e:  # noqa: BLE001
         logger.error(e)
         logger.debug(teacher)

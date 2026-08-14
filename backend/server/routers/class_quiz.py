@@ -1,11 +1,11 @@
 """FastAPI port of ``server/api/class_quiz_api.py``."""
 
 import re
-from typing import Dict, Union
+from typing import Dict, List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends
-from marshmallow import INCLUDE, Schema, ValidationError, fields, validates_schema
+from pydantic import BaseModel, ConfigDict, ValidationError, model_validator
 from sqlalchemy import exc
 
 from server import db
@@ -26,76 +26,63 @@ from server.routers.helpers import error_response, json_response, log_activity, 
 
 class_quiz_router = APIRouter(tags=["class-quiz"])
 
-dumper = ClassQuizSchema()
-students_dumper = StudentSchema(many=True)
+
+class ClassQuizCreateQuestionChoicesSchema(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    uuid: str
+    value: str
 
 
-class ClassQuizCreateQuestionChoicesSchema(Schema):
-    class Meta:
-        unknown = INCLUDE
+class ClassQuizCreateTopicSchema(BaseModel):
+    model_config = ConfigDict(extra="allow")
 
-    uuid = fields.Str(required=True)
-    value = fields.Str(required=True)
+    value: str
 
 
-class ClassQuizCreateTopicSchema(Schema):
-    class Meta:
-        unknown = INCLUDE
+class ClassQuizCreateKnowledgeItemSchema(BaseModel):
+    model_config = ConfigDict(extra="allow")
 
-    value = fields.Str(required=True)
-
-
-class ClassQuizCreateKnowledgeItemSchema(Schema):
-    class Meta:
-        unknown = INCLUDE
-
-    value = fields.Str(required=True)
+    value: str
 
 
-class ClassQuizCreateQuestionsSchema(Schema):
-    class Meta:
-        unknown = INCLUDE
+class ClassQuizCreateQuestionsSchema(BaseModel):
+    model_config = ConfigDict(extra="allow")
 
-    knowledge_item = fields.Nested(
-        ClassQuizCreateKnowledgeItemSchema, required=True, unknown=INCLUDE
-    )
-    question_type = fields.Int(required=True)
-    choices = fields.Nested(
-        ClassQuizCreateQuestionChoicesSchema, many=True, required=True
-    )
-    topic = fields.Nested(ClassQuizCreateTopicSchema, required=True)
-    subject = fields.Dict(keys=fields.Str, values=fields.Str, required=True)
-    tag = fields.Str(required=True)
-    question = fields.Str(required=True)
-    id = fields.Int(required=True)
+    knowledge_item: ClassQuizCreateKnowledgeItemSchema
+    question_type: int
+    choices: List[ClassQuizCreateQuestionChoicesSchema]
+    topic: ClassQuizCreateTopicSchema
+    subject: Dict[str, str]
+    tag: str
+    question: str
+    id: int
 
 
-class ClassQuizCreateSchema(Schema):
-    class Meta:
-        unknown = INCLUDE
+class ClassQuizCreateSchema(BaseModel):
+    model_config = ConfigDict(extra="allow")
 
-    subject = fields.Str(required=True)
-    name = fields.Str(required=True)
-    class_id = fields.Int(required=True)
-    questions = fields.Nested(ClassQuizCreateQuestionsSchema, many=True, required=True)
+    subject: str
+    name: str
+    class_id: int
+    questions: List[ClassQuizCreateQuestionsSchema]
 
-    @validates_schema(pass_original=True)
-    def validate_selected_questions(self, *values, **kwargs):
-        data = values[0]
-        question_ids = [question["id"] for question in data["questions"]]
-        questions = Questions.query.filter(Questions.id.in_(question_ids))
-        if questions.count() != len(question_ids):
-            raise ValidationError(
+    @model_validator(mode="after")
+    def validate_selected_questions(self):
+        question_ids = [question.id for question in self.questions]
+        db_questions = Questions.query.filter(Questions.id.in_(question_ids))
+        if db_questions.count() != len(question_ids):
+            raise ValueError(
                 "Invalid question found! Please report this so we can fix it!"
             )
+        return self
 
 
-class ClassQuizUpdateSchema(Schema):
-    class Meta:
-        unknown = INCLUDE
+class ClassQuizUpdateSchema(BaseModel):
+    model_config = ConfigDict(extra="allow")
 
-    name = fields.Str(required=True)
-    private = fields.Boolean(required=False)
+    name: str
+    private: Optional[bool] = None
 
 
 @class_quiz_router.get("/class_quiz")
@@ -105,7 +92,7 @@ def class_quiz_list(_: object = Depends(with_required_roles(["Teacher", "Admin"]
             "status": "success",
             "data": {
                 "class_quizzes": [
-                    dumper.dump(classquiz)
+                    ClassQuizSchema.dump_one(classquiz)
                     for classquiz in ClassQuizModel.query.all()
                 ]
             },
@@ -123,12 +110,8 @@ def class_quiz_create(
     if not post_data:
         return json_response(error_object, 400)
 
-    validation_errors = None
     try:
-        validation_errors = ClassQuizCreateSchema().validate(data=post_data)
-
-        if validation_errors is not None and len(validation_errors) != 0:
-            raise ValidationError("Malformed data")
+        ClassQuizCreateSchema.model_validate(post_data)
 
         quiz = ClassQuizModel(**post_data)
         quiz.save()
@@ -143,9 +126,9 @@ def class_quiz_create(
         response_object = {"status": "success", "message": "Quiz was added!"}
         send_quiz_generation_email.apply_async(args=[teacher_email, quiz.id])
         return json_response(response_object, 201)
-    except ValidationError:
+    except ValidationError as e:
         return json_response(
-            {"status": "failed", "message": validation_errors}, 400
+            {"status": "failed", "message": e.errors()}, 400
         )
     except exc.IntegrityError as e:
         db.session.rollback()
@@ -195,7 +178,7 @@ def class_quiz_attended_students(
         return error_response("Student or quiz don't exist.", 404)
 
     students = quiz.student_quiz_grades
-    responses = students_dumper.dump(students)
+    responses = StudentSchema.dump_many(students)
 
     return json_response(responses)
 
@@ -209,8 +192,7 @@ def class_quiz_graded(
         class_quiz_id=quizId, graded=True
     ).all()
 
-    serializer = QuizGradeSchema(many=True)
-    return json_response(serializer.dump(graded_quizzes))
+    return json_response(QuizGradeSchema.dump_many(graded_quizzes))
 
 
 @class_quiz_router.get("/class_quiz/{quiz_grade_uuid}/send_report")
@@ -249,7 +231,7 @@ def class_quiz_get(class_quiz_uuid: str):
             return json_response(
                 {
                     "status": "success",
-                    "data": dumper.dump(class_quiz),
+                    "data": ClassQuizSchema.dump_one(class_quiz),
                 }
             )
     except ValueError:
@@ -293,14 +275,11 @@ def class_quiz_update(
     if not post_data:
         return json_response(error_object, 400)
 
-    validation_errors = None
     class_quiz: ClassQuizModel = ClassQuizModel.query.filter_by(
         uuid=class_quiz_uuid
     ).first()
     try:
-        validation_errors = ClassQuizUpdateSchema().validate(data=post_data)
-        if validation_errors is not None and len(validation_errors) != 0:
-            raise ValidationError("Malformed data")
+        ClassQuizUpdateSchema.model_validate(post_data)
         class_quiz.update_and_save(**post_data, refresh=True)
         log_activity(
             teacher,
@@ -313,9 +292,9 @@ def class_quiz_update(
         return json_response(
             {"status": "updated", "message": "Quiz updated"}
         )
-    except ValidationError:
+    except ValidationError as e:
         return json_response(
-            {"status": "failed", "message": validation_errors}, 400
+            {"status": "failed", "message": e.errors()}, 400
         )
     except Exception as e:  # noqa: BLE001
         logger.error(e)

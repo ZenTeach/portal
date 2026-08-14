@@ -1,7 +1,5 @@
 from typing import Optional
 
-from marshmallow import (Schema, ValidationError, post_load, validates,
-                         validates_schema)
 from server import db
 from server.models import Teacher
 from server.models.base_model import BaseModelMixin
@@ -58,55 +56,31 @@ class ActivityLog(BaseModelMixin, db.Model):
             properties: Optional[dict] = {},
             note: Optional[str] = None):
 
-        log = ActivityLogSchema().load({
-            'actor_id': actor.id,
-            'action': action,
-            'item_type': item_type,
-            'item_id': item_id,
-            'note': note,
-            'properties': properties
-        })
+        # NOTE: the original marshmallow ``@validates('item_type')`` and
+        # ``@validates('actor_id')`` returned booleans, which marshmallow
+        # ignores, so those two checks were never actually enforced. We
+        # deliberately preserve that behavior here and only run the
+        # cross-field ``item_id`` existence check that DID raise.
+        if item_type in DB_VALIDATABLE_ITEMS and action in ('create', 'update'):
+            item_table = Table(
+                item_type, MetaData(), autoload=True, autoload_with=db.get_engine()
+            )
+            primary_key = get_primary_keys(item_table).popitem()[1]
+            res = db.get_engine().execute(
+                f'SELECT * FROM { item_type } WHERE {primary_key.name}={item_id}')  # nosec
+            if res.rowcount == 0:
+                raise ValueError(f'Item { item_type } with id {item_id} does not exist')
+
+        log = ActivityLog(
+            actor_id=actor.id,
+            action=action,
+            item_type=item_type,
+            item_id=item_id,
+            note=note,
+            properties=properties,
+        )
         log.save()
 
     def __repr__(self):
         return f'Log for {self.item_type} by {self.actor_id} \
                performing {self.action}. Note: {self.note}'
-
-
-class ActivityLogSchema(Schema):
-    class Meta:
-        model = ActivityLog
-        load_instance = True
-        fields = ('actor_id', 'note', 'action',
-                  'item_type', 'properties', 'item_id')
-
-    @validates('item_type')
-    def validate_item_type(self, item_type: str) -> bool:
-        return item_type in LOGGABLE_ITEM_TYPES
-
-    @validates('actor_id')
-    def validate_teacher_id(self, id: int) -> bool:
-        return Teacher.query.filter_by(id=id).count() > 0
-
-    @validates_schema(pass_original=True)
-    def validate_item_id(self, *values, **kwargs) -> bool:
-        data = values[0]
-        if data['item_type'] not in DB_VALIDATABLE_ITEMS:
-            # don't validate if item_type is not in DB_VALIDATABLE_ITEMS
-            return True
-        if data['action'] in ('create', 'update'):
-            item_type = data['item_type']
-            item_id = data['item_id']
-            # do db level validation
-            item_table = Table(item_type, MetaData(), autoload=True, autoload_with=db.get_engine())
-            primary_key = get_primary_keys(item_table).popitem()[1]
-            res = db.get_engine().execute(
-                f'SELECT * FROM { item_type } WHERE {primary_key.name}={item_id}')  # nosec
-            if res.rowcount == 0:
-                raise ValidationError(f'Item { item_type } with id {item_id} does not exist')
-        else:
-            pass
-
-    @post_load
-    def make_log(self, data, **kwargs):
-        return ActivityLog(**data)

@@ -3,12 +3,12 @@
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, Body, Depends, Response
-from marshmallow import ValidationError
+from pydantic import ValidationError
 from sqlalchemy import exc
 
 from server import db
 from server.auth import jwt_required, with_required_roles
-from server.lib import format_validation_for_api
+from server.lib import format_pydantic_validation_for_api
 from server.models import (
     KnowledgeItem,
     Questions,
@@ -22,8 +22,6 @@ from server.models.questions import AdminFormValidator as QuestionSchemaValidato
 from server.routers.helpers import error_response, json_response, log_activity, logger
 
 question_router = APIRouter(tags=["questions"])
-
-dumper = QuestionsSchema()
 
 
 @question_router.get("/question")
@@ -45,9 +43,7 @@ def question_list_get(subject: str, _: Teacher = Depends(jwt_required(fresh=True
 
     return json_response(
         {
-            "questions": [
-                dumper.dump(question) for question in question_list
-            ]
+            "questions": QuestionsSchema.dump_many(question_list)
         }
     )
 
@@ -117,7 +113,7 @@ def question_search(
         logger.debug(f"Result set length: {len(result_set)}")
         if len(result_set) != 0:
             return json_response(
-                {"data": [dumper.dump(result) for result in result_set]}
+                {"data": QuestionsSchema.dump_many(result_set)}
             )
         else:
             return json_response({"message": "No result found"})
@@ -198,14 +194,14 @@ def question_from_kis_and_topics(
         query = query.filter(Questions.knowledge_item_id.in_(selected_kis_id))
 
     questions = query.all()
-    return json_response({"data": [dumper.dump(question) for question in questions]})
+    return json_response({"data": QuestionsSchema.dump_many(questions)})
 
 
 @question_router.get("/question/user_created")
 def teacher_owned_questions(teacher: Teacher = Depends(jwt_required(fresh=True))):
     questions = teacher.questions
     return json_response(
-        {"questions": [dumper.dump(question) for question in questions]}
+        {"questions": QuestionsSchema.dump_many(questions)}
     )
 
 
@@ -217,9 +213,10 @@ def teacher_owned_questions_create(
     data = data or {}
     data.update({"user_created": True})
 
-    validation_errors = QuestionSchemaValidator().validate(data=data)
-    if validation_errors is not None and len(validation_errors) != 0:
-        errors = format_validation_for_api(validation_errors)
+    try:
+        QuestionSchemaValidator.model_validate(data)
+    except ValidationError as exc:
+        errors = format_pydantic_validation_for_api(exc)
         return json_response(errors, 422)
 
     if teacher.id != data.get("teacher_id", None):
@@ -410,7 +407,7 @@ def question_get(
     question_id: int, _: Teacher = Depends(jwt_required(fresh=True))
 ):
     question = Questions.query.filter_by(id=question_id).first()
-    return json_response({"question": dumper.dump(question)})
+    return json_response({"question": QuestionsSchema.dump_one(question)})
 
 
 @question_router.delete("/question/{question_id}")
