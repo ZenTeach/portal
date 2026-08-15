@@ -53,5 +53,4 @@ class ClassQuizFactory(SQLAlchemyModelFactory):
                                                       with_choices={
                                                           'choice_count': 4
                                                       })
-            dumper = QuestionsSchema()
-            obj.questions = [dumper.dump(question) for question in questions]
+            obj.questions = [QuestionsSchema.dump_one(question) for question in questions]

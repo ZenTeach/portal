@@ -127,7 +127,7 @@ class TestSummarizer:
             logs = summarizer_instance.processed_logs
             assert len(logs) == 10
 
-    @pytest.mark.skip(msg="Re-evaluating purpose")
+    @pytest.mark.skip(reason="Re-evaluating purpose")
     def test_get_logs_by_temporal_grouping_exception(self,
                                                      teacher_: Teacher,
                                                      mocker: MockFixture,

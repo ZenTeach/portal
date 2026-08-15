@@ -199,7 +199,7 @@ def test_get_quiz_submit_with_anonymous_user(client: FlaskClient,
     assert response.status_code == 200
     assert QuizSession.query.count() == 1
     student = Student.query.first()
-    data = response.get_json()["data"]
+    data = response.json()["data"]
     assert data['anonymous_student_email'] == student.email
     assert data['anonymous_student_password'] == 'Asdfgh12!'
     assert 'session_id' in data
@@ -216,7 +216,7 @@ def test_post_quiz_submit(client: FlaskClient,
         "/api/v1/submit_quiz",
         json={
             "StudentEmail": student.email,
-            "QuizId": classquiz_.uuid,
+            "QuizId": str(classquiz_.uuid),
             "data": student_response
         },
         headers={
@@ -238,7 +238,7 @@ def test_post_student_not_found_error(client: FlaskClient,
         "/api/v1/submit_quiz",
         json={
             "StudentEmail": "dummy@example.com",
-            "QuizId": classquiz_.uuid,
+            "QuizId": str(classquiz_.uuid),
             "data": student_response
         }, headers={
             'Authorization': 'Bearer {}'.format(access_token[0]),
@@ -248,7 +248,7 @@ def test_post_student_not_found_error(client: FlaskClient,
     assert response.status_code == 404
     assert session_.status == QuizSessionStatus.created
 
-    data = loads(response.data.decode("utf-8"))['message']
+    data = loads(response.content.decode("utf-8"))['message']
     assert data == "Student with email dummy@example.com doesn't exist"
 
 
@@ -261,7 +261,7 @@ def test_post_classquiz_not_found_error(client: FlaskClient,
         "/api/v1/submit_quiz",
         json={
             "StudentEmail": student.email,
-            "QuizId": uuid4(),
+            "QuizId": str(uuid4()),
             "data": student_response
         },
         headers={
@@ -272,7 +272,7 @@ def test_post_classquiz_not_found_error(client: FlaskClient,
     assert response.status_code == 404
     assert session_.status == QuizSessionStatus.created
 
-    data = loads(response.data.decode("utf-8"))['message']
+    data = loads(response.content.decode("utf-8"))['message']
     assert data == "Class Quiz doesn't exist"
 
 
@@ -285,7 +285,7 @@ def test_post_quizsession_not_found_error(client: FlaskClient,
         "/api/v1/submit_quiz",
         json={
             "StudentEmail": student.email,
-            "QuizId": classquiz_.uuid,
+            "QuizId": str(classquiz_.uuid),
             "data": student_response
         },
         headers={
@@ -295,7 +295,7 @@ def test_post_quizsession_not_found_error(client: FlaskClient,
 
     assert response.status_code == 404
 
-    data = loads(response.data.decode("utf-8"))['message']
+    data = loads(response.content.decode("utf-8"))['message']
     assert data == "Quiz not started"
 
 
@@ -310,7 +310,7 @@ def test_post_quizsession_ended_error(client: FlaskClient,
         "/api/v1/submit_quiz",
         json={
             "StudentEmail": student.email,
-            "QuizId": classquiz_.uuid,
+            "QuizId": str(classquiz_.uuid),
             "data": student_response
         },
         headers={
@@ -320,7 +320,7 @@ def test_post_quizsession_ended_error(client: FlaskClient,
 
     assert response.status_code == 404
 
-    data = loads(response.data.decode("utf-8"))['message']
+    data = loads(response.content.decode("utf-8"))['message']
     assert data == "Session has ended!"
 
 
@@ -339,7 +339,7 @@ def test_post_db_exception(client: FlaskClient,
         "/api/v1/submit_quiz",
         json={
             "StudentEmail": student.email,
-            "QuizId": classquiz_.uuid,
+            "QuizId": str(classquiz_.uuid),
             "data": student_response
         },
         headers={
@@ -349,7 +349,7 @@ def test_post_db_exception(client: FlaskClient,
 
     assert response.status_code == 500
 
-    data = loads(response.data.decode("utf-8"))['message']
+    data = loads(response.content.decode("utf-8"))['message']
     assert data == "Encountered a server error"
 
 
@@ -363,7 +363,7 @@ def test_post_endpoint_idempotency(client: FlaskClient,
         "/api/v1/submit_quiz",
         json={
             "StudentEmail": student.email,
-            "QuizId": classquiz_.uuid,
+            "QuizId": str(classquiz_.uuid),
             "data": student_response
         },
         headers={

@@ -5,12 +5,11 @@ from uuid import UUID
 import pytest
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
-from server.api.class_quiz_api import ClassQuiz
 from server.lib import Grader
 from server.lib.grader import CorrectChoice, Feedback
-from server.models import (ActivityLog, ClassQuizStatus, KnowledgeItem,
-                           Questions, QuizGrade, QuizSession, SchoolClass,
-                           Student, Subject, Teacher, Topic)
+from server.models import (ActivityLog, ClassQuiz, ClassQuizStatus,
+                           KnowledgeItem, Questions, QuizGrade, QuizSession,
+                           SchoolClass, Student, Subject, Teacher, Topic)
 from server.models.question_choice import QuestionChoice
 from server.tests.factories import (KnowledgeItemFactory, QuestionsFactory,
                                     QuizGradeFactory, QuizSessionFactory,

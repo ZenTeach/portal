@@ -66,8 +66,7 @@ def classquiz_params(school_class: SchoolClass,
                              knowledge_item=knowledge_item_,
                              topic=topic_)
         )
-    dumper = QuestionsSchema(many=True)
-    questions = dumper.dump(questions)
+    questions = QuestionsSchema.dump_many(questions)
 
     return build(dict, FACTORY_CLASS=ClassQuizFactory, class_id=school_class.id, questions=questions)  # noqa
 
@@ -168,9 +167,9 @@ def test_classquiz_create_api(client: FlaskClient,
     def patch_log_activity(*args):
         assert len(args) == 6
 
-    mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
+    mocker.patch('server.routers.class_quiz.log_activity', patch_log_activity)
 
-    mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
+    mocker.patch('server.routers.class_quiz.send_quiz_generation_email')
     response = client.post(
         "/api/v1/class_quiz",
         headers={
@@ -195,8 +194,8 @@ def test_classquiz_create_api_with_no_question_fails(client: FlaskClient,
     def patch_log_activity(*args):
         assert len(args) == 6
 
-    mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
-    mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
+    mocker.patch('server.routers.class_quiz.log_activity', patch_log_activity)
+    mocker.patch('server.routers.class_quiz.send_quiz_generation_email')
 
     classquiz_params.pop('questions')
     response = client.post(
@@ -219,8 +218,8 @@ def test_classquiz_create_api_with_nonexisting_question_fails(client: FlaskClien
     def patch_log_activity(*args):
         assert len(args) == 6
 
-    mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
-    mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
+    mocker.patch('server.routers.class_quiz.log_activity', patch_log_activity)
+    mocker.patch('server.routers.class_quiz.send_quiz_generation_email')
 
     questions = classquiz_params.pop('questions')
     questions[1]['id'] = 0
@@ -249,7 +248,7 @@ def test_classquiz_get_api(client: FlaskClient,
         })
 
     assert response.status_code == 200
-    data = json.loads(response.data.decode())
+    data = json.loads(response.content.decode())
     assert data['data']['subject'] in ['Chemistry', 'Biology', 'Physics']
 
 
@@ -261,7 +260,7 @@ def test_classquiz_update_api(client: FlaskClient,
     def patch_log_activity(*args):
         assert len(args) == 6
 
-    mocker.patch('server.api.class_quiz_api.log_activity', patch_log_activity)
+    mocker.patch('server.routers.class_quiz.log_activity', patch_log_activity)
     old_name = classquiz_.name
     assert classquiz_.private
     classquiz_params = {
@@ -277,6 +276,7 @@ def test_classquiz_update_api(client: FlaskClient,
         })
 
     assert response.status_code == 200
+    classquiz_.reload()
     assert not classquiz_.private
     assert old_name != classquiz_.name
 
@@ -304,7 +304,7 @@ def test_classquiz_report_card_fetch_api(client: FlaskClient,
                                          access_token: List[str],
                                          request,
                                          breakdown: List[List[Dict]]) -> None:  # noqa
-    mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
+    mocker.patch('server.routers.class_quiz.send_quiz_generation_email')
 
     report_card_or_session_uuid = request.getfixturevalue(report_card)
     # update with gradebreakdown
@@ -331,7 +331,7 @@ def test_classquiz_report_card_fetch_api_id_validation(client: FlaskClient,
                                                        teacher_identity: Teacher,
                                                        mocker: MockFixture) -> None:
 
-    mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
+    mocker.patch('server.routers.class_quiz.send_quiz_generation_email')
 
     from uuid import uuid4
     response = client.get(
@@ -349,7 +349,7 @@ def test_classquiz_report_card_fetch_api_errors_if_not_found(client: FlaskClient
                                                              teacher_identity: Teacher,
                                                              mocker: MockFixture) -> None:
 
-    mocker.patch('server.api.class_quiz_api.send_quiz_generation_email')
+    mocker.patch('server.routers.class_quiz.send_quiz_generation_email')
 
     from uuid import uuid4
     response = client.get(
@@ -367,7 +367,7 @@ def test_classquiz_send_report_card(client: FlaskClient,
                                     mocker: MockFixture) -> None:
 
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mocker.patch('server.api.class_quiz_api.send_report_card_pdf')
+    mocker.patch('server.routers.class_quiz.send_report_card_pdf')
 
     response = client.get(
         f"/api/v1/class_quiz/{quiz_grade.uuid}/send_report",
@@ -383,7 +383,7 @@ def test_classquiz_send_report_card_grade_not_found(client: FlaskClient,
                                                     access_token: List[str],
                                                     mocker: MockFixture) -> None:
 
-    mocker.patch('server.api.class_quiz_api.send_report_card_pdf')
+    mocker.patch('server.routers.class_quiz.send_report_card_pdf')
 
     response = client.get(
         f"/api/v1/class_quiz/{uuid4()}/send_report",
@@ -403,7 +403,7 @@ def test_classquiz_send_report_card_exception(client: FlaskClient,
         raise Exception()
 
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mocker.patch('server.api.class_quiz_api.send_report_card_pdf', _mock_send_report_card_pdf)
+    mocker.patch('server.routers.class_quiz.send_report_card_pdf', _mock_send_report_card_pdf)
 
     response = client.get(
         f"/api/v1/class_quiz/{quiz_grade.uuid}/send_report",

@@ -27,22 +27,32 @@ def unique_email() -> str:
 
 @pytest.fixture
 def _access_token(client: FlaskClient, student_: Student) -> List[str]:
-    from datetime import timedelta
+    import server
+    from server.auth import (create_access_token, create_refresh_token,
+                             get_csrf_token, get_jti)
+    from server.auth.cookies import (ACCESS_COOKIE_NAME,
+                                     ACCESS_CSRF_COOKIE_NAME,
+                                     REFRESH_COOKIE_NAME,
+                                     REFRESH_CSRF_COOKIE_NAME)
 
-    from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                    get_csrf_token, get_jti)
-    from server import redis_store
-    from server.lib.utils.jwt_fixes import (set_access_cookies,
-                                            set_refresh_cookies)
+    access_token = create_access_token(
+        student_.id, fresh=True, user_type="student"
+    )
+    refresh_token = create_refresh_token(student_.id, user_type="student")
 
-    access_token = create_access_token(student_.id, fresh=True)
-    refresh_token = create_refresh_token(student_.id)
-    set_access_cookies(client, access_token, legacy=True)
-    set_refresh_cookies(client, refresh_token, legacy=True)
-    access_jti = get_jti(access_token)
-    refresh_jti = get_jti(refresh_token)
-    redis_store.set(access_jti, "true", timedelta(minutes=30) * 1.2)
-    redis_store.set(refresh_jti, "true", timedelta(minutes=30) * 1.2)
+    # Prime the client cookie jar with the same cookies the SPA would receive
+    # from a real login, so FastAPI's cookie-based token resolution works.
+    client.cookies.set(ACCESS_COOKIE_NAME, access_token)
+    client.cookies.set(REFRESH_COOKIE_NAME, refresh_token)
+    client.cookies.set(ACCESS_CSRF_COOKIE_NAME, get_csrf_token(access_token))
+    client.cookies.set(REFRESH_CSRF_COOKIE_NAME, get_csrf_token(refresh_token))
+    client.headers["X-CSRF-ACCESS-TOKEN"] = get_csrf_token(access_token)
+
+    # Allowlist the jtis so the (allowlist-semantics) blocklist check passes.
+    store = getattr(server, "redis_store", None)
+    if store is not None:
+        store.set(get_jti(access_token), "true")
+        store.set(get_jti(refresh_token), "true")
 
     return [access_token,
             refresh_token,
@@ -89,8 +99,7 @@ def test_send_student_confirmation_success(client: FlaskClient,
                                            mocker: MockFixture,
                                            _access_token: List[str],
                                            student_: Student) -> None:
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mocker.patch('server.api.student_auth_api.send_student_confirmation_instructions')
+    mocker.patch('server.routers.student_auth.send_student_confirmation_instructions')
 
     response = client.get(
         f"api/v1/student/{student_.id}/send_confirmation",
@@ -105,8 +114,7 @@ def test_send_student_confirmation_success(client: FlaskClient,
 def test_send_student_confirmation_student_not_found(client: FlaskClient,
                                                      _access_token: List[str],
                                                      mocker: MockFixture) -> None:
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mocker.patch('server.api.student_auth_api.send_student_confirmation_instructions')
+    mocker.patch('server.routers.student_auth.send_student_confirmation_instructions')
 
     response = client.get(
         "api/v1/student/100/send_confirmation",
@@ -126,8 +134,7 @@ def test_send_student_confirmation_exception(client: FlaskClient,
     def _mock_send_student_confirmation_instructions(*args, **kwargs):
         raise Exception()
 
-    mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mocker.patch('server.api.student_auth_api.send_student_confirmation_instructions',
+    mocker.patch('server.routers.student_auth.send_student_confirmation_instructions',
                  _mock_send_student_confirmation_instructions)
 
     response = client.get(

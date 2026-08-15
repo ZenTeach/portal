@@ -54,7 +54,7 @@ def test_teacher_login_endpoint(client: FlaskClient,
                                 access_token: List[str],
                                 status_code: int):
 
-    @mocker.patch('server.api.teacher_auth_api.log_activity')
+    @mocker.patch('server.routers.teacher_auth.log_activity')
     def patch_activity_log(*args):
         assert len(args) == 6
     response = client.post(
@@ -65,14 +65,14 @@ def test_teacher_login_endpoint(client: FlaskClient,
         }
     )
     assert response.status_code == status_code
-    data = json.loads(response.data.decode())
+    data = json.loads(response.content.decode())
     assert data == message
 
 
 def test_teacher_registration_endpoint(client: FlaskClient,
                                        teacher_: Teacher,
                                        mocker: MockFixture):
-    mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions')
+    mocker.patch('server.routers.teacher_auth.send_confirmation_instructions')
     new_teacher = build(dict, FACTORY_CLASS=TeacherFactory, with_invite_code=True)
     response = client.post(
         '/api/v1/teacher/registration',
@@ -93,15 +93,15 @@ def test_teacher_registration_endpoint(client: FlaskClient,
     )
 
     assert success_response.status_code == 200
-    assert success_response.headers.get_all('Set-Cookie') is not None
-    assert len(success_response.headers.get_all('Set-Cookie')) == 4
+    assert success_response.headers.get_list('set-cookie')
+    assert len(success_response.headers.get_list('set-cookie')) == 4
 
 
 def test_teacher_registration_endpoint_with_exempted_invite_code(client: FlaskClient,
                                                                  token: str,
                                                                  unique_email: str,
                                                                  mocker: MockFixture):
-    mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions')
+    mocker.patch('server.routers.teacher_auth.send_confirmation_instructions')
 
     def mock__load_exempt_list():
         return OrderedDict({'exempts': [token]})
@@ -119,8 +119,8 @@ def test_teacher_registration_endpoint_with_exempted_invite_code(client: FlaskCl
     )
 
     assert response.status_code == 200
-    assert response.headers.get_all('Set-Cookie') is not None
-    assert len(response.headers.get_all('Set-Cookie')) == 4
+    assert response.headers.get_list('set-cookie')
+    assert len(response.headers.get_list('set-cookie')) == 4
 
 
 def test_teacher_account_confirmation(client: FlaskClient, teacher_: Teacher):
@@ -143,7 +143,7 @@ def test_teacher_account_recovery(client: FlaskClient,
     token = teacher_.get_reset_token()
     new_psswd = "FooPassword"
 
-    @mocker.patch('server.api.teacher_auth_api.send_account_recovery_instructions.delay')
+    @mocker.patch('server.routers.teacher_auth.send_account_recovery_instructions.delay')
     def test_reset_get(send_account_recovery_instructions_delay):
         response = client.get(
             f'/api/v1/teacher/reset-password?email={teacher_.email}'
@@ -183,13 +183,13 @@ def test_teacher_user_invite(client: FlaskClient,
 
     invite_email = "invitee@someevent.com"
 
-    @mocker.patch('server.api.teacher_auth_api.send_user_invite.delay')
+    @mocker.patch('server.routers.teacher_auth.send_user_invite.delay')
     def test_invite_email(send_user_invite_delay):
         send_user_invite_delay.assert_called_with(invite_email)
 
     def patch_activity_log(*args):
         assert len(args) != 6
-    mocker.patch('server.api.teacher_auth_api.log_activity', patch_activity_log)
+    mocker.patch('server.routers.teacher_auth.log_activity', patch_activity_log)
 
     response = client.post(
         '/api/v1/teacher/invite',
@@ -209,7 +209,7 @@ def test_teacher_token_refresh(client: FlaskClient,
                                teacher_identity: Teacher,
                                mocker: MockFixture):
 
-    @mocker.patch('server.api.teacher_auth_api.redis_store')
+    @mocker.patch('server.routers.teacher_auth.redis_store')
     def test_success(redis_store):
         response = client.post('/api/v1/teacher/token/refresh')
 
@@ -219,8 +219,8 @@ def test_teacher_token_refresh(client: FlaskClient,
 
 def test_teacher_logout(client: FlaskClient, teacher_: Teacher, mocker: MockFixture) -> None:
     mocker.patch("flask_jwt_extended.view_decorators.verify_jwt_in_request")
-    mocker.patch('server.api.teacher_auth_api.get_jwt')
-    mocker.patch('server.api.teacher_auth_api.redis_store')
+    mocker.patch('server.routers.teacher_auth.get_jwt')
+    mocker.patch('server.routers.teacher_auth.redis_store')
 
     response = client.delete('/api/v1/teacher/logout')
 
@@ -230,7 +230,7 @@ def test_teacher_logout(client: FlaskClient, teacher_: Teacher, mocker: MockFixt
 def test_teacher_send_confirmation(client: FlaskClient,
                                    teacher_: Teacher,
                                    mocker: MockFixture) -> None:
-    @mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions', return_value=True)
+    @mocker.patch('server.routers.teacher_auth.send_confirmation_instructions', return_value=True)
     def _mocked_send_confirmation_instructions(send_confirmation_instructions):
         send_confirmation_instructions.assert_called_with(teacher_.id)
 
@@ -274,7 +274,7 @@ def test_teacher_send_confirmation_exception(client: FlaskClient,
     def _mock_send_confirmation_instructions(*args):
         return Exception()
 
-    mocker.patch('server.api.teacher_auth_api.send_confirmation_instructions',
+    mocker.patch('server.routers.teacher_auth.send_confirmation_instructions',
                  _mock_send_confirmation_instructions)
     response = client.post(
         '/api/v1/teacher/send_confirmation',

@@ -7,25 +7,22 @@ from uuid import UUID
 
 from celery import Celery
 from dotenv import load_dotenv
-from flask import (Flask, current_app, has_request_context, jsonify,
-                   make_response, request)
+from flask import (Flask, has_request_context, jsonify, make_response,
+                   request)
 from flask.json import JSONEncoder
 from flask.logging import default_handler
-from flask_admin import Admin
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import (JWTManager, create_access_token, get_jwt,
                                 get_jwt_identity, set_access_cookies)
-from flask_login import LoginManager
 from flask_mail import Mail
 from flask_marshmallow import Marshmallow
 from flask_redis import FlaskRedis
-from flask_sqlalchemy import SQLAlchemy
 from healthcheck import HealthCheck
-from sqlalchemy import event
-from sqlalchemy.pool import Pool
 from sqlalchemy_searchable import make_searchable
-from werkzeug.local import LocalProxy
+
+from server.db import db
+from server.security import bcrypt
 
 
 def configure_logging():
@@ -55,9 +52,6 @@ formatter = RequestFormatter(
     "%(levelname)s in %(module)s: %(message)s"
 )
 
-db = SQLAlchemy()
-login_manager = LoginManager()
-bcrypt = Bcrypt()
 jwt = JWTManager()
 cors = CORS(supports_credentials=True,
             resources={
@@ -72,23 +66,6 @@ health = HealthCheck()
 celery = Celery("zenteach_tasks")
 redis_store = FlaskRedis()
 app = None
-globalConfig = LocalProxy(lambda: current_app.config)
-
-
-@event.listens_for(Pool, "checkout")
-def ping_connection(dbapi_connection, connection_record, connection_proxy):
-    cursor = dbapi_connection.cursor()
-    try:
-        cursor.execute("SELECT 1;")
-    except Exception as exc:
-        # optional - dispose the whole pool
-        # instead of invalidating one at a time
-        connection_proxy._pool.dispose()
-
-        # raise DisconnectionError - pool will try
-        # connecting again up to three times before raising.
-        raise exc.DisconnectionError()
-    cursor.close()
 
 
 class AppJSONEncoder(JSONEncoder):
@@ -179,14 +156,6 @@ def create_app():
     from server.config import celery_configuration
     celery.conf.update(celery_configuration)
 
-    login_manager.init_app(app)
-
-    from server.models import Admin as AdminModel
-
-    @login_manager.user_loader
-    def load_user(admin_id):
-        return db.session.query(AdminModel).get(admin_id)
-
     # Add database uri for db scheduler
     app.config.update(database_url=app.config.get('SQLALCHEMY_DATABASE_URI', ''))
 
@@ -197,43 +166,6 @@ def create_app():
 
     migration_directory = os.path.join("server", "models", "migrations")
     Migrate(app, db, directory=migration_directory)
-
-    from server.admin import (ClassQuizView, KnowledgeItemView, QuestionView,
-                              SchoolClassView, StudentView, SubjectsView,
-                              TeacherView, TopicView, UserInvitationView,
-                              ZenteachAdminIndexView)
-
-    admin = Admin(
-        app,
-        name="Zenteach Admin Portal",
-        template_mode="bootstrap3",
-        base_template="admin_layout.html",
-        index_view=ZenteachAdminIndexView(),
-    )
-    admin.add_view(ClassQuizView(models.ClassQuiz,
-                                 db.session, endpoint="admin_quiz"))
-    admin.add_view(TeacherView(
-        models.Teacher, db.session, endpoint="admin_teacher"))
-    admin.add_view(StudentView(
-        models.Student, db.session, endpoint="admin_student"))
-    admin.add_view(
-        SubjectsView(models.Subject, db.session, endpoint="admin_subjects")
-    )
-    admin.add_view(
-        SchoolClassView(models.SchoolClass, db.session, endpoint="admin_class")
-    )
-    admin.add_view(
-        QuestionView(models.Questions, db.session, endpoint="admin_question")
-    )
-    admin.add_view(
-        UserInvitationView(models.Invitations, db.session, endpoint="admin_user_invite")
-    )
-    admin.add_view(
-        TopicView(models.Topic, db.session, endpoint="admin_topic")
-    )
-    admin.add_view(
-        KnowledgeItemView(models.KnowledgeItem, db.session, endpoint="admin_knowledge_item")
-    )
 
     # import background tasks after initializing celery
     # import server.tasks
@@ -255,31 +187,6 @@ def create_app():
     # Registry healthcheck
     # TODO: Setup celery health check endpoint here
     app.add_url_rule("/healthcheck", "healthcheck", view_func=lambda: health.run())
-
-    # Register bluprints
-    from server.api import root_api
-    from server.api.activity_log_api import activity_log_blueprint
-    from server.api.class_quiz_api import class_quiz_blueprint
-    from server.api.knowledge_item_api import knowledge_item_blueprint
-    from server.api.questions_api import question_blueprint
-    from server.api.quiz_submit_api import quiz_submit_blueprint
-    from server.api.school_class_api import school_class_blueprint
-    from server.api.stats_api import statistics_view_blueprint
-    from server.api.student_auth_api import student_auth_blueprint
-    from server.api.teacher_auth_api import teacher_auth_blueprint
-    from server.api.topic_api import topic_blueprint
-
-    app.register_blueprint(school_class_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(class_quiz_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(teacher_auth_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(student_auth_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(question_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(statistics_view_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(quiz_submit_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(topic_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(knowledge_item_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(activity_log_blueprint, url_prefix="/api/v1")
-    app.register_blueprint(root_api, url_prefix="/api/v1")
 
     default_handler.setFormatter(formatter)
 
@@ -340,7 +247,6 @@ def create_app():
         return {
             "app": app,
             "db": db,
-            "globalConfig": globalConfig,
             "sm": sm,
             "ap": ap,
             "celery": celery

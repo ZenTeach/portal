@@ -67,19 +67,19 @@ def searchable_topic(client: FlaskClient,
 def test_knowledge_item_get_all(client):
     response = client.get('/api/v1/knowledge_items')
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert len(data['data']) == 5
 
 
 def test_knowledge_item_get_one(client):
     response = client.get('/api/v1/knowledge_item/1')
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert data['data']['value'] is not None
 
     response = client.get('/api/v1/knowledge_item/100')
     assert response.status_code == 404
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert len(data['data']) == 0
     assert data['message'] == "Topic content not found."
 
@@ -97,7 +97,7 @@ def test_knowledge_item_user_create(client: FlaskClient,
         })
 
     assert response.status_code == 201
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert data['data']['teacher_id'] == teacher_.id
 
 
@@ -110,7 +110,7 @@ def test_knowledge_item_update_topic(client: FlaskClient,
                               'X-CSRF-ACCESS-TOKEN': access_token[2]
                           })
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert data['data']['value'] == 'New Topic content'
 
 
@@ -135,5 +135,5 @@ def test_knowledge_item_full_text_search(client: FlaskClient,
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert len(data['data']) == count

@@ -3,13 +3,13 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import uuid4
 
-from flask import current_app
 from server import db
 from sqlalchemy import event, text
 from sqlalchemy.dialects.postgresql import JSON, UUID
 
 from .base_model import BaseModelMixin, unique_uuid4
 from .quiz_session import QuizSession
+from server.config.settings import get_settings
 
 __all__ = ["ClassQuizStatus", "ClassQuiz"]
 
@@ -125,7 +125,11 @@ class ClassQuiz(BaseModelMixin, db.Model):
 
 @event.listens_for(ClassQuiz, 'after_insert')
 def receive_after_insert(mapper, connection, target):
-    quiz_url = "{}/quiz_view/{}".format(current_app.config.get('CLIENT_URL'), target.uuid)
+    client_url = get_settings().client_url
+    if not client_url:
+        return
+
+    quiz_url = "{}/quiz_view/{}".format(client_url, target.uuid)
 
     update_stmt = text("UPDATE class_quiz SET url=:url WHERE id=:id")
     update_stmt = update_stmt.bindparams(id=target.id, url=quiz_url)
