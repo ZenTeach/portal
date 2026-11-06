@@ -1,5 +1,32 @@
 # Zenteach Portal
 
+<strong> A formative assessment tool for teachers.</strong>
+
+ZenTeach helps teachers find out what their students don't know yet, and helps students close those gaps. Teachers build quizzes from a library of teacher-written diagnostic questions. ZenTeach grades the answers, gives each student specific feedback, and keeps track of each student's progress over time.
+
+This repository holds the ZenTeach Portal, the web app that teachers and students sign in to. The public landing site lives in ZenTeach/next_zenteach at next.zenteach.co.uk.
+
+Why ZenTeach
+------------
+
+Teachers carry heavy workloads, and workload is one of the main reasons they leave the profession. ZenTeach aims to save teachers time. It fits into the way teachers already work, so it doesn't add another task to their day.
+
+Features
+--------
+
+<strong>For teachers</strong>
+
+Diagnostic question library: Use hundreds of diagnostic questions written by teachers to show exactly where students are struggling, or write your own.
+Quiz builder: Make a quiz on any topic you're teaching and assign it to a class.
+Class management: Create classes and invite students to join.
+Quiz reports and report cards: See class and student results that you can use when planning lessons.
+Persistent knowledge gaps: The portal flags only the gaps that remain after re-quizzing, so you can spend your time where it's needed.
+
+<strong>For students</strong>
+
+Automatic, constructive feedback: Students get specific feedback on every answer, so they can work on their own weak spots.
+Re-quizzing: Students are automatically quizzed again on content they got wrong, with resources to help them learn it.
+
 ## Prerequisites
 - Download the latest [Python 3](https://www.python.org/)
 - Download [PostgreSQL](https://www.postgresql.org/) version 12
