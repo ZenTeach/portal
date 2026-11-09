@@ -19,8 +19,6 @@ jobs:
       DATABASE_TEST_URL: postgresql://zenteach:cipass@postgres:5432/zenteach
       DEFAULT_MAIL_SENDER: test_sender@example.com
       DEFAULT_QUEUE: jobs
-      FLASK_ENV: testing
-      FLASK_ADMIN_SWATCH: journal
       RUNTIME: development
       REDIS_URL: redis://redis:6379/1
       RESULT_BACKEND: redis://redis:6379/0

@@ -57,8 +57,7 @@ def classquiz_with_questions(client: FlaskClient,
                                               with_choices={
                                                   'knowledge_item': knowledge_item
                                               })
-    dumper = QuestionsSchema()
-    questions = [dumper.dump(question) for question in questions]
+    questions = [QuestionsSchema.dump_one(question) for question in questions]
     return ClassQuizFactory.create(class_id=_class.id, questions=questions)
 
 

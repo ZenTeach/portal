@@ -87,7 +87,7 @@ def test_get_school_class_with_id(client: FlaskClient,
 
     assert response.status_code == 200
 
-    data = json.loads(response.data.decode())["data"]
+    data = json.loads(response.content.decode())["data"]
 
     assert data["id"] == school_class.id
     assert data["students"][0]["id"] == student.id
@@ -101,7 +101,7 @@ def test_create_school_class(client: FlaskClient,
                              school_class_param: dict):
     def patch_activity_log(*args):
         assert len(args) == 6
-    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+    mocker.patch('server.routers.school_class.log_activity', patch_activity_log)
     response = client.post(
         "/api/v1/school_class",
         json=school_class_param,
@@ -112,7 +112,7 @@ def test_create_school_class(client: FlaskClient,
     )
 
     assert response.status_code == 201
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert data == {
         "status": "success",
         "message": "{} was added!".format(school_class_param["name"]),
@@ -132,7 +132,7 @@ def test_fetch_school_class_list(client: FlaskClient,
         })
     assert response.status_code == 200
 
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert len(data["data"]["school_classes"]) == 5
 
 
@@ -142,7 +142,7 @@ def test_delete_school_class(client: FlaskClient,
                              school_class: SchoolClass):
     def patch_activity_log(*args):
         assert len(args) == 6
-    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+    mocker.patch('server.routers.school_class.log_activity', patch_activity_log)
 
     response = client.delete(
         f'/api/v1/school_class/{school_class.id}',
@@ -162,9 +162,9 @@ def test_post_add_student_to_school_class(client: FlaskClient,
         assert len(args) == 6
         assert args[2] == 'student_attended_class'
 
-    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+    mocker.patch('server.routers.school_class.log_activity', patch_activity_log)
 
-    @mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
+    @mocker.patch('server.routers.school_class.send_student_confirmation_instructions')
     def mocker(mocked_student_confirmation_instruction):
         mocked_student_confirmation_instruction.assert_called_once()
     student_payload = {
@@ -197,7 +197,7 @@ def test_adding_a_confirmed_student(client: FlaskClient,
         assert len(args) == 6
         assert args[2] == 'student_attended_class'
 
-    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+    mocker.patch('server.routers.school_class.log_activity', patch_activity_log)
     spy = mocker.spy(send_student_confirmation_instructions, 'apply_async')
 
     student_payload = {
@@ -227,9 +227,9 @@ def test_post_add_existing_student_to_school_class(client: FlaskClient,
                                                    student: Student):
     def patch_activity_log(*args):
         assert len(args) == 6
-    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+    mocker.patch('server.routers.school_class.log_activity', patch_activity_log)
 
-    mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
+    mocker.patch('server.routers.school_class.send_student_confirmation_instructions')
     school_class.add_student(student)
 
     student_payload = {
@@ -260,7 +260,7 @@ def test_delete_remove_student_from_school_class(client: FlaskClient,
 
     def patch_activity_log(*args):
         assert len(args) == 6
-    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+    mocker.patch('server.routers.school_class.log_activity', patch_activity_log)
 
     assert len(school_class.students) != 0
 
@@ -282,13 +282,13 @@ def test_patch_update_student_email_in_school_class(client: FlaskClient,
                                                     student: Student):
     school_class.add_student(student)
 
-    @mocker.patch('server.api.school_class_api.send_student_confirmation_instructions')
+    @mocker.patch('server.routers.school_class.send_student_confirmation_instructions')
     def mocker(mocked_student_confirmation_instruction):
         mocked_student_confirmation_instruction.assert_called_once()
 
     def patch_activity_log(*args):
         assert len(args) == 6
-    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+    mocker.patch('server.routers.school_class.log_activity', patch_activity_log)
 
     assert student.confirmed
     response = client.patch(
@@ -327,7 +327,7 @@ def test_patch_update_student_email_if_school_class_not_found(client: FlaskClien
         })
 
     assert response.status_code == 404
-    data = loads(response.data.decode("utf-8"))['message']
+    data = loads(response.content.decode("utf-8"))['message']
     assert data == "School class room doesn't exist"
 
 
@@ -350,7 +350,7 @@ def test_patch_update_student_email_if_student_not_found(client: FlaskClient,
         })
 
     assert response.status_code == 404
-    data = loads(response.data.decode("utf-8"))['message']
+    data = loads(response.content.decode("utf-8"))['message']
     assert data == "Student not found!"
 
 
@@ -385,7 +385,7 @@ def test_patch_update_student_email_malformed_data_error(client: FlaskClient,
         })
 
     assert response.status_code == 400
-    data = loads(response.data.decode("utf-8"))['message']
+    data = loads(response.content.decode("utf-8"))['message']
     assert data == "Data is not valid!"
 
 
@@ -422,7 +422,7 @@ def test_update_school_class_api(client: FlaskClient,
                                  update_school_class_param: dict):
     def patch_activity_log(*args):
         assert len(args) == 6
-    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+    mocker.patch('server.routers.school_class.log_activity', patch_activity_log)
 
     response = client.put(
         f"/api/v1/school_class/{school_class.id}",
@@ -447,7 +447,7 @@ def test_update_school_class_api_with_subject(client: FlaskClient,
                                               update_school_class_param: dict):
     def patch_activity_log(*args):
         assert len(args) == 6
-    mocker.patch('server.api.school_class_api.log_activity', patch_activity_log)
+    mocker.patch('server.routers.school_class.log_activity', patch_activity_log)
 
     update_school_class_param.update({
         'subject': 'Biology'

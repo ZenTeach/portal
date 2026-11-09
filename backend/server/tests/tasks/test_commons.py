@@ -3,7 +3,7 @@ import os
 import pytest
 from faker import Faker
 from faker.providers import internet
-from flask_mail import Message
+from server.mailer import Message
 from server.tasks.commons import send_mail, send_mail_with_html
 
 fake = Faker()
@@ -35,7 +35,7 @@ def test_send_mail(client, mocker, mock_email_address, message):
 def test_send_mail_with_html(client, mocker, mock_email_address, message):
     mocker.patch.dict(os.environ, {"DEFAULT_MAIL_SENDER": mock_email_address})
     mocker.patch('server.tasks.commons.mail')
-    mocker.patch('flask.render_template')
+    mocker.patch('server.tasks.commons.render_template')
 
     @mocker.patch('server.tasks.commons.attach_sender')
     def test_success(attach_sender):

@@ -53,19 +53,19 @@ def topic_create_payload(subject_, teacher_):
 def test_topic_get_all(client):
     response = client.get('/api/v1/topics')
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert len(data['data']) == 6
 
 
 def test_topic_get_one(client):
     response = client.get('/api/v1/topic/1')
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert data['data']['value'] is not None
 
     response = client.get('/api/v1/topic/100')
     assert response.status_code == 404
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert len(data['data']) == 0
     assert data['message'] == "Topic not found."
 
@@ -80,7 +80,7 @@ def test_topic_user_create(client, teacher_, topic_create_payload, access_token)
         })
 
     assert response.status_code == 201
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert data['data']['teacher_id'] == teacher_.id
 
 
@@ -92,7 +92,7 @@ def test_topic_update_topic(client, access_token):
                               'X-CSRF-ACCESS-TOKEN': access_token[2]
                           })
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert data['data']['value'] == 'New Topic'
 
 
@@ -105,7 +105,7 @@ def test_topic_full_text_search(client, searchable_topic, access_token):
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert len(data['data']) == 1
     assert data['data'][0]['value'] == searchable_topic.value
 
@@ -130,5 +130,5 @@ def test_topic_full_text_search_with_optional_subject(client: FlaskClient,
             'X-CSRF-ACCESS-TOKEN': access_token[2]
         })
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = json.loads(response.content)
     assert len(data['data']) == count

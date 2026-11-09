@@ -3,8 +3,7 @@ from typing import Dict, List, Optional, Tuple
 from uuid import uuid4
 
 from flask_sqlalchemy import BaseQuery
-from marshmallow import INCLUDE, Schema, ValidationError, fields
-from marshmallow_enum import EnumField
+from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 from server import db
 from server.models import QuestionChoice, Subject
 from server.models.base_model import BaseModelMixin
@@ -28,41 +27,45 @@ class QuestionTypeEnum(enum.Enum):
     long_answer = 3
 
 
-class AdminQuestionChoiceValidator(Schema):
-    class Meta:
-        unknown = INCLUDE
+class AdminQuestionChoiceValidator(BaseModel):
+    model_config = ConfigDict(extra="allow")
 
-    value = fields.Str(required=True)
-    feedback = fields.Str(required=True)
-    weight = fields.Int()
-    is_correct_choice = fields.Bool()
-
-# Server side validation
+    value: str
+    feedback: str
+    weight: int = 0
+    is_correct_choice: bool = False
 
 
-def validate_teacher_id(id) -> bool:
-    return Teacher.query.filter_by(id=id).count() > 0
+class AdminFormValidator(BaseModel):
+    model_config = ConfigDict(extra="allow")
 
+    question: str
+    question_type: QuestionTypeEnum
+    choices: List[AdminQuestionChoiceValidator]
+    exam_board: str
+    user_created: bool
+    subject: str
+    topic: str
+    knowledge_item: str
+    tag: Optional[str] = None
+    teacher_id: Optional[int] = None
 
-class AdminFormValidator(Schema):
-    class Meta:
-        unknown = INCLUDE
+    @field_validator("question_type", mode="before")
+    @classmethod
+    def _coerce_question_type(cls, value):
+        if isinstance(value, str):
+            try:
+                return QuestionTypeEnum[value]
+            except KeyError:
+                raise ValueError(f"Invalid question type: {value}") from None
+        return value
 
-    question = fields.Str(required=True)
-    question_type = EnumField(QuestionTypeEnum, required=True)
-    choices = fields.Nested(AdminQuestionChoiceValidator, required=True, many=True)
-    exam_board = fields.Str(required=True)
-    user_created = fields.Boolean(required=True)
-    subject = fields.Str(required=True)
-    topic = fields.Str(required=True)
-    tag = fields.Str(required=False)
-    knowledge_item = fields.Str(required=True)
-    user_created = fields.Boolean(required=True)
-    teacher_id = fields.Int(required=False,
-                            validate=validate_teacher_id,
-                            error_messages={
-                                'invalid': 'Teacher not found.'
-                            })
+    @field_validator("teacher_id")
+    @classmethod
+    def _validate_teacher_id(cls, value):
+        if value is not None and Teacher.query.filter_by(id=value).count() == 0:
+            raise ValueError("Teacher not found.")
+        return value
 
 
 class Questions(BaseModelMixin, db.Model):
@@ -148,11 +151,18 @@ class Questions(BaseModelMixin, db.Model):
         # We ignore all missing fields here. The most likely missing field
         # is teacher_id as this method is only called from the admin portal.
         # https://stackoverflow.com/questions/55795258/validating-optional-field-in-marshmallow
-        # import pdb; pdb.set_trace()
-        validation_errors = AdminFormValidator().validate(data=data, partial=True)
-        if validation_errors is not None and len(validation_errors) != 0:
-            raise ValidationError(
-                f"Error creating question. Make sure that you have filled in all the required fields. Missing: {''.join(validation_errors)}")  # noqa
+        try:
+            AdminFormValidator.model_validate(data)
+        except ValidationError as exc:
+            # Replicate marshmallow's ``partial=True``: missing fields are
+            # ignored, but any field that is present must still validate.
+            real_errors = [e for e in exc.errors() if e.get("type") != "missing"]
+            if real_errors:
+                raise ValidationError.from_exception_data(
+                    "Error creating question. Make sure that you have filled in "
+                    "all the required fields.",
+                    real_errors,
+                ) from None
 
         subject_ = Subject.query.filter(Subject.name == data.pop('subject')).first()
         topic_str = data.pop('topic')
